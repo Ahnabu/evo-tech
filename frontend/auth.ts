@@ -1,0 +1,194 @@
+import NextAuth from "next-auth";
+import authConfig from "@/auth.config";
+import axios from "@/utils/axios/axios";
+import { isAxiosError } from "axios";
+import jwt from "jsonwebtoken";
+
+interface addressType {
+    house_and_street: string;
+    subdistrict: string;
+    city: string;
+    postal_code?: string | null;
+    country: string;
+    is_default_address: boolean;
+};
+
+declare module "next-auth" {
+    interface User {
+        firstname?: string;
+        lastname?: string;
+        phone?: string | null;
+        role?: string | null;
+        email_verified?: boolean;
+        reward_points?: number | null;
+        newsletter_opt_in?: boolean | null;
+        addresses?: addressType[] | null;
+    }
+}
+
+declare module "@auth/core/jwt" {
+    interface JWT {
+        /**
+         * user data from the signin attempt
+         */
+        userdata?: {
+            firstname?: string;
+            lastname?: string;
+            phone?: string | null;
+            role?: string | null;
+            email_verified?: boolean;
+            reward_points?: number | null;
+            newsletter_opt_in?: boolean | null;
+            addresses?: addressType[] | null;
+        }
+    }
+}
+
+
+export const {
+    handlers,
+    auth,
+    signIn,
+    signOut,
+} = NextAuth({
+    ...authConfig,
+    session: {
+        strategy: "jwt",
+        maxAge: 1209600, // 14 days,
+    },
+    jwt: {
+        // maxAge: 1209600,
+        // encode: async ({ token }) => {
+
+        //     const payload = { ...token };
+        //     const authsecret = process.env.AUTH_SECRET!;
+        //     const createdJwt = jwt.sign(payload, authsecret, { algorithm: 'HS256', expiresIn: 1209600 });
+        //     console.log({ createdJwt });
+        //     return createdJwt;
+
+        // //     const expiration = Math.floor(Date.now() / 1000) + (maxAge ?? 1209600);
+        // //     // sign jwt
+        // //     return await new SignJWT({ ...token })
+        // //         .setProtectedHeader({ alg: "HS256" })
+        // //         .setIssuedAt()
+        // //         .setExpirationTime(expiration)
+        // //         .sign(secretkey);
+        // },
+        
+        // decode: async ({ token }) => {
+        //     const authsecret = process.env.AUTH_SECRET!;
+        // //     const secretkey = new TextEncoder().encode(authsecret);
+        //     try {
+        //         return jwt.verify(token!, authsecret, { algorithms: ['HS256'] }) as any
+        // //         const { payload } = await jwtVerify(token!, secretkey, {
+        // //             algorithms: ['HS256'],
+        // //         })
+        // //         return payload;
+        //     } catch (error) {
+        //         return null;
+        //     }
+        // },
+    },
+    // cookies: {
+    //     sessionToken: {
+    //         name: process.env.NODE_ENV === 'production'
+    //             ? `__Secure-authjs.session-token`
+    //             : `authjs.session-token`,
+    //         options: {
+    //             httpOnly: true,
+    //             sameSite: 'lax',
+    //             path: '/',
+    //             secure: process.env.NODE_ENV === 'production' ? true : false
+    //         }
+    //     },
+    // },
+    pages: {
+        signIn: "/sign-in",
+        error: "/auth-error", // to be created
+    },
+    debug: process.env.NODE_ENV !== "production",
+    callbacks: {
+        async signIn({ user, account, profile }) {
+            
+            if (account?.provider === "google" && profile) {
+
+                const authRes = await axios.post("/api/signin-oauthuser", {
+                    account: { ...account },
+                    profile: {
+                        firstname: user.firstname,
+                        lastname: user.lastname,
+                        email: user.email,
+                        email_verified: user.email_verified,
+                    },
+                }, { headers: { "Content-Type": "application/json", } })
+                    .then((res) => {
+                        if (res.data.isAllowedtoSignin && res.data.userdata) {
+                            const { userdata } = res.data;
+
+                            user.id = userdata.uuid;
+                            user.phone = userdata.phone;
+                            user.reward_points = userdata.reward_points;
+                            user.newsletter_opt_in = userdata.newsletter_opt_in;
+                            user.addresses = userdata.addresses;
+
+                            return true;
+                        }
+
+                        return "/auth-error?error=accessDeniedForProvider";
+                    })
+                    .catch((err: unknown) => {
+                        if (isAxiosError(err)) {
+                            if (err.code && err.code === "ECONNREFUSED") {
+                                return "/auth-error?error=serverUnreachable";
+                            } else if (err.code && err.code === "ETIMEDOUT") {
+                                return "/auth-error?error=requestTimedOut";
+                            } else if (err.response && err.response.status >= 500) {
+                                return "/auth-error?error=internalServerError";
+                            }
+                        }
+                        
+                        return "/auth-error?error=signInFailed";
+                    })
+
+                return authRes; // allow or redirect to error page
+            }
+
+            console.log({ user, account, profile }); //remove it later
+            return true;
+        },
+        async jwt({ token, user, account, profile }) {
+
+            if (user) { // user is only available here while signing in
+                token.userdata = {
+                    firstname: user.firstname,
+                    lastname: user.lastname,
+                    phone: user.phone,
+                    role: user.role,
+                    email_verified: user.email_verified,
+                    reward_points: user.reward_points,
+                    newsletter_opt_in: user.newsletter_opt_in,
+                    addresses: user.addresses,
+                };
+            }
+
+            console.log({ user, token, account, profile }); //remove it later
+            return token;
+        },
+        // token flows from jwt to session callback
+        async session({ token, session }) {
+
+            if (token.sub && session.user) {
+                session.user.id = token.sub;
+            }
+
+            if (token.userdata && session.user) {
+                session.user = {
+                    ...session.user,
+                    ...token.userdata
+                };
+            }
+
+            return session;
+        },
+    },
+});
