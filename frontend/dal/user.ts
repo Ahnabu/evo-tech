@@ -6,9 +6,10 @@ import { isAxiosError } from "axios";
 
 export const authUsingApi = async (values: { email: string; password: string; role?: "USER" | "ADMIN" }) => {
 
-    const response = await axios.post("/api/signin-user",
+    const response = await axios.post("/api/v1/auth/login",
         {
-            ...values,
+            email: values.email,
+            password: values.password,
         },
         {
             headers: {
@@ -16,7 +17,7 @@ export const authUsingApi = async (values: { email: string; password: string; ro
             },
         })
         .then((res) => {
-            return res.data.user ? res.data.user : null;
+            return res.data.data?.user ? res.data.data.user : null;
         })
         .catch((err: unknown) => {
             if (isAxiosError(err)) {

@@ -18,9 +18,10 @@ export const adminRoutePrefix = "/nocontrol";
  * Logged out users can access these routes.
  */
 export const authRoutes: string[] = [
-    "/sign-in",
-    "/sign-up",
+    "/login",
+    "/register",
     "/forgot-password",
+    "/reset-password",
     "/et-admin/auth/sign-in",
     "/auth-error",
 ];

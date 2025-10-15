@@ -15,7 +15,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     const { firstname, lastname, email, password } = validatedFields.data;
 
     // call backend api to handle registration of user
-    const response = await axios.post("/api/signup-user", {
+    const response = await axios.post("/api/v1/auth/register", {
         firstname,
         lastname,
         email,
@@ -26,11 +26,17 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
         },
     }
     ).then((res) => {
-        return ({ success: res.data.message });
+        return ({ success: res.data.message || "User registered successfully!" });
     }
     ).catch((err: any) => {
-        if (err.response) {
+        if (err.response?.data?.message) {
             return ({ error: err.response.data.message });
+        } else if (err.response?.data?.errorSources) {
+            // Handle validation errors
+            const errorMessage = err.response.data.errorSources
+                .map((source: any) => source.message)
+                .join(", ");
+            return ({ error: errorMessage });
         } else {
             return ({ error: "Something went wrong" })
         }

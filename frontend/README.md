@@ -74,9 +74,9 @@ Next.js 14 frontend application for the Evo-Tech Bangladesh e-commerce platform 
 
 4. Configure environment variables in `.env.local`:
    ```
-   NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
+   NEXT_PUBLIC_BACKEND_URL=http://localhost:5000
    NEXTAUTH_SECRET=your-secret-key
-   NEXTAUTH_URL=http://localhost:3009
+   NEXTAUTH_URL=http://localhost:3000
    ```
 
 5. Run the development server:
@@ -84,7 +84,7 @@ Next.js 14 frontend application for the Evo-Tech Bangladesh e-commerce platform 
    npm run dev
    ```
 
-6. Open [http://localhost:3009](http://localhost:3009) in your browser
+6. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Available Scripts
 

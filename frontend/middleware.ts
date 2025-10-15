@@ -36,7 +36,7 @@ export default middleware( async (request) => {
         if (isAdminOnlyRoute) {
             // redirect if admin route and the user is not even authenticated
             if (!isLoggedIn) {
-                return NextResponse.redirect(new URL("/sign-in", nextUrl));
+                return NextResponse.redirect(new URL("/login", nextUrl));
             }
 
             // redirect if the user is authenticated but not an ADMIN
@@ -51,7 +51,7 @@ export default middleware( async (request) => {
 
         // redirect if protected route but the user is not authenticated
         if (isProtectedRoute && !isLoggedIn) {
-            return NextResponse.redirect(new URL("/sign-in", nextUrl));
+            return NextResponse.redirect(new URL("/login", nextUrl));
         }
 
 

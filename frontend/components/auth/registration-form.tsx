@@ -45,7 +45,7 @@ const RegistrationForm = () => {
             headerDescription="Fill in the fields to get started"
             bottomText="Already have an account?"
             bottomButtonLabel="Sign in"
-            bottomButtonHref="/sign-in"
+            bottomButtonHref="/login"
             showSocials
         >
             <form id="userregform" className="flex flex-col gap-3 w-full" onSubmit={handleSubmit(onSubmit)}>

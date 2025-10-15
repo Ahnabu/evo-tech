@@ -1,6 +1,6 @@
 export interface TRegisterUser {
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   phone?: string;
@@ -14,8 +14,17 @@ export interface TLoginUser {
 
 export interface TOAuthUser {
   email: string;
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   provider: "google" | "facebook";
   providerId: string;
+}
+
+export interface TForgotPassword {
+  email: string;
+}
+
+export interface TResetPassword {
+  token: string;
+  password: string;
 }

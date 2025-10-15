@@ -52,16 +52,16 @@ export default {
                         }
 
                         return {
-                            id: user.uuid,
+                            id: user._id || user.uuid,
                             email: user.email,
                             firstname: user.firstname,
                             lastname: user.lastname,
                             phone: user.phone ? user.phone : null, // ternary op. to explicitly check falsy values instead of using || .
-                            email_verified: user.email_verified_at ? true : false,
-                            role: user.role ? user.role : null,
-                            reward_points: user.reward_points ?? null,
-                            newsletter_opt_in: user.newsletter_opt_in ?? null,
-                            addresses: user.addresses ? user.addresses : null,
+                            email_verified: user.emailVerifiedAt ? true : false,
+                            role: user.userType ? user.userType.toUpperCase() : null,
+                            reward_points: user.rewardPoints ?? null,
+                            newsletter_opt_in: user.newsletterOptIn ?? null,
+                            addresses: null, // Backend doesn't include addresses in auth response
                         };
                     }
                 }

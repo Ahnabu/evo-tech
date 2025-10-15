@@ -4,7 +4,9 @@ import AppError from "../../errors/AppError";
 import { createToken } from "../../utils/verifyJWT";
 import { USER_ROLE } from "../user/user.constant";
 import { User } from "../user/user.model";
-import { TLoginUser, TOAuthUser, TRegisterUser } from "./auth.interface";
+import { TLoginUser, TOAuthUser, TRegisterUser, TForgotPassword, TResetPassword } from "./auth.interface";
+import { PasswordResetToken } from "./passwordResetToken.model";
+import crypto from "crypto";
 
 const registerUser = async (payload: TRegisterUser) => {
   // Check if user already exists
@@ -113,8 +115,8 @@ const handleOAuthUser = async (payload: TOAuthUser) => {
     // Create new user for OAuth
     user = await User.create({
       email: payload.email,
-      firstname: payload.firstname,
-      lastname: payload.lastname,
+      firstName: payload.firstName,
+      lastName: payload.lastName,
       userType: USER_ROLE.USER,
       password: Math.random().toString(36).slice(-10), // Random password for OAuth users
       emailVerifiedAt: new Date(), // OAuth users are pre-verified
@@ -162,8 +164,88 @@ const handleOAuthUser = async (payload: TOAuthUser) => {
   };
 };
 
+const forgotPassword = async (payload: TForgotPassword) => {
+  // Check if user exists
+  const user = await User.findOne({ email: payload.email });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!");
+  }
+
+  // Check if user is active
+  if (!user.isActive) {
+    throw new AppError(httpStatus.FORBIDDEN, "User is blocked!");
+  }
+
+  // Generate reset token
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  // Delete any existing reset tokens for this email
+  await PasswordResetToken.deleteMany({ email: payload.email });
+
+  // Create new reset token (expires in 1 hour)
+  await PasswordResetToken.create({
+    email: payload.email,
+    token: resetToken,
+    expiresAt: new Date(Date.now() + 60 * 60 * 1000), // 1 hour
+  });
+
+  // TODO: Send email with reset link
+  // For now, just return the token (in production, this should be sent via email)
+  const resetLink = `${config.cors_origin}/reset-password?token=${resetToken}`;
+  
+  return {
+    resetToken, // Remove this in production
+    resetLink,  // Remove this in production
+    message: "Password reset link has been sent to your email",
+  };
+};
+
+const resetPassword = async (payload: TResetPassword) => {
+  // Find the reset token
+  const resetTokenDoc = await PasswordResetToken.findOne({
+    token: payload.token,
+    expiresAt: { $gt: new Date() }, // Token not expired
+  });
+
+  if (!resetTokenDoc) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Invalid or expired reset token!");
+  }
+
+  // Find the user
+  const user = await User.findOne({ email: resetTokenDoc.email });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!");
+  }
+
+  // Update user password
+  user.password = payload.password;
+  await user.save();
+
+  // Delete the used reset token
+  await PasswordResetToken.deleteOne({ token: payload.token });
+
+  return {
+    message: "Password reset successfully",
+  };
+};
+
+const getCurrentUser = async (userPayload: { _id: string; email: string; role: string }) => {
+  const user = await User.findById(userPayload._id);
+  
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!");
+  }
+
+  return { user };
+};
+
 export const AuthServices = {
   registerUser,
   loginUser,
   handleOAuthUser,
+  forgotPassword,
+  resetPassword,
+  getCurrentUser,
 };

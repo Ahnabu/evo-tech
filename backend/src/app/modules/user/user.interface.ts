@@ -4,8 +4,8 @@ export interface TUser {
   _id?: string;
   uuid: string;
   userType: "admin" | "user";
-  firstname: string;
-  lastname: string;
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
   phone?: string;
