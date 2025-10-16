@@ -34,6 +34,10 @@ async function fetchTaxonomyData(): Promise<TaxonomyCategory[]> {
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        console.warn('Taxonomy API not yet implemented - returning empty data');
+        return [];
+      }
       console.error(`Failed to fetch taxonomy data: ${response.status} ${response.statusText}`);
       return [];
     }

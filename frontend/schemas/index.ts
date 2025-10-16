@@ -3,8 +3,8 @@ import { z } from 'zod';
 
 
 export const checkoutSchema = z.object({
-    firstname: z.string().nonempty("Firstname is required").regex(/^[A-Za-z\s._]+$/, "Firstname cannot contain numbers or special characters"),
-    lastname: z.string().regex(/^[A-Za-z\s._]*$/, "Lastname cannot contain numbers or special characters"), // lastname is optional
+    firstName: z.string().nonempty("First name is required").regex(/^[A-Za-z\s._]+$/, "First name cannot contain numbers or special characters"),
+    lastName: z.string().regex(/^[A-Za-z\s._]*$/, "Last name cannot contain numbers or special characters"), // lastName is optional
     phone: z.string().nonempty("Phone no is required").regex(/^\d+$/, "Phone no must contain only numeric digits").length(11, "Phone no must be 11 digits"),
     email: z.union([z.string().email("Provide a valid email address"), z.literal("")]), // email is optional
     housestreet: z.string().nonempty("House & Street is required").max(150, "Too long, keep it under 150 characters"),
@@ -100,8 +100,8 @@ export const LoginSchema = z.object({
 
 
 export const RegisterSchema = z.object({
-    firstname: z.string().nonempty("Firstname is required").regex(/^[A-Za-z\s._]+$/, "Firstname cannot contain numbers or special characters"),
-    lastname: z.string().regex(/^[A-Za-z\s._]*$/, "Lastname cannot contain numbers or special characters"), // lastname is optional
+    firstName: z.string().nonempty("First name is required").regex(/^[A-Za-z\s._]+$/, "First name cannot contain numbers or special characters"),
+    lastName: z.string().regex(/^[A-Za-z\s._]*$/, "Last name cannot contain numbers or special characters"), // lastName is optional
     email: z.string().email("A valid email is required"),
     password: z.string().min(8, "Password must be at least 8 characters").regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%~^*#?&+-])[A-Za-z\d@$!%~^*#?&+-]{8,}$/, "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character from @$!%~^*#+-?&"),
     confirmPassword: z.string(),

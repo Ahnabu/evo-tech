@@ -12,12 +12,12 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
         return ({ error: "Invalid inputs in fields" });
     }
 
-    const { firstname, lastname, email, password } = validatedFields.data;
+    const { firstName, lastName, email, password } = validatedFields.data;
 
     // call backend api to handle registration of user
     const response = await axios.post("/api/v1/auth/register", {
-        firstname,
-        lastname,
+        firstName,
+        lastName,
         email,
         password,
     }, {

@@ -15,8 +15,8 @@ interface addressType {
 
 declare module "next-auth" {
     interface User {
-        firstname?: string;
-        lastname?: string;
+        firstName?: string;
+        lastName?: string;
         phone?: string | null;
         role?: string | null;
         email_verified?: boolean;
@@ -32,8 +32,8 @@ declare module "@auth/core/jwt" {
          * user data from the signin attempt
          */
         userdata?: {
-            firstname?: string;
-            lastname?: string;
+            firstName?: string;
+            lastName?: string;
             phone?: string | null;
             role?: string | null;
             email_verified?: boolean;
@@ -115,8 +115,8 @@ export const {
                 const authRes = await axios.post("/api/signin-oauthuser", {
                     account: { ...account },
                     profile: {
-                        firstname: user.firstname,
-                        lastname: user.lastname,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
                         email: user.email,
                         email_verified: user.email_verified,
                     },
@@ -160,8 +160,8 @@ export const {
 
             if (user) { // user is only available here while signing in
                 token.userdata = {
-                    firstname: user.firstname,
-                    lastname: user.lastname,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
                     phone: user.phone,
                     role: user.role,
                     email_verified: user.email_verified,

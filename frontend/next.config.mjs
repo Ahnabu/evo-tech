@@ -3,6 +3,7 @@
 const nextConfig = {
     images: {
         formats: ['image/avif', 'image/webp'],
+        qualities: [16, 32, 48, 64, 75, 90, 100],
         remotePatterns: [
             {
                 protocol: 'https',
@@ -12,7 +13,7 @@ const nextConfig = {
             {
                 protocol: 'http',
                 hostname: 'localhost',
-                port: '8000',
+                port: '5000',
             },
             {
                 protocol: 'https',

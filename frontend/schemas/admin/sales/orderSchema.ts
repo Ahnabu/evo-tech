@@ -3,8 +3,8 @@ import { z } from "zod";
 export const orderSchema = z.object({
     orderid: z.string(),
     order_key: z.string(), // uuid
-    firstname: z.string(),
-    lastname: z.string(),
+    firstName: z.string(),
+    lastName: z.string(),
     phone: z.string(),
     email: z.string().nullable(),
     housestreet: z.string(),

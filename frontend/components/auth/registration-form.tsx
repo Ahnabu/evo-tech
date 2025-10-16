@@ -18,8 +18,8 @@ const RegistrationForm = () => {
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.infer<typeof RegisterSchema>>({
         resolver: zodResolver(RegisterSchema),
         defaultValues: {
-            firstname: "",
-            lastname: "",
+            firstName: "",
+            lastName: "",
             email: "",
             password: "",
             confirmPassword: "",
@@ -51,34 +51,34 @@ const RegistrationForm = () => {
             <form id="userregform" className="flex flex-col gap-3 w-full" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col relative w-full h-fit pt-1.5">
                     <input type="text"
-                        id="firstname"
-                        {...register("firstname")}
+                        id="firstName"
+                        {...register("firstName")}
                         autoCorrect="off"
                         autoComplete="off"
                         spellCheck="false"
                         placeholder="John"
                         className="custom-input-style1 peer w-full h-[40px]"
                     />
-                    <label htmlFor="firstname" className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300">
-                        {`Firstname*`}
+                    <label htmlFor="firstName" className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300">
+                        {`First Name*`}
                     </label>
-                    {errors.firstname && <EvoFormInputError>{errors.firstname.message}</EvoFormInputError>}
+                    {errors.firstName && <EvoFormInputError>{errors.firstName.message}</EvoFormInputError>}
                 </div>
 
                 <div className="flex flex-col relative w-full h-fit pt-1.5">
                     <input type="text"
-                        id="lastname"
-                        {...register("lastname")}
+                        id="lastName"
+                        {...register("lastName")}
                         autoCorrect="off"
                         autoComplete="off"
                         spellCheck="false"
                         placeholder="Doe"
                         className="custom-input-style1 peer w-full h-[40px]"
                     />
-                    <label htmlFor="lastname" className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300">
-                        {`Lastname`}
+                    <label htmlFor="lastName" className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300">
+                        {`Last Name`}
                     </label>
-                    {errors.lastname && <EvoFormInputError>{errors.lastname.message}</EvoFormInputError>}
+                    {errors.lastName && <EvoFormInputError>{errors.lastName.message}</EvoFormInputError>}
                 </div>
 
                 <div className="flex flex-col relative w-full h-fit pt-1.5">

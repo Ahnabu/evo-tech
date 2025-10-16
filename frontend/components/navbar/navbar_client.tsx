@@ -223,9 +223,9 @@ const NavbarClient = ({ services, support }: { services: NavbarMenuType1[]; supp
                         </a>
                         <div className="flex w-[1px] h-3 bg-stone-800"></div>
                         {/* remember to remove pointer-events-none from the links below after functionalities are ready */}
-                        <Link href="/sign-up" className="flex w-fit h-full items-center px-2 hover:text-stone-500 transition duration-200 focus:outline-none pointer-events-none">Sign up</Link> 
+                        <Link href="/login" className="flex w-fit h-full items-center px-2 hover:text-stone-500 transition duration-200 focus:outline-none pointer-events-none">Sign up</Link>
                         <div className="flex w-[1px] h-3 bg-stone-800"></div>
-                        <Link href="/sign-in" className="flex w-fit h-full items-center px-2 hover:text-stone-500 transition duration-200 focus:outline-none pointer-events-none">Sign in</Link> 
+                        <Link href="/register" className="flex w-fit h-full items-center px-2 hover:text-stone-500 transition duration-200 focus:outline-none pointer-events-none">Sign in</Link>
                     </div>
                 </div>
             </div>
@@ -310,7 +310,7 @@ const NavbarClient = ({ services, support }: { services: NavbarMenuType1[]; supp
                                     <Avatar
                                         aria-label="user menu"
                                         showFallback
-                                        name={getNameInitials(`${currentUser.firstname} ${currentUser.lastname}`)}
+                                        name={getNameInitials(`${currentUser.firstName} ${currentUser.lastName}`)}
                                         radius="full"
                                         classNames={{
                                             base: "w-7 h-7 bg-[#f5f5f4] box-border border-0 outline-0 ring-1 ring-[#a8a8a8] group-hover:ring-[#0866ff] cursor-pointer transition duration-200",
@@ -320,7 +320,7 @@ const NavbarClient = ({ services, support }: { services: NavbarMenuType1[]; supp
                                     />
                                     <div className="absolute z-[20] top-[100%] right-0 rounded-[6px] overflow-hidden hidden group-hover:flex flex-col items-center w-[200px] h-fit cursor-auto text-stone-900 bg-[#ebebeb]/95 shadow-md shadow-black/15 group-hover:animate-slow-reveal-flex">
                                         <p className="text-left flex flex-col w-full h-fit px-4 py-2 bg-[#fefefe]/40 gap-0.5 cursor-default">
-                                            <span className="font-[600] text-stone-900 text-[13px] leading-4 tracking-tight truncate">{`${currentUser.firstname} ${currentUser.lastname}`}</span>
+                                            <span className="font-[600] text-stone-900 text-[13px] leading-4 tracking-tight truncate">{`${currentUser.firstName} ${currentUser.lastName}`}</span>
                                             <span className="font-[400] text-stone-700 text-[11px] leading-4 tracking-tight truncate">{`${currentUser.email}`}</span>
                                         </p>
 

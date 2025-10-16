@@ -59,7 +59,7 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
                 <Avatar
                   aria-label="user avatar"
                   showFallback
-                  name={getNameInitials(`${currentUser.firstname} ${currentUser.lastname ?? ""}`)}
+                  name={getNameInitials(`${currentUser.firstName} ${currentUser.lastName ?? ""}`)}
                   radius="full"
                   classNames={{
                     base: "w-6 h-6 bg-[#f5f5f4] box-border border-0 outline-0 ring-1 ring-[#a8a8a8] group-hover:ring-[#0866ff] cursor-pointer transition duration-200",
@@ -68,7 +68,7 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
                   }}
                 />
                 <div className="grid flex-1 font-inter text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{`${currentUser.firstname} ${currentUser.lastname ?? ""}`}</span>
+                  <span className="truncate font-semibold">{`${currentUser.firstName} ${currentUser.lastName ?? ""}`}</span>
                   <span className="truncate text-xs">{currentUser.email}</span>
                 </div>
               </div>
