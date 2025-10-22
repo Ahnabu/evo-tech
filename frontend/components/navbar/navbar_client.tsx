@@ -15,7 +15,7 @@ import { MdCall, MdChevronRight, MdChevronLeft } from "react-icons/md";
 import { IoChevronDown, IoMenu, IoClose } from "react-icons/io5";
 // import { RiHeartLine } from "react-icons/ri";
 import { FiSearch } from "react-icons/fi";
-import { TbLogout } from "react-icons/tb";
+import { TbLogout, TbDashboard } from "react-icons/tb";
 import { BsFacebook, BsInstagram, BsWhatsapp } from "react-icons/bs";
 import ServiceCard from '@/components/cards/servicecard';
 import ManageCart from '@/components/navbar/manage_cart';
@@ -204,6 +204,18 @@ const NavbarClient = ({ services, support }: { services: NavbarMenuType1[]; supp
         return pathSegments[0] === word;
     };
 
+    const getDashboardUrl = (userRole: string) => {
+        switch (userRole) {
+            case 'admin':
+                return '/control/dashboard';
+            case 'employee':
+                return '/employee/dashboard';
+            case 'user':
+            default:
+                return '/dashboard';
+        }
+    };
+
     return (
         <>
             <div className="z-[200] relative flex justify-center w-full h-8 bg-[#DDDEE0]/95 font-inter">
@@ -222,10 +234,9 @@ const NavbarClient = ({ services, support }: { services: NavbarMenuType1[]; supp
                             <BsWhatsapp className="inline w-4 h-4" />
                         </a>
                         <div className="flex w-[1px] h-3 bg-stone-800"></div>
-                        {/* remember to remove pointer-events-none from the links below after functionalities are ready */}
-                        <Link href="/login" className="flex w-fit h-full items-center px-2 hover:text-stone-500 transition duration-200 focus:outline-none pointer-events-none">Sign up</Link>
+                        <Link href="/register" className="flex w-fit h-full items-center px-2 hover:text-stone-500 transition duration-200 focus:outline-none">Sign up</Link>
                         <div className="flex w-[1px] h-3 bg-stone-800"></div>
-                        <Link href="/register" className="flex w-fit h-full items-center px-2 hover:text-stone-500 transition duration-200 focus:outline-none pointer-events-none">Sign in</Link>
+                        <Link href="/login" className="flex w-fit h-full items-center px-2 hover:text-stone-500 transition duration-200 focus:outline-none">Sign in</Link>
                     </div>
                 </div>
             </div>
@@ -303,6 +314,7 @@ const NavbarClient = ({ services, support }: { services: NavbarMenuType1[]; supp
                                 <RiHeartLine className="block w-4 h-4 sm:w-5 sm:h-5 group-hover:opacity-65 transition-opacity duration-200 ease-linear" />
                                 {<div className="absolute top-[-7px] right-[-6px] min-w-4 min-h-4 w-fit h-fit px-1 py-0.5 flex justify-center items-center rounded-full bg-[#0866ff] text-[10px] leading-[12px] font-[600] text-[#FFFFFF]">{`9+`}</div>}
                             </button> */}
+                            {/* Dashboard icon for authenticated users */}
                             <ManageCart />
                             {
                                 currentUser &&
@@ -325,8 +337,25 @@ const NavbarClient = ({ services, support }: { services: NavbarMenuType1[]; supp
                                         </p>
 
                                         <div className="w-full h-[1px] bg-[#bdbdbd] border-0 outline-0"></div>
-                                        <div className="w-full h-fit px-4 py-[10px] text-[12px] leading-4 tracking-tight font-[600] bg-[#fefefe] bg-opacity-0 hover:bg-opacity-100 transition duration-150 cursor-pointer">Profile</div>
-                                        <div className="w-full h-fit px-4 py-[10px] text-[12px] leading-4 tracking-tight font-[600] bg-[#fefefe] bg-opacity-0 hover:bg-opacity-100 transition duration-150 cursor-pointer">History</div>
+                                        <Link 
+                                            href={getDashboardUrl(currentUser.role || 'user')}
+                                            className="w-full h-fit px-4 py-[10px] text-[12px] leading-4 tracking-tight font-[600] bg-[#fefefe] bg-opacity-0 hover:bg-opacity-100 transition duration-150 cursor-pointer flex items-center"
+                                        >
+                                            <TbDashboard className="inline mr-2 w-[14px] h-[14px]" />
+                                            Dashboard
+                                        </Link>
+                                        <Link 
+                                            href="/profile"
+                                            className="w-full h-fit px-4 py-[10px] text-[12px] leading-4 tracking-tight font-[600] bg-[#fefefe] bg-opacity-0 hover:bg-opacity-100 transition duration-150 cursor-pointer block"
+                                        >
+                                            Profile
+                                        </Link>
+                                        <Link 
+                                            href="/order-history"
+                                            className="w-full h-fit px-4 py-[10px] text-[12px] leading-4 tracking-tight font-[600] bg-[#fefefe] bg-opacity-0 hover:bg-opacity-100 transition duration-150 cursor-pointer block"
+                                        >
+                                            History
+                                        </Link>
                                         <div className="w-full h-fit px-4 py-[10px] text-[12px] leading-4 tracking-tight font-[600] bg-[#fefefe] bg-opacity-0 hover:bg-opacity-100 transition duration-150 cursor-pointer">Reward Points</div>
                                         <div className="w-full h-[1px] bg-[#bdbdbd] border-0 outline-0"></div>
 

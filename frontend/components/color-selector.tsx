@@ -20,7 +20,7 @@ const ColorSelector = memo(({ colors, selectedColor, onColorSelect }: ColorSelec
         onColorSelect(coloropt.name);
     };
 
-    console.log('colors', colors);
+
 
     // Parse colors data if it comes as strings
     const parsedColors = useMemo(() => {

@@ -1,0 +1,132 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { userApi, orderApi, dashboardApi } from '@/lib/api';
+import { User, Order, UserDashboardStats } from '@/types';
+
+export const useUserDashboard = () => {
+  const { data: session } = useSession();
+  const [dashboardData, setDashboardData] = useState<UserDashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      if (!session?.user?.id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // For now, we'll use mock data since we don't have JWT tokens properly set up
+        // TODO: Replace with actual API calls when JWT tokens are available
+        
+        // Mock data based on session user
+        const mockStats: UserDashboardStats = {
+          totalOrders: 0,
+          totalSpent: 0,
+          recentOrders: [],
+          rewardPoints: session.user.reward_points || 0,
+          memberSince: new Date(), // Default to current date for now
+        };
+
+        setDashboardData(mockStats);
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, [session]);
+
+  return { dashboardData, loading, error };
+};
+
+export const useUserProfile = () => {
+  const { data: session } = useSession();
+  const [profile, setProfile] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!session?.user) {
+        setLoading(false);  
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Create profile from session data
+        const profileData: User = {
+          uuid: session.user.id || '',
+          userType: (session.user.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
+          firstName: session.user.firstName || '',
+          lastName: session.user.lastName || '',
+          email: session.user.email || '',
+          phone: session.user.phone || undefined,
+          rewardPoints: session.user.reward_points || 0,
+          newsletterOptIn: session.user.newsletter_opt_in || false,
+          isActive: true,
+        };
+
+        setProfile(profileData);
+      } catch (err) {
+        console.error('Error fetching profile:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load profile');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [session, refreshKey]);
+
+  const refreshProfile = () => setRefreshKey(prev => prev + 1);
+
+  return { profile, loading, error, refreshProfile };
+};
+
+export const useUserOrders = () => {
+  const { data: session } = useSession();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!session?.user?.id) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // Mock empty orders for now
+        // TODO: Replace with actual API call when JWT tokens are properly implemented
+        setOrders([]);
+      } catch (err) {
+        console.error('Error fetching orders:', err);
+        setError(err instanceof Error ? err.message : 'Failed to load orders');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, [session]);
+
+  return { orders, loading, error };
+};

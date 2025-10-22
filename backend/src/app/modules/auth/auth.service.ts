@@ -16,10 +16,10 @@ const registerUser = async (payload: TRegisterUser) => {
     throw new AppError(httpStatus.BAD_REQUEST, "User already exists!");
   }
 
-  // Set default role
+  // Set role (use provided role or default to USER)
   const userData = {
     ...payload,
-    userType: USER_ROLE.USER,
+    userType: payload.userType || USER_ROLE.USER,
   };
 
   // Create new user with hashed password

@@ -5,6 +5,7 @@ export interface TRegisterUser {
   password: string;
   phone?: string;
   newsletterOptIn?: boolean;
+  userType?: "admin" | "user" | "employee";
 }
 
 export interface TLoginUser {

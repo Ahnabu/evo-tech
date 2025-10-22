@@ -103,10 +103,10 @@ export const {
     //     },
     // },
     pages: {
-        signIn: "/sign-in",
+        signIn: "/login",
         error: "/auth-error", // to be created
     },
-    debug: process.env.NODE_ENV !== "production",
+    debug: false,
     callbacks: {
         async signIn({ user, account, profile }) {
             
@@ -153,7 +153,6 @@ export const {
                 return authRes; // allow or redirect to error page
             }
 
-            console.log({ user, account, profile }); //remove it later
             return true;
         },
         async jwt({ token, user, account, profile }) {
@@ -171,7 +170,6 @@ export const {
                 };
             }
 
-            console.log({ user, token, account, profile }); //remove it later
             return token;
         },
         // token flows from jwt to session callback
