@@ -8,6 +8,9 @@ import { ProductRoutes } from "../modules/product/product.route";
 import { CartRoutes } from "../modules/cart/cart.route";
 import { OrderRoutes } from "../modules/order/order.route";
 import { DashboardRoutes } from "../modules/dashboard/dashboard.route";
+import { BannerRoutes } from "../modules/banner/banner.route";
+import { ClientRoutes } from "../modules/client/client.route";
+import { LandingSectionRoutes } from "../modules/landingsection/landingsection.route";
 
 const router = express.Router();
 
@@ -47,6 +50,18 @@ const moduleRoutes = [
   {
     path: "/dashboard",
     route: DashboardRoutes,
+  },
+  {
+    path: "/banners",
+    route: BannerRoutes,
+  },
+  {
+    path: "/clients",
+    route: ClientRoutes,
+  },
+  {
+    path: "/landing-sections",
+    route: LandingSectionRoutes,
   },
 ];
 

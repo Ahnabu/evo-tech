@@ -37,7 +37,6 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-
   }
   .dark {
     --background: 224 71.4% 4.1%;
@@ -72,9 +71,7 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
-
   }
-
 }
 
 @layer utilities {
@@ -105,7 +102,6 @@
     display: none;
   }
 
-
   .custom-floating-label1 {
     @apply absolute top-0 left-0 flex w-full h-full pointer-events-none select-none transition-all duration-200 ease-linear;
   }
@@ -118,7 +114,6 @@
     @apply block content-[''] w-1.5 h-1.5 pointer-events-none select-none mt-1.5 ml-1 border-t border-r rounded-tr-[4px] flex-grow transition-all duration-200 ease-linear;
   }
 
-
   .custom-input-style1 {
     @apply text-[12px] leading-4 font-[500] text-stone-900 px-2 py-1 bg-transparent border rounded-[4px] border-stone-400 border-t-transparent placeholder:text-stone-400 focus:border-[#0866FF] focus:border-t-transparent focus:outline-none disabled:border-stone-300 disabled:border-t-transparent disabled:text-stone-500 disabled:bg-stone-200 disabled:cursor-not-allowed transition-colors duration-200 ease-linear;
   }
@@ -127,6 +122,7 @@
     @apply text-[12px] leading-4 font-[500] text-stone-900 px-2 py-2 bg-transparent border rounded-[4px] border-stone-400 placeholder:text-stone-400 focus:border-[#0866FF] focus:outline-none disabled:border-stone-300 disabled:text-stone-500 disabled:bg-stone-200 disabled:cursor-not-allowed transition-colors duration-200 ease-linear scrollbar-custom;
   }
 
+  /* Navbar specific utilities removed - using inline Tailwind classes instead */
 }
 
 /*
@@ -140,20 +136,19 @@ custom swiper styles
   @apply h-fit items-start;
 }
 
-
 /* 
-components/carousels/bannercarousel.tsx  
+components/carousels/bannercarousel.tsx - Levithub Style
 */
 #landingheadercarousel .sw-custom-pagination {
-  @apply w-fit h-fit flex left-1/2 -translate-x-1/2 bottom-4 sm:bottom-6 gap-1 sm:gap-2;
+  @apply w-fit h-fit flex left-1/2 -translate-x-1/2 bottom-8 gap-2;
 }
 
 #landingheadercarousel .sw-custom-pagination .swiper-pagination-bullet {
-  @apply w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full opacity-100 bg-white/25 transition-[width,_color,_background-color] duration-200 ease-linear;
+  @apply w-3 h-3 rounded-full opacity-100 bg-white/40 backdrop-blur-sm border border-white/20 transition-all duration-300 ease-out cursor-pointer hover:bg-white/60;
 }
 
 #landingheadercarousel .sw-custom-pagination .swiper-pagination-bullet-active {
-  @apply w-5 lg:w-8 bg-white/65;
+  @apply w-10 bg-white/90 border-white/40 shadow-lg;
 }
 /* 
 end of components/carousels/bannercarousel.tsx 
@@ -161,11 +156,8 @@ end of components/carousels/bannercarousel.tsx
 @layer base {
   * {
     @apply border-border;
-
   }
   body {
     @apply bg-background text-foreground;
-
   }
-
 }
