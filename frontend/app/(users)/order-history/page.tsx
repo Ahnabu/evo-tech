@@ -2,6 +2,7 @@
 
 import { useUserOrders } from '@/hooks/use-user-dashboard';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { currencyFormatBDT } from '@/lib/all_utils';
 import Link from 'next/link';
 
 export default function OrderHistoryPage() {
@@ -107,7 +108,7 @@ export default function OrderHistoryPage() {
                                                 </span>
                                             </div>
                                             <div className="text-lg font-semibold text-gray-900">
-                                                ৳{order.totalPayable.toFixed(2)}
+                                                ৳{currencyFormatBDT(order.totalPayable)}
                                             </div>
                                         </div>
                                     </div>
@@ -190,7 +191,7 @@ export default function OrderHistoryPage() {
                             </div>
                             <div className="text-center p-4 bg-gray-50 rounded-lg">
                                 <div className="text-2xl font-bold text-green-600">
-                                    ৳{orders.reduce((sum, order) => sum + order.totalPayable, 0).toFixed(2)}
+                                    ৳{currencyFormatBDT(orders.reduce((sum, order) => sum + order.totalPayable, 0))}
                                 </div>
                                 <div className="text-sm text-gray-600">Total Spent</div>
                             </div>

@@ -2,6 +2,7 @@
 
 import { useUserDashboard, useUserProfile } from '@/hooks/use-user-dashboard';
 import { useCurrentUser } from '@/hooks/use-current-user';
+import { currencyFormatBDT } from '@/lib/all_utils';
 import Link from 'next/link';
 
 export default function UserDashboard() {
@@ -68,7 +69,7 @@ export default function UserDashboard() {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Total Spent:</span>
-                                <span className="font-medium">৳{dashboardData?.totalSpent?.toFixed(2) || '0.00'}</span>
+                                <span className="font-medium">৳{currencyFormatBDT(dashboardData?.totalSpent || 0)}</span>
                             </div>
                         </div>
                     </div>
@@ -87,7 +88,7 @@ export default function UserDashboard() {
                                             <div className="text-sm text-gray-600">{order.orderStatus}</div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="font-medium">৳{order.totalPayable.toFixed(2)}</div>
+                                            <div className="font-medium">৳{currencyFormatBDT(order.totalPayable)}</div>
                                             <div className="text-sm text-gray-600">{new Date(order.createdAt!).toLocaleDateString()}</div>
                                         </div>
                                     </div>
