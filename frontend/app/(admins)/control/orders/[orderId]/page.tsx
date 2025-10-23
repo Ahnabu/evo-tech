@@ -24,7 +24,7 @@ const getOrderDetails = async (orderId: string): Promise<OrderWithItemsType | nu
 
 
 const AdminOrderDetailsPage = async ({ params }: currentRouteProps) => {
-  const orderId = params.orderId;
+  const { orderId } = await params;
   const orderData = await getOrderDetails(orderId);
 
   if (!orderData) {

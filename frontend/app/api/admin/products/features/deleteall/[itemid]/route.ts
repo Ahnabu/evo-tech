@@ -6,10 +6,10 @@ import axiosErrorLogger from '@/components/error/axios_error';
 
 export async function DELETE(
     request: NextRequest, // even if the request is not in use, it's required to keep it as the 1st parameter in Next.js route handler
-    { params }: { params: { itemid: string } }
+    { params }: { params: Promise<{ itemid: string }> }
 ) {
     const axioswithIntercept = await axiosIntercept();
-    const { itemid } = params;
+    const { itemid } = await params;
 
     try {
         const backendRes = await axioswithIntercept.delete(`/api/admin/item/${itemid}/features/deleteall`);

@@ -2,13 +2,11 @@ import { NextResponse, NextRequest } from 'next/server';
 import axiosIntercept from "@/utils/axios/axiosIntercept";
 import { isAxiosError } from 'axios';
 import axiosErrorLogger from '@/components/error/axios_error';
-import { currentRouteProps } from '@/utils/types_interfaces/shared_types';
 
 
-
-export async function PUT(request: NextRequest, { params }: currentRouteProps) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ sectionid: string }> }) {
     const axioswithIntercept = await axiosIntercept();
-    const { sectionid } = params;
+    const { sectionid } = await params;
 
     try {
         const reqBody = await request.json();

@@ -29,10 +29,11 @@ const paymentMethods: { [key: string]: string } = {
 
 
 
-const OrderConfirmationPage = async ({ params, searchParams }: currentRouteProps) => {
+const OrderConfirmationPage = async ({ params, searchParams }: { params: Promise<{ orderid: string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) => {
 
-    const orderid = params.orderid;
-    const ordkey = searchParams.ordkey ? (searchParams.ordkey as string) : null;
+    const { orderid } = await params;
+    const resolvedSearchParams = await searchParams;
+    const ordkey = resolvedSearchParams.ordkey ? (resolvedSearchParams.ordkey as string) : null;
 
     const getOrderDetails = await axios.get(`/api/order/${orderid}${ordkey ? `?orderkey=${ordkey}` : ''}`)
         .then((res) => (res.data))

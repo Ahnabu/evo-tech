@@ -5,13 +5,14 @@ import axiosErrorLogger from '@/components/error/axios_error';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { subcat_id: string } }
+    { params }: { params: Promise<{ subcat_id: string }> }
 ) {
     const axioswithIntercept = await axiosIntercept();
 
     try {
         // backend API call for getting subcategory details
-        const backendRes = await axioswithIntercept.get(`/api/admin/subcategory/view/${params.subcat_id}`);
+        const { subcat_id } = await params;
+        const backendRes = await axioswithIntercept.get(`/api/admin/subcategory/view/${subcat_id}`);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });
@@ -27,7 +28,7 @@ export async function GET(
 
 export async function PUT(
     request: NextRequest,
-    { params }: { params: { subcat_id: string } }
+    { params }: { params: Promise<{ subcat_id: string }> }
 ) {
     const axioswithIntercept = await axiosIntercept();
 
@@ -35,7 +36,8 @@ export async function PUT(
         const reqBody = await request.json();
         
         // backend API call for updating subcategory
-        const backendRes = await axioswithIntercept.put(`/api/admin/subcategory/update/${params.subcat_id}`, reqBody);
+        const { subcat_id } = await params;
+        const backendRes = await axioswithIntercept.put(`/api/admin/subcategory/update/${subcat_id}`, reqBody);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });
@@ -51,13 +53,14 @@ export async function PUT(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { subcat_id: string } }
+    { params }: { params: Promise<{ subcat_id: string }> }
 ) {
     const axioswithIntercept = await axiosIntercept();
 
     try {
         // backend API call for deleting subcategory
-        const backendRes = await axioswithIntercept.delete(`/api/admin/subcategory/delete/${params.subcat_id}`);
+        const { subcat_id } = await params;
+        const backendRes = await axioswithIntercept.delete(`/api/admin/subcategory/delete/${subcat_id}`);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });

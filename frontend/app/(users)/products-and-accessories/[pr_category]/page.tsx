@@ -38,12 +38,13 @@ const hrMenuItems: any[] = [
 ];
 
 
-const ProductCategory = async ({ params, searchParams }: currentRouteProps) => {
+const ProductCategory = async ({ params, searchParams }: { params: Promise<{ pr_category: string }>, searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) => {
 
-    const category = params.pr_category;
-    const pageno = searchParams.page ? parseInt(searchParams.page as string) : 1;
-    const perpage = searchParams.perpage ? parseInt(searchParams.perpage as string) : 12;
-    const instockfilter = searchParams.instock ? searchParams.instock as string : null;
+    const { pr_category: category } = await params;
+    const resolvedSearchParams = await searchParams;
+    const pageno = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page as string) : 1;
+    const perpage = resolvedSearchParams.perpage ? parseInt(resolvedSearchParams.perpage as string) : 12;
+    const instockfilter = resolvedSearchParams.instock ? resolvedSearchParams.instock as string : null;
 
     noStore(); // equivalent to cache: 'no-store' in fetch API
     const productslist = await axios.get(`/api/items/category/${category}?page=${pageno}&perpage=${perpage}${instockfilter ? `&instock=${instockfilter}` : ''}`)

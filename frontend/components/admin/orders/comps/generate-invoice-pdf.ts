@@ -217,7 +217,7 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
             // Customer name
             pdf.setTextColor(31, 41, 55);
             pdf.text('Name:', PDF_CONFIG.margin, y);
-            const fullName = `${order.firstname}${order.lastname ? ` ${order.lastname}` : ''}`;
+            const fullName = `${order.firstName}${order.lastName ? ` ${order.lastName}` : ''}`;
             pdf.text(sanitizeText(fullName), PDF_CONFIG.margin + 20, y);
             y += PDF_CONFIG.lineHeight;
 

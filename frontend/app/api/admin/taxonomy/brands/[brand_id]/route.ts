@@ -5,13 +5,14 @@ import axiosErrorLogger from '@/components/error/axios_error';
 
 export async function GET(
     request: NextRequest,
-    { params }: { params: { brand_id: string } }
+    { params }: { params: Promise<{ brand_id: string }> }
 ) {
     const axioswithIntercept = await axiosIntercept();
 
     try {
 
-        const backendRes = await axioswithIntercept.get(`/api/admin/brand/view/${params.brand_id}`);
+        const { brand_id } = await params;
+        const backendRes = await axioswithIntercept.get(`/api/admin/brand/view/${brand_id}`);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });
@@ -27,15 +28,16 @@ export async function GET(
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: { brand_id: string } }
+    { params }: { params: Promise<{ brand_id: string }> }
 ) {
     const axioswithIntercept = await axiosIntercept();
 
     try {
 
         const reqBody = await request.json();
+        const { brand_id } = await params;
 
-        const backendRes = await axioswithIntercept.post(`/api/admin/brand/update/${params.brand_id}`, reqBody);
+        const backendRes = await axioswithIntercept.post(`/api/admin/brand/update/${brand_id}`, reqBody);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });
@@ -51,13 +53,14 @@ export async function POST(
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { brand_id: string } }
+    { params }: { params: Promise<{ brand_id: string }> }
 ) {
     const axioswithIntercept = await axiosIntercept();
 
     try {
+        const { brand_id } = await params;
 
-        const backendRes = await axioswithIntercept.delete(`/api/admin/brand/delete/${params.brand_id}`);
+        const backendRes = await axioswithIntercept.delete(`/api/admin/brand/delete/${brand_id}`);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });

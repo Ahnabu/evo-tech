@@ -38,7 +38,7 @@ export const ordersColumns: ColumnDef<OrderWithItemsType>[] = [
       return (
         <div className="flex flex-col">
           <span className="font-medium text-[0.625rem] leading-tight whitespace-nowrap">
-            {`Name: ${rowdata.firstname}${rowdata.lastname ? ` ${rowdata.lastname}` : ''}`}
+            {`Name: ${rowdata.firstName}${rowdata.lastName ? ` ${rowdata.lastName}` : ''}`}
           </span>
           {rowdata.email ? <span className="text-[0.625rem] text-muted-foreground whitespace-nowrap">Email: {rowdata.email}</span>
             : <span className="text-[0.625rem] text-muted-foreground">Email: --</span>}
