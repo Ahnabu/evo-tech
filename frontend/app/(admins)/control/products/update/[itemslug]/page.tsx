@@ -7,13 +7,12 @@ import axiosErrorLogger from "@/components/error/axios_error";
 import { unstable_noStore as noStore } from "next/cache";
 
 
-const AdminUpdateProductsPage = async ({ params }: { params: Promise<{ itemslug: string }> }) => {
+const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
     const axioswithIntercept = await axiosIntercept();
 
     // fetch item data from backend
     noStore();
-    const { itemslug } = await params;
-    const itemInfo = await axioswithIntercept.get(`/api/admin/items/item/${itemslug}`)
+    const itemInfo = await axioswithIntercept.get(`/api/admin/items/item/${params.itemslug}`)
         .then((res) => {
             return res.data.item_data;
         })

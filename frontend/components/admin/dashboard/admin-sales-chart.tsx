@@ -20,18 +20,16 @@ export function AdminSalesChart() {
     const fetchSalesData = useCallback(async () => {
         try {
             setLoading(true);
-            const response = await fetch(`/api/v1/dashboard/sales-data?period=${timeRange}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+            // Use client-side axios with session token
+            const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
+            const axiosInstance = await createAxiosClient();
             
-            if (response.ok) {
-                const data = await response.json();
-                setSalesData(data.data || []);
+            const response = await axiosInstance.get(`/api/v1/dashboard/sales-data?period=${timeRange}`);
+            
+            if (response.data.success) {
+                setSalesData(response.data.data || []);
             } else {
-                throw new Error('Failed to fetch sales data');
+                throw new Error(response.data.message || 'Failed to fetch sales data');
             }
         } catch (error) {
             console.error("Error fetching sales data:", error);
@@ -76,7 +74,7 @@ export function AdminSalesChart() {
                     <YAxis yAxisId="orders" orientation="right" />
                     <Tooltip 
                         formatter={(value: number, name: string) => [
-                            name === 'sales' ? `$${value.toLocaleString()}` : value,
+                            name === 'sales' ? `৳${value.toLocaleString()}` : value,
                             name === 'sales' ? 'Sales' : 'Orders'
                         ]}
                     />
@@ -107,7 +105,7 @@ export function AdminSalesChart() {
                     <YAxis yAxisId="orders" orientation="right" />
                     <Tooltip 
                         formatter={(value: number, name: string) => [
-                            name === 'sales' ? `$${value.toLocaleString()}` : value,
+                            name === 'sales' ? `৳${value.toLocaleString()}` : value,
                             name === 'sales' ? 'Sales' : 'Orders'
                         ]}
                     />
@@ -163,7 +161,7 @@ export function AdminSalesChart() {
                 <div className="flex gap-6 mt-4">
                     <div>
                         <p className="text-sm text-muted-foreground">Total Sales</p>
-                        <p className="text-2xl font-bold">${totalSales.toLocaleString()}</p>
+                        <p className="text-2xl font-bold">৳{totalSales.toLocaleString()}</p>
                     </div>
                     <div>
                         <p className="text-sm text-muted-foreground">Total Orders</p>

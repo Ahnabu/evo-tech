@@ -22,21 +22,29 @@ export const useUserDashboard = () => {
         setLoading(true);
         setError(null);
 
-        // For now, we'll use mock data since we don't have JWT tokens properly set up
-        // TODO: Replace with actual API calls when JWT tokens are available
+        // Use client-side axios with session token
+        const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
+        const axiosInstance = await createAxiosClient();
         
-        // Mock data based on session user
+        const response = await axiosInstance.get('/api/v1/users/dashboard/stats');
+        
+        if (response.data.success) {
+          setDashboardData(response.data.data);
+        } else {
+          throw new Error(response.data.message || 'Failed to load dashboard data');
+        }
+      } catch (err) {
+        console.error('Error fetching dashboard data:', err);
+        
+        // Fallback to mock data if API fails
         const mockStats: UserDashboardStats = {
           totalOrders: 0,
           totalSpent: 0,
           recentOrders: [],
           rewardPoints: session.user.reward_points || 0,
-          memberSince: new Date(), // Default to current date for now
+          memberSince: new Date(),
         };
-
         setDashboardData(mockStats);
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
         setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
       } finally {
         setLoading(false);
@@ -114,11 +122,21 @@ export const useUserOrders = () => {
         setLoading(true);
         setError(null);
 
-        // Mock empty orders for now
-        // TODO: Replace with actual API call when JWT tokens are properly implemented
-        setOrders([]);
+        // Use client-side axios with session token
+        const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
+        const axiosInstance = await createAxiosClient();
+        
+        const response = await axiosInstance.get('/api/v1/users/dashboard/orders');
+        
+        if (response.data.success) {
+          setOrders(response.data.data);
+        } else {
+          throw new Error(response.data.message || 'Failed to load orders');
+        }
       } catch (err) {
         console.error('Error fetching orders:', err);
+        // Fallback to empty array if API fails
+        setOrders([]);
         setError(err instanceof Error ? err.message : 'Failed to load orders');
       } finally {
         setLoading(false);

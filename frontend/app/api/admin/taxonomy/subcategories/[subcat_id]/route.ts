@@ -11,8 +11,7 @@ export async function GET(
 
     try {
         // backend API call for getting subcategory details
-        const { subcat_id } = await params;
-        const backendRes = await axioswithIntercept.get(`/api/admin/subcategory/view/${subcat_id}`);
+        const backendRes = await axioswithIntercept.get(`/api/admin/subcategory/view/${params.subcat_id}`);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });
@@ -36,8 +35,7 @@ export async function PUT(
         const reqBody = await request.json();
         
         // backend API call for updating subcategory
-        const { subcat_id } = await params;
-        const backendRes = await axioswithIntercept.put(`/api/admin/subcategory/update/${subcat_id}`, reqBody);
+        const backendRes = await axioswithIntercept.put(`/api/admin/subcategory/update/${params.subcat_id}`, reqBody);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });
@@ -59,8 +57,7 @@ export async function DELETE(
 
     try {
         // backend API call for deleting subcategory
-        const { subcat_id } = await params;
-        const backendRes = await axioswithIntercept.delete(`/api/admin/subcategory/delete/${subcat_id}`);
+        const backendRes = await axioswithIntercept.delete(`/api/admin/subcategory/delete/${params.subcat_id}`);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });

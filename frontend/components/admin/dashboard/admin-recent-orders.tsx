@@ -26,18 +26,16 @@ export function AdminRecentOrders() {
     const fetchRecentOrders = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/v1/dashboard/recent-orders', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+            // Use client-side axios with session token
+            const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
+            const axiosInstance = await createAxiosClient();
             
-            if (response.ok) {
-                const data = await response.json();
-                setOrders(data.data || []);
+            const response = await axiosInstance.get('/api/v1/dashboard/recent-orders');
+            
+            if (response.data.success) {
+                setOrders(response.data.data || []);
             } else {
-                throw new Error('Failed to fetch recent orders');
+                throw new Error(response.data.message || 'Failed to fetch recent orders');
             }
         } catch (error) {
             console.error("Error fetching recent orders:", error);
@@ -102,10 +100,10 @@ export function AdminRecentOrders() {
     };
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(amount);
+        return `৳${new Intl.NumberFormat('en-US', {
+            minimumIntegerDigits: 1,
+            maximumFractionDigits: 0,
+        }).format(amount)}`;
     };
 
     const formatDate = (dateString: string) => {

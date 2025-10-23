@@ -13,7 +13,7 @@ export async function GET(
 
         // backend API call for getting category details
         const { category_id } = await params;
-        const backendRes = await axioswithIntercept.get(`/api/admin/category/view/${category_id}`);
+        const backendRes = await axioswithIntercept.get(`/api/admin/category/view/${${category_id}}`);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });
@@ -39,7 +39,7 @@ export async function PUT(
 
         // backend API call for updating category
         const { category_id } = await params;
-        const backendRes = await axioswithIntercept.put(`/api/admin/category/update/${category_id}`, reqBody);
+        const backendRes = await axioswithIntercept.put(`/api/admin/category/update/${${category_id}}`, reqBody);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });
@@ -63,7 +63,7 @@ export async function DELETE(
 
         // backend API call for deleting category
         const { category_id } = await params;
-        const backendRes = await axioswithIntercept.delete(`/api/admin/category/delete/${category_id}`);
+        const backendRes = await axioswithIntercept.delete(`/api/admin/category/delete/${${category_id}}`);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });

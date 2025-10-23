@@ -7,8 +7,14 @@ export const protectedRoutePrefix = "/user";
 /**
  * Protected and Admin only route prefix. These routes require authentication.
  */
-// export const adminRoutePrefix = "/control";
-export const adminRoutePrefix = "/nocontrol";
+export const adminRoutePrefix = "/control";
+
+/**
+ * Role-based routes that need dynamic handling
+ */
+export const roleBasedRoutes: string[] = [
+    "/dashboard"
+];
 
 
 /**
@@ -38,8 +44,12 @@ export const apiAuthPrefix = "/api/auth";
  */
 export const DEFAULT_SIGNIN_REDIRECT_USER = "/"
 
-
 /**
  * default route for admins to redirect to after signing-in
  */
-export const DEFAULT_SIGNIN_REDIRECT_ADMIN = "/control/dashboard"
+export const DEFAULT_SIGNIN_REDIRECT_ADMIN = "/dashboard"
+
+/**
+ * default route for employees to redirect to after signing-in
+ */
+export const DEFAULT_SIGNIN_REDIRECT_EMPLOYEE = "/employee/dashboard"

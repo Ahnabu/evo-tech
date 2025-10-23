@@ -2,12 +2,12 @@ import { NextResponse, NextRequest } from 'next/server';
 import axiosIntercept from "@/utils/axios/axiosIntercept";
 import { isAxiosError } from 'axios';
 import axiosErrorLogger from '@/components/error/axios_error';
+import { currentRouteProps } from '@/utils/types_interfaces/shared_types';
 
 
-
-export async function POST(request: NextRequest, { params }: { params: Promise<{ clientid: string }> }) {
+export async function POST(request: NextRequest, { params }: currentRouteProps) {
     const axioswithIntercept = await axiosIntercept();
-    const { clientid } = await params;
+    const { clientid } = params;
 
     try {
         const formData = await request.formData();
@@ -29,9 +29,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 }
 
 
-export async function DELETE(request: NextRequest, { params }: { params: Promise<{ clientid: string }> }) {
+export async function DELETE(request: NextRequest, { params }: currentRouteProps) {
     const axioswithIntercept = await axiosIntercept();
-    const { clientid } = await params;
+    const { clientid } = params;
 
     try {
         const backendRes = await axioswithIntercept.delete(`/api/admin/lp/ourclients/delete/${clientid}`);

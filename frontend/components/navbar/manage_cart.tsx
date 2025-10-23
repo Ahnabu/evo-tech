@@ -133,7 +133,7 @@ const ManageCart = () => {
                 }
             </button>
 
-            {createPortal(
+            {typeof window !== 'undefined' && createPortal(
                 <>
                     <LazyMotion features={LoadMotionFeatures} strict>
                         <AnimatePresence>

@@ -20,7 +20,7 @@ export function AdminQuickActions() {
             title: "Add Product",
             description: "Add a new product to your inventory",
             icon: Package,
-            href: "/control/products/add",
+            href: "/control/products/create",
             color: "bg-blue-500 hover:bg-blue-600"
         },
         {
@@ -38,17 +38,17 @@ export function AdminQuickActions() {
             color: "bg-purple-500 hover:bg-purple-600"
         },
         {
-            title: "Add Category",
-            description: "Create new product categories",
+            title: "Manage Categories",
+            description: "View and manage product categories",
             icon: Tags,
-            href: "/control/categories/add",
+            href: "/control/categories",
             color: "bg-orange-500 hover:bg-orange-600"
         },
         {
             title: "Sales Report",
             description: "View detailed sales analytics",
             icon: BarChart3,
-            href: "/control/reports/earning",
+            href: "/control/reports",
             color: "bg-pink-500 hover:bg-pink-600"
         },
         {

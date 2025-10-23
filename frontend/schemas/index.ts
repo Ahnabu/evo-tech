@@ -95,7 +95,7 @@ export const checkoutSchema = z.object({
 export const LoginSchema = z.object({
     email: z.string().email("A valid email is required"),
     password: z.string().nonempty("Password is required"),
-    role: z.enum(["USER", "ADMIN"]).optional(),
+    role: z.enum(["USER", "ADMIN", "EMPLOYEE"]).optional(),
 });
 
 

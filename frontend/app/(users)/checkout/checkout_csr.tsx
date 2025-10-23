@@ -104,8 +104,8 @@ const CheckoutParts = () => {
         }
 
         const checkoutDetails = {
-            firstname: data.firstName,
-            lastname: data.lastName,
+            firstname: data.firstname,
+            lastname: data.lastname,
             phone: data.phone,
             email: data.email,
             housestreet: data.housestreet,
@@ -244,23 +244,23 @@ const CheckoutParts = () => {
 
                     <div className="flex max-[300px]:flex-col w-full h-fit gap-x-2 gap-y-4">
                         <div className="relative w-full h-fit pt-1.5">
-                            <input type="text" id="firstname" {...register("firstName")} placeholder="Enter first name" autoCorrect="off" spellCheck="false"
+                            <input type="text" id="firstname" {...register("firstname")} placeholder="Enter first name" autoCorrect="off" spellCheck="false"
                                 className="peer w-full h-[40px] custom-input-style1"
                             />
                             <label htmlFor="firstname" className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300">
                                 {`First Name*`}
                             </label>
-                            {errors.firstName && <EvoFormInputError>{errors.firstName.message}</EvoFormInputError>}
+                            {errors.firstname && <EvoFormInputError>{errors.firstname.message}</EvoFormInputError>}
                         </div>
 
                         <div className="relative w-full h-fit pt-1.5">
-                            <input type="text" id="lastname" {...register("lastName")} placeholder="Enter last name" autoCorrect="off" spellCheck="false"
+                            <input type="text" id="lastname" {...register("lastname")} placeholder="Enter last name" autoCorrect="off" spellCheck="false"
                                 className="peer w-full h-[40px] custom-input-style1"
                             />
                             <label htmlFor="lastname" className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300">
                                 {`Last Name`}
                             </label>
-                            {errors.lastName && <EvoFormInputError>{errors.lastName.message}</EvoFormInputError>}
+                            {errors.lastname && <EvoFormInputError>{errors.lastname.message}</EvoFormInputError>}
                         </div>
                     </div>
 

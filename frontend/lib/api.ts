@@ -60,6 +60,26 @@ export const userApi = {
     });
     return response.data;
   },
+
+  // Get user dashboard stats
+  getDashboardStats: async (token: string) => {
+    const response = await apiCall(`/users/dashboard/stats`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  },
+
+  // Get user orders
+  getUserOrders: async (token: string) => {
+    const response = await apiCall(`/users/dashboard/orders`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response;
+  },
 };
 
 // Order API functions  

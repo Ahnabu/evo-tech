@@ -6,10 +6,10 @@ import axiosErrorLogger from '@/components/error/axios_error';
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: Promise<{ itemid: string }> }
+    { params }: { params: { itemid: string } }
 ) {
     const axioswithIntercept = await axiosIntercept();
-    const { itemid } = await params;
+    const { itemid } = params;
 
     try {
         const formdata = await request.formData();

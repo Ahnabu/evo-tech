@@ -29,18 +29,16 @@ export function AdminTopProducts() {
     const fetchTopProducts = async () => {
         try {
             setLoading(true);
-            const response = await fetch('/api/v1/dashboard/top-products', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json',
-                },
-            });
+            // Use client-side axios with session token
+            const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
+            const axiosInstance = await createAxiosClient();
             
-            if (response.ok) {
-                const data = await response.json();
-                setProducts(data.data || []);
+            const response = await axiosInstance.get('/api/v1/dashboard/top-products');
+            
+            if (response.data.success) {
+                setProducts(response.data.data || []);
             } else {
-                throw new Error('Failed to fetch top products');
+                throw new Error(response.data.message || 'Failed to fetch top products');
             }
         } catch (error) {
             console.error("Error fetching top products:", error);
@@ -104,10 +102,10 @@ export function AdminTopProducts() {
     };
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(amount);
+        return `৳${new Intl.NumberFormat('en-US', {
+            minimumIntegerDigits: 1,
+            maximumFractionDigits: 0,
+        }).format(amount)}`;
     };
 
     return (

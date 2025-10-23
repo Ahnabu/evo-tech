@@ -69,7 +69,7 @@ const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
                         <CardContent className="text-xs text-stone-500 space-y-2">
                             <p className="w-full h-fit">
                                 <span className="text-evoAdminPrimary font-semibold">{`Name: `}</span>
-                                {`${orderData.firstName}${orderData.lastName ? ` ${orderData.lastName}` : ''}`}
+                                {`${orderData.firstname}${orderData.lastname ? ` ${orderData.lastname}` : ''}`}
                             </p>
                             {orderData.email && <p className="w-full h-fit">
                                 <span className="text-evoAdminPrimary font-semibold">{`Email: `}</span>

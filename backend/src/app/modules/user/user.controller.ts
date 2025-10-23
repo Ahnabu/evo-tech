@@ -50,104 +50,28 @@ const deleteUser = catchAsync(async (req, res) => {
   });
 });
 
-// Customer management controllers for admin
-const getAllCustomers = catchAsync(async (req, res) => {
-  const customers = await UserServices.getAllCustomersFromDB(req.query);
+const getUserDashboardStats = catchAsync(async (req, res) => {
+  const userUuid = req.user.uuid; // From auth middleware
+  const result = await UserServices.getUserDashboardStatsFromDB(userUuid);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "Customers retrieved successfully",
-    data: customers.result,
-    meta: customers.meta,
-  });
-});
-
-const getCustomerStats = catchAsync(async (req, res) => {
-  const stats = await UserServices.getCustomerStatsFromDB();
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Customer statistics retrieved successfully",
-    data: stats,
-  });
-});
-
-const updateCustomerStatus = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const { isDeleted } = req.body;
-  
-  const result = await UserServices.updateCustomerStatusFromDB(id, isDeleted);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Customer status updated successfully",
+    message: "User dashboard stats retrieved successfully",
     data: result,
   });
 });
 
-// Staff management controllers for admin
-const getAllStaffs = catchAsync(async (req, res) => {
-  const staffs = await UserServices.getAllStaffsFromDB(req.query);
+const getUserOrders = catchAsync(async (req, res) => {
+  const userUuid = req.user.uuid; // From auth middleware
+  const result = await UserServices.getUserOrdersFromDB(userUuid, req.query);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
-    message: "Staff members retrieved successfully",
-    data: staffs.result,
-    meta: staffs.meta,
-  });
-});
-
-const getStaffStats = catchAsync(async (req, res) => {
-  const stats = await UserServices.getStaffStatsFromDB();
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Staff statistics retrieved successfully",
-    data: stats,
-  });
-});
-
-const createStaff = catchAsync(async (req, res) => {
-  const result = await UserServices.createStaffFromDB(req.body);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.CREATED,
-    message: "Staff member created successfully",
-    data: result,
-  });
-});
-
-const updateStaffRole = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const { role } = req.body;
-  
-  const result = await UserServices.updateStaffRoleFromDB(id, role);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Staff role updated successfully",
-    data: result,
-  });
-});
-
-const updateStaffStatus = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const { isDeleted } = req.body;
-  
-  const result = await UserServices.updateStaffStatusFromDB(id, isDeleted);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Staff status updated successfully",
-    data: result,
+    message: "User orders retrieved successfully",
+    data: result.result,
+    meta: result.meta,
   });
 });
 
@@ -156,12 +80,6 @@ export const UserControllers = {
   getAllUsers,
   updateUser,
   deleteUser,
-  getAllCustomers,
-  getCustomerStats,
-  updateCustomerStatus,
-  getAllStaffs,
-  getStaffStats,
-  createStaff,
-  updateStaffRole,
-  updateStaffStatus,
+  getUserDashboardStats,
+  getUserOrders,
 };

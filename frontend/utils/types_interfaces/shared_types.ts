@@ -4,8 +4,8 @@ import { StaticImageData } from "next/image";
 import { ComponentProps } from "react";
 
 type currentRouteProps = {
-    params: Promise<{ [key: string]: string; }>
-    searchParams: Promise<{ [key: string]: string | string[] | undefined; }>
+    params: { [key: string]: string; }
+    searchParams: { [key: string]: string | string[] | undefined; }
 };
 
 

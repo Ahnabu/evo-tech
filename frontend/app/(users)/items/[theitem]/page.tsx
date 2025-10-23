@@ -15,7 +15,7 @@ import { Suspense } from "react";
 export const generateMetadata = async (
     { params }: currentRouteProps,
 ): Promise<Metadata> => {
-    const { theitem: itemslug } = await params;
+    const itemslug = params.theitem;
 
     const itemname = itemslug
     .replace(/-/g, " ")
@@ -47,8 +47,7 @@ const fetchItemData = async ( itemSlugHere: string ) => {
 
 const IndividualItem = async ({ params }: currentRouteProps) => {
 
-    const { theitem } = await params;
-    const [ itemInfo ] = await Promise.all([fetchItemData(theitem)]);
+    const [ itemInfo ] = await Promise.all([fetchItemData(params.theitem)]);
 
     if (!itemInfo) {
         return (

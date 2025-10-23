@@ -1,9 +1,11 @@
 import { Model } from "mongoose";
 
+export type UserType = "admin" | "user" | "employee";
+
 export interface TUser {
   _id?: string;
   uuid: string;
-  userType: "admin" | "user";
+  userType: UserType;
   firstName: string;
   lastName: string;
   email: string;

@@ -51,10 +51,10 @@ export const ordersColumns: ColumnDef<OrderWithItemsType>[] = [
     header: () => <div>Amount</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("total_payable") as string);
-      const formatted = new Intl.NumberFormat("en-US", {
-        style: "currency",
-        currency: "BDT",
-      }).format(amount);
+      const formatted = `৳${new Intl.NumberFormat("en-US", {
+        minimumIntegerDigits: 1,
+        maximumFractionDigits: 0,
+      }).format(amount)}`;
 
       return <div className="text-xs font-medium whitespace-nowrap">{formatted}</div>;
     },

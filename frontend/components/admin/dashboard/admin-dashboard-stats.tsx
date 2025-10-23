@@ -42,8 +42,17 @@ export function AdminDashboardStats() {
 
     const fetchStats = async () => {
         try {
-            const response = await axios.get("/api/v1/dashboard/stats");
-            setStats(response.data.data);
+            // Use client-side axios with session token
+            const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
+            const axiosInstance = await createAxiosClient();
+            
+            const response = await axiosInstance.get("/api/v1/dashboard/stats");
+            
+            if (response.data.success) {
+                setStats(response.data.data);
+            } else {
+                throw new Error(response.data.message || 'Failed to load dashboard stats');
+            }
         } catch (error) {
             console.error("Error fetching dashboard stats:", error);
             // Fallback to mock data
@@ -63,10 +72,10 @@ export function AdminDashboardStats() {
     };
 
     const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD'
-        }).format(amount);
+        return `৳${new Intl.NumberFormat('en-US', {
+            minimumIntegerDigits: 1,
+            maximumFractionDigits: 0,
+        }).format(amount)}`;
     };
 
     const formatNumber = (num: number) => {
