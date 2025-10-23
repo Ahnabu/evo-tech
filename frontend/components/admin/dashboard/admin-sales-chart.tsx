@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { useSession } from "next-auth/react";
+import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 
 interface SalesData {
     date: string;
@@ -12,17 +14,18 @@ interface SalesData {
 }
 
 export function AdminSalesChart() {
+    const { data: session } = useSession();
     const [salesData, setSalesData] = useState<SalesData[]>([]);
     const [chartType, setChartType] = useState<"line" | "bar">("line");
     const [timeRange, setTimeRange] = useState<"7d" | "30d" | "90d">("30d");
     const [loading, setLoading] = useState(true);
 
     const fetchSalesData = useCallback(async () => {
+        if (!session) return;
+        
         try {
             setLoading(true);
-            // Use client-side axios with session token
-            const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
-            const axiosInstance = await createAxiosClient();
+            const axiosInstance = createAxiosClientWithSession(session);
             
             const response = await axiosInstance.get(`/api/v1/dashboard/sales-data?period=${timeRange}`);
             
@@ -55,7 +58,7 @@ export function AdminSalesChart() {
         } finally {
             setLoading(false);
         }
-    }, [timeRange]);
+    }, [session, timeRange]);
 
     useEffect(() => {
         fetchSalesData();

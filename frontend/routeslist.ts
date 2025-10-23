@@ -12,9 +12,7 @@ export const adminRoutePrefix = "/control";
 /**
  * Role-based routes that need dynamic handling
  */
-export const roleBasedRoutes: string[] = [
-    "/dashboard"
-];
+export const roleBasedRoutes: string[] = [];
 
 
 /**
@@ -47,7 +45,7 @@ export const DEFAULT_SIGNIN_REDIRECT_USER = "/"
 /**
  * default route for admins to redirect to after signing-in
  */
-export const DEFAULT_SIGNIN_REDIRECT_ADMIN = "/dashboard"
+export const DEFAULT_SIGNIN_REDIRECT_ADMIN = "/control/dashboard"
 
 /**
  * default route for employees to redirect to after signing-in

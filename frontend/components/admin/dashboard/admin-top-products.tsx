@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import Image from "next/image";
 import { TrendingUp, Package } from "lucide-react";
+import { useSession } from "next-auth/react";
+import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 
 interface TopProduct {
     id: string;
@@ -19,19 +21,16 @@ interface TopProduct {
 }
 
 export function AdminTopProducts() {
+    const { data: session } = useSession();
     const [products, setProducts] = useState<TopProduct[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchTopProducts();
-    }, []);
-
-    const fetchTopProducts = async () => {
+    const fetchTopProducts = useCallback(async () => {
+        if (!session) return;
+        
         try {
             setLoading(true);
-            // Use client-side axios with session token
-            const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
-            const axiosInstance = await createAxiosClient();
+            const axiosInstance = createAxiosClientWithSession(session);
             
             const response = await axiosInstance.get('/api/v1/dashboard/top-products');
             
@@ -99,7 +98,11 @@ export function AdminTopProducts() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [session]);
+
+    useEffect(() => {
+        fetchTopProducts();
+    }, [fetchTopProducts]);
 
     const formatCurrency = (amount: number) => {
         return `৳${new Intl.NumberFormat('en-US', {

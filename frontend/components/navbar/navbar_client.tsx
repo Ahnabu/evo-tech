@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useSelector } from "react-redux";
@@ -17,7 +15,7 @@ import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { BiPackage } from "react-icons/bi";
 import { IoChevronDown } from "react-icons/io5";
 import { FiSearch } from "react-icons/fi";
-import { TbDashboard, TbUser } from "react-icons/tb";
+import { TbDashboard, TbUser, TbLogout } from "react-icons/tb";
 
 import ServiceCard from "@/components/cards/servicecard";
 import ManageCart from "@/components/navbar/manage_cart";
@@ -244,7 +242,7 @@ const NavbarClient = ({
   };
 
   const getDashboardUrl = (userRole: string) => {
-    switch (userRole) {
+    switch (userRole?.toLowerCase()) {
       case "admin":
         return "/control/dashboard";
       case "employee":
@@ -341,7 +339,7 @@ const NavbarClient = ({
                     <DropdownMenu.Trigger asChild>
                       <button
                         aria-label="user menu"
-                        className="flex items-center gap-2"
+                        className="flex items-center gap-3 hover:bg-stone-50 p-2 rounded-lg transition-colors"
                       >
                         <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                           <Avatar
@@ -352,6 +350,15 @@ const NavbarClient = ({
                             classNames={{ base: "w-6 h-6" }}
                           />
                         </div>
+                        <div className="hidden sm:block text-left">
+                          <div className="text-sm font-[600] text-stone-700">
+                            {currentUser.firstName}
+                          </div>
+                          <div className="text-xs text-stone-500 capitalize">
+                            {currentUser.role?.toLowerCase() || 'User'}
+                          </div>
+                        </div>
+                        <IoChevronDown className="hidden sm:block w-4 h-4 text-stone-500" />
                       </button>
                     </DropdownMenu.Trigger>
 
@@ -378,17 +385,57 @@ const NavbarClient = ({
                           <span>Dashboard</span>
                         </Link>
                       </DropdownMenu.Item>
+                      <DropdownMenu.Item asChild>
+                        <Link
+                          href="/order-history"
+                          className="flex items-center gap-3 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100"
+                        >
+                          <BiPackage className="w-4 h-4" />
+                          <span>Order History</span>
+                        </Link>
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator className="h-px bg-stone-200 my-1" />
+                      <DropdownMenu.Item asChild>
+                        <button
+                          onClick={() => handleSignOutDebounced()}
+                          className="w-full flex items-center gap-3 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
+                        >
+                          <TbLogout className="w-4 h-4" />
+                          <span>Sign Out</span>
+                        </button>
+                      </DropdownMenu.Item>
                     </DropdownMenu.Content>
                   </DropdownMenu.Root>
                 ) : (
-                  <div className="hidden sm:flex items-center gap-4">
-                    <Link href="/login" className="text-sm font-medium">
-                      Sign in
-                    </Link>
-                    <Link href="/register" className="text-sm font-medium">
-                      Sign up
-                    </Link>
-                  </div>
+                  <>
+                    {/* Desktop Sign In/Sign Up */}
+                    <div className="hidden sm:flex items-center gap-4">
+                      <Link 
+                        href="/login" 
+                        className="text-sm font-medium text-stone-700 hover:text-stone-900 transition-colors"
+                      >
+                        Sign in
+                      </Link>
+                      <Link 
+                        href="/register" 
+                        className="px-4 py-2 text-sm font-medium bg-[#0866FF] text-white rounded-lg hover:bg-[#0653D3] transition-colors"
+                      >
+                        Sign up
+                      </Link>
+                    </div>
+                    
+                    {/* Mobile Sign In Button */}
+                    <div className="sm:hidden">
+                      <Link 
+                        href="/login"
+                        className="flex items-center gap-2"
+                      >
+                        <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
+                          <TbUser className="w-5 h-5 text-stone-700" />
+                        </div>
+                      </Link>
+                    </div>
+                  </>
                 )}
 
                 <div className="flex items-center gap-3">
@@ -399,7 +446,7 @@ const NavbarClient = ({
               </div>
             </div>
 
-            <div
+            {/* <div
               className={`w-full border-t transition-colors duration-200 ${
                 isScrolled
                   ? "bg-white/60 backdrop-blur-sm border-stone-100"
@@ -444,7 +491,7 @@ const NavbarClient = ({
                   Support
                 </Link>
               </div>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

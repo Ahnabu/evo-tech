@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 import { Eye } from "lucide-react";
 
 interface Order {
@@ -16,19 +18,16 @@ interface Order {
 }
 
 export function AdminRecentOrders() {
+    const { data: session } = useSession();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchRecentOrders();
-    }, []);
-
-    const fetchRecentOrders = async () => {
+    const fetchRecentOrders = useCallback(async () => {
+        if (!session) return;
+        
         try {
             setLoading(true);
-            // Use client-side axios with session token
-            const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
-            const axiosInstance = await createAxiosClient();
+            const axiosInstance = createAxiosClientWithSession(session);
             
             const response = await axiosInstance.get('/api/v1/dashboard/recent-orders');
             
@@ -86,7 +85,11 @@ export function AdminRecentOrders() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [session]);
+
+    useEffect(() => {
+        fetchRecentOrders();
+    }, [fetchRecentOrders]);
 
     const getStatusColor = (status: string) => {
         switch (status) {

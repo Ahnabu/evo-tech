@@ -62,6 +62,7 @@ export default {
                             reward_points: user.rewardPoints ?? null,
                             newsletter_opt_in: user.newsletterOptIn ?? null,
                             addresses: null, // Backend doesn't include addresses in auth response
+                            accessToken: user.accessToken,
                         };
                     }
                 }

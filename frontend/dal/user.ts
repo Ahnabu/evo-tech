@@ -4,7 +4,7 @@ import axios from "@/utils/axios/axios";
 import { isAxiosError } from "axios";
 
 
-export const authUsingApi = async (values: { email: string; password: string; role?: "USER" | "ADMIN" }) => {
+export const authUsingApi = async (values: { email: string; password: string; role?: "USER" | "ADMIN" | "EMPLOYEE"  }) => {
 
     const response = await axios.post("/api/v1/auth/login",
         {
@@ -17,7 +17,14 @@ export const authUsingApi = async (values: { email: string; password: string; ro
             },
         })
         .then((res) => {
-            return res.data.data?.user ? res.data.data.user : null;
+            // Return both user data and access token
+            if (res.data.data?.user && res.data.data?.accessToken) {
+                return {
+                    ...res.data.data.user,
+                    accessToken: res.data.data.accessToken
+                };
+            }
+            return null;
         })
         .catch((err: unknown) => {
             if (isAxiosError(err)) {

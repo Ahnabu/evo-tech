@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
-import { userApi, orderApi, dashboardApi } from '@/lib/api';
+import { createAxiosClientWithSession } from '@/utils/axios/axiosClient';
 import { User, Order, UserDashboardStats } from '@/types';
 
 export const useUserDashboard = () => {
@@ -11,20 +11,17 @@ export const useUserDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchDashboardData = async () => {
-      if (!session?.user?.id) {
-        setLoading(false);
-        return;
-      }
+  const fetchDashboardData = useCallback(async () => {
+    if (!session?.user?.id) {
+      setLoading(false);
+      return;
+    }
 
-      try {
-        setLoading(true);
-        setError(null);
+    try {
+      setLoading(true);
+      setError(null);
 
-        // Use client-side axios with session token
-        const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
-        const axiosInstance = await createAxiosClient();
+      const axiosInstance = createAxiosClientWithSession(session);
         
         const response = await axiosInstance.get('/api/v1/users/dashboard/stats');
         
@@ -49,10 +46,11 @@ export const useUserDashboard = () => {
       } finally {
         setLoading(false);
       }
-    };
-
-    fetchDashboardData();
   }, [session]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   return { dashboardData, loading, error };
 };

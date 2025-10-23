@@ -7,6 +7,7 @@ import ScrollBacktoTop from "@/components/scrolltotop";
 import { backAPIURL } from "@/lib/env-vars";
 import { TaxonomyProvider } from "@/components/providers/taxonomy-provider";
 import type { TaxonomyCategory } from "@/store/slices/taxonomySlice";
+import { ConditionalLayout } from "@/components/layout/conditional-layout";
 
 export const metadata: Metadata = {
   title: {
@@ -66,7 +67,9 @@ const RootLayout = async ({ children }: { children: React.ReactNode; }) => {
       <body className={`${inter} ${roboto} antialiased`}>
         <Providers>
           <TaxonomyProvider initialData={taxonomyData}>
-            {children}
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
             <ScrollBacktoTop />
             <EvoToaster />
             <div id="modal-root"></div>

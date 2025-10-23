@@ -23,6 +23,11 @@ declare module "next-auth" {
         reward_points?: number | null;
         newsletter_opt_in?: boolean | null;
         addresses?: addressType[] | null;
+        accessToken?: string;
+    }
+
+    interface Session {
+        accessToken?: string;
     }
 }
 
@@ -41,6 +46,7 @@ declare module "@auth/core/jwt" {
             newsletter_opt_in?: boolean | null;
             addresses?: addressType[] | null;
         }
+        accessToken?: string;
     }
 }
 
@@ -168,6 +174,7 @@ export const {
                     newsletter_opt_in: user.newsletter_opt_in,
                     addresses: user.addresses,
                 };
+                token.accessToken = user.accessToken;
             }
 
             return token;
@@ -184,6 +191,10 @@ export const {
                     ...session.user,
                     ...token.userdata
                 };
+            }
+
+            if (token.accessToken) {
+                session.accessToken = token.accessToken;
             }
 
             return session;

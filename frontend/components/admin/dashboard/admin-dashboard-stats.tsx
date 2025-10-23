@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
     DollarSign, 
@@ -10,7 +10,8 @@ import {
     TrendingUp,
     TrendingDown
 } from "lucide-react";
-import axios from "@/utils/axios/axios";
+import { useSession } from "next-auth/react";
+import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 
 interface DashboardStats {
     totalRevenue: number;
@@ -24,6 +25,7 @@ interface DashboardStats {
 }
 
 export function AdminDashboardStats() {
+    const { data: session } = useSession();
     const [stats, setStats] = useState<DashboardStats>({
         totalRevenue: 0,
         totalOrders: 0,
@@ -36,15 +38,11 @@ export function AdminDashboardStats() {
     });
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        fetchStats();
-    }, []);
-
-    const fetchStats = async () => {
+    const fetchStats = useCallback(async () => {
+        if (!session) return;
+        
         try {
-            // Use client-side axios with session token
-            const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
-            const axiosInstance = await createAxiosClient();
+            const axiosInstance = createAxiosClientWithSession(session);
             
             const response = await axiosInstance.get("/api/v1/dashboard/stats");
             
@@ -69,7 +67,11 @@ export function AdminDashboardStats() {
         } finally {
             setLoading(false);
         }
-    };
+    }, [session]);
+
+    useEffect(() => {
+        fetchStats();
+    }, [fetchStats]);
 
     const formatCurrency = (amount: number) => {
         return `৳${new Intl.NumberFormat('en-US', {

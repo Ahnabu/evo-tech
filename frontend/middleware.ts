@@ -5,7 +5,6 @@ import {
     authRoutes,
     protectedRoutePrefix,
     adminRoutePrefix,
-    roleBasedRoutes,
     apiAuthPrefix,
     DEFAULT_SIGNIN_REDIRECT_USER,
     DEFAULT_SIGNIN_REDIRECT_ADMIN,
@@ -25,7 +24,6 @@ export default middleware( async (request) => {
 
     const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
     const isAdminOnlyRoute = nextUrl.pathname.startsWith(adminRoutePrefix);
-    const isRoleBasedRoute = roleBasedRoutes.includes(nextUrl.pathname);
     const isProtectedRoute = nextUrl.pathname.startsWith(protectedRoutePrefix);
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
@@ -36,20 +34,6 @@ export default middleware( async (request) => {
 
     // when the route is not an auth or api route
     if (!isAuthRoute) {
-        // Handle role-based routes (like /dashboard)
-        if (isRoleBasedRoute) {
-            if (!isLoggedIn) {
-                return NextResponse.redirect(new URL("/login", nextUrl));
-            }
-            
-            // Role-based routing: redirect to appropriate dashboard based on user role
-            if (nextUrl.pathname === "/dashboard") {
-                const response = NextResponse.next();
-                response.cookies.set("last_pg", nextUrl.pathname, { path: "/" });
-                return response;
-            }
-        }
-        
         if (isAdminOnlyRoute) {
             // redirect if admin route and the user is not even authenticated
             if (!isLoggedIn) {
