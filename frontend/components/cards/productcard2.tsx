@@ -36,7 +36,7 @@ const ProductCard2 = ({ eachItem }: { eachItem: any; }) => {
             };
         }
 
-        const cartResponse = await axios.post(`/api/cart/add`, {
+        const cartResponse = await axios.post(`/api/shopping/add`, {
             item_id: eachItem.itemid,
             item_quantity: 1,
             item_price: eachItem.i_price,

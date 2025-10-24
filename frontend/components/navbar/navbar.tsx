@@ -19,7 +19,7 @@ export type NavbarMenuType1 = {
     name: string;
 };
 
-const NavBar = async () => {
+const NavBar = () => {
     // Static services data (not taxonomy-dependent)
     const services: NavbarMenuType1[] = [
         { gotourl: "/3d-printing", imgsrc: ThreeDPrintService, name: "3D Printing", },

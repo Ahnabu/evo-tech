@@ -36,7 +36,7 @@ const ManageCart = () => {
                 };
             }
 
-            const cartResponse = await axios.get(`/api/cart`, {
+            const cartResponse = await axios.get(`/api/shopping/cart`, {
                 ...cartReqBody,
             }
             ).then((res) => res.data)

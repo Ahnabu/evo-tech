@@ -1,4 +1,4 @@
-import { BarChartIcon, UsersIcon, ChartArea, NotebookText, SquarePercent, BookText, Contact, HelpCircleIcon, Settings2, Container } from "lucide-react";
+import { BarChartIcon, UsersIcon, ChartArea, HelpCircleIcon, Settings2, Contact } from "lucide-react";
 import { RiBox1Line, RiDashboardHorizontalLine } from "react-icons/ri";
 
 
@@ -43,28 +43,6 @@ const adminSidebarMenus = [
         ],
     },
     {
-        title: "Supply",
-        icon: Container,
-        collapsibleItems: [
-            {
-                title: "Add New Supply",
-                url: "/control/supplies/add",
-            },
-            {
-                title: "All Supplies",
-                url: "/control/supplies",
-            },
-            {
-                title: "Add New Shipment",
-                url: "/control/shipments/add",
-            },
-            {
-                title: "All Shipments",
-                url: "/control/shipments",
-            },
-        ],
-    },
-    {
         title: "Customers",
         icon: UsersIcon,
         collapsibleItems: [
@@ -93,60 +71,12 @@ const adminSidebarMenus = [
         ],
     },
     {
-        title: "Support",
-        icon: NotebookText,
-        collapsibleItems: [
-            {
-                title: "Tickets",
-                url: "/control/support/tickets",
-            },
-            {
-                title: "Product Queries",
-                url: "/control/support/product-queries",
-            },
-            {
-                title: "Contacts",
-                url: "/control/support/contacts",
-            },
-        ],
-    },
-    {
-        title: "Marketing",
-        icon: SquarePercent,
-        collapsibleItems: [
-            {
-                title: "Flash Deals",
-                url: "/control/marketing/flash-deals",
-            },
-            {
-                title: "Dynamic Popups",
-                url: "/control/marketing/dynamic-popups",
-            },
-            {
-                title: "Newsletter",
-                url: "/control/marketing/newsletter",
-            },
-            {
-                title: "Subscribers",
-                url: "/control/marketing/subscribers",
-            },
-            {
-                title: "Coupons",
-                url: "/control/marketing/coupons",
-            },
-            {
-                title: "Referral",
-                url: "/control/marketing/referral",
-            },
-        ],
-    },
-    {
         title: "Staffs",
         icon: Contact,
         collapsibleItems: [
             {
                 title: "All Staffs",
-                url: "/control/all-staffs",
+                url: "/control/staff",
             },
         ]
     },

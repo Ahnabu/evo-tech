@@ -20,8 +20,8 @@ const LogoCarouselClient = memo(() => {
 
         const fetchLogos = async () => {
             try {
-                const response = await axios.get('/api/landingpage/ourclients');
-                const clientsData = response.data.ourclientsdata || [];
+                const response = await axios.get('/api/clients');
+                const clientsData = response.data.clients || [];
                 
                 if (isMounted) {
                     setLogos(clientsData);

@@ -115,50 +115,6 @@ export const {
     debug: false,
     callbacks: {
         async signIn({ user, account, profile }) {
-            
-            if (account?.provider === "google" && profile) {
-
-                const authRes = await axios.post("/api/signin-oauthuser", {
-                    account: { ...account },
-                    profile: {
-                        firstName: user.firstName,
-                        lastName: user.lastName,
-                        email: user.email,
-                        email_verified: user.email_verified,
-                    },
-                }, { headers: { "Content-Type": "application/json", } })
-                    .then((res) => {
-                        if (res.data.isAllowedtoSignin && res.data.userdata) {
-                            const { userdata } = res.data;
-
-                            user.id = userdata.uuid;
-                            user.phone = userdata.phone;
-                            user.reward_points = userdata.reward_points;
-                            user.newsletter_opt_in = userdata.newsletter_opt_in;
-                            user.addresses = userdata.addresses;
-
-                            return true;
-                        }
-
-                        return "/auth-error?error=accessDeniedForProvider";
-                    })
-                    .catch((err: unknown) => {
-                        if (isAxiosError(err)) {
-                            if (err.code && err.code === "ECONNREFUSED") {
-                                return "/auth-error?error=serverUnreachable";
-                            } else if (err.code && err.code === "ETIMEDOUT") {
-                                return "/auth-error?error=requestTimedOut";
-                            } else if (err.response && err.response.status >= 500) {
-                                return "/auth-error?error=internalServerError";
-                            }
-                        }
-                        
-                        return "/auth-error?error=signInFailed";
-                    })
-
-                return authRes; // allow or redirect to error page
-            }
-
             return true;
         },
         async jwt({ token, user, account, profile }) {

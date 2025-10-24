@@ -6,7 +6,8 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import axios from "axios";
+import { useSession } from "next-auth/react";
+import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +56,7 @@ interface Brand {
 }
 
 const ProductHeaderClient = () => {
+  const { data: session } = useSession();
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [brands, setBrands] = useState<Brand[]>([...ItemBrandOptions]);
@@ -86,14 +88,18 @@ const ProductHeaderClient = () => {
   // Fetch filter options (categories, brands) on mount
   useEffect(() => {
     const fetchFilterOptions = async () => {
+      if (!session) return;
+      
       try {
+        const axiosClient = createAxiosClientWithSession(session);
+        
         // Fetch categories
-        const categoriesResponse = await axios.get('/api/admin/taxonomy/categories');
-        setCategories(categoriesResponse.data.categories_data || []);
+        const categoriesResponse = await axiosClient.get('/api/categories');
+        setCategories(categoriesResponse.data.data || []);
 
         // Fetch subcategories  
-        const subcategoriesResponse = await axios.get('/api/admin/taxonomy/subcategories');
-        setSubcategories(subcategoriesResponse.data.subcategories_data || []);
+        const subcategoriesResponse = await axiosClient.get('/api/subcategories');
+        setSubcategories(subcategoriesResponse.data.data || []);
 
         // // Fetch brands
         // const brandsResponse = await axios.get('/api/admin/taxonomy/brands');
@@ -104,7 +110,7 @@ const ProductHeaderClient = () => {
     };
 
     fetchFilterOptions();
-  }, []);
+  }, [session]);
 
   // Filter subcategories based on selected category
   const filteredSubcategories = useMemo(() => {

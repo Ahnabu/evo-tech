@@ -7,7 +7,8 @@ import { AppDispatch, RootState } from '@/store/store';
 import { setProductsList } from "@/store/slices/productSlice";
 import { ProductDisplayType } from "@/schemas/admin/product/productschemas";
 import { ServerSidePaginationProps } from "@/utils/types_interfaces/data-table-props";
-import axios from "axios";
+import { useSession } from "next-auth/react";
+import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 
 interface PaginationData {
     current_page: number;
@@ -26,6 +27,7 @@ interface UseProductsDataReturn {
 }
 
 export function useProductsData(): UseProductsDataReturn {
+    const { data: session } = useSession();
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [paginationData, setPaginationData] = useState<PaginationData | null>(null);
@@ -37,6 +39,7 @@ export function useProductsData(): UseProductsDataReturn {
     const dispatch = useDispatch<AppDispatch>();
 
     const fetchProducts = useCallback(async () => {
+        if (!session) return;
 
         try {
             setIsLoading(true);
@@ -61,16 +64,17 @@ export function useProductsData(): UseProductsDataReturn {
 
             const queryString = queryParams.toString();
 
-            const response = await axios.get(
-                `/api/admin/products${queryString ? `?${queryString}` : ""}`
+            const axiosClient = createAxiosClientWithSession(session);
+            const response = await axiosClient.get(
+                `/api/products${queryString ? `?${queryString}` : ""}`
             );
 
-            const productsData = response.data.items_data;
+            const productsData = response.data.data || response.data.items_data || response.data.products || [];
             const pagination: PaginationData = {
-                current_page: response.data.current_page,
-                last_page: response.data.last_page,
-                total_items: response.data.total_items,
-                per_page: response.data.per_page,
+                current_page: response.data.current_page || 1,
+                last_page: response.data.last_page || 1,
+                total_items: response.data.total_items || productsData.length,
+                per_page: response.data.per_page || 10,
             };
 
             dispatch(setProductsList(productsData));
@@ -82,7 +86,7 @@ export function useProductsData(): UseProductsDataReturn {
         } finally {
             setIsLoading(false);
         }
-    }, [searchParams, dispatch]);
+    }, [searchParams, dispatch, session]);
 
     // Handle page change
     const handlePageChange = useCallback((page: number) => {

@@ -9,12 +9,13 @@ import { unstable_noStore as noStore } from "next/cache";
 
 const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
     const axioswithIntercept = await axiosIntercept();
+    const resolvedParams = await params;
 
     // fetch item data from backend
     noStore();
-    const itemInfo = await axioswithIntercept.get(`/api/admin/items/item/${params.itemslug}`)
+    const itemInfo = await axioswithIntercept.get(`/api/products/slug/${resolvedParams.itemslug}`)
         .then((res) => {
-            return res.data.item_data;
+            return res.data.data || res.data.item_data;
         })
         .catch((error: any) => {
             axiosErrorLogger({ error });

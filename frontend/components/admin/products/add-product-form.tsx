@@ -6,7 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { EvoFormInputError } from "@/components/error/form-input-error";
 import { FileUploader } from "@/components/file_upload/file-uploader";
 import { AddProductSchema } from "@/schemas/admin/product/productschemas";
-import axios from "axios";
+import { useSession } from "next-auth/react";
+import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/lib/all_utils";
@@ -27,6 +28,7 @@ import { useTaxonomy } from "@/hooks/use-taxonomy";
 import { useFeaturedSections } from "@/hooks/use-featured-sections";
 
 const AddProductForm = () => {
+    const { data: session } = useSession();
     const router = useRouter();
     const { getCategoriesForSelect, getSubcategoriesForSelect } = useTaxonomy();
     const { getSectionsForSelect } = useFeaturedSections();
@@ -87,6 +89,11 @@ const AddProductForm = () => {
     const subcategories = getSubcategoriesForSelect(watch("item_category"));
 
     const onSubmit = async (data: z.infer<typeof AddProductSchema>) => {
+        if (!session) {
+            toast.error("Please log in to add products");
+            return;
+        }
+        
         const formdata = new FormData();
 
         formdata.append('item_name', data.item_name);
@@ -116,13 +123,14 @@ const AddProductForm = () => {
             });
         }
 
-        const response = await axios.post(`/api/admin/products`,
+        const axiosClient = createAxiosClientWithSession(session);
+        const response = await axiosClient.post(`/api/products`,
             formdata,
             {
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'multipart/form-data',
                 },
-                withCredentials: true,
             },
         ).then((res) => {
             return res.data;

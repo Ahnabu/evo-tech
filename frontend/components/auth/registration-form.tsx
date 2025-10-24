@@ -46,7 +46,6 @@ const RegistrationForm = () => {
             bottomText="Already have an account?"
             bottomButtonLabel="Sign in"
             bottomButtonHref="/login"
-            showSocials
         >
             <form id="userregform" className="flex flex-col gap-3 w-full" onSubmit={handleSubmit(onSubmit)}>
                 <div className="flex flex-col relative w-full h-fit pt-1.5">

@@ -6,7 +6,6 @@ import {
     CardContent,
     CardFooter,
 } from "@/components/ui/evo_card";
-import { SocialProviders } from "@/components/auth/social-providers";
 import Link from "next/link";
 
 type AuthCardWrapperProps = {
@@ -16,7 +15,6 @@ type AuthCardWrapperProps = {
     bottomText?: string;
     bottomButtonLabel?: string;
     bottomButtonHref?: string;
-    showSocials?: boolean;
 };
 
 const AuthCardWrapper = ({
@@ -26,7 +24,6 @@ const AuthCardWrapper = ({
     bottomText,
     bottomButtonLabel,
     bottomButtonHref,
-    showSocials = false,
 }: AuthCardWrapperProps) => {
     return (
         <Card className="w-full max-w-[350px] border border-stone-300 shadow-md shadow-stone-300">
@@ -37,11 +34,7 @@ const AuthCardWrapper = ({
             <CardContent>
                 {children}
             </CardContent>
-            {showSocials &&
-                <CardFooter>
-                    <SocialProviders />
-                </CardFooter>
-            }
+
             <CardFooter className="justify-center">
                 <div className="flex flex-wrap justify-center gap-1 text-[12px] sm:text-[13px] leading-5 font-[500]">
                     {bottomText && <p className="text-stone-700">{bottomText}</p>}
