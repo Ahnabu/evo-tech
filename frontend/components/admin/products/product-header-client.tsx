@@ -40,13 +40,15 @@ interface Category {
   id: string;
   name: string;
   slug: string;
+  value: string;
 }
 
 interface Subcategory {
   id: string;
   name: string;
-  category: Category;
   slug: string;
+  value: string;
+  category: any;
 }
 
 interface Brand {
@@ -94,12 +96,25 @@ const ProductHeaderClient = () => {
         const axiosClient = createAxiosClientWithSession(session);
         
         // Fetch categories
-        const categoriesResponse = await axiosClient.get('/api/categories');
-        setCategories(categoriesResponse.data.data || []);
+        const categoriesResponse = await axiosClient.get('/categories');
+        const categoriesData = (categoriesResponse.data.data || []).map((cat: any) => ({
+          id: cat._id,
+          name: cat.name,
+          slug: cat.slug,
+          value: cat._id, // Use ID for select value
+        }));
+        setCategories(categoriesData);
 
         // Fetch subcategories  
-        const subcategoriesResponse = await axiosClient.get('/api/subcategories');
-        setSubcategories(subcategoriesResponse.data.data || []);
+        const subcategoriesResponse = await axiosClient.get('/subcategories');
+        const subcategoriesData = (subcategoriesResponse.data.data || []).map((sub: any) => ({
+          id: sub._id,
+          name: sub.name,
+          slug: sub.slug,
+          value: sub._id, // Use ID for select value
+          category: sub.category,
+        }));
+        setSubcategories(subcategoriesData);
 
         // // Fetch brands
         // const brandsResponse = await axios.get('/api/admin/taxonomy/brands');
@@ -115,7 +130,8 @@ const ProductHeaderClient = () => {
   // Filter subcategories based on selected category
   const filteredSubcategories = useMemo(() => {
     if (!selectedCategory) return subcategories;
-    return subcategories.filter(sub => sub.category.slug === selectedCategory);
+    // Filter by category ID (selectedCategory is now an ID, not a slug)
+    return subcategories.filter(sub => sub.category?._id === selectedCategory || sub.category?.id === selectedCategory);
   }, [subcategories, selectedCategory]);
 
   const handleCategoryChange = (value: string) => {
@@ -201,7 +217,7 @@ const ProductHeaderClient = () => {
                           Clear
                         </Button>
                         {categories.map((category) => (
-                          <SelectItem key={category.id} value={category.slug}>
+                          <SelectItem key={category.id} value={category.value}>
                             {category.name}
                           </SelectItem>
                         ))}
@@ -238,7 +254,7 @@ const ProductHeaderClient = () => {
                           Clear
                         </Button>
                         {filteredSubcategories.map((subcategory) => (
-                          <SelectItem key={subcategory.id} value={subcategory.slug}>
+                          <SelectItem key={subcategory.id} value={subcategory.value}>
                             {subcategory.name}
                           </SelectItem>
                         ))}
@@ -274,7 +290,7 @@ const ProductHeaderClient = () => {
                           Clear
                         </Button>
                         {brands.map((brand, index) => (
-                          <SelectItem key={`${brand.value}-${index + 1}`} value={brand.slug}>
+                          <SelectItem key={brand.value || `brand-${index}`} value={brand.value}>
                             {brand.label}
                           </SelectItem>
                         ))}

@@ -57,7 +57,8 @@ export const useTaxonomy = () => {
 
     const getCategoriesForSelect = () => {
         return categories.map(category => ({
-            value: category.slug,
+            // value should be the database id so the backend receives ObjectId strings
+            value: category.id,
             label: category.name,
             id: category.id
         }));
@@ -66,11 +67,14 @@ export const useTaxonomy = () => {
     const getSubcategoriesForSelect = (categorySlug?: string) => {
         if (!categorySlug) return [];
         
-        const category = getCategoryBySlug(categorySlug);
+        // categorySlug here can be an id or slug depending on usage; try to resolve by id first
+        let category = categories.find(cat => cat.id === categorySlug);
+        if (!category) category = getCategoryBySlug(categorySlug);
         if (!category) return [];
 
         return category.subcategories.map(subcategory => ({
-            value: subcategory.slug,
+            // use id so selects return IDs that backend accepts
+            value: subcategory.id,
             label: subcategory.name,
             id: subcategory.id
         }));
@@ -80,7 +84,7 @@ export const useTaxonomy = () => {
         if (!categorySlug) {
             // Return all brands if no category specified
             return getAllBrands().map(brand => ({
-                value: brand.slug,
+                value: brand.id,
                 label: brand.name,
                 id: brand.id
             }));
@@ -90,17 +94,18 @@ export const useTaxonomy = () => {
         if (!category) return [];
 
         if (subcategorySlug) {
-            // Return brands for specific subcategory
-            const subcategory = category.subcategories.find(sub => sub.slug === subcategorySlug);
+            // subcategorySlug may be id or slug; try both
+            let subcategory = category.subcategories.find(sub => sub.id === subcategorySlug);
+            if (!subcategory) subcategory = category.subcategories.find(sub => sub.slug === subcategorySlug);
             return subcategory?.brands.map(brand => ({
-                value: brand.slug,
+                value: brand.id,
                 label: brand.name,
                 id: brand.id
             })) || [];
         } else {
             // Return direct brands for category
             return category.direct_brands.map(brand => ({
-                value: brand.slug,
+                value: brand.id,
                 label: brand.name,
                 id: brand.id
             }));

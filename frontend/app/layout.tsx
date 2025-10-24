@@ -25,33 +25,89 @@ async function fetchTaxonomyData(): Promise<TaxonomyCategory[]> {
       return [];
     }
     
-    const response = await fetch(`${backAPIURL}/api/taxonomy/alldata`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Requested-With': 'XMLHttpRequest',
-      },
-      next: { revalidate: 300 }, // 5 minutes
-    });
+    // Fetch categories and subcategories separately since /taxonomy/alldata doesn't exist yet
+    const [categoriesRes, subcategoriesRes, brandsRes] = await Promise.all([
+      fetch(`${backAPIURL}/categories`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        next: { revalidate: 300 }, // 5 minutes
+      }),
+      fetch(`${backAPIURL}/subcategories`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        next: { revalidate: 300 },
+      }),
+      fetch(`${backAPIURL}/brands`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        next: { revalidate: 300 },
+      }),
+    ]);
 
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.warn('Taxonomy API not yet implemented - returning empty data');
-        return [];
-      }
-      console.error(`Failed to fetch taxonomy data: ${response.status} ${response.statusText}`);
+    if (!categoriesRes.ok || !subcategoriesRes.ok || !brandsRes.ok) {
+      console.warn('Failed to fetch some taxonomy data');
       return [];
     }
 
-    const data = await response.json();
+    const categoriesData = await categoriesRes.json();
+    const subcategoriesData = await subcategoriesRes.json();
+    const brandsData = await brandsRes.json();
     
-    // Validate the response structure
-    if (data && data.taxonomy_data && Array.isArray(data.taxonomy_data)) {
-      return data.taxonomy_data as TaxonomyCategory[];
-    } else {
-      console.error('Invalid taxonomy data structure in API response');
-      return [];
+    // Transform the data into the expected format
+    if (categoriesData?.data && Array.isArray(categoriesData.data)) {
+      const categories: TaxonomyCategory[] = categoriesData.data.map((cat: any) => {
+        // Find subcategories for this category
+        const categorySubcategories = subcategoriesData?.data?.filter((sub: any) => 
+          sub.category?._id === cat._id || sub.category === cat._id
+        ) || [];
+        
+        // Find brands for this category and its subcategories
+        const categoryBrands = brandsData?.data?.filter((brand: any) => {
+          // Check if brand is directly associated with category or any of its subcategories
+          return true; // For now, include all brands
+        }) || [];
+        
+        return {
+          id: cat._id,
+          name: cat.name,
+          slug: cat.slug,
+          description: cat.description || '',
+          has_subcategories: categorySubcategories.length > 0,
+          subcategories: categorySubcategories.map((sub: any) => ({
+            id: sub._id,
+            name: sub.name,
+            slug: sub.slug,
+            description: sub.description || '',
+            brands: brandsData?.data?.map((brand: any) => ({
+              id: brand._id,
+              name: brand.name,
+              slug: brand.slug,
+              description: brand.description || '',
+            })) || [],
+          })),
+          direct_brands: categoryBrands.map((brand: any) => ({
+            id: brand._id,
+            name: brand.name,
+            slug: brand.slug,
+            description: brand.description || '',
+          })),
+        };
+      });
+      
+      return categories;
     }
+    
+    console.error('Invalid categories data structure in API response');
+    return [];
   } catch (error) {
     console.error('Error fetching taxonomy data:', error);
     return [];

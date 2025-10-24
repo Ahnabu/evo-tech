@@ -66,15 +66,30 @@ export function useProductsData(): UseProductsDataReturn {
 
             const axiosClient = createAxiosClientWithSession(session);
             const response = await axiosClient.get(
-                `/api/products${queryString ? `?${queryString}` : ""}`
+                `/products${queryString ? `?${queryString}` : ""}`
             );
 
-            const productsData = response.data.data || response.data.items_data || response.data.products || [];
+            const rawData = response.data.data || response.data.items_data || response.data.products || [];
+            
+            // Transform the data to match ProductDisplayType structure
+            const productsData = rawData.map((product: any) => ({
+                itemid: product._id || product.id,
+                i_name: product.name,
+                i_slug: product.slug,
+                i_price: product.price,
+                i_instock: product.inStock,
+                i_mainimg: product.mainImage,
+                i_category: product.category?.name || product.category?.slug || product.category || 'N/A',
+                i_subcategory: product.subcategory?.name || product.subcategory?.slug || product.subcategory || 'N/A',
+                i_brand: product.brand?.name || product.brand?.slug || product.brand || 'N/A',
+                i_published: product.published,
+            }));
+            
             const pagination: PaginationData = {
-                current_page: response.data.current_page || 1,
-                last_page: response.data.last_page || 1,
-                total_items: response.data.total_items || productsData.length,
-                per_page: response.data.per_page || 10,
+                current_page: response.data.meta?.page || response.data.current_page || 1,
+                last_page: response.data.meta?.totalPages || response.data.last_page || 1,
+                total_items: response.data.meta?.total || response.data.total_items || productsData.length,
+                per_page: response.data.meta?.limit || response.data.per_page || 10,
             };
 
             dispatch(setProductsList(productsData));

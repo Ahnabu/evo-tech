@@ -45,6 +45,9 @@ export const getProductsColumns = (): ColumnDef<ProductDisplayType>[] => {
                 header: () => <div className="text-left">Category</div>,
                 cell: ({ row }) => {
                     const itemCategory = row.getValue("i_category") as string;
+                    if (!itemCategory || typeof itemCategory !== 'string') {
+                        return (<div className="text-xs text-left capitalize whitespace-nowrap">N/A</div>);
+                    }
                     return (<div className="text-xs text-left capitalize whitespace-nowrap">{itemCategory.replaceAll('_', ' ').replaceAll('-', ' ')}</div>)
                 },
             },
@@ -53,10 +56,10 @@ export const getProductsColumns = (): ColumnDef<ProductDisplayType>[] => {
                 header: () => <div className="text-left">Subcategory</div>,
                 cell: ({ row }) => {
                     const itemSubCategory = row.getValue("i_subcategory") as string;
-                    if (itemSubCategory) {
-                        return (<div className="text-xs text-left capitalize whitespace-nowrap">{itemSubCategory.replaceAll('_', ' ').replaceAll('-', ' ')}</div>)
+                    if (!itemSubCategory || typeof itemSubCategory !== 'string') {
+                        return (<div className="text-xs text-left capitalize whitespace-nowrap">N/A</div>);
                     }
-                    return (<div className="text-xs text-left capitalize whitespace-nowrap">N/A</div>)
+                    return (<div className="text-xs text-left capitalize whitespace-nowrap">{itemSubCategory.replaceAll('_', ' ').replaceAll('-', ' ')}</div>)
                 },
             },
             {
@@ -64,9 +67,10 @@ export const getProductsColumns = (): ColumnDef<ProductDisplayType>[] => {
                 header: () => <div className="text-left">Brand</div>,
                 cell: ({ row }) => {
                     const itemBrand = row.getValue("i_brand") as string;
-                    return (
-                        <div className="text-xs text-left capitalize whitespace-nowrap">{itemBrand.replaceAll('_', ' ').replaceAll('-', ' ')}</div>
-                    )
+                    if (!itemBrand || typeof itemBrand !== 'string') {
+                        return (<div className="text-xs text-left capitalize whitespace-nowrap">N/A</div>);
+                    }
+                    return (<div className="text-xs text-left capitalize whitespace-nowrap">{itemBrand.replaceAll('_', ' ').replaceAll('-', ' ')}</div>)
                 },
             },
             {

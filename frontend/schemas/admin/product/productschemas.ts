@@ -291,6 +291,7 @@ export type ProductDisplayType = {
     i_instock: boolean;
     i_mainimg: string;
     i_category: string;
+    i_subcategory?: string;
     i_brand: string;
     i_published: boolean;
 };
