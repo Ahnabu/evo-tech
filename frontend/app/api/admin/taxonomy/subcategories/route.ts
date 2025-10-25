@@ -1,14 +1,13 @@
 import { NextResponse, NextRequest } from 'next/server';
+import axios from "@/utils/axios/axios";
 import axiosIntercept from "@/utils/axios/axiosIntercept";
 import { isAxiosError } from 'axios';
 import axiosErrorLogger from '@/components/error/axios_error';
 
 export async function GET(request: NextRequest) {
-    const axioswithIntercept = await axiosIntercept();
-
     try {
-        // Backend API call for getting all subcategories
-        const backendRes = await axioswithIntercept.get(`/api/admin/subcategory/all`);
+        // Backend API call for getting all subcategories (public access)
+        const backendRes = await axios.get(`/subcategories`);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });
@@ -28,8 +27,8 @@ export async function POST(request: NextRequest) {
     try {
         const reqBody = await request.json();
 
-        // backend API call for creating subcategory
-        const backendRes = await axioswithIntercept.post(`/api/admin/subcategory/create`, reqBody);
+        // backend API call for creating subcategory (requires admin auth)
+        const backendRes = await axioswithIntercept.post(`/subcategories`, reqBody);
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });

@@ -296,11 +296,11 @@ const BrandForm = ({ mode = 'create', brandData, onSuccess }: BrandFormProps) =>
                 setLoading(true)
 
                 const [categoriesRes, subcategoriesRes] = await Promise.all([
-                    axios.get(`${frontBaseURL}/api/admin/taxonomy/categories`, {
+                    axios.get(`/api/admin/taxonomy/categories`, {
                         headers: { 'X-Requested-With': 'XMLHttpRequest' },
                         withCredentials: true,
                     }),
-                    axios.get(`${frontBaseURL}/api/admin/taxonomy/subcategories`, {
+                    axios.get(`/api/admin/taxonomy/subcategories`, {
                         headers: { 'X-Requested-With': 'XMLHttpRequest' },
                         withCredentials: true,
                     })
@@ -521,8 +521,8 @@ const BrandForm = ({ mode = 'create', brandData, onSuccess }: BrandFormProps) =>
         }
 
         const url = isUpdate
-            ? `${frontBaseURL}/api/admin/taxonomy/brands/${brandData!.id}`
-            : `${frontBaseURL}/api/admin/taxonomy/brands`
+            ? `/api/admin/taxonomy/brands/${brandData!.id}`
+            : `/api/admin/taxonomy/brands`
 
         const method = isUpdate ? 'POST' : 'POST'
 

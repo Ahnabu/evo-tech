@@ -8,7 +8,7 @@ export async function deleteOrder(input: { id: string }) {
     const axiosWithIntercept = await axiosIntercept();
 
     try {
-        const backendRes = await axiosWithIntercept.delete(`/api/admin/order/delete/${input.id}`);
+        const backendRes = await axiosWithIntercept.delete(`/orders/${input.id}`);
 
         if (backendRes.status !== 200) {
             throw new Error(backendRes.data.message || "Something went wrong");

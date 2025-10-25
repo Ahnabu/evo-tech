@@ -2,14 +2,12 @@ import { AddSubcategoryForm } from "@/components/admin/taxonomy/subcategories/ad
 import { SubcategoriesDataTable } from "@/components/admin/taxonomy/subcategories/comps/subcategories-datatable";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { SubcategoryTableType } from "@/schemas/admin/product/taxonomySchemas";
-import axiosIntercept from "@/utils/axios/axiosIntercept";
+import axios from "@/utils/axios/axios";
 // import { unstable_noStore as noStore } from "next/cache";
 
 const getSubcategories = async (): Promise<SubcategoryTableType[]> => {
-    const axioswithIntercept = await axiosIntercept();
-
     // noStore();
-    const subcategoriesData = await axioswithIntercept.get(`/api/admin/subcategory/all`)
+    const subcategoriesData = await axios.get(`/subcategories`)
         .then((res) => res.data.subcategories_data)
         .catch((error: any) => {
             axiosErrorLogger({ error });

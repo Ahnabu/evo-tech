@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 
         // Backend API call for getting all orders
         const backendRes = await axioswithIntercept.get(
-            `/api/admin/order/allorders${backendQueryString ? `?${backendQueryString}` : ""}`,
+            `/orders${backendQueryString ? `?${backendQueryString}` : ""}`,
             {
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',

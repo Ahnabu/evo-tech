@@ -1,13 +1,18 @@
 import { cookies } from "next/headers";
 import { axiosPrivate } from "@/utils/axios/axios";
 import axiosErrorLogger from "@/components/error/axios_error";
-import { getToken } from "next-auth/jwt";
+import { auth } from "@/auth";
 
 const axiosIntercept = async () => {
     const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
-    const token = await getToken({ req: { headers: { cookie: cookieString } }, secret: process.env.AUTH_SECRET });
+    const session = await auth();
+    const token = session?.accessToken;
+
+    if (!token) {
+        throw new Error("No authentication token available");
+    }
 
     axiosPrivate.interceptors.request.use(
         (config) => {

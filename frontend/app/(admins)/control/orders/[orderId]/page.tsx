@@ -12,7 +12,7 @@ const getOrderDetails = async (orderId: string): Promise<OrderWithItemsType | nu
   const axioswithIntercept = await axiosIntercept();
 
   noStore();
-  const orderData = await axioswithIntercept.get(`/api/admin/order/view/${orderId}`)
+  const orderData = await axioswithIntercept.get(`/orders/${orderId}`)
     .then((res) => res.data.order_data)
     .catch((error: any) => {
       axiosErrorLogger({ error });

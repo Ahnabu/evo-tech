@@ -70,8 +70,8 @@ const CategoryForm = ({ mode = 'create', categoryData, onSuccess }: CategoryForm
         }
 
         const url = isUpdate
-            ? `${frontBaseURL}/api/admin/taxonomy/categories/${categoryData!.id}`
-            : `${frontBaseURL}/api/admin/taxonomy/categories`
+            ? `/api/admin/taxonomy/categories/${categoryData!.id}`
+            : `/api/admin/taxonomy/categories`
 
         const method = isUpdate ? 'PUT' : 'POST'
 

@@ -2,14 +2,12 @@ import { AddBrandForm } from "@/components/admin/taxonomy/brands/add-update-bran
 import { BrandsDataTable } from "@/components/admin/taxonomy/brands/comps/brands-datatable";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { BrandTableType } from "@/schemas/admin/product/taxonomySchemas";
-import axiosIntercept from "@/utils/axios/axiosIntercept";
+import axios from "@/utils/axios/axios";
 // import { unstable_noStore as noStore } from "next/cache";
 
 const getBrands = async (): Promise<BrandTableType[]> => {
-    const axioswithIntercept = await axiosIntercept();
-
     // noStore();
-    const brandsData = await axioswithIntercept.get(`/api/admin/brand/all`)
+    const brandsData = await axios.get(`/brands`)
         .then((res) => res.data.brands_data)
         .catch((error: any) => {
             axiosErrorLogger({ error });

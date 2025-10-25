@@ -2,14 +2,12 @@ import { AddCategoryForm } from "@/components/admin/taxonomy/categories/add-upda
 import { CategoriesDataTable } from "@/components/admin/taxonomy/categories/comps/categories-datatable";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { CategoryTableType } from "@/schemas/admin/product/taxonomySchemas";
-import axiosIntercept from "@/utils/axios/axiosIntercept";
+import axios from "@/utils/axios/axios";
 // import { unstable_noStore as noStore } from "next/cache";
 
 const getCategories = async (): Promise<CategoryTableType[]> => {
-    const axioswithIntercept = await axiosIntercept();
-
     // noStore();
-    const categoriesData = await axioswithIntercept.get(`/api/admin/category/all`)
+    const categoriesData = await axios.get(`/categories`)
         .then((res) => res.data.categories_data)
         .catch((error: any) => {
             axiosErrorLogger({ error });

@@ -90,8 +90,8 @@ const SubcategoryForm = ({ mode = 'create', subcategoryData, onSuccess }: Subcat
         }
 
         const url = isUpdate
-            ? `${frontBaseURL}/api/admin/taxonomy/subcategories/${subcategoryData!.id}`
-            : `${frontBaseURL}/api/admin/taxonomy/subcategories`
+            ? `/api/admin/taxonomy/subcategories/${subcategoryData!.id}`
+            : `/api/admin/taxonomy/subcategories`
 
         const method = isUpdate ? 'PUT' : 'POST'
 
