@@ -67,25 +67,34 @@ const SubcategoryForm = ({ mode = 'create', subcategoryData, onSuccess }: Subcat
         resolver: zodResolver(isUpdate ? updateSubcategorySchema : createSubcategorySchema),
         defaultValues: (isUpdate && subcategoryData) ? {
             name: subcategoryData.name,
-            slug: subcategoryData.slug,
             category_id: subcategoryData.category.id,
-            sortorder: subcategoryData.sortorder.toString(),
             active: subcategoryData.active,
         } : {
             name: '',
-            slug: '',
             category_id: '',
-            sortorder: '',
             active: true,
         },
     })
 
+    // Auto-generate slug from name
+    const generateSlug = (name: string): string => {
+        return name
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '') // Remove special characters
+            .replace(/\s+/g, '-') // Replace spaces with hyphens
+            .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+            .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+    };
+
     const onSubmit = async (values: CreateSubcategoryInput | UpdateSubcategoryInput) => {
+        const slug = generateSlug(values.name);
+        
         const payload = {
             name: values.name,
-            slug: values.slug,
+            slug: slug,
             category: values.category_id, // backend expects 'category' not 'category_id'
-            sortOrder: parseInt(values.sortorder, 10), // backend expects 'sortOrder' (camelCase)
+            sortOrder: 0, // Set to 0 as requested
             isActive: values.active, // backend expects 'isActive'
         }
 
@@ -117,11 +126,32 @@ const SubcategoryForm = ({ mode = 'create', subcategoryData, onSuccess }: Subcat
         if (response && response.success) {
             toast.success(isUpdate ? `Subcategory updated` : `Subcategory created`);
             form.reset();
+            
+            // Transform backend data to frontend format
+            const subcategoryData = response.data;
+            const transformedSubcategory = {
+                id: subcategoryData._id,
+                name: subcategoryData.name,
+                slug: subcategoryData.slug,
+                sortorder: subcategoryData.sortOrder || 0,
+                active: subcategoryData.isActive,
+                category: {
+                    id: typeof subcategoryData.category === 'object' ? subcategoryData.category._id : subcategoryData.category,
+                    name: typeof subcategoryData.category === 'object' ? subcategoryData.category.name : '',
+                    slug: typeof subcategoryData.category === 'object' ? subcategoryData.category.slug : '',
+                    active: typeof subcategoryData.category === 'object' ? subcategoryData.category.isActive : true,
+                },
+                url: subcategoryData.url || `/${subcategoryData.slug}`,
+                brands_count: subcategoryData.brands_count || 0,
+                created_at: subcategoryData.createdAt,
+                updated_at: subcategoryData.updatedAt,
+            };
+            
             // update Redux state with the new subcategory (if created) or edited subcategory (if updated)
             if (isUpdate) {
-                dispatch(updateASubcategory(response.subcategory_data));
+                dispatch(updateASubcategory(transformedSubcategory));
             } else {
-                dispatch(addASubcategory(response.subcategory_data));
+                dispatch(addASubcategory(transformedSubcategory));
             }
             onSuccess?.();
         }
@@ -139,25 +169,6 @@ const SubcategoryForm = ({ mode = 'create', subcategoryData, onSuccess }: Subcat
                             <FormControl>
                                 <Input
                                     placeholder="Enter subcategory name"
-                                    {...field}
-                                    disabled={form.formState.isSubmitting}
-                                    className="block w-full text-xs border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:text-xs"
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="slug"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="block text-xs font-medium text-left">Slug*</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Enter URL slug (lowercase, hyphens only)"
                                     {...field}
                                     disabled={form.formState.isSubmitting}
                                     className="block w-full text-xs border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:text-xs"
@@ -196,25 +207,6 @@ const SubcategoryForm = ({ mode = 'create', subcategoryData, onSuccess }: Subcat
                                         }
                                     </SelectContent>
                                 </Select>
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="sortorder"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="block text-xs font-medium text-left">Sort Order*</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Enter sort order (numeric)"
-                                    {...field}
-                                    disabled={form.formState.isSubmitting}
-                                    className="block w-full text-xs border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:text-xs"
-                                />
                             </FormControl>
                             <FormMessage />
                         </FormItem>

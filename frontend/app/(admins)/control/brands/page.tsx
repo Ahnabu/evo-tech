@@ -20,6 +20,19 @@ const getBrands = async (): Promise<BrandTableType[]> => {
                 url: brand.url || `/${brand.slug}`,
                 categories_count: brand.categories_count || 0,
                 subcategories_count: brand.subcategories_count || 0,
+                categories: (brand.categories || []).map((cat: any) => ({
+                    id: cat._id,
+                    name: cat.name,
+                    slug: cat.slug,
+                    active: cat.isActive,
+                })),
+                subcategories: (brand.subcategories || []).map((subcat: any) => ({
+                    id: subcat._id,
+                    name: subcat.name,
+                    slug: subcat.slug,
+                    active: subcat.isActive,
+                })),
+                total_associations: (brand.categories_count || 0) + (brand.subcategories_count || 0),
                 created_at: brand.createdAt,
                 updated_at: brand.updatedAt,
             }));

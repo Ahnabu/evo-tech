@@ -100,18 +100,14 @@ export const subcategoryTableSchema = z.object({
 // Create Subcategory Schema
 export const createSubcategorySchema = z.object({
     name: nameSchema,
-    slug: slugSchema,
     category_id: idSchema,
-    sortorder: sortOrderSchema,
     active: activeSchema,
 });
 
 // Update Subcategory Schema
 export const updateSubcategorySchema = z.object({
     name: nameSchema,
-    slug: slugSchema,
     category_id: idSchema,
-    sortorder: sortOrderSchema,
     active: activeSchema,
 });
 

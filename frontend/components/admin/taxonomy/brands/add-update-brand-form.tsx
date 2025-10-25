@@ -539,11 +539,39 @@ const BrandForm = ({ mode = 'create', brandData, onSuccess }: BrandFormProps) =>
                 toast.success(isUpdate ? 'Brand updated successfully' : 'Brand created successfully')
                 form.reset()
 
+                // Transform backend data to frontend format
+                const brandData = response.data.data;
+                const transformedBrand = {
+                    id: brandData._id,
+                    name: brandData.name,
+                    slug: brandData.slug,
+                    sortorder: brandData.sortOrder || 0,
+                    active: brandData.isActive,
+                    url: brandData.url || `/${brandData.slug}`,
+                    categories_count: brandData.categories_count || 0,
+                    subcategories_count: brandData.subcategories_count || 0,
+                    categories: (brandData.categories || []).map((cat: any) => ({
+                        id: cat._id,
+                        name: cat.name,
+                        slug: cat.slug,
+                        active: cat.isActive,
+                    })),
+                    subcategories: (brandData.subcategories || []).map((subcat: any) => ({
+                        id: subcat._id,
+                        name: subcat.name,
+                        slug: subcat.slug,
+                        active: subcat.isActive,
+                    })),
+                    total_associations: (brandData.categories_count || 0) + (brandData.subcategories_count || 0),
+                    created_at: brandData.createdAt,
+                    updated_at: brandData.updatedAt,
+                };
+
                 // Update Redux state
                 if (isUpdate) {
-                    dispatch(updateABrand(response.data.brand_data))
+                    dispatch(updateABrand(transformedBrand))
                 } else {
-                    dispatch(addABrand(response.data.brand_data))
+                    dispatch(addABrand(transformedBrand))
                 }
 
                 onSuccess?.()

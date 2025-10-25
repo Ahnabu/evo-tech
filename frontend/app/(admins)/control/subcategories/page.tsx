@@ -21,6 +21,7 @@ const getSubcategories = async (): Promise<SubcategoryTableType[]> => {
                     id: typeof subcategory.category === 'object' ? subcategory.category._id : subcategory.category,
                     name: typeof subcategory.category === 'object' ? subcategory.category.name : '',
                     slug: typeof subcategory.category === 'object' ? subcategory.category.slug : '',
+                    active: typeof subcategory.category === 'object' ? subcategory.category.isActive : true,
                 },
                 url: subcategory.url || `/${subcategory.slug}`,
                 brands_count: subcategory.brands_count || 0,
