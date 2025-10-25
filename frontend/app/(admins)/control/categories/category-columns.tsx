@@ -24,15 +24,6 @@ export const getCategoryColumns = (): ColumnDef<CategoryTableType>[] => {
             },
         },
         {
-            accessorKey: "sortorder",
-            header: () => <div className="text-center text-xs">Sort Order</div>,
-            cell: ({ row }) => {
-                return (
-                    <div className="text-center text-xs">{row.getValue("sortorder")}</div>
-                )
-            },
-        },
-        {
             accessorKey: "active",
             header: () => <div className="text-center text-xs">Active</div>,
             cell: ({ row }) => {

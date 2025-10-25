@@ -515,9 +515,7 @@ const BrandForm = ({ mode = 'create', brandData, onSuccess }: BrandFormProps) =>
         const payload = {
             name: values.name,
             slug: values.slug,
-            active: values.active.toString(),
-            categories: transformedCategories,
-            subcategories: transformedSubcategories,
+            isActive: values.active, // backend expects 'isActive' as boolean
         }
 
         const url = isUpdate

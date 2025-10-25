@@ -60,16 +60,12 @@ export const categoryTableSchema = z.object({
 // Create Category Schema
 export const createCategorySchema = z.object({
     name: nameSchema,
-    slug: slugSchema,
-    sortorder: sortOrderSchema,
     active: activeSchema,
 });
 
 // Update Category Schema
 export const updateCategorySchema = z.object({
     name: nameSchema,
-    slug: slugSchema,
-    sortorder: sortOrderSchema,
     active: activeSchema,
 });
 

@@ -8,7 +8,22 @@ import axios from "@/utils/axios/axios";
 const getBrands = async (): Promise<BrandTableType[]> => {
     // noStore();
     const brandsData = await axios.get(`/brands`)
-        .then((res) => res.data.brands_data)
+        .then((res) => {
+            // Transform backend data to frontend format (map _id to id)
+            const brands = res.data.data || [];
+            return brands.map((brand: any) => ({
+                id: brand._id,
+                name: brand.name,
+                slug: brand.slug,
+                sortorder: brand.sortOrder || 0,
+                active: brand.isActive,
+                url: brand.url || `/${brand.slug}`,
+                categories_count: brand.categories_count || 0,
+                subcategories_count: brand.subcategories_count || 0,
+                created_at: brand.createdAt,
+                updated_at: brand.updatedAt,
+            }));
+        })
         .catch((error: any) => {
             axiosErrorLogger({ error });
             return [];

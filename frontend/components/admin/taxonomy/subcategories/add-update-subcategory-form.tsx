@@ -84,9 +84,9 @@ const SubcategoryForm = ({ mode = 'create', subcategoryData, onSuccess }: Subcat
         const payload = {
             name: values.name,
             slug: values.slug,
-            category_id: values.category_id,
-            sortorder: parseInt(values.sortorder, 10), // string to integer conversion for backend API
-            active: values.active.toString(), // boolean to string conversion for backend API
+            category: values.category_id, // backend expects 'category' not 'category_id'
+            sortOrder: parseInt(values.sortorder, 10), // backend expects 'sortOrder' (camelCase)
+            isActive: values.active, // backend expects 'isActive'
         }
 
         const url = isUpdate

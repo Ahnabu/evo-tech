@@ -50,23 +50,32 @@ const CategoryForm = ({ mode = 'create', categoryData, onSuccess }: CategoryForm
         resolver: zodResolver(isUpdate ? updateCategorySchema : createCategorySchema),
         defaultValues: (isUpdate && categoryData) ? {
             name: categoryData.name,
-            slug: categoryData.slug,
-            sortorder: categoryData.sortorder.toString(),
             active: categoryData.active,
         } : {
             name: '',
-            slug: '',
-            sortorder: '',
             active: true,
         },
     })
 
+    // Auto-generate slug from name
+    const generateSlug = (name: string): string => {
+        return name
+            .toLowerCase()
+            .trim()
+            .replace(/[^\w\s-]/g, '') // Remove special characters
+            .replace(/\s+/g, '-') // Replace spaces with hyphens
+            .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+            .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+    };
+
     const onSubmit = async (values: CreateCategoryInput | UpdateCategoryInput) => {
+        const slug = generateSlug(values.name);
+        
         const payload = {
             name: values.name,
-            slug: values.slug,
-            sortorder: parseInt(values.sortorder, 10), // string to integer conversion for backend API
-            active: values.active.toString(), // boolean to string conversion for backend API
+            slug: slug,
+            sortOrder: 0, // Set to 0 as requested
+            isActive: values.active, // backend expects isActive
         }
 
         const url = isUpdate
@@ -97,11 +106,27 @@ const CategoryForm = ({ mode = 'create', categoryData, onSuccess }: CategoryForm
         if (response && response.success) {
             toast.success(isUpdate ? `Category updated` : `Category created`);
             form.reset();
+            
+            // Transform backend data to frontend format
+            const categoryData = response.data;
+            const transformedCategory = {
+                id: categoryData._id,
+                name: categoryData.name,
+                slug: categoryData.slug,
+                sortorder: categoryData.sortOrder || 0,
+                active: categoryData.isActive,
+                url: categoryData.url || `/${categoryData.slug}`,
+                subcategories_count: categoryData.subcategories_count || 0,
+                brands_count: categoryData.brands_count || 0,
+                created_at: categoryData.createdAt,
+                updated_at: categoryData.updatedAt,
+            };
+            
             // update Redux state with the new category (if created) or edited category (if updated)
             if (isUpdate) {
-                dispatch(updateACategory(response.category_data));
+                dispatch(updateACategory(transformedCategory));
             } else {
-                dispatch(addACategory(response.category_data));
+                dispatch(addACategory(transformedCategory));
             }
             onSuccess?.();
         }
@@ -119,44 +144,6 @@ const CategoryForm = ({ mode = 'create', categoryData, onSuccess }: CategoryForm
                             <FormControl>
                                 <Input
                                     placeholder="Enter category name"
-                                    {...field}
-                                    disabled={form.formState.isSubmitting}
-                                    className="block w-full text-xs border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:text-xs"
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="slug"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="block text-xs font-medium text-left">Slug*</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Enter URL slug (lowercase, hyphens only)"
-                                    {...field}
-                                    disabled={form.formState.isSubmitting}
-                                    className="block w-full text-xs border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:text-xs"
-                                />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="sortorder"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="block text-xs font-medium text-left">Sort Order*</FormLabel>
-                            <FormControl>
-                                <Input
-                                    placeholder="Enter sort order (numeric)"
                                     {...field}
                                     disabled={form.formState.isSubmitting}
                                     className="block w-full text-xs border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:text-xs"

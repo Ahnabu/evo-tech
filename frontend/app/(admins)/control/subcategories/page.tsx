@@ -8,7 +8,26 @@ import axios from "@/utils/axios/axios";
 const getSubcategories = async (): Promise<SubcategoryTableType[]> => {
     // noStore();
     const subcategoriesData = await axios.get(`/subcategories`)
-        .then((res) => res.data.subcategories_data)
+        .then((res) => {
+            // Transform backend data to frontend format (map _id to id)
+            const subcategories = res.data.data || [];
+            return subcategories.map((subcategory: any) => ({
+                id: subcategory._id,
+                name: subcategory.name,
+                slug: subcategory.slug,
+                sortorder: subcategory.sortOrder || 0,
+                active: subcategory.isActive,
+                category: {
+                    id: typeof subcategory.category === 'object' ? subcategory.category._id : subcategory.category,
+                    name: typeof subcategory.category === 'object' ? subcategory.category.name : '',
+                    slug: typeof subcategory.category === 'object' ? subcategory.category.slug : '',
+                },
+                url: subcategory.url || `/${subcategory.slug}`,
+                brands_count: subcategory.brands_count || 0,
+                created_at: subcategory.createdAt,
+                updated_at: subcategory.updatedAt,
+            }));
+        })
         .catch((error: any) => {
             axiosErrorLogger({ error });
             return [];

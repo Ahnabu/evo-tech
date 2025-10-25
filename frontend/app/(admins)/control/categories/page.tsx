@@ -8,7 +8,22 @@ import axios from "@/utils/axios/axios";
 const getCategories = async (): Promise<CategoryTableType[]> => {
     // noStore();
     const categoriesData = await axios.get(`/categories`)
-        .then((res) => res.data.categories_data)
+        .then((res) => {
+            // Transform backend data to frontend format (map _id to id)
+            const categories = res.data.data || [];
+            return categories.map((category: any) => ({
+                id: category._id,
+                name: category.name,
+                slug: category.slug,
+                sortorder: category.sortOrder || 0,
+                active: category.isActive,
+                url: category.url || `/${category.slug}`,
+                subcategories_count: category.subcategories_count || 0,
+                brands_count: category.brands_count || 0,
+                created_at: category.createdAt,
+                updated_at: category.updatedAt,
+            }));
+        })
         .catch((error: any) => {
             axiosErrorLogger({ error });
             return [];
