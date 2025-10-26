@@ -50,9 +50,21 @@ const getTopProducts = catchAsync(async (req, res) => {
   });
 });
 
+const getEarningsReport = catchAsync(async (req, res) => {
+  const result = await DashboardServices.getEarningsReport();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Earnings report retrieved successfully!",
+    data: result,
+  });
+});
+
 export const DashboardControllers = {
   getDashboardStats,
   getSalesData,
   getRecentOrders,
   getTopProducts,
+  getEarningsReport,
 };

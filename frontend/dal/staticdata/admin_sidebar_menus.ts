@@ -57,16 +57,8 @@ const adminSidebarMenus = [
         icon: ChartArea,
         collapsibleItems: [
             {
-                title: "Earning Report",
-                url: "/control/reports/earning",
-            },
-            {
-                title: "In House Products Sale",
-                url: "/control/reports/in-house-sale",
-            },
-            {
-                title: "Products Wishlist",
-                url: "/control/reports/products-wishlist",
+                title: "Earnings Report",
+                url: "/control/reports/earnings",
             },
         ],
     },

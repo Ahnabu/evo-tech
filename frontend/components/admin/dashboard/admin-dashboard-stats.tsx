@@ -48,22 +48,10 @@ export function AdminDashboardStats() {
             
             if (response.data.success) {
                 setStats(response.data.data);
-            } else {
-                throw new Error(response.data.message || 'Failed to load dashboard stats');
             }
         } catch (error) {
             console.error("Error fetching dashboard stats:", error);
-            // Fallback to mock data
-            setStats({
-                totalRevenue: 45231.50,
-                totalOrders: 1234,
-                totalCustomers: 5678,
-                totalProducts: 234,
-                revenueGrowth: 12.5,
-                ordersGrowth: 8.2,
-                customersGrowth: 15.3,
-                productsGrowth: 5.1,
-            });
+            // Keep stats at 0 if there's an error
         } finally {
             setLoading(false);
         }

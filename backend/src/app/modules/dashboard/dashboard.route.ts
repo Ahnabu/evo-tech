@@ -30,4 +30,10 @@ router.get(
   DashboardControllers.getTopProducts
 );
 
+router.get(
+  "/earnings-report",
+  auth(USER_ROLE.ADMIN),
+  DashboardControllers.getEarningsReport
+);
+
 export const DashboardRoutes = router;

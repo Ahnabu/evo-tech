@@ -30,31 +30,11 @@ export function AdminSalesChart() {
             const response = await axiosInstance.get(`/api/v1/dashboard/sales-data?period=${timeRange}`);
             
             if (response.data.success) {
-                setSalesData(response.data.data || []);
-            } else {
-                throw new Error(response.data.message || 'Failed to fetch sales data');
+                const apiData = response.data.data || [];
+                setSalesData(apiData);
             }
         } catch (error) {
             console.error("Error fetching sales data:", error);
-            // Fallback to mock data
-            const mockData: SalesData[] = [
-                { date: "Jan 1", sales: 4000, orders: 24 },
-                { date: "Jan 2", sales: 3000, orders: 18 },
-                { date: "Jan 3", sales: 5000, orders: 32 },
-                { date: "Jan 4", sales: 2780, orders: 16 },
-                { date: "Jan 5", sales: 1890, orders: 12 },
-                { date: "Jan 6", sales: 2390, orders: 15 },
-                { date: "Jan 7", sales: 3490, orders: 22 },
-                { date: "Jan 8", sales: 4200, orders: 28 },
-                { date: "Jan 9", sales: 3800, orders: 25 },
-                { date: "Jan 10", sales: 4100, orders: 27 },
-                { date: "Jan 11", sales: 3600, orders: 23 },
-                { date: "Jan 12", sales: 4500, orders: 30 },
-                { date: "Jan 13", sales: 3900, orders: 26 },
-                { date: "Jan 14", sales: 4300, orders: 29 },
-                { date: "Jan 15", sales: 3700, orders: 24 },
-            ];
-            setSalesData(mockData);
         } finally {
             setLoading(false);
         }

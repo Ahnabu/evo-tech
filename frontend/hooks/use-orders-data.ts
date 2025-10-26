@@ -33,7 +33,7 @@ export function useOrdersData(): UseOrdersDataReturn {
     const searchParams = useSearchParams();
     const router = useRouter();
     const pathname = usePathname();
-    const orders = useSelector((state: RootState) => state.orders.allOrders);
+    const orders = useSelector((state: RootState) => state.orders.allOrders) || [];
     const dispatch = useDispatch<AppDispatch>();
 
     const fetchOrders = useCallback(async () => {

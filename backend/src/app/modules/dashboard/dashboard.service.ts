@@ -169,9 +169,130 @@ const getTopProducts = async (limit: number = 10) => {
   }));
 };
 
+const getEarningsReport = async () => {
+  const now = new Date();
+  
+  // Get all time earnings
+  const allOrders = await Order.find({ orderStatus: { $ne: "cancelled" } });
+  const totalEarnings = allOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
+  
+  // Get current year earnings
+  const startOfYear = new Date(now.getFullYear(), 0, 1);
+  const yearOrders = await Order.find({
+    createdAt: { $gte: startOfYear, $lte: now },
+    orderStatus: { $ne: "cancelled" }
+  });
+  const yearlyEarnings = yearOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
+  
+  // Get current month earnings
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const monthOrders = await Order.find({
+    createdAt: { $gte: startOfMonth, $lte: now },
+    orderStatus: { $ne: "cancelled" }
+  });
+  const monthlyEarnings = monthOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
+  
+  // Get last month for comparison
+  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+  const lastMonthOrders = await Order.find({
+    createdAt: { $gte: startOfLastMonth, $lte: endOfLastMonth },
+    orderStatus: { $ne: "cancelled" }
+  });
+  const lastMonthEarnings = lastMonthOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
+  
+  // Get last year for comparison
+  const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
+  const endOfLastYear = new Date(now.getFullYear() - 1, 11, 31);
+  const lastYearOrders = await Order.find({
+    createdAt: { $gte: startOfLastYear, $lte: endOfLastYear },
+    orderStatus: { $ne: "cancelled" }
+  });
+  const lastYearEarnings = lastYearOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
+  
+  // Calculate growth
+  const monthlyGrowth = lastMonthEarnings > 0 
+    ? ((monthlyEarnings - lastMonthEarnings) / lastMonthEarnings) * 100 
+    : 0;
+  
+  const yearlyGrowth = lastYearEarnings > 0 
+    ? ((yearlyEarnings - lastYearEarnings) / lastYearEarnings) * 100 
+    : 0;
+  
+  // Get monthly breakdown for current year
+  const monthlyBreakdown = await Order.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: startOfYear, $lte: now },
+        orderStatus: { $ne: "cancelled" }
+      }
+    },
+    {
+      $group: {
+        _id: { $month: "$createdAt" },
+        earnings: { $sum: "$totalPayable" },
+        orders: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { "_id": 1 }
+    }
+  ]);
+  
+  // Get yearly breakdown for last 5 years
+  const fiveYearsAgo = new Date(now.getFullYear() - 4, 0, 1);
+  const yearlyBreakdown = await Order.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: fiveYearsAgo, $lte: now },
+        orderStatus: { $ne: "cancelled" }
+      }
+    },
+    {
+      $group: {
+        _id: { $year: "$createdAt" },
+        earnings: { $sum: "$totalPayable" },
+        orders: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { "_id": 1 }
+    }
+  ]);
+  
+  return {
+    total: {
+      earnings: totalEarnings,
+      orders: allOrders.length
+    },
+    yearly: {
+      earnings: yearlyEarnings,
+      orders: yearOrders.length,
+      growth: Math.round(yearlyGrowth * 100) / 100,
+      breakdown: yearlyBreakdown.map(item => ({
+        year: item._id,
+        earnings: item.earnings,
+        orders: item.orders
+      }))
+    },
+    monthly: {
+      earnings: monthlyEarnings,
+      orders: monthOrders.length,
+      growth: Math.round(monthlyGrowth * 100) / 100,
+      breakdown: monthlyBreakdown.map(item => ({
+        month: item._id,
+        earnings: item.earnings,
+        orders: item.orders
+      }))
+    },
+    avgOrderValue: allOrders.length > 0 ? totalEarnings / allOrders.length : 0
+  };
+};
+
 export const DashboardServices = {
   getDashboardStats,
   getSalesData,
   getRecentOrders,
   getTopProducts,
+  getEarningsReport,
 };

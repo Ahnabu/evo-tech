@@ -35,66 +35,11 @@ export function AdminTopProducts() {
             const response = await axiosInstance.get('/api/v1/dashboard/top-products');
             
             if (response.data.success) {
-                setProducts(response.data.data || []);
-            } else {
-                throw new Error(response.data.message || 'Failed to fetch top products');
+                const apiProducts = response.data.data || [];
+                setProducts(apiProducts);
             }
         } catch (error) {
             console.error("Error fetching top products:", error);
-            // Fallback to mock data
-            const mockProducts: TopProduct[] = [
-                {
-                    id: "1",
-                    name: "3D Printer Pro Max",
-                    image: "/api/placeholder/60/60",
-                    price: 599.99,
-                    sales: 45,
-                    revenue: 26999.55,
-                    category: "3D Printers",
-                    inStock: 12
-                },
-                {
-                    id: "2", 
-                    name: "Arduino Starter Kit",
-                    image: "/api/placeholder/60/60",
-                    price: 89.99,
-                    sales: 78,
-                    revenue: 7019.22,
-                    category: "Electronics",
-                    inStock: 25
-                },
-                {
-                    id: "3",
-                    name: "Raspberry Pi 5",
-                    image: "/api/placeholder/60/60",
-                    price: 129.99,
-                    sales: 52,
-                    revenue: 6759.48,
-                    category: "Single Board Computers",
-                    inStock: 8
-                },
-                {
-                    id: "4",
-                    name: "Filament Bundle Pack",
-                    image: "/api/placeholder/60/60",
-                    price: 199.99,
-                    sales: 33,
-                    revenue: 6599.67,
-                    category: "3D Printing Supplies",
-                    inStock: 15
-                },
-                {
-                    id: "5",
-                    name: "Smart Home Sensor Kit",
-                    image: "/api/placeholder/60/60",
-                    price: 149.99,
-                    sales: 28,
-                    revenue: 4199.72,
-                    category: "IoT Devices",
-                    inStock: 20
-                }
-            ];
-            setProducts(mockProducts);
         } finally {
             setLoading(false);
         }

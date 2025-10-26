@@ -32,56 +32,19 @@ export function AdminRecentOrders() {
             const response = await axiosInstance.get('/api/v1/dashboard/recent-orders');
             
             if (response.data.success) {
-                setOrders(response.data.data || []);
-            } else {
-                throw new Error(response.data.message || 'Failed to fetch recent orders');
+                const apiOrders = response.data.data || [];
+                // Transform backend data to match frontend interface
+                setOrders(apiOrders.map((order: any) => ({
+                    id: order.id || order._id,
+                    customerName: order.customer || 'Unknown',
+                    customerEmail: order.customerEmail || '',
+                    total: order.total || 0,
+                    status: order.status || 'pending',
+                    createdAt: order.createdAt
+                })));
             }
         } catch (error) {
             console.error("Error fetching recent orders:", error);
-            // Fallback to mock data
-            const mockOrders: Order[] = [
-                {
-                    id: "ORD-001",
-                    customerName: "John Doe",
-                    customerEmail: "john@example.com",
-                    total: 299.99,
-                    status: "pending",
-                    createdAt: "2024-01-15T10:30:00Z"
-                },
-                {
-                    id: "ORD-002",
-                    customerName: "Jane Smith",
-                    customerEmail: "jane@example.com",
-                    total: 199.50,
-                    status: "confirmed",
-                    createdAt: "2024-01-15T09:15:00Z"
-                },
-                {
-                    id: "ORD-003",
-                    customerName: "Mike Johnson",
-                    customerEmail: "mike@example.com",
-                    total: 449.99,
-                    status: "shipped",
-                    createdAt: "2024-01-14T16:45:00Z"
-                },
-                {
-                    id: "ORD-004",
-                    customerName: "Sarah Wilson",
-                    customerEmail: "sarah@example.com",
-                    total: 129.99,
-                    status: "delivered",
-                    createdAt: "2024-01-14T14:20:00Z"
-                },
-                {
-                    id: "ORD-005",
-                    customerName: "David Brown",
-                    customerEmail: "david@example.com",
-                    total: 89.99,
-                    status: "cancelled",
-                    createdAt: "2024-01-14T11:10:00Z"
-                }
-            ];
-            setOrders(mockOrders);
         } finally {
             setLoading(false);
         }

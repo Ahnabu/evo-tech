@@ -1,8 +1,59 @@
+"use client";
+
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BarChart3, TrendingUp, DollarSign, ShoppingCart, Calendar, Download } from "lucide-react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
+
+interface DashboardStats {
+    totalRevenue: number;
+    totalOrders: number;
+    totalCustomers: number;
+    totalProducts: number;
+    revenueGrowth: number;
+    ordersGrowth: number;
+}
 
 const ReportsPage = () => {
+    const { data: session } = useSession();
+    const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    const fetchStats = useCallback(async () => {
+        if (!session) return;
+
+        try {
+            const axiosInstance = createAxiosClientWithSession(session);
+            const response = await axiosInstance.get("/api/v1/dashboard/stats");
+
+            if (response.data.success) {
+                setStats(response.data.data);
+            }
+        } catch (error) {
+            console.error("Error fetching stats:", error);
+        } finally {
+            setLoading(false);
+        }
+    }, [session]);
+
+    useEffect(() => {
+        fetchStats();
+    }, [fetchStats]);
+
+    const formatCurrency = (amount: number) => {
+        return `৳${new Intl.NumberFormat('en-BD', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0,
+        }).format(amount)}`;
+    };
+
+    const avgOrderValue = stats && stats.totalOrders > 0 
+        ? stats.totalRevenue / stats.totalOrders 
+        : 0;
+
     return (
         <div className="p-6 space-y-6">
             {/* Page Header */}
@@ -35,9 +86,11 @@ const ReportsPage = () => {
                         <DollarSign className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">৳0</div>
+                        <div className="text-2xl font-bold">
+                            {loading ? "..." : formatCurrency(stats?.totalRevenue || 0)}
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                            +0% from last month
+                            {loading ? "..." : `${stats && stats.revenueGrowth >= 0 ? '+' : ''}${stats?.revenueGrowth.toFixed(1)}% from last month`}
                         </p>
                     </CardContent>
                 </Card>
@@ -50,9 +103,11 @@ const ReportsPage = () => {
                         <ShoppingCart className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">0</div>
+                        <div className="text-2xl font-bold">
+                            {loading ? "..." : stats?.totalOrders || 0}
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                            +0% from last month
+                            {loading ? "..." : `${stats && stats.ordersGrowth >= 0 ? '+' : ''}${stats?.ordersGrowth.toFixed(1)}% from last month`}
                         </p>
                     </CardContent>
                 </Card>
@@ -65,9 +120,11 @@ const ReportsPage = () => {
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">৳0</div>
+                        <div className="text-2xl font-bold">
+                            {loading ? "..." : formatCurrency(avgOrderValue)}
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                            +0% from last month
+                            Per order
                         </p>
                     </CardContent>
                 </Card>
@@ -75,69 +132,39 @@ const ReportsPage = () => {
                 <Card>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium">
-                            Conversion Rate
+                            Total Customers
                         </CardTitle>
                         <BarChart3 className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">0%</div>
+                        <div className="text-2xl font-bold">
+                            {loading ? "..." : stats?.totalCustomers || 0}
+                        </div>
                         <p className="text-xs text-muted-foreground">
-                            +0% from last month
+                            Registered users
                         </p>
                     </CardContent>
                 </Card>
             </div>
 
             {/* Report Categories */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6">
                 <Card className="cursor-pointer hover:shadow-md transition-shadow">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <DollarSign className="w-5 h-5 text-green-600" />
-                            Earning Report
+                            Earnings Report
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-gray-600 mb-4">
-                            Detailed revenue analysis and earning trends
+                            Detailed revenue analysis and earnings trends with monthly and yearly breakdowns
                         </p>
-                        <Button variant="outline" className="w-full">
-                            View Report
-                        </Button>
-                    </CardContent>
-                </Card>
-
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <ShoppingCart className="w-5 h-5 text-blue-600" />
-                            Sales Report
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-gray-600 mb-4">
-                            In-house products sales performance
-                        </p>
-                        <Button variant="outline" className="w-full">
-                            View Report
-                        </Button>
-                    </CardContent>
-                </Card>
-
-                <Card className="cursor-pointer hover:shadow-md transition-shadow">
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="w-5 h-5 text-purple-600" />
-                            Wishlist Report
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-sm text-gray-600 mb-4">
-                            Most wished products and trending items
-                        </p>
-                        <Button variant="outline" className="w-full">
-                            View Report
-                        </Button>
+                        <Link href="/control/reports/earnings">
+                            <Button variant="outline" className="w-full">
+                                View Report
+                            </Button>
+                        </Link>
                     </CardContent>
                 </Card>
             </div>

@@ -55,7 +55,7 @@ const OrdersDataTable = () => {
         <div className="w-full h-fit mt-5">
             <DataTable<OrderWithItemsType, any>
                 columns={columnsWithRefetch}
-                data={orders}
+                data={orders || []}
                 enableSelectedRowsCount={false}
                 serverSidePagination={serverSidePagination || undefined}
             />
