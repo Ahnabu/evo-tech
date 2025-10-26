@@ -9,6 +9,9 @@ const router = express.Router();
 router.get("/dashboard/stats", auth(USER_ROLE.USER), UserControllers.getUserDashboardStats);
 router.get("/dashboard/orders", auth(USER_ROLE.USER), UserControllers.getUserOrders);
 
+// Admin staff management routes
+router.post("/staff", auth(USER_ROLE.ADMIN), UserControllers.createStaff);
+
 // Admin user management routes
 router.get("/", auth(USER_ROLE.ADMIN), UserControllers.getAllUsers);
 router.get("/:id", UserControllers.getSingleUser);

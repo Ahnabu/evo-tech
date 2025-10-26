@@ -9,11 +9,28 @@ const getAllUsersFromDB = async (query: Record<string, unknown>) => {
 
   const searchQuery: any = {};
 
+  // Filter by userType if provided (for staff/customers separation)
+  if (query.userType) {
+    if (typeof query.userType === 'string' && query.userType.includes(',')) {
+      // Handle comma-separated userTypes
+      searchQuery.userType = { $in: query.userType.split(',').map((t: string) => t.trim()) };
+    } else if (Array.isArray(query.userType)) {
+      searchQuery.userType = { $in: query.userType };
+    } else {
+      searchQuery.userType = query.userType;
+    }
+  }
+
+  // Filter by isActive status if provided
+  if (query.isActive !== undefined) {
+    searchQuery.isActive = query.isActive === 'true' || query.isActive === true;
+  }
+
   if (query.search) {
     searchQuery.$or = [
       { email: { $regex: query.search, $options: "i" } },
-      { firstname: { $regex: query.search, $options: "i" } },
-      { lastname: { $regex: query.search, $options: "i" } },
+      { firstName: { $regex: query.search, $options: "i" } },
+      { lastName: { $regex: query.search, $options: "i" } },
     ];
   }
 
@@ -113,6 +130,16 @@ const getUserOrdersFromDB = async (userUuid: string, query: Record<string, unkno
   };
 };
 
+const createStaffIntoDB = async (payload: Partial<TUser>) => {
+  // Ensure userType is either admin or employee
+  if (!payload.userType || !['admin', 'employee'].includes(payload.userType)) {
+    throw new Error('Invalid userType. Must be either admin or employee');
+  }
+
+  const newStaff = await User.create(payload);
+  return newStaff;
+};
+
 export const UserServices = {
   getAllUsersFromDB,
   getSingleUserFromDB,
@@ -121,4 +148,5 @@ export const UserServices = {
   deleteUserFromDB,
   getUserDashboardStatsFromDB,
   getUserOrdersFromDB,
+  createStaffIntoDB,
 };

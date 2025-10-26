@@ -1,12 +1,9 @@
-"use client";
-
-import { useState, useEffect, useCallback } from "react";
+import axiosIntercept from "@/utils/axios/axiosIntercept";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, UserPlus, Search, Filter, Mail, Phone, Calendar } from "lucide-react";
-import { useSession } from "next-auth/react";
-import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 import { format } from "date-fns";
+import axiosErrorLogger from "@/components/error/axios_error";
 
 interface Customer {
   _id: string;
@@ -23,44 +20,48 @@ interface Customer {
   rewardPoints?: number;
 }
 
-const AllCustomersPage = () => {
-    const { data: session } = useSession();
-    const [customers, setCustomers] = useState<Customer[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+interface CustomersPageProps {
+  searchParams: Promise<{
+    search?: string;
+    isActive?: string;
+    page?: string;
+    limit?: string;
+  }>;
+}
 
-    const fetchCustomers = useCallback(async () => {
-        if (!session) return;
+const getAllCustomers = async (searchParams: Awaited<CustomersPageProps['searchParams']>): Promise<Customer[]> => {
+    try {
+        const axiosWithIntercept = await axiosIntercept();
         
-        try {
-            const axiosClient = createAxiosClientWithSession(session);
-            const response = await axiosClient.get('/api/users');
-            
-            // Filter to only show 'user' type (customers), not admin/employee
-            const userCustomers = response.data.data.filter((user: Customer) => user.userType === 'user');
-            setCustomers(userCustomers);
-        } catch (error) {
-            console.error('Error fetching customers:', error);
-        } finally {
-            setLoading(false);
-        }
-    }, [session]);
+        // Build query string
+        const params = new URLSearchParams();
+        params.set('userType', 'user'); // Filter for customers only
+        if (searchParams.search) params.set('search', searchParams.search);
+        if (searchParams.isActive) params.set('isActive', searchParams.isActive);
+        if (searchParams.page) params.set('page', searchParams.page);
+        if (searchParams.limit) params.set('limit', searchParams.limit);
 
-    useEffect(() => {
-        fetchCustomers();
-    }, [fetchCustomers]);
-
-    useEffect(() => {
-        // Filter customers based on search term
-        const filtered = customers.filter(customer => 
-            customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (customer.phone && customer.phone.includes(searchTerm))
+        const queryString = params.toString();
+        // Call backend directly (axiosIntercept already has NEXT_PUBLIC_BACKEND_URL)
+        const response = await axiosWithIntercept.get(
+            `/users${queryString ? `?${queryString}` : ''}`,
+            {
+                headers: {
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                },
+            }
         );
-        setFilteredCustomers(filtered);
-    }, [customers, searchTerm]);
+        
+        return response.data.data || [];
+    } catch (error: any) {
+        axiosErrorLogger({ error });
+        return [];
+    }
+};
+
+const AllCustomersPage = async ({ searchParams }: CustomersPageProps) => {
+    const params = await searchParams;
+    const customers = await getAllCustomers(params);
 
     // Calculate stats
     const totalCustomers = customers.length;
@@ -143,30 +144,8 @@ const AllCustomersPage = () => {
                     <CardTitle className="text-lg">Customer List</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex items-center gap-4 mb-6">
-                        <div className="relative flex-1 max-w-sm">
-                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                            <input
-                                type="text"
-                                placeholder="Search customers..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            />
-                        </div>
-                        <Button variant="outline" className="flex items-center gap-2">
-                            <Filter className="w-4 h-4" />
-                            Filter
-                        </Button>
-                    </div>
-
                     {/* Customer Table */}
-                    {loading ? (
-                        <div className="border rounded-lg p-8 text-center text-gray-500">
-                            <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                            <p>Loading customers...</p>
-                        </div>
-                    ) : filteredCustomers.length > 0 ? (
+                    {customers.length > 0 ? (
                         <div className="border rounded-lg overflow-hidden">
                             <div className="overflow-x-auto">
                                 <table className="w-full">
@@ -193,7 +172,7 @@ const AllCustomersPage = () => {
                                         </tr>
                                     </thead>
                                     <tbody className="bg-white divide-y divide-gray-200">
-                                        {filteredCustomers.map((customer) => (
+                                        {customers.map((customer) => (
                                             <tr key={customer._id} className="hover:bg-gray-50">
                                                 <td className="px-4 py-4 whitespace-nowrap">
                                                     <div>
@@ -258,15 +237,8 @@ const AllCustomersPage = () => {
                     ) : (
                         <div className="border rounded-lg p-8 text-center text-gray-500">
                             <Users className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                            <h3 className="text-lg font-medium mb-2">
-                                {searchTerm ? 'No customers found' : 'No customers yet'}
-                            </h3>
-                            <p>
-                                {searchTerm 
-                                    ? 'Try adjusting your search criteria.' 
-                                    : 'Customer data will appear here when users register.'
-                                }
-                            </p>
+                            <h3 className="text-lg font-medium mb-2">No customers yet</h3>
+                            <p>Customer data will appear here when users register.</p>
                         </div>
                     )}
                 </CardContent>

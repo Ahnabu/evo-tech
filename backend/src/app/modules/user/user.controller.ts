@@ -75,6 +75,17 @@ const getUserOrders = catchAsync(async (req, res) => {
   });
 });
 
+const createStaff = catchAsync(async (req, res) => {
+  const result = await UserServices.createStaffIntoDB(req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Staff member created successfully",
+    data: result,
+  });
+});
+
 export const UserControllers = {
   getSingleUser,
   getAllUsers,
@@ -82,4 +93,5 @@ export const UserControllers = {
   deleteUser,
   getUserDashboardStats,
   getUserOrders,
+  createStaff,
 };
