@@ -60,17 +60,68 @@ export function useOrdersData(): UseOrdersDataReturn {
 
             const queryString = queryParams.toString();
 
+            console.log('📦 useOrdersData - Fetching orders with params:', {
+                search, order_status, payment_status, page, limit
+            });
+
             const response = await axios.get(
                 `/api/admin/orders${queryString ? `?${queryString}` : ""}`,
             );
 
-            const ordersData = response.data.orders_data;
+            console.log('✅ useOrdersData - Response:', {
+                success: response.data.success,
+                hasData: !!response.data.data,
+                dataIsArray: Array.isArray(response.data.data),
+                dataLength: Array.isArray(response.data.data) ? response.data.data.length : 'N/A',
+                hasResult: !!response.data.data?.result,
+                resultLength: response.data.data?.result?.length || 'N/A',
+                hasMeta: !!response.data.meta,
+                keys: Object.keys(response.data),
+                firstItem: Array.isArray(response.data.data) ? response.data.data[0] : null
+            });
+
+            // Backend returns: { success: true, data: [...orders...] or { result: [...], meta: {...} }, meta: {...} }
+            let ordersData;
+            
+            if (Array.isArray(response.data.data)) {
+                // Direct array
+                ordersData = response.data.data;
+            } else if (response.data.data?.result) {
+                // Nested in result
+                ordersData = response.data.data.result;
+            } else if (response.data.orders_data) {
+                // Old format
+                ordersData = response.data.orders_data;
+            } else {
+                ordersData = [];
+            }
+            
+            const meta = response.data.meta || response.data.data?.meta;
+            
             const pagination: OrdersPaginationData = {
-                current_page: response.data.current_page,
-                last_page: response.data.last_page,
-                total_orders: response.data.total_orders,
-                per_page: response.data.per_page,
+                current_page: meta?.page || response.data.current_page || 1,
+                last_page: meta?.totalPages || response.data.last_page || 1,
+                total_orders: meta?.total || response.data.total_orders || 0,
+                per_page: meta?.limit || response.data.per_page || 10,
             };
+
+            console.log('📊 useOrdersData - Extracted:', {
+                ordersCount: ordersData?.length || 0,
+                pagination,
+                sampleOrder: ordersData?.[0],
+                sampleOrderKeys: ordersData?.[0] ? Object.keys(ordersData[0]) : [],
+                allOrderFields: ordersData?.[0] ? {
+                    orderNumber: ordersData[0]?.orderNumber,
+                    orderStatus: ordersData[0]?.orderStatus,
+                    paymentStatus: ordersData[0]?.paymentStatus,
+                    paymentMethod: ordersData[0]?.paymentMethod,
+                    shippingType: ordersData[0]?.shippingType,
+                    totalPayable: ordersData[0]?.totalPayable,
+                    firstname: ordersData[0]?.firstname,
+                    lastname: ordersData[0]?.lastname,
+                    email: ordersData[0]?.email,
+                } : null
+            });
 
             dispatch(setOrdersList(ordersData));
             setPaginationData(pagination);
@@ -83,6 +134,7 @@ export function useOrdersData(): UseOrdersDataReturn {
                 router.replace(`${pathname}?${params.toString()}`);
             }
         } catch (error: any) {
+            console.error('❌ useOrdersData - Error:', error.response?.data || error.message);
             setError('Failed to fetch orders.');
             dispatch(setOrdersList([]));
             setPaginationData(null);

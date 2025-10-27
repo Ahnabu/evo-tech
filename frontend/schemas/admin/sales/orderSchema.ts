@@ -1,84 +1,80 @@
 import { z } from "zod";
 
 export const orderSchema = z.object({
-    orderid: z.string(),
-    order_key: z.string(), // uuid
-    firstName: z.string(),
-    lastName: z.string(),
+    _id: z.string().optional(),
+    orderNumber: z.string(),
+    user: z.string(), // UUID
+    firstname: z.string(),
+    lastname: z.string(),
     phone: z.string(),
-    email: z.string().nullable(),
-    housestreet: z.string(),
+    email: z.string(),
+    houseStreet: z.string(),
     city: z.string(),
-    subdistrict: z.string(),
-    postcode: z.string().nullable(),
+    subdistrict: z.string().optional(),
+    postcode: z.string(),
     country: z.string(),
-    notes: z.string().nullable(),
-    shipping_type: z.enum([
-        "regular_delivery",
-        "express_delivery",
-        "pickup_point",
-    ]),
-    payment_method: z.enum([
-        "cod", // cash on delivery
-        "cop", // cash on pickup
-        "bkash", // bkash payment
-        "bank_transfer", // bank transfer payment
-    ]),
-    transaction_id: z.string().nullable(), // for bkash payment/bank transfer payment (temporary way)
-    terms: z.string(),
+    shippingType: z.string(),
+    pickupPointId: z.string().optional(),
+    paymentMethod: z.string(),
+    transactionId: z.string().optional(),
+    terms: z.boolean(),
     subtotal: z.number(),
     discount: z.number(),
-    delivery_charge: z.number(),
-    additional_charge: z.number(),
-    total_payable: z.number(),
-    order_status: z.enum([
-        "placed",
+    deliveryCharge: z.number(),
+    additionalCharge: z.number(),
+    totalPayable: z.number(),
+    orderStatus: z.enum([
+        "pending",
         "confirmed",
-        "picked_up",
-        "on_the_way",
+        "processing",
+        "shipped",
         "delivered",
         "cancelled",
-    ], { message: "Invalid order status." }),
-    payment_status: z.enum([
-        "paid",
+    ]),
+    paymentStatus: z.enum([
         "pending",
+        "paid",
+        "failed",
         "refunded",
-        "partial"
-    ], { message: "Invalid payment status." }),
-    pickup_point_id: z.number().nullable(),
-    tracking_code: z.string().nullable(),
+    ]),
+    notes: z.string().optional(),
+    trackingCode: z.string().optional(),
     viewed: z.boolean(),
-    unpaid_notified: z.boolean(),
-    order_date: z.string(),
-    delivery_date: z.string().nullable(),
-    // reward_points: z.number(), // has to make proper structure to sync across all places
+    unpaidNotified: z.boolean(),
+    deliveredAt: z.string().optional(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
 });
 
 export const orderedItemSchema = z.object({
-    item_id: z.string(),
-    item_image: z.string(),
-    item_name: z.string(),
-    item_price: z.number(),
-    item_quantity: z.number(),
-    item_color: z.string(),
+    _id: z.string().optional(),
+    order: z.string(),
+    product: z.string(),
+    productName: z.string(),
+    productPrice: z.number(),
+    quantity: z.number(),
+    selectedColor: z.string().optional(),
+    subtotal: z.number(),
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
 });
 
 export const orderStatusesUpdateSchema = z.object({
-    order_status: z.enum([
-        "placed",
+    orderStatus: z.enum([
+        "pending",
         "confirmed",
-        "picked_up",
-        "on_the_way",
+        "processing",
+        "shipped",
         "delivered",
         "cancelled",
-    ], { message: "Invalid order status." }).optional(),
-    payment_status: z.enum([
-        "paid",
+    ]).optional(),
+    paymentStatus: z.enum([
         "pending",
+        "paid",
+        "failed",
         "refunded",
-        "partial"
-    ], { message: "Invalid payment status." }).optional(),
-    tracking_code: z.string().nullable().optional(),
+    ]).optional(),
+    trackingCode: z.string().nullable().optional(),
 });
 
 
@@ -87,5 +83,5 @@ export type OrderedItemType = z.infer<typeof orderedItemSchema>;
 export type OrderStatusesUpdateType = z.infer<typeof orderStatusesUpdateSchema>;
 
 export type OrderWithItemsType = OrderType & {
-    order_items: OrderedItemType[];
+    orderItems?: OrderedItemType[];
 };

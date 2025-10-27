@@ -10,18 +10,21 @@ import OrderTableRowActions from "@/components/admin/orders/comps/order-table-ro
 
 export const ordersColumns: ColumnDef<OrderWithItemsType>[] = [
   {
-    accessorKey: "orderid",
+    accessorKey: "orderNumber",
     header: () => <div>Order ID</div>,
     cell: ({ row }) => {
-      const orderId = row.getValue("orderid") as string;
+      const orderId = row.getValue("orderNumber") as string;
+      const original: any = row.original;
+      const orderIdFallback = original._id || original.orderid;
+      const displayId = orderId || orderIdFallback;
       const viewed = row.original.viewed as boolean;
       return (
         <div>
           <Link
-            href={`/control/orders/${orderId}`}
+            href={`/control/orders/${original._id || original.orderid}`}
             className={`text-primary text-xs hover:underline hover:underline-offset-2 flex items-center ${!viewed ? 'font-extrabold' : 'font-medium'}`}
           >
-            {orderId}
+            {displayId}
             {!viewed &&
               (<div className="ml-1.5 size-1.5 bg-emerald-500/85 rounded-full"></div>)
             }
@@ -35,22 +38,26 @@ export const ordersColumns: ColumnDef<OrderWithItemsType>[] = [
     header: "Customer",
     cell: ({ row }) => {
       const rowdata = row.original;
+      const firstName = rowdata.firstname || '';
+      const lastName = rowdata.lastname || '';
+      const email = rowdata.email || '';
+      
       return (
         <div className="flex flex-col">
           <span className="font-medium text-[0.625rem] leading-tight whitespace-nowrap">
-            {`Name: ${rowdata.firstName}${rowdata.lastName ? ` ${rowdata.lastName}` : ''}`}
+            {`Name: ${firstName}${lastName ? ` ${lastName}` : ''}`}
           </span>
-          {rowdata.email ? <span className="text-[0.625rem] text-muted-foreground whitespace-nowrap">Email: {rowdata.email}</span>
+          {email ? <span className="text-[0.625rem] text-muted-foreground whitespace-nowrap">Email: {email}</span>
             : <span className="text-[0.625rem] text-muted-foreground">Email: --</span>}
         </div>
       );
     },
   },
   {
-    accessorKey: "total_payable",
+    accessorKey: "totalPayable",
     header: () => <div>Amount</div>,
     cell: ({ row }) => {
-      const amount = parseFloat(row.getValue("total_payable") as string);
+      const amount = parseFloat(row.getValue("totalPayable") as string) || 0;
       const formatted = `৳${new Intl.NumberFormat("en-US", {
         minimumIntegerDigits: 1,
         maximumFractionDigits: 0,
@@ -60,21 +67,21 @@ export const ordersColumns: ColumnDef<OrderWithItemsType>[] = [
     },
   },
   {
-    accessorKey: "order_status",
+    accessorKey: "orderStatus",
     header: "Order Status",
     cell: ({ row }) => {
-      const status = row.getValue("order_status") as string;
+      const status = row.getValue("orderStatus") as string;
 
       // Define badge styles based on status
       const getBadgeVariant = (status: string) => {
         switch (status) {
-          case "placed":
+          case "pending":
             return "customdefault";
           case "confirmed":
             return "inprogress";
-          case "picked_up":
+          case "processing":
             return "inprogress";
-          case "on_the_way":
+          case "shipped":
             return "warning";
           case "delivered":
             return "success";
@@ -90,33 +97,33 @@ export const ordersColumns: ColumnDef<OrderWithItemsType>[] = [
           variant={getBadgeVariant(status) as any}
           className={`capitalize whitespace-nowrap`}
         >
-          {status.replaceAll('_', ' ')}
+          {status?.replaceAll('_', ' ') || 'N/A'}
         </Badge>
       );
     },
   },
   {
-    accessorKey: "payment_method",
+    accessorKey: "paymentMethod",
     header: "Payment Method",
     cell: ({ row }) => {
-      const method = row.getValue("payment_method") as string;
-      return <div className="capitalize text-xs whitespace-nowrap">{method.replaceAll('_', ' ')}</div>;
+      const method = row.getValue("paymentMethod") as string;
+      return <div className="capitalize text-xs whitespace-nowrap">{method?.replaceAll('_', ' ') || 'N/A'}</div>;
     },
   },
   {
-    accessorKey: "shipping_type",
+    accessorKey: "shippingType",
     header: () => <div>Shipping Type</div>,
     cell: ({ row }) => {
-      const shippingType = row.getValue("shipping_type") as string;
+      const shippingType = row.getValue("shippingType") as string;
 
-      return <div className="text-xs capitalize whitespace-nowrap">{shippingType.replaceAll('_', ' ')}</div>;
+      return <div className="text-xs capitalize whitespace-nowrap">{shippingType?.replaceAll('_', ' ') || 'N/A'}</div>;
     },
   },
   {
-    accessorKey: "payment_status",
+    accessorKey: "paymentStatus",
     header: "Payment Status",
     cell: ({ row }) => {
-      const status = row.getValue("payment_status") as string;
+      const status = row.getValue("paymentStatus") as string;
 
       // Define badge styles based on status
       const getBadgeVariant = (status: string) => {
@@ -139,7 +146,7 @@ export const ordersColumns: ColumnDef<OrderWithItemsType>[] = [
           variant={getBadgeVariant(status) as any}
           className="capitalize whitespace-nowrap"
         >
-          {status.replace('_', ' ')}
+          {status?.replace('_', ' ') || 'N/A'}
         </Badge>
       );
     },

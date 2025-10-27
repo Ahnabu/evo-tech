@@ -130,10 +130,10 @@ const OrdersHeaderClient = () => {
                         >
                           Clear
                         </Button>
-                        <SelectItem value="placed">Placed</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
                         <SelectItem value="confirmed">Confirmed</SelectItem>
-                        <SelectItem value="picked_up">Picked Up</SelectItem>
-                        <SelectItem value="on_the_way">On The Way</SelectItem>
+                        <SelectItem value="processing">Processing</SelectItem>
+                        <SelectItem value="shipped">Shipped</SelectItem>
                         <SelectItem value="delivered">Delivered</SelectItem>
                         <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
@@ -167,10 +167,10 @@ const OrdersHeaderClient = () => {
                         >
                           Clear
                         </Button>
-                        <SelectItem value="paid">Paid</SelectItem>
                         <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="paid">Paid</SelectItem>
+                        <SelectItem value="failed">Failed</SelectItem>
                         <SelectItem value="refunded">Refunded</SelectItem>
-                        <SelectItem value="partial">Partial</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>

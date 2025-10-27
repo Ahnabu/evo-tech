@@ -29,7 +29,7 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
 
     const handleOrdersUpdateAfterDeletion = () => {
         dispatch(removeAnOrder({
-            orderId: row.original.orderid,
+            orderId: row.original._id || row.original.orderNumber,
         }));
     };
 
@@ -38,7 +38,7 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
         if (order) {
             startDeleteTransition(async () => {
                 const { data, error } = await deleteOrder({
-                    id: order.orderid,
+                    id: order._id || order.orderNumber,
                 });
 
                 if (error) {
@@ -62,7 +62,7 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
         const order = row.original;
         if (!order) return toast.error('Order not found');
 
-        if (order.order_status === 'cancelled') {
+        if (order.orderStatus === 'cancelled') {
             return toast.error('Order is already cancelled');
         }
 
@@ -72,7 +72,7 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
 
         startDeleteTransition(async () => {
             const { data, error } = await updateOrderStatus({
-                id: order.orderid,
+                id: order._id || order.orderNumber,
                 payload: { orderStatus: 'cancelled' }
             });
 
@@ -94,7 +94,7 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
                 size="sm"
                 className="h-8 w-8 p-0 rounded-full bg-blue-100 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
                 aria-label={`View Order details`}
-                onClick={() => router.push(`/control/orders/${row.original.orderid}`)}
+                onClick={() => router.push(`/control/orders/${row.original._id || row.original.orderNumber}`)}
             >
                 <Eye className="h-4 w-4" />
             </Button>
@@ -108,7 +108,7 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
                 entityName="order"
             />
             {/* Cancel button - visible only if order not already cancelled */}
-            {row.original.order_status !== 'cancelled' && (
+            {row.original.orderStatus !== 'cancelled' && (
                 <Button
                     variant="ghost"
                     size="sm"

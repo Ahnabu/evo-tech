@@ -32,23 +32,23 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
     const form = useForm<OrderStatusesUpdateType>({
         resolver: zodResolver(orderStatusesUpdateSchema),
         defaultValues: {
-            order_status: orderData.order_status,
-            payment_status: orderData.payment_status,
-            tracking_code: orderData.tracking_code || "",
+            orderStatus: orderData.orderStatus,
+            paymentStatus: orderData.paymentStatus,
+            trackingCode: orderData.trackingCode || "",
         },
     });
 
     const onSubmit = async (data: OrderStatusesUpdateType) => {
         try {
-            // Filter out undefined values and empty strings for tracking_code
+            // Filter out undefined values and empty strings for trackingCode
             const updateData: any = {};
-            if (data.order_status !== undefined) updateData.order_status = data.order_status;
-            if (data.payment_status !== undefined) updateData.payment_status = data.payment_status;
-            if (data.tracking_code !== undefined) {
-                updateData.tracking_code = data.tracking_code || null;
+            if (data.orderStatus !== undefined) updateData.orderStatus = data.orderStatus;
+            if (data.paymentStatus !== undefined) updateData.paymentStatus = data.paymentStatus;
+            if (data.trackingCode !== undefined) {
+                updateData.trackingCode = data.trackingCode || null;
             }
 
-            const response = await axios.put(`${frontBaseURL}/api/admin/orders/${orderData.orderid}`,
+            const response = await axios.put(`${frontBaseURL}/api/admin/orders/${orderData._id || orderData.orderNumber}`,
                 updateData,
                 {
                     headers: {
@@ -87,7 +87,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
                         <FormField
                             control={form.control}
-                            name="order_status"
+                            name="orderStatus"
                             render={({ field }) => (
                                 <FormItem>
                                     <p className="text-xs font-medium whitespace-nowrap">Order Status</p>
@@ -100,10 +100,10 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                                                 <SelectValue placeholder="Select order status" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="placed">Placed</SelectItem>
+                                                <SelectItem value="pending">Pending</SelectItem>
                                                 <SelectItem value="confirmed">Confirmed</SelectItem>
-                                                <SelectItem value="picked_up">Picked Up</SelectItem>
-                                                <SelectItem value="on_the_way">On The Way</SelectItem>
+                                                <SelectItem value="processing">Processing</SelectItem>
+                                                <SelectItem value="shipped">Shipped</SelectItem>
                                                 <SelectItem value="delivered">Delivered</SelectItem>
                                                 <SelectItem value="cancelled">Cancelled</SelectItem>
                                             </SelectContent>
@@ -116,7 +116,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
 
                         <FormField
                             control={form.control}
-                            name="payment_status"
+                            name="paymentStatus"
                             render={({ field }) => (
                                 <FormItem>
                                     <p className="text-xs font-medium whitespace-nowrap">Payment Status</p>
@@ -129,10 +129,10 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                                                 <SelectValue placeholder="Select payment status" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="paid">Paid</SelectItem>
                                                 <SelectItem value="pending">Pending</SelectItem>
+                                                <SelectItem value="paid">Paid</SelectItem>
+                                                <SelectItem value="failed">Failed</SelectItem>
                                                 <SelectItem value="refunded">Refunded</SelectItem>
-                                                <SelectItem value="partial">Partial</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </FormControl>
@@ -143,7 +143,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
 
                         <FormField
                             control={form.control}
-                            name="tracking_code"
+                            name="trackingCode"
                             render={({ field }) => (
                                 <FormItem>
                                     <p className="text-xs font-medium whitespace-nowrap">Tracking Code</p>

@@ -8,7 +8,9 @@
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
     "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix"
+    "lint:fix": "eslint src --ext .ts --fix",
+    "seed:orders": "ts-node-dev --transpile-only src/seedOrders.ts",
+    "seed:orders:clear": "ts-node-dev --transpile-only src/seedOrders.ts --clear"
   },
   "keywords": [
     "express",

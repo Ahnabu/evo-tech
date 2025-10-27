@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import app from "./app";
 import config from "./app/config";
 import { seedAdmin } from "./app/utils/seeding";
+import { seedTestOrders } from "./app/utils/seedOrders";
 
 let server: Server;
 
@@ -30,6 +31,9 @@ async function bootstrap() {
 
     // Seed admin user if not exists
     await seedAdmin();
+    
+    // Seed test orders (comment out after first run if you don't want to add more)
+    // await seedTestOrders();
 
     server = app.listen(config.port, () => {
       console.log(`🚀 Application is running on port ${config.port}`);

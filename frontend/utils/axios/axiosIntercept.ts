@@ -10,15 +10,24 @@ const axiosIntercept = async () => {
     const session = await auth();
     const token = session?.accessToken;
 
+    console.log('🔐 axiosIntercept - Session:', {
+        hasSession: !!session,
+        hasToken: !!token,
+        userRole: session?.user?.role,
+        userEmail: session?.user?.email
+    });
+
     if (!token) {
+        console.error('❌ No authentication token available');
         throw new Error("No authentication token available");
     }
 
     axiosPrivate.interceptors.request.use(
         (config) => {
-
             config.headers['Authorization'] = `Bearer ${token}`;
             config.headers['Cookie'] = cookieString;
+            
+            console.log('📤 Request:', config.method?.toUpperCase(), config.url);
 
             return config;
         },

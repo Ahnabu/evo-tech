@@ -12,15 +12,16 @@ const pickupPoints: { [key: string]: string } = {
 };
 
 const shippingTypes: { [key: string]: string } = {
-    'regular_delivery': 'Regular Delivery',
-    'express_delivery': 'Express Delivery',
+    'home_delivery': 'Home Delivery',
     'pickup_point': 'Pickup Point',
+    'express_delivery': 'Express Delivery',
 };
 
 const paymentMethods: { [key: string]: string } = {
-    'cop': 'Cash on Pickup',
-    'cod': 'Cash on Delivery',
+    'cash_on_delivery': 'Cash on Delivery',
     'bkash': 'bKash',
+    'nagad': 'Nagad',
+    'credit_card': 'Credit Card',
     'bank_transfer': 'Bank Transfer',
 };
 
@@ -29,8 +30,8 @@ const getPaymentStatusBadge = (status: string) => {
     const statusConfig = {
         paid: { variant: "success" as const, text: "Paid" },
         pending: { variant: "failed" as const, text: "Pending" },
+        failed: { variant: "failed" as const, text: "Failed" },
         refunded: { variant: "warning" as const, text: "Refunded" },
-        partial: { variant: "failed" as const, text: "Partial" },
     };
 
     const config = statusConfig[status as keyof typeof statusConfig] || { variant: "outline" as const, text: status };
@@ -43,14 +44,14 @@ const getPaymentStatusBadge = (status: string) => {
 };
 
 const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
-    const [paymentStatus, setPaymentStatus] = useState(orderData.payment_status);
+    const [paymentStatus, setPaymentStatus] = useState(orderData.paymentStatus);
 
     useEffect(() => {
-        setPaymentStatus(orderData.payment_status);
-    }, [orderData.payment_status]);
+        setPaymentStatus(orderData.paymentStatus);
+    }, [orderData.paymentStatus]);
 
     const handleStatusUpdate = (orderData: OrderWithItemsType) => {
-        setPaymentStatus(orderData.payment_status);
+        setPaymentStatus(orderData.paymentStatus);
     };
 
     return (
@@ -81,7 +82,7 @@ const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
                             </p>
                             <p className="w-full h-fit">
                                 <span className="text-evoAdminPrimary font-semibold">{`House & Street: `}</span>
-                                {`${orderData.housestreet}`}
+                                {`${orderData.houseStreet}`}
                             </p>
                             <p className="w-full h-fit">
                                 <span className="text-evoAdminPrimary font-semibold">{`District: `}</span>
@@ -110,19 +111,19 @@ const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
                         <CardContent className="text-xs text-stone-500 space-y-2">
                             <div>
                                 <span className="text-evoAdminPrimary font-semibold">{`Shipping Type: `}</span>
-                                {`${shippingTypes[orderData.shipping_type]}`}
+                                {`${shippingTypes[orderData.shippingType] || orderData.shippingType}`}
                             </div>
 
-                            {orderData.pickup_point_id && (
+                            {orderData.pickupPointId && (
                                 <div>
                                     <span className="text-evoAdminPrimary font-semibold">{`Pickup Point: `}</span>
-                                    {`${pickupPoints[orderData.pickup_point_id.toString()]}`}
+                                    {`${pickupPoints[orderData.pickupPointId.toString()] || orderData.pickupPointId}`}
                                 </div>
                             )}
 
                             <div>
                                 <span className="text-evoAdminPrimary font-semibold">{`Payment Method: `}</span>
-                                {`${paymentMethods[orderData.payment_method]}`}
+                                {`${paymentMethods[orderData.paymentMethod] || orderData.paymentMethod}`}
                             </div>
 
                             <div>
@@ -130,29 +131,29 @@ const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
                                 {getPaymentStatusBadge(paymentStatus)}
                             </div>
 
-                            {orderData.transaction_id && (
+                            {orderData.transactionId && (
                                 <div>
                                     <span className="text-evoAdminPrimary font-semibold">{`Transaction ID: `}</span>
-                                    {`${orderData.transaction_id}`}
+                                    {`${orderData.transactionId}`}
                                 </div>
                             )}
 
-                            {orderData.tracking_code && (
+                            {orderData.trackingCode && (
                                 <div>
                                     <span className="text-evoAdminPrimary font-semibold">{`Tracking Code: `}</span>
-                                    {`${orderData.tracking_code}`}
+                                    {`${orderData.trackingCode}`}
                                 </div>
                             )}
 
                             <div>
                                 <span className="text-evoAdminPrimary font-semibold">{`Order Date: `}</span>
-                                {`${orderData.order_date}`}
+                                {orderData.createdAt ? new Date(orderData.createdAt).toLocaleDateString() : 'N/A'}
                             </div>
 
-                            {orderData.delivery_date && (
+                            {orderData.deliveredAt && (
                                 <div>
                                     <span className="text-evoAdminPrimary font-semibold">{`Delivery Date: `}</span>
-                                    {`${orderData.delivery_date}`}
+                                    {new Date(orderData.deliveredAt).toLocaleDateString()}
                                 </div>
                             )}
 
@@ -178,26 +179,26 @@ const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
                             <CardTitle className="text-base text-stone-800 underline underline-offset-2">Ordered Items</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            {orderData.order_items && orderData.order_items.length > 0 ? (
+                            {orderData.orderItems && orderData.orderItems.length > 0 ? (
                                 <div className="space-y-4">
                                     {/* Items List */}
                                     <div className="max-h-[400px] overflow-y-auto space-y-3">
-                                        {orderData.order_items.map((item, index) => (
+                                        {orderData.orderItems.map((item, index) => (
                                             <div key={`oitem-${index}`} className="flex justify-between items-start p-3 border border-stone-200 rounded-md">
                                                 <div className="flex-1 text-xs">
                                                     <div className="flex flex-col gap-1">
-                                                        <h4 className="font-medium text-stone-800">{item.item_name}</h4>
-                                                        {item.item_color && (
-                                                            <p className="text-xs text-stone-500">Color: {item.item_color}</p>
+                                                        <h4 className="font-medium text-stone-800">{item.productName}</h4>
+                                                        {item.selectedColor && (
+                                                            <p className="text-xs text-stone-500">Color: {item.selectedColor}</p>
                                                         )}
                                                     </div>
 
                                                     <div className="flex justify-between items-center mt-2">
                                                         <span className="text-stone-600">
-                                                            {currencyFormatBDT(item.item_price)} × {item.item_quantity}
+                                                            {currencyFormatBDT(item.productPrice)} × {item.quantity}
                                                         </span>
                                                         <span className="font-medium text-stone-800">
-                                                            {currencyFormatBDT(item.item_price * item.item_quantity)} BDT
+                                                            {currencyFormatBDT(item.productPrice * item.quantity)} BDT
                                                         </span>
                                                     </div>
                                                 </div>
@@ -217,15 +218,15 @@ const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-stone-600">Delivery:</span>
-                                            <span className="text-stone-800">{currencyFormatBDT(orderData.delivery_charge)} BDT</span>
+                                            <span className="text-stone-800">{currencyFormatBDT(orderData.deliveryCharge)} BDT</span>
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-stone-600">Additional:</span>
-                                            <span className="text-stone-800">{currencyFormatBDT(orderData.additional_charge)} BDT</span>
+                                            <span className="text-stone-800">{currencyFormatBDT(orderData.additionalCharge)} BDT</span>
                                         </div>
                                         <div className="flex justify-between text-sm font-semibold border-t border-stone-200 pt-2">
                                             <span className="text-stone-800">Total:</span>
-                                            <span className="text-stone-800">{currencyFormatBDT(orderData.total_payable)} BDT</span>
+                                            <span className="text-stone-800">{currencyFormatBDT(orderData.totalPayable)} BDT</span>
                                         </div>
                                     </div>
                                 </div>
