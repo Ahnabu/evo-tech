@@ -131,13 +131,21 @@ const getSalesData = async (period: string = "30d") => {
 };
 
 const getRecentOrders = async (limit: number = 10) => {
+  // Get all orders and sort: pending first, then by creation date
   const orders = await Order.find()
     .sort({ createdAt: -1 })
     .limit(limit)
     .populate("user", "firstName lastName email")
     .lean();
 
-  return orders.map(order => ({
+  // Sort to show pending orders first
+  const sortedOrders = orders.sort((a, b) => {
+    if (a.orderStatus === 'pending' && b.orderStatus !== 'pending') return -1;
+    if (a.orderStatus !== 'pending' && b.orderStatus === 'pending') return 1;
+    return new Date(b.createdAt!).getTime() - new Date(a.createdAt!).getTime();
+  });
+
+  return sortedOrders.map(order => ({
     id: order._id,
     orderNumber: order.orderNumber || `ORD-${order._id}`,
     customer: order.user ? `${(order.user as any).firstName} ${(order.user as any).lastName}` : `${order.firstname} ${order.lastname}`,

@@ -23,8 +23,8 @@ router.get(
 );
 
 // Admin routes
-router.get("/", auth(USER_ROLE.ADMIN), OrderControllers.getAllOrders);
-router.put("/:id", auth(USER_ROLE.ADMIN), OrderControllers.updateOrderStatus);
+router.get("/", auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE), OrderControllers.getAllOrders);
+router.put("/:id", auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE), OrderControllers.updateOrderStatus);
 router.delete("/:id", auth(USER_ROLE.ADMIN), OrderControllers.deleteOrder);
 
 export const OrderRoutes = router;

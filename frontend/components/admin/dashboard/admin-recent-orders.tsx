@@ -13,29 +13,42 @@ interface Order {
     customerName: string;
     customerEmail: string;
     total: number;
-    status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+    status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
     createdAt: string;
 }
 
 export function AdminRecentOrders() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [orders, setOrders] = useState<Order[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string>('');
 
     const fetchRecentOrders = useCallback(async () => {
-        if (!session) return;
+        console.log('🔍 Session status:', status, 'Session:', !!session);
+        
+        if (!session) {
+            console.log('⏸️ No session, stopping fetch');
+            setLoading(false);
+            return;
+        }
+        
+        console.log('🚀 Starting orders fetch...');
         
         try {
             setLoading(true);
+            setError('');
             const axiosInstance = createAxiosClientWithSession(session);
             
             const response = await axiosInstance.get('/dashboard/recent-orders');
             
-            console.log('Recent orders response:', response.data);
+            console.log('✅ Orders API Response:', {
+                success: response.data.success,
+                count: response.data.data?.length || 0,
+                message: response.data.message
+            });
             
             if (response.data.success) {
                 const apiOrders = response.data.data || [];
-                console.log('API Orders:', apiOrders);
                 
                 // Transform backend data to match frontend interface
                 const transformedOrders = apiOrders.map((order: any) => ({
@@ -47,15 +60,18 @@ export function AdminRecentOrders() {
                     createdAt: order.createdAt
                 }));
                 
-                console.log('Transformed Orders:', transformedOrders);
+                console.log('✅ Setting', transformedOrders.length, 'orders to state');
                 setOrders(transformedOrders);
+            } else {
+                setError('Failed to fetch orders');
             }
-        } catch (error) {
-            console.error("Error fetching recent orders:", error);
+        } catch (error: any) {
+            console.error("❌ Error fetching orders:", error.response?.data?.message || error.message);
+            setError(error.response?.data?.message || 'Failed to load orders');
         } finally {
             setLoading(false);
         }
-    }, [session]);
+    }, [session, status]);
 
     useEffect(() => {
         fetchRecentOrders();
@@ -65,6 +81,7 @@ export function AdminRecentOrders() {
         switch (status) {
             case "pending": return "bg-yellow-100 text-yellow-600 border-yellow-200";
             case "confirmed": return "bg-blue-100 text-blue-600 border-blue-200";
+            case "processing": return "bg-cyan-100 text-cyan-600 border-cyan-200";
             case "shipped": return "bg-purple-100 text-purple-600 border-purple-200";
             case "delivered": return "bg-green-100 text-green-600 border-green-200";
             case "cancelled": return "bg-red-100 text-red-600 border-red-200";
@@ -108,6 +125,16 @@ export function AdminRecentOrders() {
                                 <div className="h-3 bg-gray-200 rounded w-3/4"></div>
                             </div>
                         ))}
+                    </div>
+                ) : error ? (
+                    <div className="text-center py-8 text-red-500">
+                        <p className="text-sm font-medium">{error}</p>
+                        <button 
+                            onClick={fetchRecentOrders}
+                            className="mt-2 text-xs text-blue-600 hover:text-blue-800"
+                        >
+                            Try again
+                        </button>
                     </div>
                 ) : orders.length === 0 ? (
                     <div className="text-center py-8 text-gray-500">

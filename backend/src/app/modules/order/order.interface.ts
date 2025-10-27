@@ -23,7 +23,7 @@ export interface TOrder {
   deliveryCharge: number;
   additionalCharge: number;
   totalPayable: number;
-  orderStatus: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+  orderStatus: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
   paymentStatus: "pending" | "paid" | "failed" | "refunded";
   notes?: string;
   trackingCode?: string;
