@@ -53,6 +53,7 @@ export const AppSidebar = ({ userSession, ...props }: { userSession: any; } & Re
               url={mainMenu.url}
               Icon={mainMenu.icon}
               collapsibleItems={mainMenu.collapsibleItems}
+              permissions={mainMenu.permissions}
             />
           ))
         }
@@ -66,6 +67,7 @@ export const AppSidebar = ({ userSession, ...props }: { userSession: any; } & Re
                   url={secondaryMenu.url}
                   Icon={secondaryMenu.icon}
                   collapsibleItems={secondaryMenu.collapsibleItems}
+                  permissions={secondaryMenu.permissions}
                 />
               ))
             }

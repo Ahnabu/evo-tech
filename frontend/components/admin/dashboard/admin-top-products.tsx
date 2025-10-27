@@ -32,7 +32,7 @@ export function AdminTopProducts() {
             setLoading(true);
             const axiosInstance = createAxiosClientWithSession(session);
             
-            const response = await axiosInstance.get('/api/v1/dashboard/top-products');
+            const response = await axiosInstance.get('/dashboard/top-products');
             
             if (response.data.success) {
                 const apiProducts = response.data.data || [];

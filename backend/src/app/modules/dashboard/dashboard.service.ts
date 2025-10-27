@@ -289,10 +289,22 @@ const getEarningsReport = async () => {
   };
 };
 
+const getPendingOrdersCount = async () => {
+  // Get count of orders that are pending (not processed yet)
+  const pendingCount = await Order.countDocuments({
+    orderStatus: "pending"
+  });
+
+  return {
+    count: pendingCount
+  };
+};
+
 export const DashboardServices = {
   getDashboardStats,
   getSalesData,
   getRecentOrders,
   getTopProducts,
   getEarningsReport,
+  getPendingOrdersCount,
 };

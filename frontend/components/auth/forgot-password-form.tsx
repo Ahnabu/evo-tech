@@ -30,7 +30,7 @@ const ForgotPasswordForm = () => {
         setFormSuccess("");
 
         try {
-            const response = await axios.post("/api/v1/auth/forgot-password", data);
+            const response = await axios.post("/auth/forgot-password", data);
             setFormSuccess("Password reset link sent to your email");
         } catch (error: any) {
             if (error.response?.data?.message) {

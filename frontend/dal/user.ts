@@ -6,7 +6,7 @@ import { isAxiosError } from "axios";
 
 export const authUsingApi = async (values: { email: string; password: string; role?: "USER" | "ADMIN" | "EMPLOYEE"  }) => {
 
-    const response = await axios.post("/api/v1/auth/login",
+    const response = await axios.post("/auth/login",
         {
             email: values.email,
             password: values.password,

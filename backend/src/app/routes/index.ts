@@ -11,6 +11,7 @@ import { DashboardRoutes } from "../modules/dashboard/dashboard.route";
 import { BannerRoutes } from "../modules/banner/banner.route";
 import { ClientRoutes } from "../modules/client/client.route";
 import { LandingSectionRoutes } from "../modules/landingsection/landingsection.route";
+import { PermissionRoutes } from "../modules/permission/permission.route";
 
 const router = express.Router();
 
@@ -62,6 +63,10 @@ const moduleRoutes = [
   {
     path: "/landing-sections",
     route: LandingSectionRoutes,
+  },
+  {
+    path: "/permissions",
+    route: PermissionRoutes,
   },
 ];
 

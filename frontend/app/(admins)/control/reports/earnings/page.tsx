@@ -63,7 +63,7 @@ export default function EarningsReportPage() {
 
         try {
             const axiosInstance = createAxiosClientWithSession(session);
-            const response = await axiosInstance.get("/api/v1/dashboard/earnings-report");
+            const response = await axiosInstance.get("/dashboard/earnings-report");
 
             if (response.data.success) {
                 setEarnings(response.data.data);

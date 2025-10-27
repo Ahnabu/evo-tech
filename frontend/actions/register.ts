@@ -15,7 +15,7 @@ export const register = async (values: z.infer<typeof RegisterSchema>) => {
     const { firstName, lastName, email, password } = validatedFields.data;
 
     // call backend api to handle registration of user
-    const response = await axios.post("/api/v1/auth/register", {
+    const response = await axios.post("/auth/register", {
         firstName,
         lastName,
         email,

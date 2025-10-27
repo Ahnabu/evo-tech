@@ -8,6 +8,7 @@ import { useOrdersData } from "@/hooks/use-orders-data";
 import { toast } from "sonner";
 import { BsArrowCounterclockwise } from "react-icons/bs";
 import OrderTableRowActions from "@/components/admin/orders/comps/order-table-row-actions";
+import { usePendingOrders } from "@/contexts/PendingOrdersContext";
 
 const LoadingSpinner: React.FC = () => (
     <div className="h-full flex justify-center items-center">
@@ -17,6 +18,13 @@ const LoadingSpinner: React.FC = () => (
 
 const OrdersDataTable = () => {
     const { orders, isLoading, error, refetch, serverSidePagination } = useOrdersData();
+    const { refreshPendingCount } = usePendingOrders();
+
+    // Wrap refetch to also update pending count
+    const handleRefetch = React.useCallback(async () => {
+        await refetch();
+        await refreshPendingCount();
+    }, [refetch, refreshPendingCount]);
 
     // Create columns with refetch function passed to row actions
     const columnsWithRefetch = React.useMemo(() => 
@@ -25,12 +33,12 @@ const OrdersDataTable = () => {
                 return {
                     ...col,
                     cell: ({ row }: any) => (
-                        <OrderTableRowActions row={row} onDataChange={refetch} />
+                        <OrderTableRowActions row={row} onDataChange={handleRefetch} />
                     ),
                 };
             }
             return col;
-        }), [refetch]
+        }), [handleRefetch]
     );
 
     // customize the action button background of the toast
@@ -38,14 +46,14 @@ const OrdersDataTable = () => {
         if (error) {
             toast.error(error, {
                 action: (
-                    <button onClick={refetch} className="text-red-500 hover:text-red-600 px-2 py-0.5 rounded-md flex items-center gap-0.5 underline underline-offset-2 ml-auto">
+                    <button onClick={handleRefetch} className="text-red-500 hover:text-red-600 px-2 py-0.5 rounded-md flex items-center gap-0.5 underline underline-offset-2 ml-auto">
                         <span>Try again</span>
                         <BsArrowCounterclockwise className="size-4" />
                     </button>
                 ),
             });
         }
-    }, [error, refetch]);
+    }, [error, handleRefetch]);
 
     if (isLoading) {
         return <LoadingSpinner />;

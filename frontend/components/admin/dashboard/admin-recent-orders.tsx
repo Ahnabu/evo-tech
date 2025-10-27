@@ -29,19 +29,26 @@ export function AdminRecentOrders() {
             setLoading(true);
             const axiosInstance = createAxiosClientWithSession(session);
             
-            const response = await axiosInstance.get('/api/v1/dashboard/recent-orders');
+            const response = await axiosInstance.get('/dashboard/recent-orders');
+            
+            console.log('Recent orders response:', response.data);
             
             if (response.data.success) {
                 const apiOrders = response.data.data || [];
+                console.log('API Orders:', apiOrders);
+                
                 // Transform backend data to match frontend interface
-                setOrders(apiOrders.map((order: any) => ({
+                const transformedOrders = apiOrders.map((order: any) => ({
                     id: order.id || order._id,
                     customerName: order.customer || 'Unknown',
                     customerEmail: order.customerEmail || '',
                     total: order.total || 0,
                     status: order.status || 'pending',
                     createdAt: order.createdAt
-                })));
+                }));
+                
+                console.log('Transformed Orders:', transformedOrders);
+                setOrders(transformedOrders);
             }
         } catch (error) {
             console.error("Error fetching recent orders:", error);
@@ -101,6 +108,11 @@ export function AdminRecentOrders() {
                                 <div className="h-3 bg-gray-200 rounded w-3/4"></div>
                             </div>
                         ))}
+                    </div>
+                ) : orders.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                        <p className="text-sm">No recent orders found</p>
+                        <p className="text-xs mt-1">Orders will appear here once customers place them</p>
                     </div>
                 ) : (
                     <div className="space-y-4">

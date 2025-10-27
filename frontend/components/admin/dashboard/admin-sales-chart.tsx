@@ -27,7 +27,7 @@ export function AdminSalesChart() {
             setLoading(true);
             const axiosInstance = createAxiosClientWithSession(session);
             
-            const response = await axiosInstance.get(`/api/v1/dashboard/sales-data?period=${timeRange}`);
+            const response = await axiosInstance.get(`/dashboard/sales-data?period=${timeRange}`);
             
             if (response.data.success) {
                 const apiData = response.data.data || [];

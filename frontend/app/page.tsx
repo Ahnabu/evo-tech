@@ -70,7 +70,7 @@ const LandingHeaderCarousel = async () => {
   noStore();
   const base = process.env.NEXT_PUBLIC_BACKEND_URL || "";
   const response = await axios
-    .get(`${base}/api/v1/banners/active`)
+    .get(`${base}/banners/active`)
     .catch((err) => {
       axiosErrorLogger({ error: err });
       return { data: { data: [] } };
@@ -100,7 +100,7 @@ const LandingProductsSections = async () => {
   noStore();
   const landingItemsSections = await axios
     .get(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/v1/landing-sections/active`
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/landing-sections/active`
     )
     .then((response) => {
       // Transform backend response to match existing component expectations

@@ -13,6 +13,9 @@ import {
 } from "@/components/ui/sidebar"
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible"
 import Link from "next/link"
+import { usePendingOrders } from "@/contexts/PendingOrdersContext"
+import { usePermissions } from "@/contexts/PermissionsContext"
+import { useSession } from "next-auth/react"
 
 
 
@@ -21,6 +24,7 @@ export function NavMenu({
   title,
   url,
   Icon,
+  permissions = [],
 }: {
   title: string;
   url?: string;
@@ -28,11 +32,40 @@ export function NavMenu({
   collapsibleItems: {
     title: string
     url: string
+    permissions?: string[]
   }[];
+  permissions?: string[];
 }) {
+  const { pendingCount } = usePendingOrders();
+  const { hasAnyPermission } = usePermissions();
+  const { data: session } = useSession();
+  
+  // Admins see everything
+  const isAdmin = session?.user?.role?.toUpperCase() === 'ADMIN';
+  
+  // Check if this menu should be visible based on permissions
+  // Empty permissions array means visible to all
+  // Admins bypass permission checks
+  const isVisible = isAdmin || permissions.length === 0 || hasAnyPermission(permissions);
+  
+  // Filter collapsible items based on permissions
+  const visibleItems = collapsibleItems.filter(item => {
+    if (isAdmin) return true; // Admins see all items
+    if (!item.permissions || item.permissions.length === 0) return true;
+    return hasAnyPermission(item.permissions);
+  });
+  
+  // If menu has no visible items and is collapsible, hide it
+  if (!isVisible || (collapsibleItems.length > 0 && visibleItems.length === 0)) {
+    return null;
+  }
+  
+  // Check if this is the "Sales" menu (which contains "All Orders")
+  const showBadge = title === "Sales" && pendingCount > 0;
+
   return (
     <>
-      {collapsibleItems.length > 0 ?
+      {visibleItems.length > 0 ?
         <Collapsible key={title} title={title} className="group/collapsible transition-all duration-200 ease-linear w-full">
           <SidebarGroup className="py-0.5 px-0">
             <SidebarGroupLabel asChild className="group/label">
@@ -40,6 +73,11 @@ export function NavMenu({
                 <div className="flex items-center gap-2">
                   {Icon && <Icon className="w-5 h-5" />}
                   <span>{title}</span>
+                  {showBadge && (
+                    <span className="ml-auto mr-2 flex h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1.5 text-[0.625rem] font-bold text-white animate-pulse">
+                      {pendingCount > 99 ? '99+' : pendingCount}
+                    </span>
+                  )}
                 </div>
                 <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
               </CollapsibleTrigger>
@@ -47,7 +85,7 @@ export function NavMenu({
             <CollapsibleContent className="pl-1 border-l-2 border-evoAdminAccent/70">
               <SidebarGroupContent className="flex flex-col gap-2 py-2">
                 <SidebarMenu>
-                  {collapsibleItems.map((item) => (
+                  {visibleItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton asChild tooltip={item.title} className="hover:bg-[#4a4a57]/50 transition-all duration-100 ease-linear text-[0.75rem] text-stone-300 hover:text-stone-400">
                         <Link href={item.url || '/'} className="flex items-center gap-2">

@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Mail, Phone, Calendar, Shield, User } from 'lucide-react';
+import { Mail, Phone, Calendar, Shield, User, Key } from 'lucide-react';
 import { format } from 'date-fns';
 import { UpdateStaffForm } from './add-update-staff-form';
+import Link from 'next/link';
 
 interface StaffMember {
     _id: string;
@@ -144,18 +145,32 @@ export const StaffDataTable = ({ staffMembers }: StaffDataTableProps) => {
                                             </div>
                                         </td>
                                         <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                            <UpdateStaffForm
-                                                staffData={{
-                                                    id: staff._id,
-                                                    uuid: staff.uuid,
-                                                    firstName: staff.firstName,
-                                                    lastName: staff.lastName,
-                                                    email: staff.email,
-                                                    phone: staff.phone,
-                                                    userType: staff.userType,
-                                                    isActive: staff.isActive,
-                                                }}
-                                            />
+                                            <div className="flex items-center gap-2">
+                                                <UpdateStaffForm
+                                                    staffData={{
+                                                        id: staff._id,
+                                                        uuid: staff.uuid,
+                                                        firstName: staff.firstName,
+                                                        lastName: staff.lastName,
+                                                        email: staff.email,
+                                                        phone: staff.phone,
+                                                        userType: staff.userType,
+                                                        isActive: staff.isActive,
+                                                    }}
+                                                />
+                                                {staff.userType === 'employee' && (
+                                                    <Link href={`/control/staff/${staff._id}/permissions`}>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="h-8 w-8 p-0 rounded-full bg-indigo-100 text-indigo-600 hover:bg-indigo-200 hover:text-indigo-700"
+                                                            title="Manage Permissions"
+                                                        >
+                                                            <Key className="h-4 w-4" />
+                                                        </Button>
+                                                    </Link>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}

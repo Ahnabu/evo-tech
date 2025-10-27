@@ -21,9 +21,9 @@ export const useUserDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const axiosInstance = createAxiosClientWithSession(session);
+        const axiosInstance = createAxiosClientWithSession(session);
         
-        const response = await axiosInstance.get('/api/v1/users/dashboard/stats');
+        const response = await axiosInstance.get('/users/dashboard/stats');
         
         if (response.data.success) {
           setDashboardData(response.data.data);
@@ -124,7 +124,7 @@ export const useUserOrders = () => {
         const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
         const axiosInstance = await createAxiosClient();
         
-        const response = await axiosInstance.get('/api/v1/users/dashboard/orders');
+        const response = await axiosInstance.get('/users/dashboard/orders');
         
         if (response.data.success) {
           setOrders(response.data.data);

@@ -27,7 +27,7 @@ const ReportsPage = () => {
 
         try {
             const axiosInstance = createAxiosClientWithSession(session);
-            const response = await axiosInstance.get("/api/v1/dashboard/stats");
+            const response = await axiosInstance.get("/dashboard/stats");
 
             if (response.data.success) {
                 setStats(response.data.data);

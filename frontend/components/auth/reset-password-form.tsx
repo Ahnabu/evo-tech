@@ -44,7 +44,7 @@ const ResetPasswordForm = () => {
         }
 
         try {
-            const response = await axios.post("/api/v1/auth/reset-password", {
+            const response = await axios.post("/auth/reset-password", {
                 token,
                 password: data.password,
             });

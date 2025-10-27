@@ -61,10 +61,22 @@ const getEarningsReport = catchAsync(async (req, res) => {
   });
 });
 
+const getPendingOrdersCount = catchAsync(async (req, res) => {
+  const result = await DashboardServices.getPendingOrdersCount();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Pending orders count retrieved successfully!",
+    data: result,
+  });
+});
+
 export const DashboardControllers = {
   getDashboardStats,
   getSalesData,
   getRecentOrders,
   getTopProducts,
   getEarningsReport,
+  getPendingOrdersCount,
 };
