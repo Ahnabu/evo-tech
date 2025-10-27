@@ -76,7 +76,7 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
         // Generate QR code for order tracking
         let qrCodeDataUrl: string | null = null;
         try {
-            const qrData = `Order ID: ${order.orderid}\nAmount: ${currencyFormatBDT(order.total_payable)} BDT\nWebsite: https://evo-techbd.com`;
+            const qrData = `Order ID: ${order.orderNumber}\nAmount: ${currencyFormatBDT(order.totalPayable)} BDT\nWebsite: https://evo-techbd.com`;
             qrCodeDataUrl = await QRCode.toDataURL(qrData, {
                 errorCorrectionLevel: 'M',
                 margin: 1,
@@ -151,13 +151,13 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
             pdf.setTextColor(31, 41, 55); // gray-800
             pdf.text('Order ID:', leftColumnX, y);
             pdf.setTextColor(59, 130, 246); // blue-500
-            pdf.text(order.orderid, leftColumnX + 25, y);
+            pdf.text(order.orderNumber, leftColumnX + 25, y);
             y += PDF_CONFIG.lineHeight;
 
             pdf.setTextColor(31, 41, 55);
             pdf.text('Order Date:', leftColumnX, y);
             pdf.setTextColor(107, 114, 128);
-            pdf.text(order.order_date, leftColumnX + 25, y);
+            pdf.text(order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A', leftColumnX + 25, y);
             y += PDF_CONFIG.lineHeight;
 
             // Right column
@@ -165,29 +165,29 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
             pdf.setTextColor(31, 41, 55);
             pdf.text('Shipping Type:', rightColumnX, rightY);
             pdf.setTextColor(107, 114, 128);
-            pdf.text(formatShippingType(order.shipping_type), rightColumnX + 35, rightY);
+            pdf.text(formatShippingType(order.shippingType), rightColumnX + 35, rightY);
             rightY += PDF_CONFIG.lineHeight;
 
             pdf.setTextColor(31, 41, 55);
             pdf.text('Payment Method:', rightColumnX, rightY);
             pdf.setTextColor(107, 114, 128);
-            pdf.text(formatPaymentMethod(order.payment_method), rightColumnX + 35, rightY);
+            pdf.text(formatPaymentMethod(order.paymentMethod), rightColumnX + 35, rightY);
             rightY += PDF_CONFIG.lineHeight;
 
             y = Math.max(y, rightY) + PDF_CONFIG.lineHeight;
 
             // Delivery date if available
-            if (order.delivery_date) {
+            if (order.deliveredAt) {
                 pdf.setTextColor(31, 41, 55);
                 pdf.text('Delivery Date:', leftColumnX, y);
                 pdf.setTextColor(107, 114, 128);
-                pdf.text(order.delivery_date, leftColumnX + 25, y);
+                pdf.text(new Date(order.deliveredAt).toLocaleDateString(), leftColumnX + 25, y);
                 y += PDF_CONFIG.lineHeight;
             }
 
             // Pickup point if applicable
-            if (order.shipping_type === 'pickup_point' && order.pickup_point_id) {
-                const pickupAddress = getPickupPointAddress(order.pickup_point_id);
+            if (order.shippingType === 'pickup_point' && order.pickupPointId) {
+                const pickupAddress = getPickupPointAddress(order.pickupPointId);
                 if (pickupAddress) {
                     pdf.setTextColor(31, 41, 55);
                     pdf.text('Pickup Point:', leftColumnX, y);
@@ -238,7 +238,7 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
             pdf.setTextColor(31, 41, 55);
             // Format address properly
             const addressLines = [
-                `House/Street: ${sanitizeText(order.housestreet)}`,
+                `House/Street: ${sanitizeText(order.houseStreet)}`,
                 `Thana: ${sanitizeText(order.subdistrict)}`,
                 `District: ${sanitizeText(order.city)}`,
                 ...(order.postcode
@@ -292,26 +292,26 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
 
             // Item name and color
             pdf.setTextColor(31, 41, 55);
-            const itemText = sanitizeText(item.item_name);
+            const itemText = sanitizeText(item.productName);
             const itemLines = pdf.splitTextToSize(itemText, contentWidth * 0.6);
             pdf.text(itemLines, PDF_CONFIG.margin + 2, yoffset);
 
             let rowHeight = itemLines.length * 4;
 
             // Color if available
-            if (item.item_color) {
+            if (item.selectedColor) {
                 const colorY = yoffset + (itemLines.length * 4);
                 pdf.setTextColor(107, 114, 128);
-                pdf.text(`Color: ${sanitizeText(item.item_color)}`, PDF_CONFIG.margin + 2, colorY);
+                pdf.text(`Color: ${sanitizeText(item.selectedColor)}`, PDF_CONFIG.margin + 2, colorY);
                 rowHeight += 4;
             }
 
             // Quantity, Price, Total
             // Total should be aligned to the most right without any space at the right side
             pdf.setTextColor(31, 41, 55);
-            pdf.text(item.item_quantity.toString(), PDF_CONFIG.margin + contentWidth * 0.65, yoffset, { align: 'center' });
-            pdf.text(currencyFormatBDT(item.item_price), PDF_CONFIG.margin + contentWidth * 0.75, yoffset, { align: 'center' });
-            pdf.text(currencyFormatBDT(item.item_price * item.item_quantity), pageWidth - PDF_CONFIG.margin, yoffset, { align: 'right' });
+            pdf.text(item.quantity.toString(), PDF_CONFIG.margin + contentWidth * 0.65, yoffset, { align: 'center' });
+            pdf.text(currencyFormatBDT(item.productPrice), PDF_CONFIG.margin + contentWidth * 0.75, yoffset, { align: 'center' });
+            pdf.text(currencyFormatBDT(item.productPrice * item.quantity), pageWidth - PDF_CONFIG.margin, yoffset, { align: 'right' });
 
             // Row separator
             const finalY = yoffset + Math.max(rowHeight, PDF_CONFIG.itemRowHeight);
@@ -348,15 +348,15 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
             pdf.setTextColor(107, 114, 128);
             pdf.text('Delivery:', labelX, y);
             pdf.setTextColor(31, 41, 55);
-            pdf.text(order.delivery_charge === 0 ? 'Free' : currencyFormatBDT(order.delivery_charge), summaryX, y, { align: 'right' });
+            pdf.text(order.deliveryCharge === 0 ? 'Free' : currencyFormatBDT(order.deliveryCharge), summaryX, y, { align: 'right' });
             y += PDF_CONFIG.lineHeight;
 
             // Additional charge
-            if (order.additional_charge > 0) {
+            if (order.additionalCharge > 0) {
                 pdf.setTextColor(107, 114, 128);
                 pdf.text('Additional:', labelX, y);
                 pdf.setTextColor(31, 41, 55);
-                pdf.text(currencyFormatBDT(order.additional_charge), summaryX, y, { align: 'right' });
+                pdf.text(currencyFormatBDT(order.additionalCharge), summaryX, y, { align: 'right' });
                 y += PDF_CONFIG.lineHeight;
             }
 
@@ -369,7 +369,7 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
             pdf.setFontSize(12);
             pdf.setTextColor(31, 41, 55);
             pdf.text('TOTAL:', labelX, y);
-            pdf.text(currencyFormatBDT(order.total_payable), summaryX, y, { align: 'right' });
+            pdf.text(currencyFormatBDT(order.totalPayable), summaryX, y, { align: 'right' });
 
             return y + 10;
         };
@@ -399,17 +399,19 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
         currentY = addItemsTableHeader(currentY);
 
         // Add items with pagination
-        for (let i = 0; i < order.order_items.length; i++) {
-            const item = order.order_items[i];
+        if (order.orderItems && order.orderItems.length > 0) {
+            for (let i = 0; i < order.orderItems.length; i++) {
+                const item = order.orderItems[i];
 
-            // Check if we need a new page (reserve space for summary and footer)
-            if (currentY > pageHeight - 80) {
-                addFooter(currentY);
-                pdf.addPage();
-                currentY = addItemsTableHeader(PDF_CONFIG.margin);
+                // Check if we need a new page (reserve space for summary and footer)
+                if (currentY > pageHeight - 80) {
+                    addFooter(currentY);
+                    pdf.addPage();
+                    currentY = addItemsTableHeader(PDF_CONFIG.margin);
+                }
+
+                currentY = addItemRow(item, currentY);
             }
-
-            currentY = addItemRow(item, currentY);
         }
 
         // Add order summary
@@ -419,7 +421,7 @@ export async function generateInvoicePDF(order: OrderWithItemsType) {
         addFooter(currentY);
 
         // Save the PDF
-        const filename = `Invoice_${sanitizeText(order.orderid)}_EvoTechBD.pdf`;
+        const filename = `Invoice_${sanitizeText(order.orderNumber)}_EvoTechBD.pdf`;
         pdf.save(filename);
 
         return true;

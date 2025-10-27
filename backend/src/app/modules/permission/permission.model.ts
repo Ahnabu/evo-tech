@@ -27,7 +27,17 @@ const permissionSchema = new Schema<IPermission>(
     category: {
       type: String,
       required: true,
-      enum: ['dashboard', 'products', 'orders', 'customers', 'reports', 'settings', 'staff'],
+      enum: [
+        'Dashboard',
+        'Products', 
+        'Sales',
+        'Customers',
+        'Reports',
+        'Staff Management',
+        'Settings',
+        'Reviews',
+        'Inventory'
+      ],
     },
     description: {
       type: String,

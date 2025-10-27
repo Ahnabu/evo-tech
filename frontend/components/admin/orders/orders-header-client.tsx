@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Download, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -22,7 +22,15 @@ import {
   FormField,
   FormItem,
 } from "@/components/ui/form";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useSearchParamsState } from "@/hooks/use-search-params-state";
+import { useOrdersData } from "@/hooks/use-orders-data";
+import { exportOrdersToCSV, exportOrdersToExcel } from "./comps/export-orders";
 
 const orderFilterSchema = z.object({
   search: z.string().optional(),
@@ -36,6 +44,9 @@ const OrdersHeaderClient = () => {
   const { updateSearchParams, resetSearchParams, getParam } = useSearchParamsState({
     basePath: "/control/orders",
   });
+
+  const { orders } = useOrdersData();
+  const [isExporting, setIsExporting] = useState(false);
 
   // Memoize default values to prevent unnecessary re-renders
   const defaultValues = useMemo(() => ({
@@ -54,9 +65,38 @@ const OrdersHeaderClient = () => {
     form.reset(defaultValues);
   }, [defaultValues, form]);
 
-  const handleExport = () => {
-    // This would generate and download a CSV/Excel file
-    toast.error("functionality not implemented yet");
+  const handleExportCSV = async () => {
+    if (!orders || orders.length === 0) {
+      toast.error("No orders to export");
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      await exportOrdersToCSV(orders);
+      toast.success(`Successfully exported ${orders.length} orders to CSV`);
+    } catch (error) {
+      toast.error("Failed to export orders to CSV");
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  const handleExportExcel = async () => {
+    if (!orders || orders.length === 0) {
+      toast.error("No orders to export");
+      return;
+    }
+
+    try {
+      setIsExporting(true);
+      await exportOrdersToExcel(orders);
+      toast.success(`Successfully exported ${orders.length} orders to Excel`);
+    } catch (error) {
+      toast.error("Failed to export orders to Excel");
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const onSubmit = (data: OrderFilterValues) => {
@@ -196,16 +236,28 @@ const OrdersHeaderClient = () => {
         </form>
       </Form>
 
-      <Button
-        variant="outline"
-        size="sm"
-        className="whitespace-nowrap"
-        onClick={handleExport}
-        aria-label="export button for orders"
-      >
-        <Download className="mr-0.5 size-4" />
-        Export
-      </Button>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="whitespace-nowrap"
+            disabled={isExporting}
+            aria-label="export button for orders"
+          >
+            <Download className="mr-0.5 size-4" />
+            {isExporting ? 'Exporting...' : 'Export'}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={handleExportCSV} disabled={isExporting}>
+            Export as CSV
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleExportExcel} disabled={isExporting}>
+            Export as Excel
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </div>
   );
 };
