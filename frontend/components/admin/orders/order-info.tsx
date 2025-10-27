@@ -43,15 +43,37 @@ const getPaymentStatusBadge = (status: string) => {
     );
 };
 
+const getOrderStatusBadge = (status: string) => {
+    const statusConfig = {
+        pending: { variant: "customdefault" as const, text: "Pending" },
+        confirmed: { variant: "inprogress" as const, text: "Confirmed" },
+        processing: { variant: "inprogress" as const, text: "Processing" },
+        shipped: { variant: "warning" as const, text: "Shipped" },
+        delivered: { variant: "success" as const, text: "Delivered" },
+        cancelled: { variant: "failed" as const, text: "Cancelled" },
+    };
+
+    const config = statusConfig[status as keyof typeof statusConfig] || { variant: "outline" as const, text: status };
+
+    return (
+        <Badge variant={config.variant} className="text-[0.625rem] leading-none py-0.5 font-medium capitalize">
+            {config.text}
+        </Badge>
+    );
+};
+
 const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
     const [paymentStatus, setPaymentStatus] = useState(orderData.paymentStatus);
+    const [orderStatus, setOrderStatus] = useState(orderData.orderStatus);
 
     useEffect(() => {
         setPaymentStatus(orderData.paymentStatus);
-    }, [orderData.paymentStatus]);
+        setOrderStatus(orderData.orderStatus);
+    }, [orderData.paymentStatus, orderData.orderStatus]);
 
-    const handleStatusUpdate = (orderData: OrderWithItemsType) => {
-        setPaymentStatus(orderData.paymentStatus);
+    const handleStatusUpdate = (updatedOrder: OrderWithItemsType) => {
+        setPaymentStatus(updatedOrder.paymentStatus);
+        setOrderStatus(updatedOrder.orderStatus);
     };
 
     return (
@@ -109,6 +131,11 @@ const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
                             <CardTitle className="text-base text-stone-800 underline underline-offset-2">Order Information</CardTitle>
                         </CardHeader>
                         <CardContent className="text-xs text-stone-500 space-y-2">
+                            <div>
+                                <span className="text-evoAdminPrimary font-semibold">{`Order Status: `}</span>
+                                {getOrderStatusBadge(orderStatus)}
+                            </div>
+
                             <div>
                                 <span className="text-evoAdminPrimary font-semibold">{`Shipping Type: `}</span>
                                 {`${shippingTypes[orderData.shippingType] || orderData.shippingType}`}

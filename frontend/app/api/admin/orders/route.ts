@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
             search, order_status, payment_status, page, limit
         });
 
-        // Build query string for Laravel backend
+        // Build query string for backend - convert to camelCase
         const backendParams = new URLSearchParams();
 
         if (search) {
@@ -28,11 +28,11 @@ export async function GET(request: NextRequest) {
         }
 
         if (order_status) {
-            backendParams.set('order_status', order_status);
+            backendParams.set('orderStatus', order_status); // Convert to camelCase
         }
 
         if (payment_status) {
-            backendParams.set('payment_status', payment_status);
+            backendParams.set('paymentStatus', payment_status); // Convert to camelCase
         }
 
         if (page) {

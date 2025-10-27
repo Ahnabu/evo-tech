@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import axios from "axios";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,7 +22,6 @@ import {
     FormMessage,
 } from "@/components/ui/form";
 import { orderStatusesUpdateSchema, OrderStatusesUpdateType, OrderWithItemsType } from "@/schemas/admin/sales/orderSchema";
-import { frontBaseURL } from "@/lib/env-vars";
 
 interface OrderUpdateFormProps {
     orderData: OrderWithItemsType;
@@ -29,6 +29,7 @@ interface OrderUpdateFormProps {
 }
 
 const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
+    const router = useRouter();
     const form = useForm<OrderStatusesUpdateType>({
         resolver: zodResolver(orderStatusesUpdateSchema),
         defaultValues: {
@@ -48,27 +49,36 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                 updateData.trackingCode = data.trackingCode || null;
             }
 
-            const response = await axios.put(`${frontBaseURL}/api/admin/orders/${orderData._id || orderData.orderNumber}`,
+            const orderId = orderData._id || orderData.orderNumber;
+            console.log('📤 Updating order:', orderId, 'with data:', updateData);
+
+            // Use relative URL for API route (works in both dev and production)
+            const response = await axios.put(`/api/admin/orders/${orderId}`,
                 updateData,
                 {
                     headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json',
                     },
-                    withCredentials: true,
                 }
             );
+
+            console.log('✅ Update response:', response.data);
 
             if (response.data.success) {
                 toast.success(response.data.message || "Order updated successfully");
 
-                // Call onSuccess with the updated order data from the response
-                if (onSuccess && response.data.order_data) {
-                    onSuccess(response.data.order_data);
+                // Refresh the page data
+                router.refresh();
+
+                // Call onSuccess if provided
+                if (onSuccess && response.data.data) {
+                    onSuccess(response.data.data);
                 }
             } else {
                 toast.error(response.data.message || "Failed to update order");
             }
         } catch (error: any) {
+            console.error('❌ Update error:', error.response?.data || error.message);
             if (error.response?.data?.message) {
                 toast.error(error.response.data.message);
             } else {
