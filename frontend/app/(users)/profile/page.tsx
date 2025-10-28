@@ -4,10 +4,12 @@ import { useUserProfile } from '@/hooks/use-user-dashboard';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from 'axios';
 
 export default function ProfilePage() {
+    const router = useRouter();
     const currentUser = useCurrentUser();
     const { data: session, update: updateSession } = useSession();
     const { profile, loading, error, refreshProfile } = useUserProfile();
@@ -81,6 +83,9 @@ export default function ProfilePage() {
             
             // Refresh profile data
             refreshProfile();
+            
+            // Refresh the page to update all components
+            router.refresh();
             
             // Clear success message after 3 seconds
             setTimeout(() => setSaveSuccess(false), 3000);

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import type { Row } from "@tanstack/react-table";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DeleteDialog } from "@/components/dialogs/delete-dialog";
 import axios from "axios";
@@ -19,6 +20,7 @@ interface RowActionProps {
 }
 
 const CategoryTableRowActions = ({ row }: RowActionProps) => {
+    const router = useRouter();
     const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
     const [isDeletePending, startDeleteTransition] = React.useTransition();
     const dispatch = useDispatch<AppDispatch>();
@@ -45,6 +47,7 @@ const CategoryTableRowActions = ({ row }: RowActionProps) => {
                         setIsDeleteOpen(false); // close on success
                         toast.success("Category has been deleted");
                         handleCategoryUpdateAfterDeletion(); // update the Redux state
+                        router.refresh(); // Refresh to update server components
                     }
                 } catch (error: any) {
                     if (error.response) {

@@ -2,6 +2,7 @@
 
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import {
     Form,
@@ -201,10 +202,12 @@ const CategoryForm = ({ mode = 'create', categoryData, onSuccess }: CategoryForm
 
 // Add Category Form
 const AddCategoryForm = () => {
+    const router = useRouter();
     const [isOpen, setIsOpen] = React.useState(false);
 
     const handleSuccess = () => {
         setIsOpen(false); // close the dialog on success
+        router.refresh(); // Refresh to update server components
     };
 
     return (
@@ -221,10 +224,12 @@ const AddCategoryForm = () => {
 
 // Update Category Form
 const UpdateCategoryForm = ({ categoryData }: UpdateCategoryFormProps) => {
+    const router = useRouter();
     const [isUpdateOpen, setIsUpdateOpen] = React.useState(false);
 
     const handleSuccess = () => {
         setIsUpdateOpen(false); // close the dialog on success
+        router.refresh(); // Refresh to update server components
     };
 
     return (

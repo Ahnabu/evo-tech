@@ -11,9 +11,11 @@ import { EvoFormInputError } from "@/components/error/form-input-error";
 import { ShowFormError } from "@/components/ui/form-error";
 import { ShowFormSuccess } from "@/components/ui/form-success";
 import { adminlogin } from "@/actions/adminlogin";
+import { useRouter } from "next/navigation";
 
 
 const LoginFormAdmin = () => {
+    const router = useRouter();
     const [formerror, setFormError] = useState<string>("");
     const [formsuccess, setFormSuccess] = useState<string>("");
     const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.infer<typeof LoginSchema>>({
@@ -32,7 +34,11 @@ const LoginFormAdmin = () => {
             .then((res?: { success?: string; error?: string; }) => {
                 if (res && typeof res === "object") {
                     if (res.error) setFormError(res.error);
-                    if (res.success) setFormSuccess(res.success);
+                    if (res.success) {
+                        setFormSuccess(res.success);
+                        // Refresh to load user data in navbar
+                        router.refresh();
+                    }
                 }
             });
     };

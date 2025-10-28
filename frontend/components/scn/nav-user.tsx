@@ -39,8 +39,8 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
       
       if (result?.success) {
         toast.success("You signed out of your account.");
-        // Clear any client-side state/cache
-        router.push("/et-admin/auth/sign-in");
+        // Clear any client-side state and redirect to home
+        router.push("/");
         router.refresh();
       } else {
         toast.error("Something went wrong while signing out.");
