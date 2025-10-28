@@ -37,15 +37,19 @@ export function NavMenu({
   permissions?: string[];
 }) {
   const { pendingCount } = usePendingOrders();
-  const { hasAnyPermission } = usePermissions();
+  const { hasAnyPermission, permissions: userPermissions, isLoading } = usePermissions();
   const { data: session } = useSession();
   
-  // Admins see everything
+  // Admins see everything, employees/staff see only what they have permissions for
   const isAdmin = session?.user?.role?.toUpperCase() === 'ADMIN';
+  const isEmployee = session?.user?.role?.toUpperCase() === 'EMPLOYEE';
+  
+
   
   // Check if this menu should be visible based on permissions
   // Empty permissions array means visible to all
   // Admins bypass permission checks
+  // Employees must have permissions
   const isVisible = isAdmin || permissions.length === 0 || hasAnyPermission(permissions);
   
   // Filter collapsible items based on permissions

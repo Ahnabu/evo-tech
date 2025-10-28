@@ -3,7 +3,12 @@
 import * as React from "react";
 import Image from "next/image";
 import { adminSidebarMenus, adminSecondarySidebarMenus } from "@/dal/staticdata/admin_sidebar_menus";
+import { staffSidebarMenus, staffSecondarySidebarMenus } from "@/dal/staticdata/staff_sidebar_menus";
 import { NavUser } from "@/components/scn/nav-user";
+import { Button } from "@/components/ui/button";
+import { RefreshCw } from "lucide-react";
+import { usePermissions } from "@/contexts/PermissionsContext";
+import { toast } from "sonner";
 
 import BrandIcon from "@/public/assets/brand_icon.png";
 
@@ -19,7 +24,33 @@ import { NavMenu } from "@/components/scn/nav-menu";
 
 
 
-export const AppSidebar = ({ userSession, ...props }: { userSession: any; } & React.ComponentProps<typeof Sidebar>) => {
+export const AppSidebar = ({ 
+  userSession, 
+  isStaffMode = false,
+  ...props 
+}: { 
+  userSession: any; 
+  isStaffMode?: boolean;
+} & React.ComponentProps<typeof Sidebar>) => {
+
+  // Use staff menus if in staff mode, otherwise use admin menus
+  const sidebarMenus = isStaffMode ? staffSidebarMenus : adminSidebarMenus;
+  const secondarySidebarMenus = isStaffMode ? staffSecondarySidebarMenus : adminSecondarySidebarMenus;
+  
+  const { refreshPermissions } = usePermissions();
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  const handleRefreshPermissions = async () => {
+    setIsRefreshing(true);
+    try {
+      await refreshPermissions();
+      toast.success("Permissions refreshed successfully!");
+    } catch (error) {
+      toast.error("Failed to refresh permissions");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
   return (
     <Sidebar collapsible="offcanvas" {...props} className="bg-stone-900 text-white">
@@ -39,14 +70,26 @@ export const AppSidebar = ({ userSession, ...props }: { userSession: any; } & Re
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight text-stone-200">
             <span className="truncate font-bold">
-              {`Evo-TechBD`}
+              {isStaffMode ? "Staff Portal" : "Evo-TechBD"}
             </span>
           </div>
         </div>
+        {isStaffMode && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleRefreshPermissions}
+            disabled={isRefreshing}
+            className="w-full mt-2 bg-stone-800 border-stone-700 hover:bg-stone-700 text-stone-200"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh Permissions'}
+          </Button>
+        )}
       </SidebarHeader>
       <SidebarContent className="scrollbar-custom gap-0.5">
         {
-          adminSidebarMenus.map((mainMenu, idx) => (
+          sidebarMenus.map((mainMenu, idx) => (
             <NavMenu
               key={`${mainMenu.title}-${idx}`}
               title={mainMenu.title}
@@ -60,7 +103,7 @@ export const AppSidebar = ({ userSession, ...props }: { userSession: any; } & Re
         <SidebarGroup className="mt-auto px-0">
           <SidebarGroupContent>
             {
-              adminSecondarySidebarMenus.map((secondaryMenu, idx) => (
+              secondarySidebarMenus.map((secondaryMenu, idx) => (
                 <NavMenu
                   key={`${secondaryMenu.title}-${idx}`}
                   title={secondaryMenu.title}

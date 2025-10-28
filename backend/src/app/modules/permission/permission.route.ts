@@ -19,6 +19,13 @@ router.get(
   PermissionControllers.getMyPermissions
 );
 
+// Get permitted routes (lightweight for auth)
+router.get(
+  "/my-routes",
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
+  PermissionControllers.getPermittedRoutes
+);
+
 // Get specific staff permissions (admin only)
 router.get(
   "/staff/:userUuid",

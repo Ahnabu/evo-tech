@@ -45,7 +45,22 @@ const assignPermissions = catchAsync(async (req, res) => {
 
 const getMyPermissions = catchAsync(async (req, res) => {
   const userUuid = req.user.uuid;
+  console.log('🔍 getMyPermissions called for user UUID:', userUuid);
+  console.log('📋 User object from token:', {
+    uuid: req.user.uuid,
+    _id: req.user._id,
+    email: req.user.email,
+    userType: req.user.userType
+  });
+  
   const result = await PermissionServices.getStaffPermissionsFromDB(userUuid);
+  
+  console.log('📤 Returning permissions:', {
+    hasPermissions: !!result.permissions,
+    permissionCount: result.permissions?.length || 0,
+    routeCount: result.permittedRoutes?.length || 0,
+    permissions: result.permissionCodes
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -55,9 +70,22 @@ const getMyPermissions = catchAsync(async (req, res) => {
   });
 });
 
+const getPermittedRoutes = catchAsync(async (req, res) => {
+  const userUuid = req.user.uuid;
+  const result = await PermissionServices.getPermittedRoutesForUser(userUuid);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Permitted routes retrieved successfully!",
+    data: { routes: result },
+  });
+});
+
 export const PermissionControllers = {
   getAllPermissions,
   getStaffPermissions,
   assignPermissions,
   getMyPermissions,
+  getPermittedRoutes,
 };

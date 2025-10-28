@@ -5,6 +5,7 @@ import {
     authRoutes,
     protectedRoutePrefix,
     adminRoutePrefix,
+    employeeRoutePrefix,
     apiAuthPrefix,
     DEFAULT_SIGNIN_REDIRECT_USER,
     DEFAULT_SIGNIN_REDIRECT_ADMIN,
@@ -24,6 +25,7 @@ export default middleware( async (request) => {
 
     const isApiAuthRoute = nextUrl.pathname.startsWith(apiAuthPrefix);
     const isAdminOnlyRoute = nextUrl.pathname.startsWith(adminRoutePrefix);
+    const isEmployeeOnlyRoute = nextUrl.pathname.startsWith(employeeRoutePrefix);
     const isProtectedRoute = nextUrl.pathname.startsWith(protectedRoutePrefix);
     const isAuthRoute = authRoutes.includes(nextUrl.pathname);
 
@@ -43,10 +45,33 @@ export default middleware( async (request) => {
                 return response;
             }
 
-            // redirect if the user is authenticated but not an ADMIN
-            if (!userRole || userRole !== "ADMIN") {
+            // Allow both ADMIN and EMPLOYEE roles to access /control routes
+            // Employees will only see menu items they have permissions for
+            if (!userRole || (userRole !== "ADMIN" && userRole !== "EMPLOYEE")) {
                 const response = NextResponse.redirect(new URL(DEFAULT_SIGNIN_REDIRECT_USER, nextUrl));
                 return response;
+            }
+            
+            const response = NextResponse.next();
+            response.cookies.set("last_pg", nextUrl.pathname, { path: "/" });
+            return response;
+        }
+
+        if (isEmployeeOnlyRoute) {
+            // Employee-only routes (like /employee/dashboard landing page)
+            if (!isLoggedIn || !userSession) {
+                const response = NextResponse.redirect(new URL("/login", nextUrl));
+                response.cookies.delete('last_pg');
+                return response;
+            }
+
+            // Only EMPLOYEE role can access employee routes
+            if (!userRole || userRole !== "EMPLOYEE") {
+                // Redirect to appropriate dashboard based on role
+                if (userRole === "ADMIN") {
+                    return NextResponse.redirect(new URL(DEFAULT_SIGNIN_REDIRECT_ADMIN, nextUrl));
+                }
+                return NextResponse.redirect(new URL(DEFAULT_SIGNIN_REDIRECT_USER, nextUrl));
             }
             
             const response = NextResponse.next();

@@ -8,8 +8,8 @@ export const metadata: Metadata = {
   description: "Manage staff permissions",
 };
 
-export default async function StaffPermissionsPage({ params }: { params: { staffId: string } }) {
-  const { staffId } = params;
+export default async function StaffPermissionsPage({ params }: { params: Promise<{ staffId: string }> }) {
+  const { staffId } = await params;
 
   try {
     const axiosWithIntercept = await axiosIntercept();

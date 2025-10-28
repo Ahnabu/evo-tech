@@ -3,6 +3,7 @@ import mongoose, { Schema } from "mongoose";
 export interface IPermission {
   name: string;
   code: string;
+  route: string; // Route path like "/control/products"
   category: string;
   description?: string;
   isActive: boolean;
@@ -23,6 +24,11 @@ const permissionSchema = new Schema<IPermission>(
       unique: true,
       trim: true,
       uppercase: true,
+    },
+    route: {
+      type: String,
+      required: true,
+      trim: true,
     },
     category: {
       type: String,

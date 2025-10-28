@@ -21,12 +21,17 @@ export const metadata: Metadata = {
 const AdminLayout = async ({ children }: { children: React.ReactNode; }) => {
 
     const session = await auth();
+    const userRole = session?.user?.role?.toUpperCase();
+    
+    // Both ADMIN and EMPLOYEE can access /control routes
+    // Employees see filtered sidebar based on their permissions
+    const isStaffMode = userRole === 'EMPLOYEE';
 
     return (
         <PendingOrdersProvider>
             <PermissionsProvider>
                 <SidebarProvider>
-                    <AppSidebar variant="inset" userSession={session?.user} />
+                    <AppSidebar variant="inset" userSession={session?.user} isStaffMode={isStaffMode} />
                     <SidebarInset>
                         <AdminTopBar />
                         <div className="min-h-[calc(100vh-64px)] w-full">

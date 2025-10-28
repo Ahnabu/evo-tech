@@ -22,8 +22,10 @@ export const adminlogin = async (values: z.infer<typeof LoginSchema>) => {
             email: email,
             password: password,
             role: "ADMIN",
-            redirectTo: DEFAULT_SIGNIN_REDIRECT_ADMIN,
+            redirect: false, // Don't redirect automatically
         })
+
+        return ({ success: "Login successful" });
 
     } catch (error: unknown) {
 
@@ -42,6 +44,4 @@ export const adminlogin = async (values: z.infer<typeof LoginSchema>) => {
 
         throw error; // imp. throw the error back to make it work
     }
-
-    return ({ success: "verification email sent" });
 };

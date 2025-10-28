@@ -9,6 +9,12 @@ export const protectedRoutePrefix = "/user";
  */
 export const adminRoutePrefix = "/control";
 
+
+/**
+ * Protected and Employee/Staff only route prefix. These routes require authentication.
+ */
+export const employeeRoutePrefix = "/employee";
+
 /**
  * Role-based routes that need dynamic handling
  */

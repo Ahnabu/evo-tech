@@ -1,9 +1,9 @@
-import mongoose, { Schema } from "mongoose";
+import mongoose, { Schema, Types } from "mongoose";
 
 export interface IStaffPermission {
-  user: string; // user UUID
+  user: Types.ObjectId; // user MongoDB _id
   permissions: string[]; // array of permission codes
-  grantedBy: string; // admin who granted permissions
+  grantedBy: Types.ObjectId; // admin who granted permissions
   createdAt: Date;
   updatedAt: Date;
 }
@@ -11,7 +11,7 @@ export interface IStaffPermission {
 const staffPermissionSchema = new Schema<IStaffPermission>(
   {
     user: {
-      type: String,
+      type: Schema.Types.ObjectId,
       required: true,
       unique: true,
       ref: "User",
@@ -21,7 +21,7 @@ const staffPermissionSchema = new Schema<IStaffPermission>(
       required: true,
     }],
     grantedBy: {
-      type: String,
+      type: Schema.Types.ObjectId,
       ref: "User",
     },
   },

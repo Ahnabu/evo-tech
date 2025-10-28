@@ -3,6 +3,7 @@ import { StaffPermission } from "./staff-permission.model";
 import { TPermission, TStaffPermission } from "./permission.interface";
 import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
+import { Types } from "mongoose";
 
 // Get all permissions
 const getAllPermissionsFromDB = async (query: Record<string, unknown>) => {
@@ -20,13 +21,36 @@ const getAllPermissionsFromDB = async (query: Record<string, unknown>) => {
 };
 
 // Get permissions for a specific staff member
-const getStaffPermissionsFromDB = async (userUuid: string) => {
-  const staffPermission = await StaffPermission.findOne({ user: userUuid });
+const getStaffPermissionsFromDB = async (userIdOrUuid: string) => {
+  // Try to find by ObjectId first, then by uuid if not found
+  let userId: Types.ObjectId | null = null;
+  
+  if (Types.ObjectId.isValid(userIdOrUuid)) {
+    userId = new Types.ObjectId(userIdOrUuid);
+  } else {
+    // If not a valid ObjectId, assume it's a UUID and look up the user
+    const User = require('../user/user.model').User;
+    const user = await User.findOne({ uuid: userIdOrUuid }).select('_id');
+    if (user) {
+      userId = user._id;
+    }
+  }
+  
+  if (!userId) {
+    return {
+      user: userIdOrUuid,
+      permissions: [],
+      permittedRoutes: [],
+    };
+  }
+  
+  const staffPermission = await StaffPermission.findOne({ user: userId });
   
   if (!staffPermission) {
     return {
-      user: userUuid,
+      user: userIdOrUuid,
       permissions: [],
+      permittedRoutes: [],
     };
   }
   
@@ -36,17 +60,22 @@ const getStaffPermissionsFromDB = async (userUuid: string) => {
     isActive: true,
   });
   
+  // Extract unique routes from permissions
+  const permittedRoutes = [...new Set(permissions.map(p => p.route))];
+  
   return {
-    user: userUuid,
+    user: userIdOrUuid,
+    userId: userId.toString(),
     permissions: permissions,
     permissionCodes: staffPermission.permissions,
+    permittedRoutes: permittedRoutes, // Array of route strings
     grantedBy: staffPermission.grantedBy,
   };
 };
 
 // Assign permissions to staff member
 const assignPermissionsToStaff = async (
-  userUuid: string,
+  userIdOrUuid: string,
   payload: { permissions: string[]; grantedBy: string }
 ) => {
   // Verify all permission codes exist
@@ -59,13 +88,41 @@ const assignPermissionsToStaff = async (
     throw new AppError(httpStatus.BAD_REQUEST, "Some permission codes are invalid");
   }
   
+  // Convert userIdOrUuid to ObjectId
+  let userId: Types.ObjectId;
+  let grantedById: Types.ObjectId;
+  
+  if (Types.ObjectId.isValid(userIdOrUuid)) {
+    userId = new Types.ObjectId(userIdOrUuid);
+  } else {
+    // Look up user by UUID
+    const User = require('../user/user.model').User;
+    const user = await User.findOne({ uuid: userIdOrUuid }).select('_id');
+    if (!user) {
+      throw new AppError(httpStatus.NOT_FOUND, "User not found");
+    }
+    userId = user._id;
+  }
+  
+  // Convert grantedBy to ObjectId
+  if (Types.ObjectId.isValid(payload.grantedBy)) {
+    grantedById = new Types.ObjectId(payload.grantedBy);
+  } else {
+    const User = require('../user/user.model').User;
+    const admin = await User.findOne({ uuid: payload.grantedBy }).select('_id');
+    if (!admin) {
+      throw new AppError(httpStatus.NOT_FOUND, "Admin user not found");
+    }
+    grantedById = admin._id;
+  }
+  
   // Update or create staff permissions
   const result = await StaffPermission.findOneAndUpdate(
-    { user: userUuid },
+    { user: userId },
     {
-      user: userUuid,
+      user: userId,
       permissions: payload.permissions,
-      grantedBy: payload.grantedBy,
+      grantedBy: grantedById,
     },
     {
       new: true,
@@ -77,8 +134,20 @@ const assignPermissionsToStaff = async (
 };
 
 // Check if user has specific permission
-const checkUserPermission = async (userUuid: string, permissionCode: string): Promise<boolean> => {
-  const staffPermission = await StaffPermission.findOne({ user: userUuid });
+const checkUserPermission = async (userIdOrUuid: string, permissionCode: string): Promise<boolean> => {
+  let userId: Types.ObjectId | null = null;
+  
+  if (Types.ObjectId.isValid(userIdOrUuid)) {
+    userId = new Types.ObjectId(userIdOrUuid);
+  } else {
+    const User = require('../user/user.model').User;
+    const user = await User.findOne({ uuid: userIdOrUuid }).select('_id');
+    if (user) userId = user._id;
+  }
+  
+  if (!userId) return false;
+  
+  const staffPermission = await StaffPermission.findOne({ user: userId });
   
   if (!staffPermission) {
     return false;
@@ -88,8 +157,20 @@ const checkUserPermission = async (userUuid: string, permissionCode: string): Pr
 };
 
 // Check if user has any of the specified permissions
-const checkUserHasAnyPermission = async (userUuid: string, permissionCodes: string[]): Promise<boolean> => {
-  const staffPermission = await StaffPermission.findOne({ user: userUuid });
+const checkUserHasAnyPermission = async (userIdOrUuid: string, permissionCodes: string[]): Promise<boolean> => {
+  let userId: Types.ObjectId | null = null;
+  
+  if (Types.ObjectId.isValid(userIdOrUuid)) {
+    userId = new Types.ObjectId(userIdOrUuid);
+  } else {
+    const User = require('../user/user.model').User;
+    const user = await User.findOne({ uuid: userIdOrUuid }).select('_id');
+    if (user) userId = user._id;
+  }
+  
+  if (!userId) return false;
+  
+  const staffPermission = await StaffPermission.findOne({ user: userId });
   
   if (!staffPermission) {
     return false;
@@ -98,10 +179,56 @@ const checkUserHasAnyPermission = async (userUuid: string, permissionCodes: stri
   return permissionCodes.some(code => staffPermission.permissions.includes(code));
 };
 
+// Get only permitted routes for a user (lightweight for auth)
+const getPermittedRoutesForUser = async (userIdOrUuid: string): Promise<string[]> => {
+  console.log('🔍 Getting permitted routes for user:', userIdOrUuid);
+  
+  let userId: Types.ObjectId | null = null;
+  
+  if (Types.ObjectId.isValid(userIdOrUuid)) {
+    userId = new Types.ObjectId(userIdOrUuid);
+  } else {
+    const User = require('../user/user.model').User;
+    const user = await User.findOne({ uuid: userIdOrUuid }).select('_id');
+    if (user) {
+      userId = user._id;
+      console.log('🔄 Converted UUID to ObjectId:', userId.toString());
+    }
+  }
+  
+  if (!userId) {
+    console.log('⚠️ Could not find user with identifier:', userIdOrUuid);
+    return [];
+  }
+  
+  const staffPermission = await StaffPermission.findOne({ user: userId });
+  
+  if (!staffPermission) {
+    console.log('⚠️ No staff permissions found for user ObjectId:', userId.toString());
+    return [];
+  }
+  
+  console.log('📋 Found permission codes:', staffPermission.permissions);
+  
+  // Get permissions and extract routes
+  const permissions = await Permission.find({
+    code: { $in: staffPermission.permissions },
+    isActive: true,
+  }).select('route');
+  
+  console.log('🗺️ Found permissions with routes:', permissions);
+  
+  // Return unique routes
+  const routes = [...new Set(permissions.map(p => p.route))];
+  console.log('✅ Returning routes:', routes);
+  return routes;
+};
+
 export const PermissionServices = {
   getAllPermissionsFromDB,
   getStaffPermissionsFromDB,
   assignPermissionsToStaff,
   checkUserPermission,
   checkUserHasAnyPermission,
+  getPermittedRoutesForUser,
 };

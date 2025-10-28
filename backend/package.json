@@ -10,7 +10,14 @@
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "seed:orders": "ts-node-dev --transpile-only src/seedOrders.ts",
-    "seed:orders:clear": "ts-node-dev --transpile-only src/seedOrders.ts --clear"
+    "seed:orders:clear": "ts-node-dev --transpile-only src/seedOrders.ts --clear",
+    "seed:permissions": "ts-node-dev --transpile-only database/seeders/seedPermissions.ts",
+    "clear:staff-permissions": "ts-node-dev --transpile-only database/seeders/clearStaffPermissions.ts",
+    "migrate:permissions-objectid": "ts-node-dev --transpile-only database/migrations/migratePermissionsToObjectId.ts",
+    "test:permission-lookup": "ts-node-dev --transpile-only database/testPermissionLookup.ts",
+    "list:collections": "ts-node-dev --transpile-only database/listCollections.ts",
+    "diagnose:permissions": "ts-node-dev --transpile-only database/diagnosePermissions.ts",
+    "test:permission-api": "ts-node-dev --transpile-only database/testPermissionAPI.ts"
   },
   "keywords": [
     "express",

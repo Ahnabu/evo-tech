@@ -30,17 +30,21 @@ const LoginFormAdmin = () => {
         setFormError(""); // Reset error message
         setFormSuccess(""); // Reset success message
 
-        await adminlogin(data)
-            .then((res?: { success?: string; error?: string; }) => {
-                if (res && typeof res === "object") {
-                    if (res.error) setFormError(res.error);
-                    if (res.success) {
-                        setFormSuccess(res.success);
-                        // Refresh to load user data in navbar
-                        router.refresh();
-                    }
-                }
-            });
+        const res = await adminlogin(data);
+        
+        if (res && typeof res === "object") {
+            if (res.error) {
+                setFormError(res.error);
+            }
+            if (res.success) {
+                setFormSuccess(res.success);
+                // Wait a moment for session to be fully set, then redirect
+                setTimeout(() => {
+                    router.push('/control');
+                    router.refresh();
+                }, 100);
+            }
+        }
     };
 
     return (

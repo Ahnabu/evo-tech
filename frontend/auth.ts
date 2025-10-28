@@ -15,6 +15,7 @@ interface addressType {
 
 declare module "next-auth" {
     interface User {
+        uuid?: string;
         firstName?: string;
         lastName?: string;
         phone?: string | null;
@@ -24,10 +25,25 @@ declare module "next-auth" {
         newsletter_opt_in?: boolean | null;
         addresses?: addressType[] | null;
         accessToken?: string;
+        permittedRoutes?: string[];
     }
 
     interface Session {
         accessToken?: string;
+        user: {
+            id?: string;
+            uuid?: string;
+            email?: string;
+            firstName?: string;
+            lastName?: string;
+            phone?: string | null;
+            role?: string | null;
+            email_verified?: boolean;
+            reward_points?: number | null;
+            newsletter_opt_in?: boolean | null;
+            addresses?: addressType[] | null;
+            permittedRoutes?: string[];
+        }
     }
 }
 
@@ -37,6 +53,7 @@ declare module "@auth/core/jwt" {
          * user data from the signin attempt
          */
         userdata?: {
+            uuid?: string;
             firstName?: string;
             lastName?: string;
             phone?: string | null;
@@ -45,6 +62,7 @@ declare module "@auth/core/jwt" {
             reward_points?: number | null;
             newsletter_opt_in?: boolean | null;
             addresses?: addressType[] | null;
+            permittedRoutes?: string[];
         }
         accessToken?: string;
     }
@@ -130,6 +148,7 @@ export const {
 
             if (user) { // user is only available here while signing in
                 token.userdata = {
+                    uuid: user.uuid, // Add UUID to token
                     firstName: user.firstName,
                     lastName: user.lastName,
                     phone: user.phone,
@@ -138,6 +157,7 @@ export const {
                     reward_points: user.reward_points,
                     newsletter_opt_in: user.newsletter_opt_in,
                     addresses: user.addresses,
+                    permittedRoutes: user.permittedRoutes, // Add permitted routes to token
                 };
                 token.accessToken = user.accessToken;
             }

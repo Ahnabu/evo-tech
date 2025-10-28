@@ -4,6 +4,7 @@ export const permissionSchema = z.object({
   _id: z.string(),
   name: z.string(),
   code: z.string(),
+  route: z.string(),
   category: z.string(),
   description: z.string().optional(),
   isActive: z.boolean(),

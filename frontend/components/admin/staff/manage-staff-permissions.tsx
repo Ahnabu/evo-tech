@@ -5,11 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useSession } from "next-auth/react";
 import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 import { Permission } from "@/schemas/admin/permissionSchema";
-import { Shield, Save, Loader2 } from "lucide-react";
+import { Shield, Save, Loader2, Info } from "lucide-react";
 
 interface ManageStaffPermissionsProps {
     staffUuid: string;
@@ -90,6 +91,7 @@ export function ManageStaffPermissions({ staffUuid, staffName }: ManageStaffPerm
 
             if (response.data.success) {
                 toast.success("Permissions updated successfully!");
+                toast.info("Staff member must log out and log back in for changes to take effect.");
             }
         } catch (error: any) {
             console.error("Error saving permissions:", error);
@@ -153,6 +155,13 @@ export function ManageStaffPermissions({ staffUuid, staffName }: ManageStaffPerm
                 </div>
             </CardHeader>
             <CardContent className="space-y-6">
+                <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertDescription>
+                        <strong>Important:</strong> After saving permissions, the staff member must log out and log back in for changes to take effect.
+                    </AlertDescription>
+                </Alert>
+                
                 {categories.map(category => {
                     const categoryPerms = permissionsByCategory[category] || [];
                     const allCategorySelected = categoryPerms.every(p => selectedPermissions.includes(p.code));
