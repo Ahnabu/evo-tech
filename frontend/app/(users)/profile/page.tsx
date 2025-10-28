@@ -2,10 +2,10 @@
 
 import { useUserProfile } from '@/hooks/use-user-dashboard';
 import { useCurrentUser } from '@/hooks/use-current-user';
-import { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
-import { userApi } from '@/lib/api';
+import axios from 'axios';
 
 export default function ProfilePage() {
     const currentUser = useCurrentUser();
@@ -16,11 +16,20 @@ export default function ProfilePage() {
     const [saveError, setSaveError] = useState<string | null>(null);
     const [saveSuccess, setSaveSuccess] = useState(false);
 
-    // Form refs for input values
-    const firstNameRef = useRef<HTMLInputElement>(null);
-    const lastNameRef = useRef<HTMLInputElement>(null);
-    const phoneRef = useRef<HTMLInputElement>(null);
-    const newsletterRef = useRef<HTMLInputElement>(null);
+    // Controlled form state
+    const [firstName, setFirstName] = useState('');
+    const [lastName, setLastName] = useState('');
+    const [phone, setPhone] = useState('');
+
+    // Initialize form values when profile loads
+    // Initialize form values when profile loads
+    useEffect(() => {
+        if (profile) {
+            setFirstName(profile.firstName || '');
+            setLastName(profile.lastName || '');
+            setPhone(profile.phone || '');
+        }
+    }, [profile]);
 
     const handleSaveProfile = async () => {
         if (!profile || !session?.user?.id) return;
@@ -31,17 +40,13 @@ export default function ProfilePage() {
 
         try {
             // Validate required fields
-            const firstName = firstNameRef.current?.value?.trim();
-            const lastName = lastNameRef.current?.value?.trim();
-
-            if (!firstName || !lastName) {
+            if (!firstName.trim() || !lastName.trim()) {
                 setSaveError('First name and last name are required');
                 setIsSaving(false);
                 return;
             }
 
             // Basic phone validation (optional)
-            const phone = phoneRef.current?.value?.trim();
             if (phone && !/^[\+]?[1-9][\d]{0,15}$/.test(phone.replace(/\s/g, ''))) {
                 setSaveError('Please enter a valid phone number');
                 setIsSaving(false);
@@ -49,24 +54,17 @@ export default function ProfilePage() {
             }
 
             const updatedData = {
-                firstName,
-                lastName,
-                phone: phone || null,
-                newsletterOptIn: newsletterRef.current?.checked ?? profile.newsletterOptIn,
+                firstName: firstName.trim(),
+                lastName: lastName.trim(),
+                phone: phone.trim() || null,
             };
 
-            // For now, we'll simulate the update since we don't have proper JWT tokens
-            // TODO: Replace with actual API call when backend integration is complete
-            
-            /* Uncomment when backend JWT tokens are properly implemented:
-            const token = await getToken({ req: { headers: { cookie: document.cookie } } });
-            if (token) {
-                await userApi.updateProfile(session.user.id, updatedData, token as string);
+            // Call the backend API to update user profile
+            const response = await axios.put(`/api/users/${session.user.id}`, updatedData);
+
+            if (!response.data.success) {
+                throw new Error(response.data.message || 'Failed to update profile');
             }
-            */
-            
-            // Simulate API delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
 
             // Update the session with new data
             await updateSession({
@@ -75,7 +73,6 @@ export default function ProfilePage() {
                     firstName: updatedData.firstName,
                     lastName: updatedData.lastName,
                     phone: updatedData.phone,
-                    newsletter_opt_in: updatedData.newsletterOptIn,
                 }
             });
 
@@ -97,6 +94,12 @@ export default function ProfilePage() {
     };
 
     const handleCancelEdit = () => {
+        // Reset form to original values
+        if (profile) {
+            setFirstName(profile.firstName || '');
+            setLastName(profile.lastName || '');
+            setPhone(profile.phone || '');
+        }
         setIsEditing(false);
         setSaveError(null);
         setSaveSuccess(false);
@@ -185,9 +188,9 @@ export default function ProfilePage() {
                                 </label>
                                 {isEditing ? (
                                     <input
-                                        ref={firstNameRef}
                                         type="text"
-                                        defaultValue={profile.firstName}
+                                        value={firstName}
+                                        onChange={(e) => setFirstName(e.target.value)}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         onKeyDown={handleKeyPress}
                                         required
@@ -203,9 +206,9 @@ export default function ProfilePage() {
                                 </label>
                                 {isEditing ? (
                                     <input
-                                        ref={lastNameRef}
                                         type="text"
-                                        defaultValue={profile.lastName}
+                                        value={lastName}
+                                        onChange={(e) => setLastName(e.target.value)}
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         onKeyDown={handleKeyPress}
                                         required
@@ -229,9 +232,9 @@ export default function ProfilePage() {
                                 </label>
                                 {isEditing ? (
                                     <input
-                                        ref={phoneRef}
                                         type="tel"
-                                        defaultValue={profile.phone || ''}
+                                        value={phone}
+                                        onChange={(e) => setPhone(e.target.value)}
                                         placeholder="Enter phone number"
                                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         onKeyDown={handleKeyPress}
@@ -239,22 +242,6 @@ export default function ProfilePage() {
                                 ) : (
                                     <p className="text-gray-900 py-2">{profile.phone || 'Not provided'}</p>
                                 )}
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Account Type
-                                </label>
-                                <p className="text-gray-900 py-2 capitalize">{profile.userType}</p>
-                            </div>
-
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
-                                    Reward Points
-                                </label>
-                                <p className="py-2 text-green-600 font-medium">
-                                    {profile.rewardPoints || 0} points
-                                </p>
                             </div>
                         </div>
                     )}
@@ -300,22 +287,6 @@ export default function ProfilePage() {
                     </h2>
                     
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <h3 className="font-medium text-gray-900">Newsletter Subscription</h3>
-                                <p className="text-sm text-gray-600">Receive updates about new products and offers</p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input 
-                                    ref={newsletterRef}
-                                    type="checkbox" 
-                                    defaultChecked={profile?.newsletterOptIn || false}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:bg-blue-600 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all"></div>
-                            </label>
-                        </div>
-
                         <div className="flex items-center justify-between">
                             <div>
                                 <h3 className="font-medium text-gray-900">Account Status</h3>

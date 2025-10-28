@@ -36,13 +36,17 @@ export default middleware( async (request) => {
     if (!isAuthRoute) {
         if (isAdminOnlyRoute) {
             // redirect if admin route and the user is not even authenticated
-            if (!isLoggedIn) {
-                return NextResponse.redirect(new URL("/login", nextUrl));
+            if (!isLoggedIn || !userSession) {
+                // Clear cookies and redirect to login
+                const response = NextResponse.redirect(new URL("/et-admin/auth/sign-in", nextUrl));
+                response.cookies.delete('last_pg');
+                return response;
             }
 
             // redirect if the user is authenticated but not an ADMIN
             if (!userRole || userRole !== "ADMIN") {
-                return NextResponse.redirect(new URL(DEFAULT_SIGNIN_REDIRECT_USER, nextUrl));
+                const response = NextResponse.redirect(new URL(DEFAULT_SIGNIN_REDIRECT_USER, nextUrl));
+                return response;
             }
             
             const response = NextResponse.next();
@@ -51,12 +55,14 @@ export default middleware( async (request) => {
         }
 
         // redirect if protected route but the user is not authenticated
-        if (isProtectedRoute && !isLoggedIn) {
-            return NextResponse.redirect(new URL("/login", nextUrl));
+        if (isProtectedRoute && (!isLoggedIn || !userSession)) {
+            const response = NextResponse.redirect(new URL("/login", nextUrl));
+            response.cookies.delete('last_pg');
+            return response;
         }
 
 
-        if (isLoggedIn) {
+        if (isLoggedIn && userSession) {
             const response = NextResponse.next();
             response.cookies.set("last_pg", nextUrl.pathname, { path: "/" });
             return response;

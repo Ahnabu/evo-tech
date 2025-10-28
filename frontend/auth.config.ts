@@ -33,8 +33,8 @@ export default {
                         return {
                             id: user._id || user.uuid,
                             email: user.email,
-                            firstName: user.firstname,
-                            lastName: user.lastname,
+                            firstName: user.firstName,
+                            lastName: user.lastName,
                             phone: user.phone ? user.phone : null, // ternary op. to explicitly check falsy values instead of using || .
                             email_verified: user.emailVerifiedAt ? true : false,
                             role: user.userType ? user.userType.toUpperCase() : null,

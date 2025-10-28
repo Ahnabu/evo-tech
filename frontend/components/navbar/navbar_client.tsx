@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import Image from "next/image";
 import Link from "next/link";
 import { Avatar } from "@nextui-org/avatar";
 import useDebounce from "@rooks/use-debounce";
-import { signOut } from "next-auth/react";
+import { logout } from "@/actions/logout";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 import EvoTechBDLogoGray from "@/public/assets/EvoTechBD-logo-gray.png";
@@ -205,6 +205,7 @@ const NavbarClient = ({
   support: NavbarMenuType1[];
 }) => {
   const pathname = usePathname();
+  const router = useRouter();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState<boolean | null>(null);
 
@@ -229,9 +230,18 @@ const NavbarClient = ({
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
-      await signOut({ redirect: false });
-      toast.success("You signed out of your account.");
+      const result = await logout();
+      
+      if (result?.success) {
+        toast.success("You signed out of your account.");
+        // Clear any client-side state and redirect
+        router.push("/login");
+        router.refresh();
+      } else {
+        toast.error("Something went wrong while signing out.");
+      }
     } catch (err) {
+      console.error("Sign out error:", err);
       toast.error("Something went wrong while signing out.");
     }
   }, 200);

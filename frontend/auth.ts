@@ -62,6 +62,15 @@ export const {
         strategy: "jwt",
         maxAge: 1209600, // 14 days,
     },
+    events: {
+        async signOut(message) {
+            // Clear token data on sign out
+            if ('token' in message && message.token) {
+                message.token.userdata = undefined;
+                message.token.accessToken = undefined;
+            }
+        },
+    },
     jwt: {
         // maxAge: 1209600,
         // encode: async ({ token }) => {

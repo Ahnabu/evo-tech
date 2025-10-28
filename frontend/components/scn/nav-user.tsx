@@ -6,8 +6,9 @@ import { Avatar } from "@nextui-org/avatar";
 import { getNameInitials } from "@/utils/essential_functions";
 import { Button } from "../ui/button";
 import useDebounce from "@rooks/use-debounce";
-import { signOut } from "next-auth/react";
+import { logout } from "@/actions/logout";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 import {
   DropdownMenu,
@@ -29,16 +30,23 @@ import {
 
 
 export const NavUser = ({ currentUser }: { currentUser: any }) => {
-  const { isMobile } = useSidebar()
+  const { isMobile } = useSidebar();
+  const router = useRouter();
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
-      // won't redirect anywhere and the page won't reload, middleware will handle redirection for protected routes.
-      await signOut({
-        redirectTo: "/et-admin/auth/sign-in",
-      });
-      toast.success("You signed out of your account.");
+      const result = await logout();
+      
+      if (result?.success) {
+        toast.success("You signed out of your account.");
+        // Clear any client-side state/cache
+        router.push("/et-admin/auth/sign-in");
+        router.refresh();
+      } else {
+        toast.error("Something went wrong while signing out.");
+      }
     } catch (err) {
+      console.error("Sign out error:", err);
       toast.error("Something went wrong while signing out.");
     }
   }, 200);
