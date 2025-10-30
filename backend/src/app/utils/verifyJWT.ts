@@ -1,15 +1,20 @@
-import jwt, { JwtPayload, SignOptions, Secret } from "jsonwebtoken";
+import jwt, { JwtPayload, Secret } from "jsonwebtoken";
+
+export interface AuthJwtPayload extends JwtPayload {
+  _id: string;
+  email: string;
+  role: string;
+  uuid?: string;
+}
 
 export const createToken = (
-  jwtPayload: { email: string; role: string; _id: string },
+  jwtPayload: AuthJwtPayload,
   secret: Secret,
   expiresIn: string
 ): string => {
-
-  // @ts-ignore
-  return jwt.sign(jwtPayload, secret, { expiresIn });
+  return jwt.sign(jwtPayload as string | object | Buffer, secret as Secret, { expiresIn } as jwt.SignOptions);
 };
 
-export const verifyToken = (token: string, secret: Secret): JwtPayload => {
-  return jwt.verify(token, secret) as JwtPayload;
+export const verifyToken = (token: string, secret: Secret): AuthJwtPayload => {
+  return jwt.verify(token, secret) as AuthJwtPayload;
 };

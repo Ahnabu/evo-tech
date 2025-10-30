@@ -30,6 +30,7 @@ const registerUser = async (payload: TRegisterUser) => {
     _id: newUser._id as string,
     email: newUser.email,
     role: newUser.userType,
+    uuid: newUser.uuid,
   };
 
   const accessToken = createToken(
@@ -80,6 +81,7 @@ const loginUser = async (payload: TLoginUser) => {
     _id: user._id as string,
     email: user.email,
     role: user.userType,
+    uuid: user.uuid,
   };
 
   // Create access token
@@ -137,6 +139,7 @@ const handleOAuthUser = async (payload: TOAuthUser) => {
     _id: user._id as string,
     email: user.email,
     role: user.userType,
+    uuid: user.uuid,
   };
 
   // Create access token

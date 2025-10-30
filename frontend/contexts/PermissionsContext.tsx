@@ -61,65 +61,56 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
             return;
         }
 
-        // For staff/employees, first try to use session data
-        if (session.user?.permittedRoutes && session.user.permittedRoutes.length > 0) {
-            setPermittedRoutes(session.user.permittedRoutes);
-            console.log('📋 Staff permissions loaded from session:', session.user.permittedRoutes);
-            // Still fetch full permission details for codes
+        // For staff/employees, always fetch latest permissions from API
+        if (session.user?.role?.toUpperCase() === 'EMPLOYEE') {
+            const sessionRoutes = session.user?.permittedRoutes ?? [];
+            if (sessionRoutes.length > 0) {
+                console.log('� Staff permitted routes from session:', sessionRoutes);
+                setPermittedRoutes(sessionRoutes);
+            }
+
             try {
+                setIsLoading(true);
                 const axiosInstance = createAxiosClientWithSession(session);
+                console.log('📡 Fetching staff permissions from API at /permissions/my-permissions...');
                 const response = await axiosInstance.get("/permissions/my-permissions");
 
+                console.log('📥 Staff permission API response:', response.data);
                 if (response.data.success) {
                     const perms = response.data.data.permissionCodes || [];
                     const fullPerms = response.data.data.permissions || [];
+                    const routes = response.data.data.permittedRoutes || sessionRoutes;
+
+                    console.log('👷 Staff permissions (database):', {
+                        permissionCodes: perms,
+                        permittedRoutes: routes,
+                        totalPermissions: fullPerms.length,
+                        permissions: fullPerms
+                    });
+
                     setPermissions(perms);
                     setAllPermissions(fullPerms);
-                    console.log('✅ Staff permission codes:', perms);
+                    setPermittedRoutes(routes);
+                } else {
+                    console.warn('⚠️ Staff permission API returned unsuccessful response:', response.data);
                 }
-            } catch (error) {
-                console.error("Error fetching permission details:", error);
+            } catch (error: any) {
+                console.error("❌ Error fetching staff permissions from API:", {
+                    message: error.message,
+                    response: error.response?.data,
+                    status: error.response?.status
+                });
+                setPermissions([]);
+                setAllPermissions([]);
+                setPermittedRoutes(sessionRoutes);
+            } finally {
+                setIsLoading(false);
             }
-            setIsLoading(false);
             return;
         }
 
-        // Fallback: fetch from API if not in session
-        console.log('⚠️ No permissions in session, fetching from API');
-        try {
-            setIsLoading(true);
-            const axiosInstance = createAxiosClientWithSession(session);
-            console.log('📡 Calling /permissions/my-permissions...');
-            const response = await axiosInstance.get("/permissions/my-permissions");
-
-            console.log('📥 API Response:', response.data);
-            if (response.data.success) {
-                const perms = response.data.data.permissionCodes || [];
-                const fullPerms = response.data.data.permissions || [];
-                const routes = response.data.data.permittedRoutes || [];
-                
-                console.log('✅ Loaded from API:', {
-                    permissionCodes: perms,
-                    permittedRoutes: routes,
-                    totalPermissions: fullPerms.length
-                });
-                
-                setPermissions(perms);
-                setAllPermissions(fullPerms);
-                setPermittedRoutes(routes);
-            }
-        } catch (error: any) {
-            console.error("❌ Error fetching permissions:", {
-                message: error.message,
-                response: error.response?.data,
-                status: error.response?.status
-            });
-            setPermissions([]);
-            setAllPermissions([]);
-            setPermittedRoutes([]);
-        } finally {
-            setIsLoading(false);
-        }
+        console.log('⚠️ Session user role is not admin or employee; skipping permission fetch.');
+        setIsLoading(false);
     }, [session]);
 
     useEffect(() => {

@@ -3,7 +3,7 @@ import httpStatus from "http-status";
 import config from "../config";
 import AppError from "../errors/AppError";
 import { catchAsync } from "../utils/catchAsync";
-import { verifyToken } from "../utils/verifyJWT";
+import { AuthJwtPayload, verifyToken } from "../utils/verifyJWT";
 import { User } from "../modules/user/user.model";
 
 const auth = (...requiredRoles: string[]) => {
@@ -31,14 +31,14 @@ const auth = (...requiredRoles: string[]) => {
     }
 
     // Verify token
-    let decoded;
+  let decoded: AuthJwtPayload;
     try {
       decoded = verifyToken(token, config.jwt_access_secret as string);
     } catch (error) {
       throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token!");
     }
 
-    const { email, role } = decoded;
+  const { email, role } = decoded;
 
     // Check if user exists
     const user = await User.findOne({ email }).select("+password");
@@ -61,7 +61,14 @@ const auth = (...requiredRoles: string[]) => {
     }
 
     // Attach user to request
-    req.user = decoded;
+    req.user = {
+      ...decoded,
+      uuid: user.uuid,
+      _id: user._id.toString(),
+      email: user.email,
+      role: user.userType,
+      userType: user.userType,
+    };
     next();
   });
 };

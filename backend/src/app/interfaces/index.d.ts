@@ -1,9 +1,9 @@
-import { JwtPayload } from "jsonwebtoken";
+import { AuthJwtPayload } from "../utils/verifyJWT";
 
 declare global {
   namespace Express {
     interface Request {
-      user: JwtPayload;
+      user: AuthJwtPayload & { userType?: string };
     }
   }
 }
