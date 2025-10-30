@@ -102,7 +102,7 @@ const getSalesData = async (period: string = "30d") => {
     {
       $match: {
         createdAt: { $gte: startDate, $lte: now },
-        status: { $ne: "cancelled" }
+        orderStatus: { $ne: "cancelled" }
       }
     },
     {
@@ -110,7 +110,11 @@ const getSalesData = async (period: string = "30d") => {
         _id: {
           $dateToString: { format: dateFormat, date: "$createdAt" }
         },
-        sales: { $sum: "$totalAmount" },
+        sales: {
+          $sum: {
+            $ifNull: ["$totalPayable", 0]
+          }
+        },
         orders: { $sum: 1 }
       }
     },
@@ -148,7 +152,18 @@ const getRecentOrders = async (limit: number = 10) => {
   return sortedOrders.map(order => ({
     id: order._id,
     orderNumber: order.orderNumber || `ORD-${order._id}`,
-    customer: order.user ? `${(order.user as any).firstName} ${(order.user as any).lastName}` : `${order.firstname} ${order.lastname}`,
+    customer: (() => {
+      if (order.user) {
+        const first = (order.user as any).firstName || (order.user as any).firstname || "";
+        const last = (order.user as any).lastName || (order.user as any).lastname || "";
+        const full = `${first} ${last}`.trim();
+        if (full) return full;
+      }
+      const firstName = (order as any).firstname || (order as any).firstName || "";
+      const lastName = (order as any).lastname || (order as any).lastName || "";
+      const fullFallback = `${firstName} ${lastName}`.trim();
+      return fullFallback || order.email || "Unknown";
+    })(),
     customerEmail: order.user ? (order.user as any).email : order.email || "",
     total: order.totalPayable || 0,
     status: order.orderStatus || "pending",

@@ -8,6 +8,7 @@ import Link from "next/link";
 import { Avatar } from "@nextui-org/avatar";
 import useDebounce from "@rooks/use-debounce";
 import { logout } from "@/actions/logout";
+import { signOut } from "next-auth/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 import EvoTechBDLogoGray from "@/public/assets/EvoTechBD-logo-gray.png";
@@ -233,9 +234,16 @@ const NavbarClient = ({
       const result = await logout();
       
       if (result?.success) {
+        const response = await signOut({ redirect: false, callbackUrl: "/" });
+
+        if (!response?.url) {
+          console.error("NextAuth signOut error:", response);
+          toast.error("Something went wrong while signing out.");
+          return;
+        }
+
         toast.success("You signed out of your account.");
-        // Clear any client-side state and redirect to home
-        router.push("/");
+        router.push(response.url ?? "/");
         router.refresh();
       } else {
         toast.error("Something went wrong while signing out.");

@@ -7,6 +7,7 @@ import { getNameInitials } from "@/utils/essential_functions";
 import { Button } from "../ui/button";
 import useDebounce from "@rooks/use-debounce";
 import { logout } from "@/actions/logout";
+import { signOut } from "next-auth/react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -38,9 +39,17 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
       const result = await logout();
       
       if (result?.success) {
+        const response = await signOut({ redirect: false, callbackUrl: "/" });
+
+        // signOut does not include an 'error' property in its type; ensure we have a valid URL
+        if (!response || !("url" in response) || !response.url) {
+          console.error("NextAuth signOut failed, response:", response);
+          toast.error("Something went wrong while signing out.");
+          return;
+        }
+
         toast.success("You signed out of your account.");
-        // Clear any client-side state and redirect to home
-        router.push("/");
+        router.push(response.url);
         router.refresh();
       } else {
         toast.error("Something went wrong while signing out.");
