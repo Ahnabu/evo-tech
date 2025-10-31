@@ -1,6 +1,7 @@
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
 import { Order } from "../order/order.model";
+import { OrderServices } from "../order/order.service";
 
 const getAllUsersFromDB = async (query: Record<string, unknown>) => {
   const page = Number(query.page) || 1;
@@ -76,31 +77,32 @@ const deleteUserFromDB = async (id: string) => {
 };
 
 const getUserDashboardStatsFromDB = async (userUuid: string) => {
-  // Get user orders
-  const userOrders = await Order.find({ user: userUuid });
-  
-  // Calculate total spent
-  const totalSpent = userOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
-  
-  // Get recent orders (last 5)
-  const recentOrders = await Order.find({ user: userUuid })
-    .sort({ createdAt: -1 })
-    .limit(5)
-    .lean();
+  const [userOrders, recentOrdersResponse, user] = await Promise.all([
+    Order.find({ user: userUuid }).lean(),
+    OrderServices.getUserOrdersFromDB(userUuid, { limit: 5 }),
+    User.findOne({ uuid: userUuid }).lean(),
+  ]);
 
-  // Get user details for additional info
-  const user = await User.findOne({ uuid: userUuid });
+  const totalSpent = userOrders.reduce(
+    (sum, order) => sum + (order.totalPayable || 0),
+    0
+  );
+
+  const recentOrders = (recentOrdersResponse?.result || []).map((order: any) => ({
+    _id: order._id,
+    orderNumber: order.orderNumber,
+    totalPayable: order.totalPayable,
+    orderStatus: order.orderStatus,
+    paymentStatus: order.paymentStatus,
+    createdAt: order.createdAt,
+    itemsCount: order.itemsCount ?? 0,
+    lineItemsCount: order.lineItemsCount ?? 0,
+  }));
 
   return {
     totalOrders: userOrders.length,
     totalSpent,
-    recentOrders: recentOrders.map(order => ({
-      orderNumber: order.orderNumber,
-      totalPayable: order.totalPayable,
-      orderStatus: order.orderStatus,
-      paymentStatus: order.paymentStatus,
-      createdAt: order.createdAt,
-    })),
+    recentOrders,
     rewardPoints: user?.rewardPoints || 0,
     memberSince: user?.createdAt,
   };
@@ -111,23 +113,10 @@ const getUserOrdersFromDB = async (userUuid: string, query: Record<string, unkno
   const limit = Number(query.limit) || 10;
   const skip = (page - 1) * limit;
 
-  const result = await Order.find({ user: userUuid })
-    .sort({ createdAt: -1 })
-    .skip(skip)
-    .limit(limit)
-    .lean();
-
-  const total = await Order.countDocuments({ user: userUuid });
-
-  return {
-    result,
-    meta: {
-      page,
-      limit,
-      total,
-      totalPages: Math.ceil(total / limit),
-    },
-  };
+  return await OrderServices.getUserOrdersFromDB(userUuid, {
+    page,
+    limit,
+  });
 };
 
 const createStaffIntoDB = async (payload: Partial<TUser>) => {

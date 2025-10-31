@@ -145,7 +145,7 @@ export default function ProfilePage() {
                     <div className="text-center py-8">
                         <div className="text-red-600 mb-4">Error loading profile</div>
                         <p className="text-gray-600">{error}</p>
-                        <Link href="/dashboard" className="mt-4 inline-block text-blue-600 hover:text-blue-800">
+                        <Link href="/user/dashboard" className="mt-4 inline-block text-blue-600 hover:text-blue-800">
                             ← Back to Dashboard
                         </Link>
                     </div>
@@ -159,7 +159,7 @@ export default function ProfilePage() {
             <div className="max-w-4xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <Link href="/dashboard" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
+                    <Link href="/user/dashboard" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
                         ← Back to Dashboard
                     </Link>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">

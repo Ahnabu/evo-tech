@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import { adminSidebarMenus, adminSecondarySidebarMenus } from "@/dal/staticdata/admin_sidebar_menus";
 import { staffSidebarMenus, staffSecondarySidebarMenus } from "@/dal/staticdata/staff_sidebar_menus";
+import { userSidebarMenus, userSecondarySidebarMenus } from "@/dal/staticdata/user_sidebar_menus";
 import { NavUser } from "@/components/scn/nav-user";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
@@ -33,9 +34,24 @@ export const AppSidebar = ({
   isStaffMode?: boolean;
 } & React.ComponentProps<typeof Sidebar>) => {
 
-  // Use staff menus if in staff mode, otherwise use admin menus
-  const sidebarMenus = isStaffMode ? staffSidebarMenus : adminSidebarMenus;
-  const secondarySidebarMenus = isStaffMode ? staffSecondarySidebarMenus : adminSecondarySidebarMenus;
+  // Determine user role
+  const userRole = userSession?.role?.toUpperCase();
+  const isUser = userRole === 'USER';
+  
+  // Use appropriate menus based on user role
+  let sidebarMenus;
+  let secondarySidebarMenus;
+  
+  if (isUser) {
+    sidebarMenus = userSidebarMenus;
+    secondarySidebarMenus = userSecondarySidebarMenus;
+  } else if (isStaffMode) {
+    sidebarMenus = staffSidebarMenus;
+    secondarySidebarMenus = staffSecondarySidebarMenus;
+  } else {
+    sidebarMenus = adminSidebarMenus;
+    secondarySidebarMenus = adminSecondarySidebarMenus;
+  }
   
   const { refreshPermissions } = usePermissions();
   const [isRefreshing, setIsRefreshing] = React.useState(false);
@@ -70,11 +86,11 @@ export const AppSidebar = ({
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight text-stone-200">
             <span className="truncate font-bold">
-              {isStaffMode ? "Staff Portal" : "Evo-TechBD"}
+              {isUser ? "My Dashboard" : (isStaffMode ? "Staff Portal" : "Evo-TechBD")}
             </span>
           </div>
         </div>
-        {isStaffMode && (
+        {(isStaffMode || !isUser) && (
           <Button
             variant="outline"
             size="sm"

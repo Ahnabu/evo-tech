@@ -24,6 +24,14 @@ export function PendingOrdersProvider({ children }: { children: React.ReactNode 
             return;
         }
 
+        // Only fetch pending orders for admin/staff roles
+        const userRole = session.user?.role?.toUpperCase();
+        if (userRole !== 'ADMIN' && userRole !== 'EMPLOYEE') {
+            setPendingCount(0);
+            setIsLoading(false);
+            return;
+        }
+
         try {
             setIsLoading(true);
             const axiosInstance = createAxiosClientWithSession(session);

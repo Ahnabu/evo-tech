@@ -85,11 +85,18 @@ export default function UserDashboard() {
                                     <div key={order._id} className="flex justify-between items-center p-3 bg-gray-50 rounded">
                                         <div>
                                             <div className="font-medium">#{order.orderNumber}</div>
-                                            <div className="text-sm text-gray-600">{order.orderStatus}</div>
+                                            <div className="text-sm text-gray-600">
+                                                {order.orderStatus}
+                                                {typeof order.itemsCount === 'number' && (
+                                                    <span className="ml-2">• {order.itemsCount} item{order.itemsCount === 1 ? '' : 's'}</span>
+                                                )}
+                                            </div>
                                         </div>
                                         <div className="text-right">
                                             <div className="font-medium">৳{currencyFormatBDT(order.totalPayable)}</div>
-                                            <div className="text-sm text-gray-600">{new Date(order.createdAt!).toLocaleDateString()}</div>
+                                            <div className="text-sm text-gray-600">
+                                                {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -107,14 +114,14 @@ export default function UserDashboard() {
                             Quick Actions
                         </h2>
                         <div className="space-y-2">
-                            <Link href="/profile" className="block w-full text-left px-3 py-2 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors">
+                            <Link href="/user/dashboard/profile" className="block w-full text-left px-3 py-2 rounded-md bg-blue-50 hover:bg-blue-100 text-blue-700 transition-colors">
                                 View Profile
                             </Link>
-                            <Link href="/order-history" className="block w-full text-left px-3 py-2 rounded-md bg-green-50 hover:bg-green-100 text-green-700 transition-colors">
+                            <Link href="/user/dashboard/order-history" className="block w-full text-left px-3 py-2 rounded-md bg-green-50 hover:bg-green-100 text-green-700 transition-colors">
                                 Order History
                             </Link>
-                            <Link href="/addresses" className="block w-full text-left px-3 py-2 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 transition-colors">
-                                Manage Addresses
+                            <Link href="/user/dashboard/order-history" className="block w-full text-left px-3 py-2 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 transition-colors">
+                                Track Orders
                             </Link>
                         </div>
                     </div>
@@ -146,7 +153,7 @@ export default function UserDashboard() {
                                     <span className="font-medium capitalize">{profile.userType}</span>
                                 </div>
                                 <div className="mt-4 pt-4 border-t">
-                                    <Link href="/profile" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    <Link href="/user/dashboard/profile" className="text-blue-600 hover:text-blue-800 text-sm font-medium">
                                         Edit Profile →
                                     </Link>
                                 </div>

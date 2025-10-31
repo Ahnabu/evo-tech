@@ -39,27 +39,58 @@ const hrMenuItems: any[] = [
 
 
 const ProductCategory = async ({ params, searchParams }: currentRouteProps) => {
+    // Await params and searchParams in Next.js 15
+    const resolvedParams = await params;
+    const resolvedSearchParams = await searchParams;
 
-    const category = params.pr_category;
-    const pageno = searchParams.page ? parseInt(searchParams.page as string) : 1;
-    const perpage = searchParams.perpage ? parseInt(searchParams.perpage as string) : 12;
-    const instockfilter = searchParams.instock ? searchParams.instock as string : null;
+    const category = resolvedParams.pr_category;
+    const pageno = resolvedSearchParams.page ? parseInt(resolvedSearchParams.page as string) : 1;
+    const perpage = resolvedSearchParams.perpage ? parseInt(resolvedSearchParams.perpage as string) : 12;
+    const instockfilter = resolvedSearchParams.instock ? resolvedSearchParams.instock as string : null;
 
     noStore(); // equivalent to cache: 'no-store' in fetch API
-    const productslist = await axios.get(`/api/items/category/${category}?page=${pageno}&perpage=${perpage}${instockfilter ? `&instock=${instockfilter}` : ''}`)
+    
+    // Build query parameters
+    const queryParams = new URLSearchParams();
+    queryParams.set('page', pageno.toString());
+    queryParams.set('limit', perpage.toString());
+    
+    // If category is not "all", add it as filter
+    if (category && category !== 'all') {
+        queryParams.set('category', category);
+    }
+    
+    if (instockfilter) {
+        queryParams.set('inStock', instockfilter);
+    }
+    
+    const productslist = await axios.get(`/api/products?${queryParams.toString()}`)
         .then((res) => (res.data))
         .catch((error: any) => {
             axiosErrorLogger({ error });
             return null;
         });
 
-
-    const productsData = productslist?.items_data || [];
+    // Transform backend product data to match frontend expectations
+    const rawProducts = productslist?.data || productslist?.products || [];
+    const productsData = rawProducts.map((product: any) => ({
+        itemid: product._id || product.id,
+        i_name: product.name,
+        i_slug: product.slug,
+        i_price: product.price,
+        i_prevprice: product.previousPrice || 0,
+        i_instock: product.inStock !== undefined ? product.inStock : true,
+        i_mainimg: product.mainImage || '',
+        i_category: product.category?.slug || product.category || '',
+        i_subcategory: product.subcategory?.slug || product.subcategory || '',
+        i_brand: product.brand?.slug || product.brand || '',
+    }));
+    
     const productsMeta = {
-        currentPage: productslist?.current_page || 1,
-        lastPage: productslist?.last_page || 1,
-        totalItems: productslist?.total_items || 0,
-        itemsPerPage: productslist?.per_page || 12,
+        currentPage: productslist?.meta?.page || productslist?.current_page || pageno,
+        lastPage: Math.ceil((productslist?.meta?.total || productslist?.total_items || 0) / perpage),
+        totalItems: productslist?.meta?.total || productslist?.total_items || 0,
+        itemsPerPage: perpage,
     };
 
 

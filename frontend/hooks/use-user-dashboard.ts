@@ -12,8 +12,9 @@ export const useUserDashboard = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
-    if (!session?.user?.id) {
+    if (!session?.accessToken) {
       setLoading(false);
+      setDashboardData(null);
       return;
     }
 
@@ -21,31 +22,29 @@ export const useUserDashboard = () => {
       setLoading(true);
       setError(null);
 
-        const axiosInstance = createAxiosClientWithSession(session);
-        
-        const response = await axiosInstance.get('/users/dashboard/stats');
-        
-        if (response.data.success) {
-          setDashboardData(response.data.data);
-        } else {
-          throw new Error(response.data.message || 'Failed to load dashboard data');
-        }
-      } catch (err) {
-        console.error('Error fetching dashboard data:', err);
-        
-        // Fallback to mock data if API fails
-        const mockStats: UserDashboardStats = {
-          totalOrders: 0,
-          totalSpent: 0,
-          recentOrders: [],
-          rewardPoints: session.user.reward_points || 0,
-          memberSince: new Date(),
-        };
-        setDashboardData(mockStats);
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
-      } finally {
-        setLoading(false);
+      const axiosInstance = createAxiosClientWithSession(session);
+      const response = await axiosInstance.get('/users/dashboard/stats');
+
+      if (response.data?.success) {
+        setDashboardData(response.data.data as UserDashboardStats);
+      } else {
+        throw new Error(response.data?.message || 'Failed to load dashboard data');
       }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+
+      const fallback: UserDashboardStats = {
+        totalOrders: 0,
+        totalSpent: 0,
+        recentOrders: [],
+        rewardPoints: session?.user?.reward_points || 0,
+        memberSince: undefined,
+      };
+      setDashboardData(fallback);
+      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
   }, [session]);
 
   useEffect(() => {
@@ -109,40 +108,47 @@ export const useUserOrders = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchOrders = async () => {
-      if (!session?.user?.id) {
-        setLoading(false);
-        return;
+  const [meta, setMeta] = useState<{
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  } | null>(null);
+
+  const fetchOrders = useCallback(async () => {
+    if (!session?.accessToken) {
+      setLoading(false);
+      setOrders([]);
+      setMeta(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      const axiosInstance = createAxiosClientWithSession(session);
+      const response = await axiosInstance.get('/users/dashboard/orders');
+
+      if (response.data?.success) {
+        setOrders(response.data.data || []);
+        setMeta(response.data.meta || null);
+      } else {
+        throw new Error(response.data?.message || 'Failed to load orders');
       }
-
-      try {
-        setLoading(true);
-        setError(null);
-
-        // Use client-side axios with session token
-        const createAxiosClient = (await import('@/utils/axios/axiosClient')).default;
-        const axiosInstance = await createAxiosClient();
-        
-        const response = await axiosInstance.get('/users/dashboard/orders');
-        
-        if (response.data.success) {
-          setOrders(response.data.data);
-        } else {
-          throw new Error(response.data.message || 'Failed to load orders');
-        }
-      } catch (err) {
-        console.error('Error fetching orders:', err);
-        // Fallback to empty array if API fails
-        setOrders([]);
-        setError(err instanceof Error ? err.message : 'Failed to load orders');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchOrders();
+    } catch (err) {
+      console.error('Error fetching orders:', err);
+      setOrders([]);
+      setMeta(null);
+      setError(err instanceof Error ? err.message : 'Failed to load orders');
+    } finally {
+      setLoading(false);
+    }
   }, [session]);
 
-  return { orders, loading, error };
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
+  return { orders, meta, loading, error, refresh: fetchOrders };
 };

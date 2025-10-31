@@ -14,7 +14,7 @@ import {
 } from "@/store/slices/cartslice";
 import Link from "next/link";
 import { useCallback, useRef, useEffect } from "react";
-import axios from "@/utils/axios/axios";
+import axiosLocal from "@/utils/axios/axiosLocal";
 import { toast } from "sonner";
 
 
@@ -65,7 +65,7 @@ const CartListing = () => {
     };
 
     try {
-      const response = await axios.put('/api/cart/updatebatch', payload);
+  const response = await axiosLocal.put('/api/cart/updatebatch', payload);
 
       if (response.data && response.data.message === "Cart items updated") {
         // Update the Redux store with the successful updates
@@ -140,7 +140,7 @@ const CartListing = () => {
     }
 
     try {
-      const response = await axios.delete('/api/cart/remove', {
+  const response = await axiosLocal.delete('/api/cart/remove', {
         data: {
           item_id: itemId,
           item_color: itemColor,

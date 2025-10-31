@@ -1,6 +1,6 @@
-const UserLayout = ({ children }: { children: React.ReactNode }) => {
-  // The navbar and footer are now handled by ConditionalLayout in the root layout
+const UserLayout = async ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
 export default UserLayout;
+

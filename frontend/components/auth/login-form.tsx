@@ -12,6 +12,7 @@ import { ShowFormError } from "@/components/ui/form-error";
 import { ShowFormSuccess } from "@/components/ui/form-success";
 import { login } from "@/actions/login";
 import { useRouter } from "next/navigation";
+import { DEFAULT_SIGNIN_REDIRECT_USER } from "@/routeslist";
 
 
 const LoginForm = () => {
@@ -40,7 +41,7 @@ const LoginForm = () => {
                 setFormSuccess(res.success);
                 // Wait a moment for session to be fully set, then redirect
                 setTimeout(() => {
-                    router.push('/profile');
+                    router.push(DEFAULT_SIGNIN_REDIRECT_USER);
                     router.refresh();
                 }, 100);
             }

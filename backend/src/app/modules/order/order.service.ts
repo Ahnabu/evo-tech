@@ -5,6 +5,7 @@ import httpStatus from "http-status";
 import { Cart } from "../cart/cart.model";
 import { Product } from "../product/product.model";
 import { v4 as uuidv4 } from "uuid";
+import { Types } from "mongoose";
 
 const generateOrderNumber = (): string => {
   const timestamp = Date.now().toString();
@@ -12,6 +13,20 @@ const generateOrderNumber = (): string => {
     .toString()
     .padStart(4, "0");
   return `ORD-${timestamp}-${random}`;
+};
+
+// Ensure returned order objects have both `firstname`/`lastname` (existing DB fields)
+// and camelCase `firstName`/`lastName` so frontend consumers can use either.
+export const normalizeOrderObject = (orderDoc: any) => {
+  if (!orderDoc) return orderDoc;
+  const obj = orderDoc.toObject ? orderDoc.toObject() : { ...orderDoc };
+  // prefer existing camelCase if present, otherwise map from lowercase
+  obj.firstName = obj.firstName || obj.firstname || "";
+  obj.lastName = obj.lastName || obj.lastname || "";
+  // also keep the original lowercase fields to avoid breaking consumers
+  obj.firstname = obj.firstname || obj.firstName || "";
+  obj.lastname = obj.lastname || obj.lastName || "";
+  return obj;
 };
 
 const placeOrderIntoDB = async (payload: TOrder, userUuid: string) => {
@@ -64,7 +79,7 @@ const placeOrderIntoDB = async (payload: TOrder, userUuid: string) => {
   );
 
   return {
-    order: fullOrder,
+    order: normalizeOrderObject(fullOrder),
     items: orderItems,
   };
 };
@@ -90,12 +105,55 @@ const getUserOrdersFromDB = async (
   const result = await Order.find(searchQuery)
     .skip(skip)
     .limit(limit)
-    .sort({ createdAt: -1 });
+    .sort({ createdAt: -1 })
+    .lean();
+
+  let itemCountMap = new Map<string, { quantity: number; lines: number }>();
+  if (result.length) {
+    const orderIds = result
+      .map((order) => order._id)
+      .filter(Boolean)
+      .map((id) =>
+        typeof id === "string" ? new Types.ObjectId(id) : (id as Types.ObjectId)
+      );
+
+    if (orderIds.length) {
+      const counts = await OrderItem.aggregate<{
+        _id: Types.ObjectId;
+        quantity: number;
+        lines: number;
+      }>([
+        { $match: { order: { $in: orderIds } } },
+        {
+          $group: {
+            _id: "$order",
+            quantity: { $sum: "$quantity" },
+            lines: { $sum: 1 },
+          },
+        },
+      ]);
+
+      itemCountMap = new Map(
+        counts.map((entry) => [
+          entry._id.toString(),
+          { quantity: entry.quantity, lines: entry.lines },
+        ])
+      );
+    }
+  }
 
   const total = await Order.countDocuments(searchQuery);
 
   return {
-    result,
+    result: result.map((r) => {
+      const normalized = normalizeOrderObject(r);
+      const countInfo = itemCountMap.get(r._id?.toString?.() || "");
+      return {
+        ...normalized,
+        itemsCount: countInfo?.quantity ?? 0,
+        lineItemsCount: countInfo?.lines ?? 0,
+      };
+    }),
     meta: {
       page,
       limit,
@@ -140,7 +198,7 @@ const getAllOrdersFromDB = async (query: Record<string, unknown>) => {
   const total = await Order.countDocuments(searchQuery);
 
   return {
-    result,
+    result: result.map((r) => normalizeOrderObject(r)),
     meta: {
       page,
       limit,
@@ -166,7 +224,7 @@ const getSingleOrderFromDB = async (orderId: string, userUuid?: string) => {
   );
 
   return {
-    order,
+    order: normalizeOrderObject(order),
     items: orderItems,
   };
 };

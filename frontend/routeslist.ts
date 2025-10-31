@@ -46,7 +46,7 @@ export const apiAuthPrefix = "/api/auth";
 /**
  * default route for users to redirect to after signing-in
  */
-export const DEFAULT_SIGNIN_REDIRECT_USER = "/"
+export const DEFAULT_SIGNIN_REDIRECT_USER = "/user/dashboard"
 
 /**
  * default route for admins to redirect to after signing-in

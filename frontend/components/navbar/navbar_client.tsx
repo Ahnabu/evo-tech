@@ -267,8 +267,16 @@ const NavbarClient = ({
         return "/employee/dashboard";
       case "user":
       default:
-        return "/dashboard";
+        return "/user/dashboard";
     }
+  };
+
+  const getProfileUrl = (userRole: string) => {
+    return userRole?.toLowerCase() === "user" ? "/user/dashboard/profile" : "/profile";
+  };
+
+  const getOrderHistoryUrl = (userRole: string) => {
+    return userRole?.toLowerCase() === "user" ? "/user/dashboard/order-history" : "/order-history";
   };
 
   return (
@@ -387,7 +395,7 @@ const NavbarClient = ({
                     >
                       <DropdownMenu.Item asChild>
                         <Link
-                          href="/profile"
+                          href={getProfileUrl(currentUser.role || "user")}
                           className="flex items-center gap-3 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100"
                         >
                           <TbUser className="w-4 h-4" />
@@ -405,7 +413,7 @@ const NavbarClient = ({
                       </DropdownMenu.Item>
                       <DropdownMenu.Item asChild>
                         <Link
-                          href="/order-history"
+                          href={getOrderHistoryUrl(currentUser.role || "user")}
                           className="flex items-center gap-3 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100"
                         >
                           <BiPackage className="w-4 h-4" />

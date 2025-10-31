@@ -7,7 +7,7 @@ import QuantityAdjuster from "@/components/quantity-adjuster";
 import ColorSelector from "@/components/color-selector";
 import { toast } from "sonner";
 import { CustomToast } from "@/components/ui/customtoast";
-import axios from "@/utils/axios/axios";
+import axiosLocal from "@/utils/axios/axiosLocal";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -96,7 +96,7 @@ const ItemInteractivePart = ({ singleitem }: {
             };
         }
 
-        const cartResponse = await axios.post(`/api/cart/add`, {
+    const cartResponse = await axiosLocal.post(`/api/shopping/add`, {
             item_id: singleitem.itemid,
             item_price: singleitem.i_price,
             item_quantity: itemQuantity,
@@ -161,7 +161,7 @@ const ItemInteractivePart = ({ singleitem }: {
             };
         }
 
-        const cartResponse = await axios.post(`/api/cart/add`, {
+    const cartResponse = await axiosLocal.post(`/api/shopping/add`, {
             item_id: singleitem.itemid,
             item_price: singleitem.i_price,
             item_quantity: itemQuantity,

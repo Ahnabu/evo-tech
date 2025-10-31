@@ -19,9 +19,12 @@ export function ConditionalLayout({ children }: { children: React.ReactNode }) {
                      pathname.startsWith('/forgot-password') || 
                      pathname.startsWith('/reset-password') ||
                      pathname.startsWith('/et-admin/auth');
+  
+  // Check if we're on any protected user routes (dashboard and nested pages)
+  const isUserProtectedRoute = pathname.startsWith('/user');
 
-  // For admin routes, employee routes, and auth routes, return children without wrapper
-  if (isAdminRoute || isEmployeeRoute || isAuthRoute) {
+  // For admin, employee, auth, and user dashboard routes, return children without the public navbar/footer
+  if (isAdminRoute || isEmployeeRoute || isAuthRoute || isUserProtectedRoute) {
     return <>{children}</>;
   }
 

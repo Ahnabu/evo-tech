@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { currencyFormatBDT } from "@/lib/all_utils";
-import axios from "@/utils/axios/axios";
+import axiosLocal from "@/utils/axios/axiosLocal";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { IoCart, IoClose } from "react-icons/io5";
 import { PiSmileySadLight } from "react-icons/pi";
@@ -36,8 +36,10 @@ const ManageCart = () => {
                 };
             }
 
-            const cartResponse = await axios.get(`/api/shopping/cart`, {
-                ...cartReqBody,
+            const cartResponse = await axiosLocal.get(`/api/shopping/cart`, {
+                params: {
+                    ...cartReqBody,
+                },
             }
             ).then((res) => res.data)
                 .catch((error: any) => {

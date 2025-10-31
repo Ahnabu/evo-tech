@@ -7,7 +7,7 @@ import { RiHeartLine } from "react-icons/ri";
 import { IoCart } from "react-icons/io5";
 import { toast } from "sonner";
 import { CustomToast } from "@/components/ui/customtoast";
-import axios from "@/utils/axios/axios";
+import axiosLocal from "@/utils/axios/axiosLocal";
 import axiosErrorLogger from "@/components/error/axios_error";
 
 
@@ -36,7 +36,7 @@ const ProductCard2 = ({ eachItem }: { eachItem: any; }) => {
             };
         }
 
-        const cartResponse = await axios.post(`/api/shopping/add`, {
+    const cartResponse = await axiosLocal.post(`/api/shopping/add`, {
             item_id: eachItem.itemid,
             item_quantity: 1,
             item_price: eachItem.i_price,

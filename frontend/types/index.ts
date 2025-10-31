@@ -25,6 +25,8 @@ export interface Order {
   user: string;
   firstname: string;
   lastname: string;
+  firstName?: string;
+  lastName?: string;
   phone: string;
   email: string;
   houseStreet: string;
@@ -51,13 +53,26 @@ export interface Order {
   deliveredAt?: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  itemsCount?: number;
+  lineItemsCount?: number;
 }
 
 // Dashboard types
+export interface UserDashboardRecentOrder {
+  _id?: string;
+  orderNumber: string;
+  totalPayable: number;
+  orderStatus: Order["orderStatus"];
+  paymentStatus: Order["paymentStatus"];
+  createdAt?: Date;
+  itemsCount?: number;
+  lineItemsCount?: number;
+}
+
 export interface UserDashboardStats {
   totalOrders: number;
   totalSpent: number;
-  recentOrders: Order[];
+  recentOrders: UserDashboardRecentOrder[];
   rewardPoints: number;
-  memberSince: Date;
+  memberSince?: Date | string;
 }

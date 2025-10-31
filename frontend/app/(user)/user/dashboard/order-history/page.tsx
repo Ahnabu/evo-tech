@@ -1,13 +1,11 @@
 'use client';
 
 import { useUserOrders } from '@/hooks/use-user-dashboard';
-import { useCurrentUser } from '@/hooks/use-current-user';
 import { currencyFormatBDT } from '@/lib/all_utils';
 import Link from 'next/link';
 
 export default function OrderHistoryPage() {
-    const currentUser = useCurrentUser();
-    const { orders, loading, error } = useUserOrders();
+    const { orders, meta, loading, error } = useUserOrders();
 
     if (loading) {
         return (
@@ -36,7 +34,7 @@ export default function OrderHistoryPage() {
                     <div className="text-center py-8">
                         <div className="text-red-600 mb-4">Error loading order history</div>
                         <p className="text-gray-600">{error}</p>
-                        <Link href="/dashboard" className="mt-4 inline-block text-blue-600 hover:text-blue-800">
+                        <Link href="/user/dashboard" className="mt-4 inline-block text-blue-600 hover:text-blue-800">
                             ← Back to Dashboard
                         </Link>
                     </div>
@@ -50,7 +48,7 @@ export default function OrderHistoryPage() {
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <Link href="/dashboard" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
+                    <Link href="/user/dashboard" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
                         ← Back to Dashboard
                     </Link>
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">
@@ -73,11 +71,13 @@ export default function OrderHistoryPage() {
                                                 Order #{order.orderNumber}
                                             </h3>
                                             <p className="text-sm text-gray-600">
-                                                Placed on {new Date(order.createdAt!).toLocaleDateString('en-US', {
-                                                    year: 'numeric',
-                                                    month: 'long',
-                                                    day: 'numeric'
-                                                })}
+                                                Placed on {order.createdAt
+                                                    ? new Date(order.createdAt).toLocaleDateString('en-US', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric'
+                                                    })
+                                                    : '—'}
                                             </p>
                                         </div>
                                         <div className="mt-4 lg:mt-0 flex flex-col lg:items-end space-y-2">
@@ -117,7 +117,9 @@ export default function OrderHistoryPage() {
                                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
                                             <div>
                                                 <span className="text-gray-600">Items:</span>
-                                                <span className="ml-2 font-medium">N/A</span>
+                                                <span className="ml-2 font-medium">
+                                                    {order.itemsCount ?? order.lineItemsCount ?? 0}
+                                                </span>
                                             </div>
                                             <div>
                                                 <span className="text-gray-600">Shipping:</span>
@@ -137,15 +139,18 @@ export default function OrderHistoryPage() {
                                     <div className="mt-4 pt-4 border-t">
                                         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                                             <Link
-                                                href={`/order-details/${order._id}`}
+                                                href={`/user/dashboard/order-details/${order._id}`}
                                                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-center"
                                             >
                                                 View Details
                                             </Link>
                                             {order.trackingCode && (
-                                                <button className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors">
+                                                <Link
+                                                    href={`/user/dashboard/order-details/${order._id}`}
+                                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors text-center"
+                                                >
                                                     Track Order
-                                                </button>
+                                                </Link>
                                             )}
                                             {order.orderStatus === 'delivered' && (
                                                 <button className="px-4 py-2 bg-green-200 text-green-700 rounded-md hover:bg-green-300 transition-colors">
@@ -185,9 +190,9 @@ export default function OrderHistoryPage() {
                     <div className="mt-8 bg-white rounded-lg shadow-md p-6">
                         <h2 className="text-lg font-semibold text-gray-900 mb-4">Order Summary</h2>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                <div className="text-2xl font-bold text-blue-600">{orders.length}</div>
-                                <div className="text-sm text-gray-600">Total Orders</div>
+                                <div className="text-center p-4 bg-gray-50 rounded-lg">
+                                    <div className="text-2xl font-bold text-blue-600">{meta?.total ?? orders.length}</div>
+                                    <div className="text-sm text-gray-600">Total Orders</div>
                             </div>
                             <div className="text-center p-4 bg-gray-50 rounded-lg">
                                 <div className="text-2xl font-bold text-green-600">
