@@ -9,6 +9,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import BannerCarousel from "@/components/carousels/bannercarousel";
 import LogoCarouselClient from "@/components/carousels/logocarousel-client";
 import ScrollProductsAlongX from "@/components/scroll_containers/scroll_products_x";
+import FeaturedCategories from "@/components/cards/featuredcategories";
 
 import { LiaShippingFastSolid, LiaHeadsetSolid } from "react-icons/lia";
 import { IoShieldCheckmarkOutline } from "react-icons/io5";
@@ -22,7 +23,6 @@ import Collectible3DModel from "@/public/assets/application_fields/thundar-north
 import Gaming3DModel from "@/public/assets/application_fields/chess-pieces-3d-model.jpg";
 import Designers3DModel from "@/public/assets/application_fields/minimalist-vase-3d-model.png";
 import Industry3DModel from "@/public/assets/application_fields/industrial-robot-arm-clean-3d-Model.png";
-import FeaturedCategories from "@/components/cards/featuredcategories";
 
 export const metadata: Metadata = {
   title: {
@@ -301,20 +301,23 @@ const Home = () => {
           </div>
         </div>
       </div>
+
+      {/* Featured Categories Section - After Banner */}
       <FeaturedCategories />
+
       <div className="w-full max-w-[1440px] h-fit pb-12 flex flex-col items-center font-inter">
-        {/* <div
+        <div
           id="products-sections"
           className="flex flex-col items-center w-full h-fit px-4 sm:px-8 md:px-12 pt-10 pb-4 sm:pb-5 gap-8 sm:gap-10 bg-[#eeeeee]"
         >
           <Suspense fallback={<ProductsLoader />}>
             <LandingProductsSections />
           </Suspense>
-        </div> */}
+        </div>
 
         <div
           id="application_fields"
-          className="flex flex-col items-center w-full min-h-[400px] px-4 sm:px-8 py-8 gap-8 bg-[radial-gradient(at_center,_var(--tw-gradient-stops))] from-[#f0f7fc] to-[#eeeeee] to-40%"
+          className="flex flex-col items-center w-full min-h-[400px] px-4 sm:px-8 md:px-12 py-12 gap-8 bg-[radial-gradient(at_center,_var(--tw-gradient-stops))] from-[#f0f7fc] to-[#eeeeee] to-40%"
         >
           <h2 className="flex justify-center w-full h-fit mt-4 px-3 py-1 font-[600] text-[20px] sm:text-[24px] leading-8 text-stone-700 text-center">
             Application Fields

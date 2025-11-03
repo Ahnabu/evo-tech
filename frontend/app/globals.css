@@ -10,7 +10,7 @@
     --card-foreground: 224 71.4% 4.1%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 71.4% 4.1%;
-    --primary: 220.9 39.3% 11%;
+    --primary: #0ea5e9 39.3% 11%;
     --primary-foreground: 210 20% 98%;
     --secondary: 220 14.3% 95.9%;
     --secondary-foreground: 220.9 39.3% 11%;
@@ -37,6 +37,9 @@
     --sidebar-accent-foreground: 240 5.9% 10%;
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Brand color (from logo) */
+    --brand: #0ea5e9;
+    --brand-rgb: 14 165 233;
   }
   .dark {
     --background: 224 71.4% 4.1%;
@@ -160,4 +163,68 @@ end of components/carousels/bannercarousel.tsx
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Category Swiper Custom Styles */
+.category-swiper {
+  padding: 4px 0;
+}
+
+.category-swiper .swiper-slide {
+  height: auto;
+  display: flex;
+}
+
+/* Hide scrollbar for category strip */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Brand color utility overrides: map common Tailwind emerald-* classes to project brand color */
+/* Using !important to ensure these override precompiled Tailwind utilities where necessary */
+.text-emerald-600 {
+  color: var(--brand) !important;
+}
+.text-emerald-400 {
+  color: rgba(var(--brand-rgb), 0.95) !important;
+}
+.bg-emerald-600 {
+  background-color: var(--brand) !important;
+}
+.bg-emerald-700 {
+  background-color: rgba(var(--brand-rgb), 0.9) !important;
+}
+.hover\:bg-emerald-700:hover {
+  background-color: rgba(var(--brand-rgb), 0.9) !important;
+}
+.bg-emerald-50 {
+  background-color: rgba(var(--brand-rgb), 0.06) !important;
+}
+.text-emerald-50 {
+  color: rgba(var(--brand-rgb), 0.06) !important;
+}
+.from-emerald-800 {
+  --tw-gradient-from: var(--brand) !important;
+}
+.to-emerald-700 {
+  --tw-gradient-to: var(--brand) !important;
+}
+.hover\:text-emerald-400:hover {
+  color: var(--brand) !important;
+}
+.group-hover\:text-emerald-400:hover {
+  color: var(--brand) !important;
+}
+
+/* Buttons and accent overrides */
+.border-emerald-600 {
+  border-color: var(--brand) !important;
+}
+.ring-emerald-600 {
+  box-shadow: 0 0 0 3px rgba(var(--brand-rgb), 0.15) !important;
 }

@@ -48,7 +48,7 @@ const BannerCarousel = ({
       >
         {slides.map((slide, index) => (
           <SwiperSlide key={`slide${index}`} className="relative w-full h-full">
-            <div className="relative w-full h-full overflow-hidden bg-gradient-to-br from-stone-100 via-stone-50 to-stone-100">
+            <div className="relative w-full h-full overflow-hidden ">
               {/* Background Image with overlay */}
               <div className="absolute inset-0 z-[1]">
                 <Image

@@ -109,6 +109,9 @@ const productSchema = new Schema<TProduct>(
     preOrderDate: {
       type: Date,
     },
+    preOrderPrice: {
+      type: Number,
+    },
     seoTitle: {
       type: String,
     },

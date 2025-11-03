@@ -8,7 +8,7 @@ const router = express.Router();
 // Cart Routes
 router.get(
   "/cart",
-  auth(USER_ROLE.USER, USER_ROLE.ADMIN),
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   CartControllers.getCart
 );
 router.post(

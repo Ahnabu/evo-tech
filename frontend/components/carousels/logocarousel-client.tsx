@@ -15,35 +15,35 @@ const LogoCarouselClient = memo(() => {
     const [logos, setLogos] = useState<LogoData[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        let isMounted = true;
+    // useEffect(() => {
+    //     let isMounted = true;
 
-        const fetchLogos = async () => {
-            try {
-                const response = await axios.get('/api/clients');
-                const clientsData = response.data.clients || [];
+    //     const fetchLogos = async () => {
+    //         try {
+    //             const response = await axios.get('/api/clients');
+    //             const clientsData = response.data.clients || [];
                 
-                if (isMounted) {
-                    setLogos(clientsData);
-                }
-            } catch (error: any) {
-                axiosErrorLogger({ error });
-                if (isMounted) {
-                    setLogos([]);
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
-        };
+    //             if (isMounted) {
+    //                 setLogos(clientsData);
+    //             }
+    //         } catch (error: any) {
+    //             axiosErrorLogger({ error });
+    //             if (isMounted) {
+    //                 setLogos([]);
+    //             }
+    //         } finally {
+    //             if (isMounted) {
+    //                 setIsLoading(false);
+    //             }
+    //         }
+    //     };
 
-        fetchLogos();
+    //     fetchLogos();
 
-        return () => {
-            isMounted = false;
-        };
-    }, []);
+    //     return () => {
+    //         isMounted = false;
+    //     };
+    // }, []);
 
     if (isLoading) {
         return (

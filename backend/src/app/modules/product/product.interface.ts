@@ -27,6 +27,7 @@ export interface TProduct {
   isFeatured?: boolean;
   isPreOrder?: boolean;
   preOrderDate?: Date;
+  preOrderPrice?: number;
   seoTitle?: string;
   seoDescription?: string;
   createdAt?: Date;

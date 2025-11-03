@@ -4,25 +4,34 @@ import { useCategory } from "@/hooks/use-taxonomy";
 import { useState, useEffect } from "react";
 
 const DynamicTextBySlug = ({ slug }: { slug: string }) => {
-    const [mounted, setMounted] = useState(false);
-    const category = useCategory(slug);
+  const [mounted, setMounted] = useState(false);
+  const category = useCategory(slug);
 
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-    const displayText = (mounted && category?.name) ? ` ${category.name}` : ` What Fits Your Needs`;
+  const displayText =
+    mounted && category?.name ? ` ${category.name}` : ` What Fits Your Needs`;
 
-    return (
-        <div className="flex flex-col items-center justify-end w-full h-[250px] md:h-[300px] pt-[90px] sm:pt-[98px] pb-10 bg-gradient-to-br from-stone-950 via-stone-600 via-60% to-stone-900 translate-y-[-60px] sm:translate-y-[-68px] mb-[-60px] sm:mb-[-68px]">
-            {mounted && (
-                <h1 className="w-fit h-fit px-4 py-4 text-[16px] sm:text-[18px] leading-7 md:text-2xl font-[500] text-stone-100 first-letter:text-[22px] md:first-letter:text-[30px]">
-                    <span className="text-sky-400">Select</span>
-                    {displayText}
-                </h1>)
-            }
+  return (
+    // Shorter hero: 140-160px. Use a lightweight gradient background (no large images).
+    <div className="flex flex-col items-center justify-center w-full h-[140px] md:h-[160px] pt-6 md:pt-8 pb-4 bg-gradient-to-r from-stone-900 via-stone-800 to-stone-700">
+      {mounted && (
+        <div className="text-center px-4">
+          <h1 className="inline-block px-2 py-1 text-[18px] md:text-2xl font-semibold text-stone-100">
+            <span className="text-sky-400">Select</span>
+            {displayText}
+          </h1>
+          {category?.description && (
+            <p className="mt-2 text-sm text-stone-200 max-w-2xl">
+              {category.description}
+            </p>
+          )}
         </div>
-    );
-}
+      )}
+    </div>
+  );
+};
 
 export default DynamicTextBySlug;

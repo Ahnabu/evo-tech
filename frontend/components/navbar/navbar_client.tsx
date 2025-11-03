@@ -24,179 +24,6 @@ import { getNameInitials } from "@/utils/essential_functions";
 import type { NavbarMenuType1 } from "./navbar";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import {
-  selectTaxonomyCategories,
-  selectTaxonomyLoading,
-  type TaxonomyCategory,
-} from "@/store/slices/taxonomySlice";
-import type { RootState } from "@/store/store";
-
-const ProductsDropdown = () => {
-  const categories = useSelector((state: RootState) =>
-    selectTaxonomyCategories(state)
-  );
-  const isLoading = useSelector((state: RootState) =>
-    selectTaxonomyLoading(state)
-  );
-  const [subMenu1, setSubMenu1] = useState<TaxonomyCategory | null>(null);
-  const [subMenu2, setSubMenu2] = useState<any>(null);
-
-  const showSubMenu1 = (category: TaxonomyCategory) => {
-    if (subMenu2) setSubMenu2(null);
-    setSubMenu1(category);
-  };
-  const hideSubMenu1 = () => setSubMenu1(null);
-  const showSubMenu2 = (subcategory: any) => setSubMenu2(subcategory);
-  const hideSubMenu2 = () => setSubMenu2(null);
-
-  if (isLoading) {
-    return (
-      <div className="z-[18] absolute top-full left-1/2 -translate-x-1/2 px-3 gap-x-1 hidden group-hover:flex w-fit h-fit max-w-full rounded-[4px] overflow-hidden group-hover:animate-slow-reveal-flex text-[13px] leading-5 tracking-tight font-[600] text-stone-600 bg-[#ebebeb]/95 shadow-md shadow-black/10">
-        <div className="w-[260px] h-[300px] max-h-[calc(100vh-100px)] pt-8 pb-3 flex flex-col items-center justify-center">
-          <p className="text-stone-500">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="z-[18] absolute top-full left-1/2 -translate-x-1/2 px-3 gap-x-1 hidden group-hover:flex w-fit h-fit max-w-full rounded-[4px] overflow-hidden group-hover:animate-slow-reveal-flex text-[13px] leading-5 tracking-tight font-[600] text-stone-600 bg-[#ebebeb]/95 shadow-md shadow-black/10">
-      <div className="w-[260px] h-[300px] max-h-[calc(100vh-100px)] pt-8 pb-3 flex flex-col items-center group-hover:animate-go-up overflow-auto scrollbar-hide">
-        <div className="w-full h-fit py-px flex">
-          <Link
-            href="/products-and-accessories/all"
-            className="w-full h-fit flex items-center bg-[#fefefe] hover:bg-stone-700 hover:text-stone-100 rounded-[2px] transition duration-100 ease-linear"
-          >
-            <p className="w-fit px-2 py-2">All Categories</p>
-          </Link>
-        </div>
-
-        {categories.length > 0
-          ? categories.map((category) => (
-              <div
-                key={`prod_menu${category.id}`}
-                className="w-full h-fit py-px flex"
-              >
-                <Link
-                  href={`/products-and-accessories${category.url}`}
-                  className={`w-full h-fit flex items-center ${
-                    subMenu1 && subMenu1?.id === category.id
-                      ? "bg-stone-700 text-stone-100"
-                      : "bg-[#fefefe]"
-                  } hover:bg-stone-700 hover:text-stone-100 rounded-[2px] transition duration-100 ease-linear`}
-                >
-                  <p className="w-fit px-2 py-2">{category.name}</p>
-                </Link>
-                {category.has_subcategories ? (
-                  subMenu1 && subMenu1?.id === category.id ? (
-                    <button
-                      onClick={hideSubMenu1}
-                      title="back"
-                      aria-label="back to categories"
-                      className="min-w-7 w-7 h-[36px] flex justify-center items-center ml-0.5 rounded-[2px] bg-stone-500 hover:bg-stone-950 cursor-pointer"
-                    >
-                      <MdChevronLeft className="inline w-4 h-4 text-white" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => showSubMenu1(category)}
-                      title="open"
-                      aria-label={`open subcategories for ${category.name}`}
-                      className="min-w-7 w-7 h-[36px] flex justify-center items-center ml-0.5 rounded-[2px] bg-stone-500 hover:bg-stone-950 cursor-pointer"
-                    >
-                      <MdChevronRight className="inline w-4 h-4 text-white" />
-                    </button>
-                  )
-                ) : null}
-              </div>
-            ))
-          : null}
-      </div>
-
-      {subMenu1 && (
-        <div className="w-[250px] h-[300px] max-h-[calc(100vh-100px)] pt-8 pb-3 pl-2 flex flex-col items-center border-l-2 border-dotted border-stone-700/20 animate-go-up overflow-auto scrollbar-hide">
-          <p className="flex w-full h-fit py-1 mb-3 justify-center bg-gradient-to-r from-transparent via-stone-400/20 to-transparent">
-            {subMenu1.name}
-          </p>
-          {subMenu1.subcategories.map((subcategory) => (
-            <div
-              key={`pr_submenu_1_item${subcategory.id}`}
-              className="w-full h-fit py-px flex"
-            >
-              <Link
-                href={`/products-and-accessories${subcategory.url}`}
-                className={`w-full h-fit flex items-center ${
-                  subMenu2 && subMenu2?.id === subcategory.id
-                    ? "bg-stone-700 text-stone-100"
-                    : "bg-[#fefefe]"
-                } hover:bg-stone-700 hover:text-stone-100 rounded-[2px] transition duration-100 ease-linear`}
-              >
-                <p className="w-fit px-2 py-2">{subcategory.name}</p>
-              </Link>
-              {subcategory.brands.length > 0 ? (
-                subMenu2 && subMenu2?.id === subcategory.id ? (
-                  <button
-                    onClick={hideSubMenu2}
-                    title="back"
-                    aria-label="back to subcategories"
-                    className="min-w-7 w-7 h-[36px] flex justify-center items-center ml-0.5 rounded-[2px] bg-stone-500 hover:bg-stone-950 cursor-pointer"
-                  >
-                    <MdChevronLeft className="inline w-4 h-4 text-white" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => showSubMenu2(subcategory)}
-                    title="open"
-                    aria-label={`open brands for ${subcategory.name}`}
-                    className="min-w-7 w-7 h-[36px] flex justify-center items-center ml-0.5 rounded-[2px] bg-stone-500 hover:bg-stone-950 cursor-pointer"
-                  >
-                    <MdChevronRight className="inline w-4 h-4 text-white" />
-                  </button>
-                )
-              ) : null}
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-};
-
-const ServicesDropdown = ({ services = [] }: { services?: any[] }) => {
-  return (
-    <div className="z-[18] absolute top-full left-1/2 -translate-x-1/2 min-[1201px]:rounded-[4px] w-full max-w-[1200px] max-h-[calc(100vh-100px)] overflow-y-auto scrollbar-hide hidden group-hover:flex justify-center items-start px-8 py-3 bg-[#ebebeb]/95 shadow-md shadow-black/10 group-hover:animate-slow-reveal-flex">
-      <div className="w-full h-[250px] flex justify-center items-center gap-6 group-hover:animate-go-up">
-        {services.length > 0 &&
-          services.map((service: any, index: number) => (
-            <ServiceCard
-              key={`service_${index}`}
-              gotourl={service.gotourl}
-              imgsrc={service.imgsrc}
-              name={service.name}
-            />
-          ))}
-      </div>
-    </div>
-  );
-};
-
-const SupportDropdown = ({ support = [] }: { support?: any[] }) => {
-  return (
-    <div className="z-[18] absolute top-full left-1/2 -translate-x-1/2 min-[1201px]:rounded-[4px] w-full max-w-[1200px] max-h-[calc(100vh-100px)] overflow-y-auto scrollbar-hide hidden group-hover:flex justify-center items-start px-8 py-3 bg-[#ebebeb]/95 shadow-md shadow-black/10 group-hover:animate-slow-reveal-flex">
-      <div className="w-full h-[250px] flex justify-center items-center gap-6 group-hover:animate-go-up">
-        {support.length > 0 &&
-          support.map((supportitem: any, index: number) => (
-            <ServiceCard
-              key={`support_${index}`}
-              gotourl={supportitem.gotourl}
-              imgsrc={supportitem.imgsrc}
-              name={supportitem.name}
-            />
-          ))}
-      </div>
-    </div>
-  );
-};
 
 const NavbarClient = ({
   services,
@@ -232,7 +59,7 @@ const NavbarClient = ({
   const handleSignOutDebounced = useDebounce(async () => {
     try {
       const result = await logout();
-      
+
       if (result?.success) {
         const response = await signOut({ redirect: false, callbackUrl: "/" });
 
@@ -272,11 +99,15 @@ const NavbarClient = ({
   };
 
   const getProfileUrl = (userRole: string) => {
-    return userRole?.toLowerCase() === "user" ? "/user/dashboard/profile" : "/profile";
+    return userRole?.toLowerCase() === "user"
+      ? "/user/dashboard/profile"
+      : "/profile";
   };
 
   const getOrderHistoryUrl = (userRole: string) => {
-    return userRole?.toLowerCase() === "user" ? "/user/dashboard/order-history" : "/order-history";
+    return userRole?.toLowerCase() === "user"
+      ? "/user/dashboard/order-history"
+      : "/order-history";
   };
 
   return (
@@ -297,10 +128,10 @@ const NavbarClient = ({
               <span className="text-stone-800 font-[600]">Need Help?</span>
             </button>
             <div className="flex items-center gap-2">
-              <div className="px-3 py-1 rounded-full border border-green-600 text-green-800 font-[600]">
+              <div className="px-3 py-1 rounded-full border border-brand-600 text-brand-600 font-[600]">
                 01518949050
               </div>
-              <button className="px-3 py-1 rounded-full bg-green-800 text-white">
+              <button className="px-3 py-1 rounded-full bg-brand-600 text-white">
                 Call Us
               </button>
             </div>
@@ -365,7 +196,7 @@ const NavbarClient = ({
                     <DropdownMenu.Trigger asChild>
                       <button
                         aria-label="user menu"
-                        className="flex items-center gap-3 hover:bg-stone-50 p-2 rounded-lg transition-colors"
+                        className="flex items-center rounded-lg"
                       >
                         <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                           <Avatar
@@ -376,15 +207,6 @@ const NavbarClient = ({
                             classNames={{ base: "w-6 h-6" }}
                           />
                         </div>
-                        <div className="hidden sm:block text-left">
-                          <div className="text-sm font-[600] text-stone-700">
-                            {currentUser.firstName}
-                          </div>
-                          <div className="text-xs text-stone-500 capitalize">
-                            {currentUser.role?.toLowerCase() || 'User'}
-                          </div>
-                        </div>
-                        <IoChevronDown className="hidden sm:block w-4 h-4 text-stone-500" />
                       </button>
                     </DropdownMenu.Trigger>
 
@@ -436,26 +258,23 @@ const NavbarClient = ({
                   <>
                     {/* Desktop Sign In/Sign Up */}
                     <div className="hidden sm:flex items-center gap-4">
-                      <Link 
-                        href="/login" 
+                      <Link
+                        href="/login"
                         className="text-sm font-medium text-stone-700 hover:text-stone-900 transition-colors"
                       >
                         Sign in
                       </Link>
-                      <Link 
-                        href="/register" 
+                      <Link
+                        href="/register"
                         className="px-4 py-2 text-sm font-medium bg-[#0866FF] text-white rounded-lg hover:bg-[#0653D3] transition-colors"
                       >
                         Sign up
                       </Link>
                     </div>
-                    
+
                     {/* Mobile Sign In Button */}
                     <div className="sm:hidden">
-                      <Link 
-                        href="/login"
-                        className="flex items-center gap-2"
-                      >
+                      <Link href="/login" className="flex items-center gap-2">
                         <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                           <TbUser className="w-5 h-5 text-stone-700" />
                         </div>
@@ -522,7 +341,7 @@ const NavbarClient = ({
         </div>
       </div>
 
-      <div aria-hidden className="h-6 lg:h-8"></div>
+      <div aria-hidden className="h-2 lg:h-3"></div>
     </>
   );
 };
