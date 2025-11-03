@@ -20,7 +20,7 @@ router.post(
 );
 router.put(
   "/:id",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("mainImage"),
   parseBody,
   ProductControllers.updateProduct

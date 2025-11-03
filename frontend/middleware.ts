@@ -79,10 +79,23 @@ export default middleware( async (request) => {
             return response;
         }
 
-        // redirect if protected route but the user is not authenticated
-        if (isProtectedRoute && (!isLoggedIn || !userSession)) {
-            const response = NextResponse.redirect(new URL("/login", nextUrl));
-            response.cookies.delete('last_pg');
+        if (isProtectedRoute) {
+            if (!isLoggedIn || !userSession) {
+                const response = NextResponse.redirect(new URL("/login", nextUrl));
+                response.cookies.delete('last_pg');
+                return response;
+            }
+
+            if (userRole === "ADMIN") {
+                return NextResponse.redirect(new URL(DEFAULT_SIGNIN_REDIRECT_ADMIN, nextUrl));
+            }
+
+            if (userRole === "EMPLOYEE") {
+                return NextResponse.redirect(new URL(DEFAULT_SIGNIN_REDIRECT_EMPLOYEE, nextUrl));
+            }
+
+            const response = NextResponse.next();
+            response.cookies.set("last_pg", nextUrl.pathname, { path: "/" });
             return response;
         }
 

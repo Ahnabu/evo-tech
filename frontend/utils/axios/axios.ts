@@ -9,20 +9,24 @@ const ensureApiV1Path = (instance: AxiosInstance, url?: string) => {
 
   const normalized = url.startsWith("/") ? url : `/${url}`;
 
-  if (normalized.startsWith("/api/v1")) {
-    return normalized;
-  }
-
   const baseUrl = instance.defaults.baseURL ?? "";
   const baseHasApiPrefix =
     typeof baseUrl === "string" && baseUrl.includes("/api/v1");
 
-  if (baseHasApiPrefix) {
+  if (normalized.startsWith("/api/v1")) {
     return normalized;
   }
 
   if (normalized.startsWith("/api/")) {
+    if (baseHasApiPrefix) {
+      return normalized.replace(/^\/api\//, "/");
+    }
+
     return normalized.replace(/^\/api\//, "/api/v1/");
+  }
+
+  if (baseHasApiPrefix) {
+    return normalized;
   }
 
   return `/api/v1${normalized}`;
@@ -31,13 +35,15 @@ const ensureApiV1Path = (instance: AxiosInstance, url?: string) => {
 const attachApiPrefix = (instance: AxiosInstance) => {
   instance.interceptors.request.use(
     (config) => {
-      // Don't modify URL if baseURL already contains /api/v1
-      const baseUrl = instance.defaults.baseURL ?? "";
-      if (baseUrl.includes("/api/v1")) {
-        // Base URL already has /api/v1, don't add it again
-        return config;
+      const baseUrl = config.baseURL ?? instance.defaults.baseURL ?? "";
+      const currentUrl = config.url ?? "";
+      
+      // If baseURL already contains /api/v1, strip /api prefix from relative URLs
+      if (baseUrl.includes("/api/v1") && currentUrl.startsWith("/api/")) {
+        config.url = currentUrl.replace(/^\/api\//, "/");
+      } else if (!baseUrl.includes("/api/v1")) {
+        config.url = ensureApiV1Path(instance, currentUrl);
       }
-      config.url = ensureApiV1Path(instance, config.url ?? undefined);
       return config;
     },
     (error) => Promise.reject(error)

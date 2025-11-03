@@ -12,20 +12,24 @@ const ensureApiV1Path = (instance: AxiosInstance, url?: string) => {
 
   const normalized = url.startsWith("/") ? url : `/${url}`;
 
-  if (normalized.startsWith("/api/v1")) {
-    return normalized;
-  }
-
   const baseUrl = instance.defaults.baseURL ?? "";
   const baseHasApiPrefix =
     typeof baseUrl === "string" && baseUrl.includes("/api/v1");
 
-  if (baseHasApiPrefix) {
+  if (normalized.startsWith("/api/v1")) {
     return normalized;
   }
 
   if (normalized.startsWith("/api/")) {
+    if (baseHasApiPrefix) {
+      return normalized.replace(/^\/api\//, "/");
+    }
+
     return normalized.replace(/^\/api\//, "/api/v1/");
+  }
+
+  if (baseHasApiPrefix) {
+    return normalized;
   }
 
   return `/api/v1${normalized}`;
@@ -46,10 +50,15 @@ const createAxiosClient = async () => {
 
   axiosClient.interceptors.request.use(
     (config) => {
-      // Don't modify URL if baseURL already contains /api/v1
-      const baseUrl = axiosClient.defaults.baseURL ?? "";
-      if (!baseUrl.includes("/api/v1")) {
-        config.url = ensureApiV1Path(axiosClient, config.url ?? undefined);
+      // Only transform URL if baseURL doesn't already contain /api/v1
+      const baseUrl = config.baseURL ?? axiosClient.defaults.baseURL ?? "";
+      const currentUrl = config.url ?? "";
+      
+      // If baseURL already contains /api/v1, strip /api prefix from relative URLs
+      if (baseUrl.includes("/api/v1") && currentUrl.startsWith("/api/")) {
+        config.url = currentUrl.replace(/^\/api\//, "/");
+      } else if (!baseUrl.includes("/api/v1")) {
+        config.url = ensureApiV1Path(axiosClient, currentUrl);
       }
       return config;
     },
@@ -95,10 +104,15 @@ export const createAxiosClientWithSession = (session: any) => {
 
   axiosClient.interceptors.request.use(
     (config) => {
-      // Don't modify URL if baseURL already contains /api/v1
-      const baseUrl = axiosClient.defaults.baseURL ?? "";
-      if (!baseUrl.includes("/api/v1")) {
-        config.url = ensureApiV1Path(axiosClient, config.url ?? undefined);
+      // Only transform URL if baseURL doesn't already contain /api/v1
+      const baseUrl = config.baseURL ?? axiosClient.defaults.baseURL ?? "";
+      const currentUrl = config.url ?? "";
+      
+      // If baseURL already contains /api/v1, strip /api prefix from relative URLs
+      if (baseUrl.includes("/api/v1") && currentUrl.startsWith("/api/")) {
+        config.url = currentUrl.replace(/^\/api\//, "/");
+      } else if (!baseUrl.includes("/api/v1")) {
+        config.url = ensureApiV1Path(axiosClient, currentUrl);
       }
       return config;
     },
