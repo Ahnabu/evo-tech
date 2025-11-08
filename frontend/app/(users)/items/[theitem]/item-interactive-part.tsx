@@ -7,14 +7,20 @@ import QuantityAdjuster from "@/components/quantity-adjuster";
 import ColorSelector from "@/components/color-selector";
 import { toast } from "sonner";
 import { CustomToast } from "@/components/ui/customtoast";
-import axiosLocal from "@/utils/axios/axiosLocal";
-import axiosErrorLogger from "@/components/error/axios_error";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState } from "@/store/store";
+import { setCartData } from "@/store/slices/cartslice";
+import type { CartItem } from "@/schemas/cartSchema";
 
 const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
   const searchParams = useSearchParams();
   const pathName = usePathname();
   const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const cartItems = useSelector(
+    (state: RootState) => state.shoppingcart.cartdata
+  );
   const [itemQuantity, setItemQuantity] = useState<number | string>(1);
 
   const createQueryString = useCallback(
@@ -68,7 +74,8 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
     router.replace(`${pathName}?${newQueryString}`, { scroll: false });
   };
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
+    // Validate color selection for filaments
     if (
       singleitem.i_subcategory &&
       singleitem.i_colors &&
@@ -90,56 +97,42 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
       }
     }
 
-    if (typeof itemQuantity === "string") {
+    // Validate quantity
+    if (typeof itemQuantity === "string" || itemQuantity <= 0) {
       toast.error("Empty or invalid quantity");
       return;
     }
 
-    const localevoFrontCart = localStorage.getItem("evoFrontCart");
-    const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : null;
+    // Get current cart from Redux/localStorage
+    const currentCart = cartItems || [];
 
-    let cartreqbody = {};
-    if (parsedCart && parsedCart.ctoken) {
-      cartreqbody = {
-        cart_t: parsedCart.ctoken,
-      };
-    }
+    // Check if item already exists in cart
+    const existingItemIndex = currentCart.findIndex(
+      (item) =>
+        item.item_id === singleitem.itemid &&
+        (item.item_color || "").toLowerCase() ===
+          (itemColorfromURL || "").toLowerCase()
+    );
 
-    const cartResponse = await axiosLocal
-      .post(`/api/shopping/add`, {
-        item_id: singleitem.itemid,
-        item_price: singleitem.i_price,
-        item_quantity: itemQuantity,
-        item_color: itemColorfromURL.toLowerCase(),
-        ...cartreqbody,
-      })
-      .then((res) => res.data)
-      .catch((error: any) => {
-        axiosErrorLogger({ error });
-        return null;
-      });
+    let updatedCart: CartItem[];
 
-    if (
-      cartResponse &&
-      cartResponse.message &&
-      cartResponse.message === "Item added to cart"
-    ) {
-      const cartlocal: { items: any[]; ctoken: string } = {
-        items: cartResponse.cartdata,
-        ctoken: cartResponse.ctoken,
+    if (existingItemIndex >= 0) {
+      // Item exists - update quantity
+      const existingItem = currentCart[existingItemIndex];
+      const newQuantity = existingItem.item_quantity + Number(itemQuantity);
+
+      // Optional: Add quantity limit check
+      if (newQuantity > 9999) {
+        toast.error("Quantity limit reached (max: 9999)");
+        return;
+      }
+
+      updatedCart = [...currentCart];
+      updatedCart[existingItemIndex] = {
+        ...existingItem,
+        item_quantity: newQuantity,
       };
-      setCartLocal(cartlocal);
-      toast.success("Item added to cart");
-    } else if (
-      cartResponse &&
-      cartResponse.message &&
-      cartResponse.message === "Item already in cart, quantity updated"
-    ) {
-      const cartlocal: { items: any[]; ctoken: string } = {
-        items: cartResponse.cartdata,
-        ctoken: cartResponse.ctoken,
-      };
-      setCartLocal(cartlocal);
+
       toast.custom(
         (t) => (
           <CustomToast
@@ -149,109 +142,40 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
                 Item already in cart, quantity increased
               </span>
             }
-            description="visit the cart to update"
+            description="Visit the cart to update"
           />
         ),
-        {
-          duration: 4000,
-        }
+        { duration: 4000 }
       );
-    } else if (
-      cartResponse &&
-      cartResponse.message &&
-      cartResponse.message === "Quantity limit reached"
-    ) {
-      toast.error("Limit reached, cannot add more at this time");
     } else {
-      toast.error("Something went wrong");
-    }
-  };
-
-  const handleBuyNow = async () => {
-    if (
-      singleitem.i_subcategory &&
-      singleitem.i_colors &&
-      singleitem.i_subcategory === "filaments" &&
-      singleitem.i_colors.length > 0
-    ) {
-      if (!itemColorfromURL) {
-        toast.error("Please select a color first");
-        return;
-      }
-
-      const colorExists = singleitem.i_colors.find(
-        (c: { name: string; hex: string }) =>
-          c.name.toLowerCase() === itemColorfromURL.toLowerCase()
-      );
-      if (!colorExists) {
-        toast.error("Selected color not available");
-        return;
-      }
-    }
-
-    if (typeof itemQuantity === "string") {
-      toast.error("Empty or invalid quantity");
-      return;
-    }
-
-    const localevoFrontCart = localStorage.getItem("evoFrontCart");
-    const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : null;
-
-    let cartreqbody = {};
-    if (parsedCart && parsedCart.ctoken) {
-      cartreqbody = {
-        cart_t: parsedCart.ctoken,
-      };
-    }
-
-    const cartResponse = await axiosLocal
-      .post(`/api/shopping/add`, {
+      // New item - add to cart
+      const newCartItem: CartItem = {
         item_id: singleitem.itemid,
+        item_name: singleitem.i_name,
+        item_slug: singleitem.i_slug,
+        item_imgurl: singleitem.i_image || "/assets/placeholder-product.svg",
+        item_category: singleitem.i_category || "",
+        item_subcategory: singleitem.i_subcategory || "",
+        item_brand: singleitem.i_brand || "",
+        item_weight: singleitem.i_weight || 0,
+        item_color: itemColorfromURL.toLowerCase() || null,
+        item_quantity: Number(itemQuantity),
         item_price: singleitem.i_price,
-        item_quantity: itemQuantity,
-        item_color: itemColorfromURL.toLowerCase(),
-        ...cartreqbody,
-      })
-      .then((res) => res.data)
-      .catch((error: any) => {
-        axiosErrorLogger({ error });
-        return null;
-      });
+      };
 
-    if (
-      cartResponse &&
-      cartResponse.message &&
-      cartResponse.message === "Item added to cart"
-    ) {
-      const cartlocal: { items: any[]; ctoken: string } = {
-        items: cartResponse.cartdata,
-        ctoken: cartResponse.ctoken,
-      };
-      setCartLocal(cartlocal);
-      router.push("/cart");
-    } else if (
-      cartResponse &&
-      cartResponse.message &&
-      cartResponse.message === "Item already in cart, quantity updated"
-    ) {
-      const cartlocal: { items: any[]; ctoken: string } = {
-        items: cartResponse.cartdata,
-        ctoken: cartResponse.ctoken,
-      };
-      setCartLocal(cartlocal);
-      router.push("/cart");
-    } else if (
-      cartResponse &&
-      cartResponse.message &&
-      cartResponse.message === "Quantity limit reached"
-    ) {
-      router.push("/cart");
-    } else {
-      toast.error("Something went wrong");
+      updatedCart = [...currentCart, newCartItem];
+      toast.success("Item added to cart");
     }
+
+    // Update Redux store
+    dispatch(setCartData(updatedCart));
+
+    // Update localStorage
+    setCartLocal({ items: updatedCart });
   };
 
-  const handlePreOrder = async () => {
+  const handleBuyNow = () => {
+    // Validate color selection for filaments
     if (
       singleitem.i_subcategory &&
       singleitem.i_colors &&
@@ -273,68 +197,149 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
       }
     }
 
-    if (typeof itemQuantity === "string") {
+    // Validate quantity
+    if (typeof itemQuantity === "string" || itemQuantity <= 0) {
       toast.error("Empty or invalid quantity");
       return;
     }
 
-    const localevoFrontCart = localStorage.getItem("evoFrontCart");
-    const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : null;
+    // Get current cart from Redux/localStorage
+    const currentCart = cartItems || [];
 
-    let cartreqbody = {};
-    if (parsedCart && parsedCart.ctoken) {
-      cartreqbody = {
-        cart_t: parsedCart.ctoken,
-      };
-    }
+    // Check if item already exists in cart
+    const existingItemIndex = currentCart.findIndex(
+      (item) =>
+        item.item_id === singleitem.itemid &&
+        (item.item_color || "").toLowerCase() ===
+          (itemColorfromURL || "").toLowerCase()
+    );
 
-    const cartResponse = await axiosLocal
-      .post(`/api/shopping/add`, {
-        item_id: singleitem.itemid,
-        item_price: singleitem.i_preorderprice || singleitem.i_price,
-        item_quantity: itemQuantity,
-        item_color: itemColorfromURL.toLowerCase(),
-        is_preorder: true,
-        ...cartreqbody,
-      })
-      .then((res) => res.data)
-      .catch((error: any) => {
-        axiosErrorLogger({ error });
-        return null;
-      });
+    let updatedCart: CartItem[];
 
-    if (
-      cartResponse &&
-      cartResponse.message &&
-      cartResponse.message === "Item added to cart"
-    ) {
-      const cartlocal: { items: any[]; ctoken: string } = {
-        items: cartResponse.cartdata,
-        ctoken: cartResponse.ctoken,
+    if (existingItemIndex >= 0) {
+      // Item exists - update quantity
+      const existingItem = currentCart[existingItemIndex];
+      const newQuantity = existingItem.item_quantity + Number(itemQuantity);
+
+      updatedCart = [...currentCart];
+      updatedCart[existingItemIndex] = {
+        ...existingItem,
+        item_quantity: newQuantity,
       };
-      setCartLocal(cartlocal);
-      toast.success("Pre-order item added to cart!");
-      router.push("/cart");
-    } else if (
-      cartResponse &&
-      cartResponse.message &&
-      cartResponse.message === "Item already in cart, quantity updated"
-    ) {
-      const cartlocal: { items: any[]; ctoken: string } = {
-        items: cartResponse.cartdata,
-        ctoken: cartResponse.ctoken,
-      };
-      setCartLocal(cartlocal);
-      router.push("/cart");
-    } else if (
-      cartResponse &&
-      cartResponse.message &&
-      cartResponse.message === "Quantity limit reached"
-    ) {
-      router.push("/cart");
     } else {
-      toast.error("Something went wrong");
+      // New item - add to cart
+      const newCartItem: CartItem = {
+        item_id: singleitem.itemid,
+        item_name: singleitem.i_name,
+        item_slug: singleitem.i_slug,
+        item_imgurl: singleitem.i_image || "/assets/placeholder-product.svg",
+        item_category: singleitem.i_category || "",
+        item_subcategory: singleitem.i_subcategory || "",
+        item_brand: singleitem.i_brand || "",
+        item_weight: singleitem.i_weight || 0,
+        item_color: itemColorfromURL.toLowerCase() || null,
+        item_quantity: Number(itemQuantity),
+        item_price: singleitem.i_price,
+      };
+
+      updatedCart = [...currentCart, newCartItem];
     }
+
+    // Update Redux store
+    dispatch(setCartData(updatedCart));
+
+    // Update localStorage
+    setCartLocal({ items: updatedCart });
+
+    // Navigate to cart
+    router.push("/cart");
+  };
+
+  const handlePreOrder = () => {
+    // Validate color selection for filaments
+    if (
+      singleitem.i_subcategory &&
+      singleitem.i_colors &&
+      singleitem.i_subcategory === "filaments" &&
+      singleitem.i_colors.length > 0
+    ) {
+      if (!itemColorfromURL) {
+        toast.error("Please select a color first");
+        return;
+      }
+
+      const colorExists = singleitem.i_colors.find(
+        (c: { name: string; hex: string }) =>
+          c.name.toLowerCase() === itemColorfromURL.toLowerCase()
+      );
+      if (!colorExists) {
+        toast.error("Selected color not available");
+        return;
+      }
+    }
+
+    // Validate quantity
+    if (typeof itemQuantity === "string" || itemQuantity <= 0) {
+      toast.error("Empty or invalid quantity");
+      return;
+    }
+
+    // Get current cart from Redux/localStorage
+    const currentCart = cartItems || [];
+
+    // Use pre-order price if available
+    const itemPrice = singleitem.i_preorderprice || singleitem.i_price;
+
+    // Check if item already exists in cart
+    const existingItemIndex = currentCart.findIndex(
+      (item) =>
+        item.item_id === singleitem.itemid &&
+        (item.item_color || "").toLowerCase() ===
+          (itemColorfromURL || "").toLowerCase()
+    );
+
+    let updatedCart: CartItem[];
+
+    if (existingItemIndex >= 0) {
+      // Item exists - update quantity
+      const existingItem = currentCart[existingItemIndex];
+      const newQuantity = existingItem.item_quantity + Number(itemQuantity);
+
+      updatedCart = [...currentCart];
+      updatedCart[existingItemIndex] = {
+        ...existingItem,
+        item_quantity: newQuantity,
+        item_price: itemPrice, // Update to pre-order price
+      };
+    } else {
+      // New item - add to cart
+      const newCartItem: CartItem = {
+        item_id: singleitem.itemid,
+        item_name: singleitem.i_name,
+        item_slug: singleitem.i_slug,
+        item_imgurl: singleitem.i_image || "/assets/placeholder-product.svg",
+        item_category: singleitem.i_category || "",
+        item_subcategory: singleitem.i_subcategory || "",
+        item_brand: singleitem.i_brand || "",
+        item_weight: singleitem.i_weight || 0,
+        item_color: itemColorfromURL.toLowerCase() || null,
+        item_quantity: Number(itemQuantity),
+        item_price: itemPrice,
+      };
+
+      updatedCart = [...currentCart, newCartItem];
+    }
+
+    // Update Redux store
+    dispatch(setCartData(updatedCart));
+
+    // Update localStorage
+    setCartLocal({ items: updatedCart });
+
+    toast.success("Pre-order item added to cart!");
+
+    // Navigate to cart
+    router.push("/cart");
   };
 
   return (

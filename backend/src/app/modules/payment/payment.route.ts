@@ -5,6 +5,9 @@ import { USER_ROLE } from "../user/user.constant";
 
 const router = express.Router();
 
+// Guest bKash payment (no auth required)
+router.post("/bkash/create/guest", PaymentControllers.createBkashPayment);
+
 // Create payment (requires authentication for user orders)
 router.post(
   "/bkash/create",

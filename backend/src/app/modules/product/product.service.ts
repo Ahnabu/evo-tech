@@ -10,6 +10,8 @@ import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 import { generateUniqueSlug } from "../../utils/slugify";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
+import { Brand } from "../brand/brand.model";
+import { Types } from "mongoose";
 
 const getAllProductsFromDB = async (query: Record<string, unknown>) => {
   const page = Number(query.page) || 1;
@@ -150,8 +152,9 @@ const getProductBySlugFromDB = async (slug: string) => {
 };
 
 const createProductIntoDB = async (
-  payload: TProduct,
-  mainImageBuffer?: Buffer
+  payload: any,
+  mainImageBuffer?: Buffer,
+  additionalImagesBuffers?: Buffer[]
 ) => {
   payload.slug = await generateUniqueSlug(payload.name, Product);
 
@@ -160,14 +163,61 @@ const createProductIntoDB = async (
     payload.mainImage = imageUrl;
   }
 
+  // Convert string values to numbers where needed
+  if (payload.price) payload.price = Number(payload.price);
+  if (payload.previousPrice)
+    payload.previousPrice = Number(payload.previousPrice);
+  if (payload.weight) payload.weight = Number(payload.weight);
+  if (payload.stock) payload.stock = Number(payload.stock);
+
+  // Convert boolean string to actual boolean
+  if (typeof payload.inStock === "string") {
+    payload.inStock = payload.inStock === "true";
+  }
+  if (typeof payload.published === "string") {
+    payload.published = payload.published === "true";
+  }
+
+  // Handle brand - if it's a slug, look up the brand ObjectId
+  if (
+    payload.brand &&
+    typeof payload.brand === "string" &&
+    !Types.ObjectId.isValid(payload.brand)
+  ) {
+    const brand = await Brand.findOne({ slug: payload.brand });
+    if (brand) {
+      payload.brand = brand._id;
+    } else {
+      // If brand not found, remove it from payload (it's optional)
+      delete payload.brand;
+    }
+  }
+
   const result = await Product.create(payload);
+
+  // Upload additional images and create ProductImage documents
+  if (additionalImagesBuffers && additionalImagesBuffers.length > 0) {
+    for (let i = 0; i < additionalImagesBuffers.length; i++) {
+      const imageUrl = await uploadToCloudinary(
+        additionalImagesBuffers[i],
+        "products"
+      );
+      await ProductImage.create({
+        product: result._id,
+        imageUrl,
+        sortOrder: i + 1,
+      });
+    }
+  }
+
   return result;
 };
 
 const updateProductIntoDB = async (
   id: string,
   payload: Partial<TProduct>,
-  mainImageBuffer?: Buffer
+  mainImageBuffer?: Buffer,
+  additionalImagesBuffers?: Buffer[]
 ) => {
   const product = await Product.findById(id);
   if (!product) {
@@ -187,6 +237,24 @@ const updateProductIntoDB = async (
     .populate("category")
     .populate("subcategory")
     .populate("brand");
+
+  // Upload additional images if provided
+  if (additionalImagesBuffers && additionalImagesBuffers.length > 0) {
+    const existingImagesCount = await ProductImage.countDocuments({
+      product: id,
+    });
+    for (let i = 0; i < additionalImagesBuffers.length; i++) {
+      const imageUrl = await uploadToCloudinary(
+        additionalImagesBuffers[i],
+        "products"
+      );
+      await ProductImage.create({
+        product: id,
+        imageUrl,
+        sortOrder: existingImagesCount + i + 1,
+      });
+    }
+  }
 
   return result;
 };

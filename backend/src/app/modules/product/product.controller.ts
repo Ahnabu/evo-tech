@@ -38,10 +38,15 @@ const getProductBySlug = catchAsync(async (req, res) => {
 });
 
 const createProduct = catchAsync(async (req, res) => {
-  const mainImageBuffer = req.file?.buffer;
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const mainImageBuffer = files?.mainImage?.[0]?.buffer;
+  const additionalImagesBuffers =
+    files?.additionalImages?.map((file) => file.buffer) || [];
+
   const result = await ProductServices.createProductIntoDB(
     req.body,
-    mainImageBuffer
+    mainImageBuffer,
+    additionalImagesBuffers
   );
 
   sendResponse(res, {
@@ -54,11 +59,16 @@ const createProduct = catchAsync(async (req, res) => {
 
 const updateProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const mainImageBuffer = req.file?.buffer;
+  const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  const mainImageBuffer = files?.mainImage?.[0]?.buffer;
+  const additionalImagesBuffers =
+    files?.additionalImages?.map((file) => file.buffer) || [];
+
   const result = await ProductServices.updateProductIntoDB(
     id,
     req.body,
-    mainImageBuffer
+    mainImageBuffer,
+    additionalImagesBuffers
   );
 
   sendResponse(res, {

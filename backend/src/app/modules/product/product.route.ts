@@ -14,14 +14,20 @@ router.get("/:id", ProductControllers.getSingleProduct);
 router.post(
   "/",
   auth(USER_ROLE.ADMIN),
-  multerUpload.single("mainImage"),
+  multerUpload.fields([
+    { name: "mainImage", maxCount: 1 },
+    { name: "additionalImages", maxCount: 10 },
+  ]),
   parseBody,
   ProductControllers.createProduct
 );
 router.put(
   "/:id",
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
-  multerUpload.single("mainImage"),
+  multerUpload.fields([
+    { name: "mainImage", maxCount: 1 },
+    { name: "additionalImages", maxCount: 10 },
+  ]),
   parseBody,
   ProductControllers.updateProduct
 );

@@ -72,6 +72,13 @@ const CheckoutParts = () => {
   const shippingType = watch("shippingType");
   const cityValue = watch("city");
 
+  // Log validation errors when they change
+  useEffect(() => {
+    if (Object.keys(errors).length > 0) {
+      console.log("❌ Form validation errors:", errors);
+    }
+  }, [errors]);
+
   const { cartSubTotal, chargeforWeight, bKashCharge } = useMemo(() => {
     return calculatePayment(cartItems ?? [], paymentMethod);
   }, [cartItems, paymentMethod]);
@@ -113,6 +120,16 @@ const CheckoutParts = () => {
   }, [shippingType, setValue]);
 
   const onSubmit: SubmitHandler<CheckoutFormValuesType> = async (data) => {
+    console.log("🚀 Place Order button clicked! Form data:", data);
+    console.log("💰 Cart calculations:", {
+      cartSubTotal,
+      deliveryCharge,
+      bKashCharge,
+      discountAmount,
+      totalPayableAmount,
+      cartItems: cartItems?.length || 0,
+    });
+
     const localevoFrontCart = localStorage.getItem("evoFrontCart");
     const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : null;
 
@@ -128,7 +145,7 @@ const CheckoutParts = () => {
       lastname: data.lastName,
       phone: data.phone,
       email: data.email,
-      housestreet: data.housestreet,
+      houseStreet: data.housestreet, // Fixed: Backend expects houseStreet (camelCase)
       city: districtsOfBD.find((district) => district.key === data.city)
         ?.itemvalue,
       subdistrict: data.subdistrict,
@@ -145,51 +162,144 @@ const CheckoutParts = () => {
         data.transactionId && data.transactionId !== ""
           ? data.transactionId
           : "",
-      terms: data.terms ? "Accepted" : "Not Accepted",
-      subTotal: cartSubTotal,
-      discount: discountAmount,
+      terms: data.terms, // Fixed: Send boolean true/false instead of string
+      subtotal: cartSubTotal || 0, // Fixed: Use proper field name and ensure it's a number
+      discount: discountAmount || 0,
       deliveryCharge: deliveryCharge ?? 0,
       additionalCharge: bKashCharge ?? 0,
-      totalPayable: totalPayableAmount,
+      totalPayable: totalPayableAmount || 0, // Fixed: Ensure it's a number, not NaN
       items: cartItems ? cartItems : [],
     };
 
     // Determine endpoint based on authentication status
-    const orderEndpoint = isAuthenticated
-      ? "/api/order/place"
-      : "/api/order/guest";
+    const orderEndpoint = isAuthenticated ? "/orders" : "/orders/guest";
+    console.log(
+      "📡 Sending order to:",
+      orderEndpoint,
+      "| Authenticated:",
+      isAuthenticated
+    );
+    console.log("📦 Order details:", checkoutDetails);
+
+    // Log the exact request body being sent
+    const requestBody = {
+      ...checkoutDetails,
+      ...cartReqBody,
+    };
+    console.log("📤 Final request body:", requestBody);
+    console.log("🔢 Payment fields in request:", {
+      subtotal: requestBody.subtotal,
+      subtotalType: typeof requestBody.subtotal,
+      totalPayable: requestBody.totalPayable,
+      totalPayableType: typeof requestBody.totalPayable,
+      deliveryCharge: requestBody.deliveryCharge,
+      additionalCharge: requestBody.additionalCharge,
+    });
 
     const orderResponse = await axios
-      .post(orderEndpoint, {
-        ...checkoutDetails,
-        ...cartReqBody,
+      .post(orderEndpoint, requestBody)
+      .then((res) => {
+        console.log("✅ Order response received:", res.data);
+        return res.data;
       })
-      .then((res) => res.data)
       .catch((error: any) => {
+        console.error("❌ Order failed:", error);
         axiosErrorLogger({ error });
         return null;
       });
 
-    if (orderResponse && orderResponse.orderdata) {
-      dispatch(setCartData([]));
+    // Check for successful order response
+    if (orderResponse && orderResponse.success && orderResponse.data?.order) {
+      const order = orderResponse.data.order;
 
+      // Show success toast
+      toast.success("Order placed successfully!");
+
+      // Clear cart
+      dispatch(setCartData([]));
       localStorage.setItem(
         "evoFrontCart",
-        JSON.stringify({ items: [], ctoken: orderResponse.ctoken })
+        JSON.stringify({ items: [], ctoken: orderResponse.ctoken || "" })
       );
-      // Dispatch a custom event when updating the cart
       const event = new CustomEvent("localStorageChange", {
         detail: {
           key: "evoFrontCart",
-          newValue: { items: [], ctoken: orderResponse.ctoken },
+          newValue: { items: [], ctoken: orderResponse.ctoken || "" },
         },
       });
       window.dispatchEvent(event);
 
-      // Redirect to order confirmation page
-      router.push(
-        `/order/${orderResponse.orderdata.orderid}?ordkey=${orderResponse.orderdata.order_key}`
-      );
+      // If bKash payment is selected, initiate payment gateway
+      if (data.paymentMethod === "bkash") {
+        try {
+          console.log("💳 Initiating bKash payment for order:", order._id);
+
+          // Use guest endpoint if not authenticated, otherwise use authenticated endpoint
+          const bkashEndpoint = isAuthenticated
+            ? "/payment/bkash/create"
+            : "/payment/bkash/create/guest";
+
+          console.log(
+            "🔐 Using bKash endpoint:",
+            bkashEndpoint,
+            "| Authenticated:",
+            isAuthenticated
+          );
+
+          // Create bKash payment
+          const paymentResponse = await axios
+            .post(bkashEndpoint, {
+              amount: order.totalPayable,
+              orderId: order._id,
+            })
+            .then((res) => {
+              console.log("✅ bKash payment response:", res.data);
+              return res.data;
+            })
+            .catch((error: any) => {
+              console.error("❌ bKash payment creation failed:", error);
+              axiosErrorLogger({ error });
+              return null;
+            });
+
+          if (
+            paymentResponse &&
+            paymentResponse.success &&
+            paymentResponse.data?.bkashURL
+          ) {
+            console.log(
+              "🔗 Redirecting to bKash URL:",
+              paymentResponse.data.bkashURL
+            );
+            toast.success("Redirecting to bKash payment...");
+
+            // Small delay to show toast before redirect
+            setTimeout(() => {
+              window.location.href = paymentResponse.data.bkashURL;
+            }, 1000);
+            return;
+          } else {
+            toast.error(
+              "Failed to initiate bKash payment. Redirecting to order page..."
+            );
+            // Still redirect to order page
+            setTimeout(() => {
+              router.push(`/order/${order._id}`);
+            }, 1500);
+          }
+        } catch (error) {
+          toast.error("Failed to initiate bKash payment");
+          // Redirect to order page anyway
+          setTimeout(() => {
+            router.push(`/order/${order._id}`);
+          }, 1500);
+        }
+      } else {
+        // For other payment methods, redirect to order confirmation page
+        setTimeout(() => {
+          router.push(`/order/${order._id}`);
+        }, 1500);
+      }
     } else {
       toast.error("Sorry! Order could not be placed.");
     }
@@ -279,12 +389,17 @@ const CheckoutParts = () => {
     );
   }
 
+  const onInvalidSubmit = (errors: any) => {
+    console.log("❌ Form submission blocked due to validation errors:", errors);
+    toast.error("Please fill in all required fields correctly");
+  };
+
   return (
     <>
       <div className="relative flex flex-col items-center md:flex-row md:justify-start md:items-start w-full h-fit gap-5">
         <form
           id="checkoutform"
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
           className="flex flex-col items-center w-full h-fit gap-4 pb-3 sm:pb-5"
         >
           <h3 className="flex items-center w-full h-fit text-center text-[14px] sm:text-[15px] leading-6 font-[600] text-stone-900">
@@ -779,98 +894,96 @@ const CheckoutParts = () => {
               </EvoFormInputError>
             )}
 
-            {/* transaction ID for now */}
-            {(paymentMethod === "bkash" ||
-              paymentMethod === "bank_transfer") && (
-              <div
-                className={`flex flex-col w-full h-fit mt-2 p-2 rounded-[4px] border gap-2 ${
-                  paymentMethod === "bkash"
-                    ? "border-[#E2136E]"
-                    : "border-stone-300"
-                }`}
-              >
-                <div className="flex flex-col w-full h-fit py-2 gap-1">
-                  <p
-                    className={`text-[11px] sm:text-[12px] font-[600] leading-4 ${
-                      paymentMethod === "bkash"
-                        ? "text-[#E2136E]"
-                        : "text-evoAdminAccent"
-                    }`}
+            {/* bKash Automatic Payment Info */}
+            {paymentMethod === "bkash" && (
+              <div className="flex flex-col w-full h-fit mt-2 p-3 rounded-[4px] border border-[#E2136E] bg-gradient-to-br from-[#E2136E]/5 to-transparent gap-2">
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-5 h-5 text-[#E2136E]"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
                   >
+                    <path
+                      fillRule="evenodd"
+                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  <p className="text-[12px] sm:text-[13px] font-[600] text-[#E2136E]">
+                    {`Automatic bKash Payment`}
+                  </p>
+                </div>
+                <div className="text-[11px] sm:text-[12px] font-[500] leading-5 text-stone-600">
+                  <ul className="list-disc list-inside space-y-1">
+                    <li>
+                      {`You will be redirected to bKash payment portal after placing your order.`}
+                    </li>
+                    <li>
+                      {`Complete the payment securely on bKash's official website.`}
+                    </li>
+                    <li>
+                      {`Payment amount: `}
+                      <span className="text-[#E2136E] font-semibold">{`${currencyFormatBDT(
+                        totalPayableAmount
+                      )} BDT`}</span>
+                      {` (all charges inclusive)`}
+                    </li>
+                    <li>
+                      {`After successful payment, you'll be redirected back to your order confirmation page.`}
+                    </li>
+                    <li>
+                      {`Your order will be processed automatically once payment is confirmed.`}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* Bank Transfer Manual Payment */}
+            {paymentMethod === "bank_transfer" && (
+              <div className="flex flex-col w-full h-fit mt-2 p-2 rounded-[4px] border border-stone-300 gap-2">
+                <div className="flex flex-col w-full h-fit py-2 gap-1">
+                  <p className="text-[11px] sm:text-[12px] font-[600] leading-4 text-evoAdminAccent">
                     {`Payment Instruction:`}
                   </p>
 
-                  {paymentMethod === "bkash" ? (
-                    <div className="text-[11px] sm:text-[12px] font-[500] leading-4 text-stone-600">
-                      <ul className="list-disc list-inside">
-                        <li>
-                          {`Open your bKash app and select `}
-                          <span className="text-evoAdminPrimary font-semibold">{`“Make Payment”.`}</span>
-                        </li>
-                        <li>
-                          {`Enter the following number: `}
-                          <span className="text-evoAdminPrimary font-semibold">{`01799424854`}</span>
-                        </li>
-                        <li>
-                          {`Enter the amount- `}
-                          <span className="text-evoAdminPrimary font-semibold">{`${currencyFormatBDT(
-                            totalPayableAmount
-                          )} BDT`}</span>
-                          {` (all charges inclusive)`}
-                        </li>
-                        <li>
-                          {`Use your `}
-                          <span className="text-evoAdminPrimary font-semibold">{`Name`}</span>
-                          {` as the payment reference.`}
-                        </li>
-                        <li>
-                          {`After completing the payment, enter your `}
-                          <span className="text-[#E2136E] font-semibold">{`Transaction ID`}</span>
-                          {` below.`}
-                        </li>
-                        <li>{`Once your order is placed, payment status will be updated in a while.`}</li>
-                        <li>{`Orders will be processed and shipped only after the payment has been successfully received.`}</li>
-                      </ul>
-                    </div>
-                  ) : (
-                    <div className="text-[11px] sm:text-[12px] font-[500] leading-4 text-stone-600">
-                      <ul className="list-disc list-inside">
-                        <li>
-                          {`Bank Name: `}
-                          <span className="text-evoAdminPrimary font-semibold">{`Islami Bank Bangladesh PLC.`}</span>
-                        </li>
-                        <li>
-                          {`Branch: `}
-                          <span className="text-evoAdminPrimary font-semibold">{`Cantonment Branch, Dhaka`}</span>
-                        </li>
-                        <li>
-                          {`Name: `}
-                          <span className="text-evoAdminPrimary font-semibold">{`MD. MAHFUZ HASAN`}</span>
-                        </li>
-                        <li>
-                          {`Account No: `}
-                          <span className="text-evoAdminPrimary font-semibold">{`20502036700154115`}</span>
-                        </li>
-                        <li>
-                          {`Routing No: `}
-                          <span className="text-evoAdminPrimary font-semibold">{`125260738`}</span>
-                        </li>
-                        <li>
-                          {`Payable amount- `}
-                          <span className="text-evoAdminPrimary font-semibold">{`${currencyFormatBDT(
-                            totalPayableAmount
-                          )} BDT`}</span>
-                        </li>
-                        <li>
-                          {`After completing the payment, enter your `}
-                          <span className="text-evoAdminAccent font-semibold">{`Transaction ID`}</span>
-                          {` below.`}
-                        </li>
-                        <li>{`Once your order is placed, payment status will be updated in a while.`}</li>
-                        <li>{`Orders will be processed and shipped only after the payment has been successfully received.`}</li>
-                      </ul>
-                    </div>
-                  )}
+                  <div className="text-[11px] sm:text-[12px] font-[500] leading-4 text-stone-600">
+                    <ul className="list-disc list-inside">
+                      <li>
+                        {`Bank Name: `}
+                        <span className="text-evoAdminPrimary font-semibold">{`Islami Bank Bangladesh PLC.`}</span>
+                      </li>
+                      <li>
+                        {`Branch: `}
+                        <span className="text-evoAdminPrimary font-semibold">{`Cantonment Branch, Dhaka`}</span>
+                      </li>
+                      <li>
+                        {`Name: `}
+                        <span className="text-evoAdminPrimary font-semibold">{`MD. MAHFUZ HASAN`}</span>
+                      </li>
+                      <li>
+                        {`Account No: `}
+                        <span className="text-evoAdminPrimary font-semibold">{`20502036700154115`}</span>
+                      </li>
+                      <li>
+                        {`Routing No: `}
+                        <span className="text-evoAdminPrimary font-semibold">{`125260738`}</span>
+                      </li>
+                      <li>
+                        {`Payable amount- `}
+                        <span className="text-evoAdminPrimary font-semibold">{`${currencyFormatBDT(
+                          totalPayableAmount
+                        )} BDT`}</span>
+                      </li>
+                      <li>
+                        {`After completing the payment, enter your `}
+                        <span className="text-evoAdminAccent font-semibold">{`Transaction ID`}</span>
+                        {` below.`}
+                      </li>
+                      <li>{`Once your order is placed, payment status will be updated in a while.`}</li>
+                      <li>{`Orders will be processed and shipped only after the payment has been successfully received.`}</li>
+                    </ul>
+                  </div>
                 </div>
 
                 <div className="relative w-full h-fit pt-1.5">
@@ -923,6 +1036,40 @@ const CheckoutParts = () => {
               <EvoFormInputError>{errors.terms.message}</EvoFormInputError>
             )}
           </div>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full h-[44px] flex items-center justify-center px-6 py-2 mt-3 text-[13px] sm:text-[14px] leading-5 font-[600] text-white bg-stone-900 disabled:bg-stone-700 disabled:hover:bg-stone-700 hover:bg-stone-800 rounded-[4px] transition-colors duration-100"
+          >
+            {isSubmitting ? (
+              <span className="flex items-center gap-2">
+                <svg
+                  className="animate-spin h-5 w-5"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                Processing...
+              </span>
+            ) : (
+              "Place Order"
+            )}
+          </button>
         </form>
 
         <div className="md:sticky md:top-24 flex flex-col w-full md:max-w-[280px] min-[900px]:max-w-[350px] lg:max-w-[400px] min-[1250px]:max-w-[450px] h-fit gap-2 px-5 lg:px-8 py-1 text-stone-700 md:border-l-2 md:border-stone-300">
@@ -949,110 +1096,94 @@ const CheckoutParts = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col w-full h-fit px-2 py-1 gap-1 text-left font-inter font-[500] text-[12px] sm:text-[13px] leading-5 tracking-tight text-stone-500 break-words">
-                  <Link
-                    href={`/items/${eachCartItem.item_slug}`}
-                    className="w-full h-fit hover:text-[#0866FF]"
-                  >
-                    {eachCartItem.item_name}
-                  </Link>
-                  {eachCartItem.item_color && (
-                    <p className="w-full h-fit text-stone-900 text-[12px]">{`Color: ${eachCartItem.item_color}`}</p>
-                  )}
-                  <p className="flex justify-between w-full h-fit text-[12px] leading-4 font-[600]">
-                    <span className="w-fit h-fit text-stone-500 tracking-tight whitespace-nowrap mr-1">{`${currencyFormatBDT(
+                <div className="flex flex-col w-full h-fit py-1">
+                  <h4 className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
+                    {`${eachCartItem.item_name}${
+                      eachCartItem.item_color
+                        ? ` (${eachCartItem.item_color})`
+                        : ""
+                    }`}
+                  </h4>
+                  <p className="text-[10px] sm:text-[11px] leading-4 font-[500] text-stone-600">
+                    {`${eachCartItem.item_quantity} x ${currencyFormatBDT(
                       eachCartItem.item_price
-                    )} x ${eachCartItem.item_quantity} =`}</span>
-                    <span className="w-fit h-fit text-right text-stone-900 tracking-tight">{`${currencyFormatBDT(
-                      eachCartItem.item_price * eachCartItem.item_quantity
-                    )} BDT`}</span>
+                    )} BDT`}
+                  </p>
+                </div>
+
+                <div className="flex items-start justify-end w-[65px] sm:w-[75px] h-fit py-1">
+                  <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
+                    {currencyFormatBDT(
+                      eachCartItem.item_quantity * eachCartItem.item_price
+                    )}{" "}
+                    BDT
                   </p>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="flex flex-col w-full h-fit py-1 gap-1">
-            <h3 className="w-full text-[12px] lg:text-[13px] leading-5 tracking-tight font-[600] text-stone-700">{`Have a coupon?`}</h3>
-            <div className="flex items-center w-full h-fit gap-1">
-              <input
-                id="coupon"
-                type="text"
-                placeholder="paste it here"
-                className="w-full h-[32px] px-2 bg-transparent text-[12px] leading-4 font-[500] text-stone-800 rounded-[4px] border border-stone-400 focus:outline-none focus:ring-1 focus:ring-stone-600 placeholder:text-stone-400 transition-colors duration-200 ease-linear"
-              />
-              <button
-                type="button"
-                aria-label="apply coupon code"
-                onClick={handleCouponApply}
-                className="flex items-center w-fit h-[32px] px-4 text-[12px] leading-4 font-[600] text-stone-50 bg-stone-800 rounded-[4px] border border-stone-400"
-              >
-                Apply
-              </button>
-            </div>
+          <div className="flex items-center justify-between w-full h-fit py-0.5">
+            <input
+              type="text"
+              placeholder="Nulla enim voluptate"
+              readOnly
+              className="w-full h-[40px] px-4 text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600 border border-stone-300 rounded-l-[4px] outline-none"
+            />
+            <button
+              type="button"
+              onClick={handleCouponApply}
+              className="flex items-center justify-center w-[80px] h-[40px] text-[11px] sm:text-[12px] leading-4 font-[600] text-white bg-stone-800 rounded-r-[4px] hover:bg-stone-700 transition-colors duration-100"
+            >
+              Apply
+            </button>
           </div>
 
-          <div className="flex flex-col w-full h-fit gap-1 py-2 border-t border-stone-300">
-            <div className="flex justify-between items-center w-full h-fit gap-1">
-              <h3 className="w-fit h-fit text-[13px] font-[600] text-stone-600 tracking-tight mr-1">{`Subtotal:`}</h3>
-              <div className="w-fit h-fit text-[12px] font-[600] text-stone-600 tracking-tight">
-                {`${currencyFormatBDT(cartSubTotal)} BDT`}
-              </div>
+          {discountAmount > 0 && (
+            <div className="flex items-center justify-between w-full h-fit py-0.5 px-2 bg-green-50 rounded-[4px]">
+              <p className="text-[11px] sm:text-[12px] leading-4 font-[500] text-green-700">
+                {`Discount Applied:`}
+              </p>
+              <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-green-700">
+                - {currencyFormatBDT(discountAmount)} BDT
+              </p>
             </div>
+          )}
 
-            <div className="flex justify-between items-center w-full h-fit gap-1">
-              <h3 className="w-fit h-fit text-[13px] font-[600] text-stone-600 tracking-tight mr-1">{`Discount:`}</h3>
-              <div className="w-fit h-fit text-[12px] font-[600] text-stone-600 tracking-tight">
-                {`${currencyFormatBDT(discountAmount)} BDT`}
-              </div>
-            </div>
-
-            {(shippingType === "regular_delivery" ||
-              shippingType === "pickup_point") && (
-              <div className="flex justify-between items-center w-full h-fit gap-1">
-                <h3 className="w-fit h-fit text-[13px] font-[600] text-stone-600 tracking-tight">{`Delivery:`}</h3>
-                <div className="w-fit h-fit text-[12px] font-[600] text-stone-600 tracking-tight">
-                  {deliveryCharge === null ? (
-                    <span className="text-evoAdminAccent">
-                      {"Select a city"}
-                    </span>
-                  ) : (
-                    `${currencyFormatBDT(deliveryCharge)} BDT`
-                  )}
-                </div>
-              </div>
-            )}
-
-            <div className="flex justify-between items-center w-full h-fit gap-1">
-              <h3 className="w-fit h-fit text-[13px] font-[600] text-stone-600 tracking-tight">{`Additional Charge:`}</h3>
-              <div className="w-fit h-fit text-[12px] font-[600] text-stone-600 tracking-tight">
-                {`${currencyFormatBDT(bKashCharge)} BDT`}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center w-full h-fit gap-1 py-px border-t border-stone-300">
-            <h3 className="w-fit h-fit text-[13px] sm:text-[14px] leading-5 font-[600] text-stone-800 tracking-tight">{`Total Payable:`}</h3>
-            <p className="w-fit h-fit text-[13px] sm:text-[14px] leading-5 font-[600] text-stone-800 tracking-tight">
-              {`${currencyFormatBDT(totalPayableAmount)} BDT`}
+          <div className="flex items-center justify-between w-full h-fit py-0.5">
+            <p className="text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600">
+              {`Subtotal:`}
+            </p>
+            <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
+              {currencyFormatBDT(cartSubTotal)} BDT
             </p>
           </div>
 
-          <div className="flex flex-col w-full h-fit gap-2 mt-5">
-            <button
-              type="submit"
-              form="checkoutform"
-              disabled={isSubmitting}
-              aria-label="proceed to payment"
-              className={`relative flex justify-center w-[175px] h-fit bg-stone-800 text-[12px] sm:text-[13px] leading-5 font-[500] text-white py-2 rounded-[6px] overflow-hidden focus:outline-none hover:bg-stone-900 transition-colors duration-100 ease-linear`}
-            >
-              Place Order
-              {isSubmitting && (
-                <div className="absolute inset-0 flex items-center justify-center bg-stone-700/70">
-                  <div className="w-5 h-5 border-2 border-t-transparent border-white rounded-full animate-spin"></div>
-                </div>
-              )}
-            </button>
+          <div className="flex items-center justify-between w-full h-fit py-0.5">
+            <p className="text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600">
+              {`Discount:`}
+            </p>
+            <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
+              {currencyFormatBDT(discountAmount ?? 0)} BDT
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between w-full h-fit py-0.5">
+            <p className="text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600">
+              {`Additional Charge:`}
+            </p>
+            <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
+              {currencyFormatBDT(bKashCharge)} BDT
+            </p>
+          </div>
+
+          <div className="flex items-center justify-between w-full h-fit py-1.5 border-t border-stone-300">
+            <p className="text-[13px] sm:text-[14px] leading-5 font-[600] text-stone-900">
+              {`Total Payable:`}
+            </p>
+            <p className="text-[14px] sm:text-[15px] leading-5 font-[700] text-brand-700">
+              {currencyFormatBDT(totalPayableAmount)} BDT
+            </p>
           </div>
         </div>
       </div>

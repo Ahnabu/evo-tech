@@ -313,19 +313,26 @@ const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
     }
   }
 
-  // Calculate totals from items
-  let calculatedSubtotal = 0;
+  console.log("📦 Backend received order data:", {
+    subtotal: orderData.subtotal,
+    totalPayable: orderData.totalPayable,
+    deliveryCharge: orderData.deliveryCharge,
+    additionalCharge: orderData.additionalCharge,
+    discount: orderData.discount,
+    itemsCount: items.length,
+  });
+
+  // Process items and create product details
   const productDetails = await Promise.all(
     items.map(async (item) => {
       const product = await Product.findById(item.item_id || item.product);
       if (!product) {
         throw new AppError(httpStatus.NOT_FOUND, `Product not found`);
       }
-      const itemTotal = product.price * item.quantity;
-      calculatedSubtotal += itemTotal;
+      const itemTotal = product.price * (item.item_quantity || item.quantity);
       return {
         product,
-        quantity: item.quantity,
+        quantity: item.item_quantity || item.quantity,
         selectedColor: item.item_color || item.selectedColor,
         subtotal: itemTotal,
       };
@@ -336,12 +343,13 @@ const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
   orderData.orderNumber = generateOrderNumber();
   orderData.isGuest = true;
   orderData.guestEmail = orderData.email;
-  orderData.subtotal = calculatedSubtotal;
-  orderData.totalPayable =
-    calculatedSubtotal +
-    (orderData.deliveryCharge || 0) +
-    (orderData.additionalCharge || 0) -
-    (orderData.discount || 0);
+
+  // Use the subtotal and totalPayable sent from frontend (already calculated correctly)
+  // Don't recalculate here to avoid discrepancies
+  console.log("✅ Using frontend-calculated values:", {
+    subtotal: orderData.subtotal,
+    totalPayable: orderData.totalPayable,
+  });
 
   // Create order
   const order = await Order.create(orderData);

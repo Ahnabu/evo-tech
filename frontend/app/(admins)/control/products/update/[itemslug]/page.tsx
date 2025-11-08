@@ -6,46 +6,111 @@ import axiosIntercept from "@/utils/axios/axiosIntercept";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { unstable_noStore as noStore } from "next/cache";
 
-
 const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
-    const axioswithIntercept = await axiosIntercept();
-    const resolvedParams = await params;
+  const axioswithIntercept = await axiosIntercept();
+  const resolvedParams = await params;
 
-    // fetch item data from backend
-    noStore();
-    const itemInfo = await axioswithIntercept.get(`/api/products/slug/${resolvedParams.itemslug}`)
-        .then((res) => {
-            return res.data.data || res.data.item_data;
-        })
-        .catch((error: any) => {
-            axiosErrorLogger({ error });
-            return null;
-        });
+  // fetch item data from backend
+  noStore();
+  const itemInfo = await axioswithIntercept
+    .get(`/api/products/slug/${resolvedParams.itemslug}`)
+    .then((res) => {
+      const product = res.data.data || res.data.item_data;
 
-    if (!itemInfo) {
-        return null;
-    }
+      // Transform backend data to frontend format
+      if (product) {
+        return {
+          itemid: product._id,
+          i_name: product.name,
+          i_slug: product.slug,
+          i_price: product.price,
+          i_prevprice: product.previousPrice || 0,
+          i_rating: product.rating || 0,
+          i_reviews: product.reviewCount || 0,
+          i_instock: product.inStock,
+          i_features: product.features || [],
+          i_colors: product.colors || [],
+          i_mainimg: product.mainImage,
+          i_category: product.category?._id || product.category,
+          i_subcategory: product.subcategory?._id || product.subcategory || "",
+          i_brand: product.brand?._id || product.brand || "",
+          i_weight: product.weight?.toString() || "",
+          landing_section_id: product.landingpageSectionId?.toString() || "",
+          i_images:
+            product.images?.map((img: any) => ({
+              imgid: img._id,
+              imgsrc: img.imageUrl,
+              imgtitle: img.title || "",
+              ismain: false,
+            })) || [],
+          i_description: product.description || "",
+          i_shortdescription: product.shortDescription || "",
+          i_sku: product.sku || "",
+          i_stock: product.stock || 0,
+          i_lowstockthreshold: product.lowStockThreshold || 10,
+          i_isfeatured: product.isFeatured || false,
+          i_ispreorder: product.isPreOrder || false,
+          i_preorderdate: product.preOrderDate || "",
+          i_preorderprice: product.preOrderPrice || 0,
+          i_published:
+            product.published !== undefined ? product.published : true,
+          i_seotitle: product.seoTitle || "",
+          i_seodescription: product.seoDescription || "",
+          i_sectionsdata: {
+            features_section: {
+              header: product.featureHeaders || [],
+              subsections: product.featureSubsections || [],
+            },
+            specifications_section: product.specifications || [],
+          },
+        };
+      }
+      return null;
+    })
+    .catch((error: any) => {
+      axiosErrorLogger({ error });
+      return null;
+    });
 
-    const hasPrevFeatures = ((itemInfo.i_sectionsdata?.features_section?.header?.length > 0) || (itemInfo.i_sectionsdata?.features_section?.subsections?.length > 0));
+  if (!itemInfo) {
+    return null;
+  }
 
-    const hasPrevSpecs = (itemInfo.i_sectionsdata?.specifications_section?.length > 0);
+  const hasPrevFeatures =
+    itemInfo.i_sectionsdata?.features_section?.header?.length > 0 ||
+    itemInfo.i_sectionsdata?.features_section?.subsections?.length > 0;
 
-    return (
-        <div className="w-full min-h-[100vh] md:min-h-[calc(100vh-64px)] h-fit flex flex-col px-5 md:px-7 py-6 bg-stone-100 font-inter">
-            <h2 className="w-fit font-[600] text-stone-800 text-sm md:text-[16px] md:leading-6 mb-4 underline underline-offset-4">
-                Update a product
-            </h2>
-            <UpdateProductForm itemInfo={itemInfo} />
-            <h2 className="w-fit font-[600] text-stone-800 text-sm md:text-[16px] md:leading-6 mt-8 mb-1 underline underline-offset-4">
-                Features Section
-            </h2>
-            <AddProductFeaturesForm itemInfo={itemInfo} canUpdate={hasPrevFeatures} />
-            <h2 className="w-fit font-[600] text-stone-800 text-sm md:text-[16px] md:leading-6 mt-8 mb-1 underline underline-offset-4">
-                Specifications Section
-            </h2>
-            <AddProductSpecsForm itemInfo={itemInfo} canUpdate={hasPrevSpecs} />
-        </div>
-    );
-}
+  const hasPrevSpecs =
+    itemInfo.i_sectionsdata?.specifications_section?.length > 0;
+
+  return (
+    <div className="w-full h-fit flex flex-col px-5 md:px-7 py-8 gap-6 font-inter">
+      <div className="flex flex-col gap-4">
+        <h2 className="text-lg lg:text-xl font-bold tracking-tight text-stone-900">
+          Update Product
+        </h2>
+      </div>
+
+      <UpdateProductForm itemInfo={itemInfo} />
+
+      <div className="mt-4">
+        <h2 className="text-base lg:text-lg font-semibold tracking-tight text-stone-900 mb-4">
+          Features Section
+        </h2>
+        <AddProductFeaturesForm
+          itemInfo={itemInfo}
+          canUpdate={hasPrevFeatures}
+        />
+      </div>
+
+      <div className="mt-4">
+        <h2 className="text-base lg:text-lg font-semibold tracking-tight text-stone-900 mb-4">
+          Specifications Section
+        </h2>
+        <AddProductSpecsForm itemInfo={itemInfo} canUpdate={hasPrevSpecs} />
+      </div>
+    </div>
+  );
+};
 
 export default AdminUpdateProductsPage;

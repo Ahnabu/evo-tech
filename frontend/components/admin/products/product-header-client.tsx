@@ -303,7 +303,7 @@ const ProductHeaderClient = () => {
           </div>
 
           <div className="flex gap-2 items-center">
-            <Button type="submit" size="default" aria-label="filter products">
+            <Button type="submit" className="bg-brand-600 hover:bg-brand-400" size="default" aria-label="filter products">
               Filter
             </Button>
             <Button
