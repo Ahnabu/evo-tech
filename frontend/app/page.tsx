@@ -23,6 +23,7 @@ import Gaming3DModel from "@/public/assets/application_fields/chess-pieces-3d-mo
 import Designers3DModel from "@/public/assets/application_fields/minimalist-vase-3d-model.png";
 import Industry3DModel from "@/public/assets/application_fields/industrial-robot-arm-clean-3d-Model.png";
 import FeaturedCategories from "@/components/cards/featuredcategories";
+import PopularProductsSlider from "@/components/cards/popularproductsslider";
 
 export const metadata: Metadata = {
   title: {
@@ -60,12 +61,6 @@ const CarouselFallback = () => (
   </div>
 );
 
-const ProductsLoader = () => (
-  <div className="w-full h-[330px] flex justify-center items-center text-stone-600 text-[14px] leading-6 font-[400] bg-[#F5F5F5]/90 rounded-[10px]">
-    <div className="w-5 h-5 sm:w-6 sm:h-6 border-2 sm:border-3 border-stone-400 border-t-stone-800 rounded-full animate-[spin_1.2s_linear_infinite]"></div>
-  </div>
-);
-
 // home page components start here ----------------------------
 const LandingHeaderCarousel = async () => {
   noStore();
@@ -94,67 +89,6 @@ const LandingHeaderCarousel = async () => {
   );
 };
 
-const LandingProductsSections = async () => {
-  noStore();
-  const landingItemsSections = await axios
-    .get("/landing-sections/active")
-    .then((response) => {
-      // Transform backend response to match existing component expectations
-      const sections = response.data.data || [];
-      return sections.map((section: any) => ({
-        title: section.title,
-        view_more_url: section.category
-          ? `/categories/${section.category.slug}`
-          : "/products",
-        items: section.products || [],
-      }));
-    })
-    .catch((error: any) => {
-      axiosErrorLogger({ error });
-      return [];
-    });
-
-  return (
-    <>
-      {landingItemsSections.length > 0
-        ? landingItemsSections.map(
-            (section: LPFeaturedItemSectionTypes, idx: number) => {
-              if (section.items.length === 0) return null;
-              else {
-                return (
-                  <div
-                    key={`prod_categories${idx + 1}`}
-                    id={`prod_categories${idx + 1}`}
-                    className="flex flex-col items-center w-full min-h-[400px] gap-5"
-                  >
-                    <div className="flex flex-col items-end sm:flex-row sm:justify-start sm:items-center w-full h-fit mt-5 gap-x-3 gap-y-1">
-                      <h2 className="flex w-full sm:w-fit h-fit font-[600] text-[18px] sm:text-[24px] leading-8 tracking-tight text-stone-700">
-                        {section.title}
-                      </h2>
-                      <div className="flex items-center w-full sm:w-fit justify-end p-1.5 sm:p-0 border sm:border-none rounded-lg bg-slate-50 sm:bg-transparent">
-                        <Link
-                          href={`/products-and-accessories/${section.view_more_url}`}
-                          className="flex items-center text-center w-fit h-fit px-2 sm:px-3 py-0.5 font-[600] text-[12px] sm:text-[14px] leading-4 sm:leading-5 tracking-tight border border-stone-400 text-stone-500 rounded-[20px] hover:bg-blue-600 hover:border-blue-600 hover:text-white transition duration-200"
-                        >
-                          More
-                          <FiExternalLink className="inline w-3 h-3 sm:w-4 sm:h-4 ml-1" />
-                        </Link>
-                      </div>
-                    </div>
-
-                    <ScrollProductsAlongX
-                      uniqueid={`landing-items-slider${idx + 1}`}
-                      productsdata={section.items}
-                    />
-                  </div>
-                );
-              }
-            }
-          )
-        : null}
-    </>
-  );
-};
 
 const ApplicationFields = () => {
   const applicationFields = [
@@ -302,16 +236,9 @@ const Home = () => {
         </div>
       </div>
       <FeaturedCategories />
-      <div className="w-full max-w-[1440px] h-fit pb-12 flex flex-col items-center font-inter">
-        {/* <div
-          id="products-sections"
-          className="flex flex-col items-center w-full h-fit px-4 sm:px-8 md:px-12 pt-10 pb-4 sm:pb-5 gap-8 sm:gap-10 bg-[#eeeeee]"
-        >
-          <Suspense fallback={<ProductsLoader />}>
-            <LandingProductsSections />
-          </Suspense>
-        </div> */}
+      <PopularProductsSlider title="Popular Products" />
 
+      <div className="w-full max-w-[1440px] h-fit pb-12 flex flex-col items-center font-inter">
         <div
           id="application_fields"
           className="flex flex-col items-center w-full min-h-[400px] px-4 sm:px-8 py-8 gap-8 bg-[radial-gradient(at_center,_var(--tw-gradient-stops))] from-[#f0f7fc] to-[#eeeeee] to-40%"

@@ -23,6 +23,7 @@ import Collectible3DModel from "@/public/assets/application_fields/thundar-north
 import Gaming3DModel from "@/public/assets/application_fields/chess-pieces-3d-model.jpg";
 import Designers3DModel from "@/public/assets/application_fields/minimalist-vase-3d-model.png";
 import Industry3DModel from "@/public/assets/application_fields/industrial-robot-arm-clean-3d-Model.png";
+import PopularProductsSlider from "@/components/cards/popularproductsslider";
 
 export const metadata: Metadata = {
   title: {
@@ -304,6 +305,9 @@ const Home = () => {
 
       {/* Featured Categories Section - After Banner */}
       <FeaturedCategories />
+
+      {/* Popular products slider (under popular categories) */}
+      <PopularProductsSlider title="Popular Products" />
 
       <div className="w-full max-w-[1440px] h-fit pb-12 flex flex-col items-center font-inter">
         <div

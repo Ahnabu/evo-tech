@@ -5,7 +5,7 @@ import { OrderServices } from "./order.service";
 
 const placeOrder = catchAsync(async (req, res) => {
   const userUuid = req.user.uuid;
-  const result = await OrderServices.placeOrderIntoDB(req.body, userUuid);
+  const result = await OrderServices.placeOrderIntoDB(req.body, userUuid as string);
 
   sendResponse(res, {
     success: true,
@@ -15,9 +15,37 @@ const placeOrder = catchAsync(async (req, res) => {
   });
 });
 
+const placeGuestOrder = catchAsync(async (req, res) => {
+  const result = await OrderServices.placeGuestOrderIntoDB(req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Guest order placed successfully",
+    data: result,
+  });
+});
+
+const linkGuestOrders = catchAsync(async (req, res) => {
+  const userUuid = req.user.uuid;
+  const { email } = req.body;
+
+  const result = await OrderServices.linkGuestOrdersToUserIntoDB(
+    email,
+    userUuid as string
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: `${result.linked} guest order(s) linked to your account`,
+    data: result,
+  });
+});
+
 const getUserOrders = catchAsync(async (req, res) => {
   const userUuid = req.user.uuid;
-  const orders = await OrderServices.getUserOrdersFromDB(userUuid, req.query);
+  const orders = await OrderServices.getUserOrdersFromDB(userUuid as string, req.query);
 
   sendResponse(res, {
     success: true,
@@ -29,9 +57,9 @@ const getUserOrders = catchAsync(async (req, res) => {
 });
 
 const getAllOrders = catchAsync(async (req, res) => {
-  console.log('📦 getAllOrders called with query:', req.query);
+  console.log("📦 getAllOrders called with query:", req.query);
   const orders = await OrderServices.getAllOrdersFromDB(req.query);
-  console.log('📦 Returning', orders.result?.length || 0, 'orders');
+  console.log("📦 Returning", orders.result?.length || 0, "orders");
 
   sendResponse(res, {
     success: true,
@@ -86,6 +114,8 @@ const deleteOrder = catchAsync(async (req, res) => {
 
 export const OrderControllers = {
   placeOrder,
+  placeGuestOrder,
+  linkGuestOrders,
   getUserOrders,
   getAllOrders,
   getSingleOrder,

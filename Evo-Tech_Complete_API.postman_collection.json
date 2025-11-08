@@ -399,7 +399,7 @@
               "formdata": [
                 {
                   "key": "data",
-                  "value": "{\"name\":\"Test Product\",\"description\":\"Product description\",\"price\":99.99,\"category\":\"CATEGORY_ID\",\"stockQuantity\":100,\"colors\":[\"Red\",\"Blue\"]}",
+                  "value": "{\"name\":\"Test Product\",\"description\":\"Product description\",\"price\":99.99,\"category\":\"CATEGORY_ID\",\"stock\":100,\"colors\":[\"Red\",\"Blue\"]}",
                   "type": "text"
                 },
                 {

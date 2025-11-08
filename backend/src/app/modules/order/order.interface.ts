@@ -3,7 +3,9 @@ import { Types } from "mongoose";
 export interface TOrder {
   _id?: string;
   orderNumber: string;
-  user: string; // UUID
+  user?: string; // UUID - optional for guest orders
+  guestEmail?: string; // Email for guest checkout - used to link orders when user registers
+  isGuest?: boolean; // Flag to identify guest orders
   firstname: string;
   lastname: string;
   phone: string;
@@ -17,13 +19,21 @@ export interface TOrder {
   pickupPointId?: string;
   paymentMethod: string;
   transactionId?: string;
+  bkashTransactionId?: string; // bKash specific transaction ID
+  bkashPaymentID?: string; // bKash payment ID
   terms: boolean;
   subtotal: number;
   discount: number;
   deliveryCharge: number;
   additionalCharge: number;
   totalPayable: number;
-  orderStatus: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+  orderStatus:
+    | "pending"
+    | "confirmed"
+    | "processing"
+    | "shipped"
+    | "delivered"
+    | "cancelled";
   paymentStatus: "pending" | "paid" | "failed" | "refunded";
   notes?: string;
   trackingCode?: string;

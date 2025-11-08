@@ -37,6 +37,17 @@ const placeOrderIntoDB = async (payload: TOrder, userUuid: string) => {
     throw new AppError(httpStatus.BAD_REQUEST, "Cart is empty");
   }
 
+  // Validate stock availability
+  for (const item of cartItems) {
+    const product = item.product as any;
+    if (!product.inStock || product.stock < item.quantity) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        `Product "${product.name}" is out of stock or insufficient quantity available`
+      );
+    }
+  }
+
   // Calculate totals
   let subtotal = 0;
   cartItems.forEach((item: any) => {
@@ -46,6 +57,7 @@ const placeOrderIntoDB = async (payload: TOrder, userUuid: string) => {
   // Generate order number
   payload.orderNumber = generateOrderNumber();
   payload.user = userUuid;
+  payload.isGuest = false;
   payload.subtotal = subtotal;
   payload.totalPayable =
     subtotal +
@@ -56,7 +68,7 @@ const placeOrderIntoDB = async (payload: TOrder, userUuid: string) => {
   // Create order
   const order = await Order.create(payload);
 
-  // Create order items
+  // Create order items and update product stock
   const orderItemsData = cartItems.map((item: any) => ({
     order: order._id,
     product: item.product._id,
@@ -68,6 +80,14 @@ const placeOrderIntoDB = async (payload: TOrder, userUuid: string) => {
   }));
 
   await OrderItem.insertMany(orderItemsData);
+
+  // Update product stock quantities
+  for (const item of cartItems) {
+    const product = item.product as any;
+    await Product.findByIdAndUpdate(product._id, {
+      $inc: { stock: -item.quantity },
+    });
+  }
 
   // Clear cart
   await Cart.deleteMany({ user: userUuid });
@@ -264,8 +284,133 @@ const deleteOrderFromDB = async (orderId: string) => {
   return result;
 };
 
+// Guest checkout - no authentication required
+const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
+  const { items, ...orderData } = payload;
+
+  if (!items || items.length === 0) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Cart is empty");
+  }
+
+  if (!orderData.email) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Email is required for guest checkout"
+    );
+  }
+
+  // Validate stock availability for all items
+  for (const item of items) {
+    const product = await Product.findById(item.item_id || item.product);
+    if (!product) {
+      throw new AppError(httpStatus.NOT_FOUND, `Product not found`);
+    }
+    if (!product.inStock || (product.stock && product.stock < item.quantity)) {
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        `Product "${product.name}" is out of stock or insufficient quantity available`
+      );
+    }
+  }
+
+  // Calculate totals from items
+  let calculatedSubtotal = 0;
+  const productDetails = await Promise.all(
+    items.map(async (item) => {
+      const product = await Product.findById(item.item_id || item.product);
+      if (!product) {
+        throw new AppError(httpStatus.NOT_FOUND, `Product not found`);
+      }
+      const itemTotal = product.price * item.quantity;
+      calculatedSubtotal += itemTotal;
+      return {
+        product,
+        quantity: item.quantity,
+        selectedColor: item.item_color || item.selectedColor,
+        subtotal: itemTotal,
+      };
+    })
+  );
+
+  // Generate order number
+  orderData.orderNumber = generateOrderNumber();
+  orderData.isGuest = true;
+  orderData.guestEmail = orderData.email;
+  orderData.subtotal = calculatedSubtotal;
+  orderData.totalPayable =
+    calculatedSubtotal +
+    (orderData.deliveryCharge || 0) +
+    (orderData.additionalCharge || 0) -
+    (orderData.discount || 0);
+
+  // Create order
+  const order = await Order.create(orderData);
+
+  // Create order items
+  const orderItemsData = productDetails.map((detail) => ({
+    order: order._id,
+    product: detail.product._id,
+    productName: detail.product.name,
+    productPrice: detail.product.price,
+    quantity: detail.quantity,
+    selectedColor: detail.selectedColor,
+    subtotal: detail.subtotal,
+  }));
+
+  await OrderItem.insertMany(orderItemsData);
+
+  // Update product stock quantities
+  for (const detail of productDetails) {
+    await Product.findByIdAndUpdate(detail.product._id, {
+      $inc: { stock: -detail.quantity },
+    });
+  }
+
+  // Get full order with items
+  const fullOrder = await Order.findById(order._id);
+  const orderItems = await OrderItem.find({ order: order._id }).populate(
+    "product"
+  );
+
+  return {
+    order: normalizeOrderObject(fullOrder),
+    items: orderItems,
+  };
+};
+
+// Link guest orders to user account when they register/login
+const linkGuestOrdersToUserIntoDB = async (email: string, userUuid: string) => {
+  // Find all guest orders with this email
+  const guestOrders = await Order.find({
+    guestEmail: email,
+    isGuest: true,
+  });
+
+  if (guestOrders.length === 0) {
+    return { linked: 0, orders: [] };
+  }
+
+  // Update all guest orders to link them to the user
+  await Order.updateMany(
+    { guestEmail: email, isGuest: true },
+    {
+      $set: {
+        user: userUuid,
+        isGuest: false,
+      },
+    }
+  );
+
+  return {
+    linked: guestOrders.length,
+    orders: guestOrders.map((o) => o.orderNumber),
+  };
+};
+
 export const OrderServices = {
   placeOrderIntoDB,
+  placeGuestOrderIntoDB,
+  linkGuestOrdersToUserIntoDB,
   getUserOrdersFromDB,
   getAllOrdersFromDB,
   getSingleOrderFromDB,

@@ -12,7 +12,15 @@ const orderSchema = new Schema<TOrder>(
     },
     user: {
       type: String,
-      required: true,
+      required: false, // Optional for guest orders
+    },
+    guestEmail: {
+      type: String,
+      required: false, // Store guest email for linking later
+    },
+    isGuest: {
+      type: Boolean,
+      default: false,
     },
     firstname: {
       type: String,
@@ -64,6 +72,12 @@ const orderSchema = new Schema<TOrder>(
     transactionId: {
       type: String,
     },
+    bkashTransactionId: {
+      type: String,
+    },
+    bkashPaymentID: {
+      type: String,
+    },
     terms: {
       type: Boolean,
       required: true,
@@ -91,7 +105,14 @@ const orderSchema = new Schema<TOrder>(
     },
     orderStatus: {
       type: String,
-      enum: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"],
+      enum: [
+        "pending",
+        "confirmed",
+        "processing",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
       default: "pending",
     },
     paymentStatus: {

@@ -50,10 +50,31 @@ const FeaturedCategories = () => {
   }, []);
 
   if (loading) {
+    // Skeleton row for categories
     return (
-      <div className="w-full flex justify-center items-center py-16">
-        <div className="w-8 h-8 border-4 border-brand-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
+      <section className="w-full py-12">
+        <div className="max-w-[1440px] mx-auto px-4 sm:px-8 md:px-12">
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-stone-800 mb-2">&nbsp;</h2>
+              <p className="text-stone-600 max-w-2xl">&nbsp;</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={`cat-skel-${i}`}
+                className="animate-pulse bg-white rounded-[10px] overflow-hidden p-4"
+              >
+                <div className="w-full h-36 bg-stone-200 rounded-md mb-4" />
+                <div className="h-4 bg-stone-200 rounded w-3/4 mb-2" />
+                <div className="h-3 bg-stone-200 rounded w-1/2" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     );
   }
 
