@@ -12,6 +12,7 @@ import { removeAProduct } from "@/store/slices/productSlice";
 import { deleteItem } from "@/actions/admin/products";
 import { toast } from "sonner";
 import { DeleteDialog } from "@/components/dialogs/delete-dialog";
+import { ProductDetailsModal } from "./product-details-modal";
 
 
 interface RowActionProps {
@@ -22,6 +23,7 @@ const ProductTableRowActions = ({ row }: RowActionProps) => {
 
     const [isOpen, setIsOpen] = React.useState(false);
     const [isDeletePending, startDeleteTransition] = React.useTransition();
+    const [isDetailsModalOpen, setIsDetailsModalOpen] = React.useState(false);
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
 
@@ -61,7 +63,7 @@ const ProductTableRowActions = ({ row }: RowActionProps) => {
                 size="sm"
                 className="h-8 w-8 p-0 rounded-full bg-blue-100 text-blue-500 hover:text-blue-600 hover:bg-blue-50"
                 aria-label={`View details of ${row.original.i_name || 'item'}`}
-                onClick={() => router.push(`/items/${row.original.i_slug}`)}
+                onClick={() => setIsDetailsModalOpen(true)}
             >
                 <Eye className="h-4 w-4" />
             </Button>
@@ -83,6 +85,12 @@ const ProductTableRowActions = ({ row }: RowActionProps) => {
                 onDelete={handleDelete}
                 isDeletePending={isDeletePending}
                 entityName="product"
+            />
+
+            <ProductDetailsModal
+                productSlug={row.original.i_slug}
+                open={isDetailsModalOpen}
+                onOpenChange={setIsDetailsModalOpen}
             />
         </div>
     );

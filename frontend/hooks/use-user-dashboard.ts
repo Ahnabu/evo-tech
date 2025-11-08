@@ -49,6 +49,22 @@ export const useUserDashboard = () => {
 
   useEffect(() => {
     fetchDashboardData();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchDashboardData, 30000);
+
+    // Refresh when page becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchDashboardData();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fetchDashboardData]);
 
   return { dashboardData, loading, error };
@@ -148,6 +164,22 @@ export const useUserOrders = () => {
 
   useEffect(() => {
     fetchOrders();
+
+    // Auto-refresh every 30 seconds
+    const interval = setInterval(fetchOrders, 30000);
+
+    // Refresh when page becomes visible
+    const handleVisibilityChange = () => {
+      if (!document.hidden) {
+        fetchOrders();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
   }, [fetchOrders]);
 
   return { orders, meta, loading, error, refresh: fetchOrders };

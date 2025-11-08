@@ -4,7 +4,7 @@ import * as React from "react";
 import type { Row } from "@tanstack/react-table";
 import { OrderWithItemsType } from "@/schemas/admin/sales/orderSchema";
 import { Button } from "@/components/ui/button";
-import { Eye } from "lucide-react";
+import { Eye, Printer, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from '@/store/store';
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { deleteOrder } from "@/actions/admin/orders";
 import { updateOrderStatus } from "@/actions/admin/update-order-status";
 import { usePendingOrders } from "@/contexts/PendingOrdersContext";
+import { generateInvoicePDF } from "./generate-invoice-pdf";
 
 interface RowActionProps {
     row: Row<OrderWithItemsType>;
@@ -24,6 +25,7 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
 
     const [isOpen, setIsOpen] = React.useState(false);
     const [isDeletePending, startDeleteTransition] = React.useTransition();
+    const [isPrintingInvoice, setIsPrintingInvoice] = React.useState(false);
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
 
@@ -87,6 +89,21 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
         });
     };
 
+    const handlePrintInvoice = async () => {
+        const order = row.original;
+        if (!order) return toast.error('Order not found');
+
+        setIsPrintingInvoice(true);
+        try {
+            await generateInvoicePDF(order);
+            toast.success('Invoice downloaded successfully');
+        } catch (error) {
+            toast.error('Failed to generate invoice');
+        } finally {
+            setIsPrintingInvoice(false);
+        }
+    };
+
     return (
         <div className="px-2 flex justify-end items-center gap-1" role="group" aria-label="Actions">
             <Button
@@ -97,6 +114,21 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
                 onClick={() => router.push(`/control/orders/${row.original._id || row.original.orderNumber}`)}
             >
                 <Eye className="h-4 w-4" />
+            </Button>
+
+            <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-full bg-green-100 text-green-600 hover:text-green-700 hover:bg-green-50"
+                aria-label={`Print invoice`}
+                onClick={handlePrintInvoice}
+                disabled={isPrintingInvoice}
+            >
+                {isPrintingInvoice ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                    <Printer className="h-4 w-4" />
+                )}
             </Button>
 
             <DeleteDialog<OrderWithItemsType>

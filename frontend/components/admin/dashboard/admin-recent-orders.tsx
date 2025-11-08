@@ -75,6 +75,22 @@ export function AdminRecentOrders() {
 
     useEffect(() => {
         fetchRecentOrders();
+
+        // Auto-refresh every 30 seconds
+        const interval = setInterval(fetchRecentOrders, 30000);
+
+        // Refresh when page becomes visible
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                fetchRecentOrders();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, [fetchRecentOrders]);
 
     const getStatusColor = (status: string) => {

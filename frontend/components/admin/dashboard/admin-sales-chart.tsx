@@ -42,6 +42,22 @@ export function AdminSalesChart() {
 
     useEffect(() => {
         fetchSalesData();
+
+        // Auto-refresh every 60 seconds (sales data doesn't need as frequent updates)
+        const interval = setInterval(fetchSalesData, 60000);
+
+        // Refresh when page becomes visible
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                fetchSalesData();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, [fetchSalesData]);
 
     const totalSales = salesData.reduce((sum: number, data: SalesData) => sum + data.sales, 0);

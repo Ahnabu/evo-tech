@@ -6,10 +6,6 @@ import { adminSidebarMenus, adminSecondarySidebarMenus } from "@/dal/staticdata/
 import { staffSidebarMenus, staffSecondarySidebarMenus } from "@/dal/staticdata/staff_sidebar_menus";
 import { userSidebarMenus, userSecondarySidebarMenus } from "@/dal/staticdata/user_sidebar_menus";
 import { NavUser } from "@/components/scn/nav-user";
-import { Button } from "@/components/ui/button";
-import { RefreshCw } from "lucide-react";
-import { usePermissions } from "@/contexts/PermissionsContext";
-import { toast } from "sonner";
 
 import BrandIcon from "@/public/assets/brand_icon.png";
 
@@ -52,21 +48,6 @@ export const AppSidebar = ({
     sidebarMenus = adminSidebarMenus;
     secondarySidebarMenus = adminSecondarySidebarMenus;
   }
-  
-  const { refreshPermissions } = usePermissions();
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
-
-  const handleRefreshPermissions = async () => {
-    setIsRefreshing(true);
-    try {
-      await refreshPermissions();
-      toast.success("Permissions refreshed successfully!");
-    } catch (error) {
-      toast.error("Failed to refresh permissions");
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
 
   return (
     <Sidebar collapsible="offcanvas" {...props} className="bg-stone-900 text-white">
@@ -90,18 +71,6 @@ export const AppSidebar = ({
             </span>
           </div>
         </div>
-        {(isStaffMode || !isUser) && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefreshPermissions}
-            disabled={isRefreshing}
-            className="w-full mt-2 bg-stone-800 border-stone-700 hover:bg-stone-700 text-stone-200"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? 'Refreshing...' : 'Refresh Permissions'}
-          </Button>
-        )}
       </SidebarHeader>
       <SidebarContent className="scrollbar-custom gap-0.5">
         {

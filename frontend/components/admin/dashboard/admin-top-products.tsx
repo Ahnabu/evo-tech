@@ -47,6 +47,22 @@ export function AdminTopProducts() {
 
     useEffect(() => {
         fetchTopProducts();
+
+        // Auto-refresh every 60 seconds
+        const interval = setInterval(fetchTopProducts, 60000);
+
+        // Refresh when page becomes visible
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                fetchTopProducts();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, [fetchTopProducts]);
 
     const formatCurrency = (amount: number) => {

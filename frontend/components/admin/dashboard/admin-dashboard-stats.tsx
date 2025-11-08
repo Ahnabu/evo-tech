@@ -59,6 +59,22 @@ export function AdminDashboardStats() {
 
     useEffect(() => {
         fetchStats();
+
+        // Auto-refresh every 30 seconds
+        const interval = setInterval(fetchStats, 30000);
+
+        // Refresh when page becomes visible
+        const handleVisibilityChange = () => {
+            if (!document.hidden) {
+                fetchStats();
+            }
+        };
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+
+        return () => {
+            clearInterval(interval);
+            document.removeEventListener('visibilitychange', handleVisibilityChange);
+        };
     }, [fetchStats]);
 
     const formatCurrency = (amount: number) => {
