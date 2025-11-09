@@ -51,6 +51,7 @@ export const categoryTableSchema = z.object({
     sortorder: z.number(),
     active: z.boolean(),
     url: z.string(), // url is a computed property in the model
+    image: z.string().optional(),
     subcategories_count: z.number(),
     brands_count: z.number(),
     created_at: z.string(),

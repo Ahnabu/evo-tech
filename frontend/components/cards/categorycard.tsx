@@ -22,7 +22,9 @@ const CategoryCard = ({
   const [imageError, setImageError] = useState(false);
 
   const defaultImage = "/assets/placeholder-category.svg";
-  const imageUrl = image && !imageError ? image : defaultImage;
+  
+  // Use category image for background, fallback to default placeholder
+  const displayImage = image && !imageError ? image : defaultImage;
 
   return (
     <Link
@@ -32,7 +34,7 @@ const CategoryCard = ({
       {/* Image Container */}
       <div className="relative w-full h-full overflow-hidden">
         <Image
-          src={imageUrl}
+          src={displayImage}
           alt={name}
           fill
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

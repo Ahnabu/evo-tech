@@ -3,7 +3,7 @@ export interface TCategory {
   name: string;
   slug: string;
   description?: string;
-  image?: string;
+  image?: string; // Category background image for cards
   isActive: boolean;
   sortOrder?: number;
   createdAt?: Date;

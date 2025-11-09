@@ -47,8 +47,13 @@ const adminSidebarMenus = [
                 url: "/control/orders",
                 permissions: ["VIEW_ORDERS"],
             },
+            {
+                title: "Coupons",
+                url: "/control/coupons",
+                permissions: ["MANAGE_SITE_SETTINGS"],
+            },
         ],
-        permissions: ["VIEW_ORDERS"],
+        permissions: ["VIEW_ORDERS", "MANAGE_SITE_SETTINGS"],
     },
     {
         title: "Customers",

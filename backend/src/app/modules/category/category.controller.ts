@@ -42,7 +42,8 @@ const getCategoryBySlug = catchAsync(async (req, res) => {
 });
 
 const createCategory = catchAsync(async (req, res) => {
-  const imageBuffer = req.file?.buffer;
+  const imageBuffer = (req.file as Express.Multer.File)?.buffer;
+  
   const result = await CategoryServices.createCategoryIntoDB(
     req.body,
     imageBuffer
@@ -58,7 +59,8 @@ const createCategory = catchAsync(async (req, res) => {
 
 const updateCategory = catchAsync(async (req, res) => {
   const { id } = req.params;
-  const imageBuffer = req.file?.buffer;
+  const imageBuffer = (req.file as Express.Multer.File)?.buffer;
+  
   const result = await CategoryServices.updateCategoryIntoDB(
     id,
     req.body,

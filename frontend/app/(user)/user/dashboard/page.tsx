@@ -4,11 +4,35 @@ import { useUserDashboard, useUserProfile } from '@/hooks/use-user-dashboard';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { currencyFormatBDT } from '@/lib/all_utils';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function UserDashboard() {
     const currentUser = useCurrentUser();
     const { dashboardData, loading, error } = useUserDashboard();
     const { profile } = useUserProfile();
+    const router = useRouter();
+    const [hasAutoRefreshed, setHasAutoRefreshed] = useState(false);
+
+    // Auto-refresh on first load
+    useEffect(() => {
+        const hasRefreshedBefore = sessionStorage.getItem('user_dashboard_refreshed');
+        
+        if (!hasRefreshedBefore && !hasAutoRefreshed && !loading) {
+            const timer = setTimeout(() => {
+                sessionStorage.setItem('user_dashboard_refreshed', 'true');
+                setHasAutoRefreshed(true);
+                router.refresh();
+            }, 2000);
+
+            return () => clearTimeout(timer);
+        }
+
+        // Clear the refresh flag when leaving the page
+        return () => {
+            sessionStorage.removeItem('user_dashboard_refreshed');
+        };
+    }, [loading, hasAutoRefreshed, router]);
 
     if (loading) {
         return (

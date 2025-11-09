@@ -11,6 +11,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -28,7 +29,9 @@ import { EditingDialog } from "@/components/dialogs/editing-dialog";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
 import { addACategory, updateACategory } from "@/store/slices/categorySlice";
-import React from "react";
+import React, { useState } from "react";
+import { FileUploader } from "@/components/file_upload/file-uploader";
+import Image from "next/image";
 
 interface CategoryDataType {
   id: string;
@@ -36,6 +39,7 @@ interface CategoryDataType {
   slug: string;
   sortorder: number;
   active: boolean;
+  image?: string;
 }
 
 interface CategoryFormProps {
@@ -56,6 +60,8 @@ const CategoryForm = ({
 }: CategoryFormProps) => {
   const isUpdate = mode === "update";
   const dispatch = useDispatch<AppDispatch>();
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const form = useForm<CreateCategoryInput | UpdateCategoryInput>({
     resolver: zodResolver(
@@ -89,12 +95,17 @@ const CategoryForm = ({
   ) => {
     const slug = generateSlug(values.name);
 
-    const payload = {
-      name: values.name,
-      slug: slug,
-      sortOrder: 0, // Set to 0 as requested
-      isActive: values.active, // backend expects isActive
-    };
+    // Create FormData for file uploads
+    const formData = new FormData();
+    formData.append("name", values.name);
+    formData.append("slug", slug);
+    formData.append("sortOrder", "0");
+    formData.append("isActive", values.active.toString());
+
+    // Append image file if selected
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
 
     const url = isUpdate
       ? `/api/admin/taxonomy/categories/${categoryData!.id}`
@@ -105,9 +116,10 @@ const CategoryForm = ({
     const response = await axios({
       method,
       url,
-      data: payload,
+      data: formData,
       headers: {
         "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "multipart/form-data",
       },
       withCredentials: true,
     })
@@ -126,6 +138,7 @@ const CategoryForm = ({
     if (response && response.success) {
       toast.success(isUpdate ? `Category updated` : `Category created`);
       form.reset();
+      setImageFile(null);
 
       // Transform backend data to frontend format
       const categoryData = response.data;
@@ -136,6 +149,7 @@ const CategoryForm = ({
         sortorder: categoryData.sortOrder || 0,
         active: categoryData.isActive,
         url: categoryData.url || `/${categoryData.slug}`,
+        image: categoryData.image,
         subcategories_count: categoryData.subcategories_count || 0,
         brands_count: categoryData.brands_count || 0,
         created_at: categoryData.createdAt,
@@ -175,6 +189,38 @@ const CategoryForm = ({
             </FormItem>
           )}
         />
+
+        {/* Category Background Image Upload */}
+        <div className="space-y-2">
+          <FormLabel className="text-sm font-medium text-stone-700">
+            Category Background Image
+          </FormLabel>
+          <FormDescription className="text-xs text-stone-500">
+            Upload a background image for the category card (recommended: wide format 1920x600px, max 4MB)
+          </FormDescription>
+          <FileUploader
+            maxFileCount={1}
+            maxSize={4 * 1024 * 1024}
+            progresses={{}}
+            disabled={uploadingImage || form.formState.isSubmitting}
+            onValueChange={(files) => {
+              setImageFile(files[0] || null);
+            }}
+            accept={{
+              "image/jpeg": [],
+              "image/png": [],
+              "image/webp": [],
+              "image/jpg": [],
+            }}
+          />
+          {imageFile && (
+            <div className="mt-2 p-2 bg-stone-50 rounded-md border border-stone-200">
+              <p className="text-xs text-stone-600">
+                Selected: <span className="font-medium">{imageFile.name}</span>
+              </p>
+            </div>
+          )}
+        </div>
 
         <FormField
           control={form.control}

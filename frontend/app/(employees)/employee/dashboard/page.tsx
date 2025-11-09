@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePermissions } from '@/contexts/PermissionsContext';
 import { Package, ShoppingCart, Users, BarChart, Loader2 } from 'lucide-react';
@@ -10,6 +10,27 @@ import Link from 'next/link';
 export default function EmployeeDashboard() {
     const router = useRouter();
     const { hasPermission, isLoading } = usePermissions();
+    const [hasAutoRefreshed, setHasAutoRefreshed] = useState(false);
+
+    // Auto-refresh on first load
+    useEffect(() => {
+        const hasRefreshedBefore = sessionStorage.getItem('employee_dashboard_refreshed');
+        
+        if (!hasRefreshedBefore && !hasAutoRefreshed && !isLoading) {
+            const timer = setTimeout(() => {
+                sessionStorage.setItem('employee_dashboard_refreshed', 'true');
+                setHasAutoRefreshed(true);
+                router.refresh();
+            }, 2000);
+
+            return () => clearTimeout(timer);
+        }
+
+        // Clear the refresh flag when leaving the page
+        return () => {
+            sessionStorage.removeItem('employee_dashboard_refreshed');
+        };
+    }, [isLoading, hasAutoRefreshed, router]);
 
     useEffect(() => {
         // Auto-redirect to the first available route based on permissions

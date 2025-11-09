@@ -33,17 +33,24 @@ import axiosErrorLogger from "@/components/error/axios_error";
 import { useRouter } from "next/navigation";
 import { calculatePayment } from "./checkout_payment_calc";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { validateCoupon } from "@/actions/user/coupons";
+import { applyCoupon, removeCoupon } from "@/store/slices/discountSlice";
 
 type CheckoutFormValuesType = z.infer<typeof checkoutSchema>;
 
 const CheckoutParts = () => {
   const [isCityPopoverOpen, setIsCityPopoverOpen] = useState(false);
   const [deliveryCharge, setDeliveryCharge] = useState<number | null>(null);
+  const [couponCode, setCouponCode] = useState("");
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const cartItems = useSelector(
     (state: RootState) => state.shoppingcart.cartdata
   );
   const discountAmount = useSelector(
     (state: RootState) => state.discount.discountAmount
+  );
+  const appliedCouponCode = useSelector(
+    (state: RootState) => state.discount.couponCode
   );
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -165,6 +172,7 @@ const CheckoutParts = () => {
       terms: data.terms, // Fixed: Send boolean true/false instead of string
       subtotal: cartSubTotal || 0, // Fixed: Use proper field name and ensure it's a number
       discount: discountAmount || 0,
+      couponCode: appliedCouponCode || undefined, // Include applied coupon code
       deliveryCharge: deliveryCharge ?? 0,
       additionalCharge: bKashCharge ?? 0,
       totalPayable: totalPayableAmount || 0, // Fixed: Ensure it's a number, not NaN
@@ -310,9 +318,46 @@ const CheckoutParts = () => {
     setIsCityPopoverOpen(false); // close the popover after selection
   };
 
-  // implement coupon code apply functionality later
-  const handleCouponApply = () => {
-    toast.error("Coupon code is not valid!");
+  // implement coupon code apply functionality
+  const handleCouponApply = async () => {
+    if (!couponCode.trim()) {
+      toast.error("Please enter a coupon code");
+      return;
+    }
+
+    if (cartSubTotal === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+
+    try {
+      const result = await validateCoupon(couponCode.trim(), cartSubTotal);
+
+      if (result.success && result.data) {
+        dispatch(
+          applyCoupon({
+            code: result.data.code,
+            amount: result.data.discountAmount,
+            type: result.data.discountType,
+          })
+        );
+        toast.success(`Coupon "${result.data.code}" applied successfully!`);
+      } else {
+        toast.error(result.error || "Invalid coupon code");
+      }
+    } catch (error) {
+      toast.error("Failed to apply coupon. Please try again.");
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    dispatch(removeCoupon());
+    setCouponCode("");
+    toast.success("Coupon removed");
   };
 
   if (!cartItems) {
@@ -1123,21 +1168,44 @@ const CheckoutParts = () => {
             ))}
           </div>
 
-          <div className="flex items-center justify-between w-full h-fit py-0.5">
-            <input
-              type="text"
-              placeholder="Nulla enim voluptate"
-              readOnly
-              className="w-full h-[40px] px-4 text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600 border border-stone-300 rounded-l-[4px] outline-none"
-            />
-            <button
-              type="button"
-              onClick={handleCouponApply}
-              className="flex items-center justify-center w-[80px] h-[40px] text-[11px] sm:text-[12px] leading-4 font-[600] text-white bg-stone-800 rounded-r-[4px] hover:bg-stone-700 transition-colors duration-100"
-            >
-              Apply
-            </button>
-          </div>
+          {!appliedCouponCode ? (
+            <div className="flex items-center justify-between w-full h-fit py-0.5">
+              <input
+                type="text"
+                placeholder="Enter coupon code"
+                value={couponCode}
+                onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                disabled={isApplyingCoupon}
+                className="w-full h-[40px] px-4 text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-800 border border-stone-300 rounded-l-[4px] outline-none uppercase placeholder:normal-case disabled:bg-stone-100"
+              />
+              <button
+                type="button"
+                onClick={handleCouponApply}
+                disabled={isApplyingCoupon || !couponCode.trim()}
+                className="flex items-center justify-center w-[80px] h-[40px] text-[11px] sm:text-[12px] leading-4 font-[600] text-white bg-blue-600 rounded-r-[4px] hover:bg-blue-700 transition-colors duration-100 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              >
+                {isApplyingCoupon ? "..." : "Apply"}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between w-full h-fit py-2 px-3 bg-green-50 border border-green-200 rounded-[4px]">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] sm:text-[12px] leading-4 font-[600] text-green-700">
+                  {appliedCouponCode}
+                </span>
+                <span className="text-[10px] sm:text-[11px] leading-4 font-[500] text-green-600">
+                  applied
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleRemoveCoupon}
+                className="text-[11px] sm:text-[12px] leading-4 font-[600] text-red-600 hover:text-red-700 underline"
+              >
+                Remove
+              </button>
+            </div>
+          )}
 
           {discountAmount > 0 && (
             <div className="flex items-center justify-between w-full h-fit py-0.5 px-2 bg-green-50 rounded-[4px]">
