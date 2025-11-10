@@ -25,6 +25,17 @@ app.use(express.urlencoded({ extended: true }));
 // API routes
 app.use("/api/v1", routes);
 
+// Health check route for monitoring
+app.get("/health", (req: Request, res: Response) => {
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "Server is healthy",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    environment: config.NODE_ENV,
+  });
+});
+
 // Testing route
 app.get("/", (req: Request, res: Response, next: NextFunction) => {
   res.status(httpStatus.OK).json({

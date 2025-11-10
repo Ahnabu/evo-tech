@@ -24,15 +24,10 @@ export function AdminRecentOrders() {
     const [error, setError] = useState<string>('');
 
     const fetchRecentOrders = useCallback(async () => {
-        console.log('🔍 Session status:', status, 'Session:', !!session);
-        
         if (!session) {
-            console.log('⏸️ No session, stopping fetch');
             setLoading(false);
             return;
         }
-        
-        console.log('🚀 Starting orders fetch...');
         
         try {
             setLoading(true);
@@ -40,12 +35,6 @@ export function AdminRecentOrders() {
             const axiosInstance = createAxiosClientWithSession(session);
             
             const response = await axiosInstance.get('/dashboard/recent-orders');
-            
-            console.log('✅ Orders API Response:', {
-                success: response.data.success,
-                count: response.data.data?.length || 0,
-                message: response.data.message
-            });
             
             if (response.data.success) {
                 const apiOrders = response.data.data || [];
@@ -60,7 +49,6 @@ export function AdminRecentOrders() {
                     createdAt: order.createdAt
                 }));
                 
-                console.log('✅ Setting', transformedOrders.length, 'orders to state');
                 setOrders(transformedOrders);
             } else {
                 setError('Failed to fetch orders');
@@ -71,7 +59,7 @@ export function AdminRecentOrders() {
         } finally {
             setLoading(false);
         }
-    }, [session, status]);
+    }, [session]);
 
     useEffect(() => {
         fetchRecentOrders();

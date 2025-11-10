@@ -51,7 +51,12 @@ const deleteUser = catchAsync(async (req, res) => {
 });
 
 const getUserDashboardStats = catchAsync(async (req, res) => {
-  const userUuid = req.user.uuid; // From auth middleware
+  const userUuid = req.user?.uuid; // From auth middleware
+  
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
+  
   const result = await UserServices.getUserDashboardStatsFromDB(userUuid);
 
   sendResponse(res, {
@@ -63,7 +68,12 @@ const getUserDashboardStats = catchAsync(async (req, res) => {
 });
 
 const getUserOrders = catchAsync(async (req, res) => {
-  const userUuid = req.user.uuid; // From auth middleware
+  const userUuid = req.user?.uuid; // From auth middleware
+  
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
+  
   const result = await UserServices.getUserOrdersFromDB(userUuid, req.query);
 
   sendResponse(res, {

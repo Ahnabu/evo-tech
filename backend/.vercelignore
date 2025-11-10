@@ -1,0 +1,15 @@
+node_modules
+.env.local
+.env.development
+*.log
+coverage
+.DS_Store
+.vscode
+.idea
+*.swp
+*.swo
+.cache
+src
+tsconfig.json
+database
+scripts

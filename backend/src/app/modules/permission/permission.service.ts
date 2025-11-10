@@ -192,23 +192,18 @@ const getPermittedRoutesForUser = async (userIdOrUuid: string): Promise<string[]
     const user = await User.findOne({ uuid: userIdOrUuid }).select('_id');
     if (user) {
       userId = user._id;
-      console.log('🔄 Converted UUID to ObjectId:', userId.toString());
     }
   }
   
   if (!userId) {
-    console.log('⚠️ Could not find user with identifier:', userIdOrUuid);
     return [];
   }
   
   const staffPermission = await StaffPermission.findOne({ user: userId });
   
   if (!staffPermission) {
-    console.log('⚠️ No staff permissions found for user ObjectId:', userId.toString());
     return [];
   }
-  
-  console.log('📋 Found permission codes:', staffPermission.permissions);
   
   // Get permissions and extract routes
   const permissions = await Permission.find({

@@ -5,7 +5,10 @@ import { CartServices, WishlistServices } from "./cart.service";
 
 // Cart Controllers
 const getCart = catchAsync(async (req, res) => {
-  const userUuid = req.user.uuid;
+  const userUuid = req.user?.uuid;
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
   const cart = await CartServices.getCartFromDB(userUuid);
 
   sendResponse(res, {
@@ -17,7 +20,10 @@ const getCart = catchAsync(async (req, res) => {
 });
 
 const addToCart = catchAsync(async (req, res) => {
-  const userUuid = req.user.uuid;
+  const userUuid = req.user?.uuid;
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
   const result = await CartServices.addToCartIntoDB({
     ...req.body,
     user: userUuid,
@@ -33,7 +39,10 @@ const addToCart = catchAsync(async (req, res) => {
 
 const updateCartItem = catchAsync(async (req, res) => {
   const { itemId } = req.params;
-  const userUuid = req.user.uuid;
+  const userUuid = req.user?.uuid;
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
   const result = await CartServices.updateCartItemIntoDB(
     itemId,
     userUuid,
@@ -50,7 +59,10 @@ const updateCartItem = catchAsync(async (req, res) => {
 
 const removeCartItem = catchAsync(async (req, res) => {
   const { itemId } = req.params;
-  const userUuid = req.user.uuid;
+  const userUuid = req.user?.uuid;
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
   await CartServices.removeCartItemFromDB(itemId, userUuid);
 
   sendResponse(res, {
@@ -62,7 +74,10 @@ const removeCartItem = catchAsync(async (req, res) => {
 });
 
 const clearCart = catchAsync(async (req, res) => {
-  const userUuid = req.user.uuid;
+  const userUuid = req.user?.uuid;
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
   await CartServices.clearCartFromDB(userUuid);
 
   sendResponse(res, {
@@ -75,7 +90,10 @@ const clearCart = catchAsync(async (req, res) => {
 
 // Wishlist Controllers
 const getWishlist = catchAsync(async (req, res) => {
-  const userUuid = req.user.uuid;
+  const userUuid = req.user?.uuid;
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
   const wishlist = await WishlistServices.getWishlistFromDB(userUuid);
 
   sendResponse(res, {
@@ -87,7 +105,10 @@ const getWishlist = catchAsync(async (req, res) => {
 });
 
 const addToWishlist = catchAsync(async (req, res) => {
-  const userUuid = req.user.uuid;
+  const userUuid = req.user?.uuid;
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
   const result = await WishlistServices.addToWishlistIntoDB({
     ...req.body,
     user: userUuid,
@@ -103,7 +124,10 @@ const addToWishlist = catchAsync(async (req, res) => {
 
 const removeFromWishlist = catchAsync(async (req, res) => {
   const { itemId } = req.params;
-  const userUuid = req.user.uuid;
+  const userUuid = req.user?.uuid;
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
   await WishlistServices.removeFromWishlistIntoDB(itemId, userUuid);
 
   sendResponse(res, {
@@ -115,7 +139,10 @@ const removeFromWishlist = catchAsync(async (req, res) => {
 });
 
 const clearWishlist = catchAsync(async (req, res) => {
-  const userUuid = req.user.uuid;
+  const userUuid = req.user?.uuid;
+  if (!userUuid) {
+    throw new Error("User UUID not found");
+  }
   await WishlistServices.clearWishlistFromDB(userUuid);
 
   sendResponse(res, {
