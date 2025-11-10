@@ -9,7 +9,5 @@ coverage
 *.swp
 *.swo
 .cache
-src
-tsconfig.json
 database
 scripts
