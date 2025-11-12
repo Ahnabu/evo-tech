@@ -253,7 +253,7 @@ const Home = () => {
 
         <div
           id="our_clients"
-          className="flex flex-col items-center w-full min-h-[250px] bg-gradient-to-r from-[#eeeeee] via-[#e8eae8] to-[#eeeeee] gap-10 px-3 sm:px-8 md:px-12 py-4"
+          className="flex flex-col items-center w-full min-h-[250px] bg-gradient-to-r from-[#eeeeee] via-[#e8eae8] to-[#eeeeee] gap-10 px-3 sm:px-8 md:px-12 "
         >
           <h2 className="flex justify-center w-full h-fit mt-4 px-3 py-1 font-[600] text-[20px] sm:text-[24px] leading-8 text-stone-700 text-center">
             We Proudly Served
@@ -263,7 +263,7 @@ const Home = () => {
 
         <div
           id="why_shop_with_us"
-          className="flex flex-col items-center w-full min-h-[350px] px-4 sm:px-8 md:px-12 py-12 gap-10 bg-[radial-gradient(at_center,_var(--tw-gradient-stops))] from-[#f0f7fc] to-[#eeeeee] to-40%"
+          className="flex flex-col items-center w-full min-h-[350px] px-4 sm:px-8 md:px-12 py-6 gap-10 bg-[radial-gradient(at_center,_var(--tw-gradient-stops))] from-[#f0f7fc] to-[#eeeeee] to-40%"
         >
           <h2 className="flex justify-center w-full h-fit mt-4 px-3 py-1 font-[600] text-[20px] sm:text-[24px] leading-8 text-stone-700 text-center">
             Why Shop on Evo-TechBD

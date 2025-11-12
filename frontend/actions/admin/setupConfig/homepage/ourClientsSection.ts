@@ -5,19 +5,19 @@ import axiosIntercept from "@/utils/axios/axiosIntercept";
 
 // deleting a client item
 export async function deleteOurClientItem(input: { id: string }) {
-    const axiosWithIntercept = await axiosIntercept();
+  const axiosWithIntercept = await axiosIntercept();
 
-    try {
-        const backRes = await axiosWithIntercept.delete(`/api/admin/lp/ourclients/delete/${input.id}`);
+  try {
+    const backRes = await axiosWithIntercept.delete(`/clients/${input.id}`);
 
-        return {
-            data: backRes.data,
-            error: null,
-        };
-    } catch (err) {
-        return {
-            data: null,
-            error: getErrorMessage(err),
-        };
-    }
+    return {
+      data: backRes.data,
+      error: null,
+    };
+  } catch (err) {
+    return {
+      data: null,
+      error: getErrorMessage(err),
+    };
+  }
 }
