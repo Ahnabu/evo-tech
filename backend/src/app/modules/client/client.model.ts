@@ -16,6 +16,11 @@ const clientSchema = new Schema<IClient>(
       type: String,
       trim: true,
     },
+    description: {
+      type: String,
+      trim: true,
+      maxlength: 300,
+    },
     sortOrder: {
       type: Number,
       default: 0,

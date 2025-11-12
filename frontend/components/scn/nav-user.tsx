@@ -70,7 +70,7 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton size="custom"
-              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground focus-within:ring-0 bg-stone-200"
+              className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground focus-within:ring-0 bg-gray-600"
             >
               <div className="w-full flex justify-center items-center gap-1.5">
                 <Avatar
