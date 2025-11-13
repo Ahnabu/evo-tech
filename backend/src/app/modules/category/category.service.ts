@@ -7,6 +7,7 @@ import {
   uploadToCloudinary,
   deleteFromCloudinary,
 } from "../../utils/cloudinaryUpload";
+import { Subcategory } from "../subcategory/subcategory.model";
 
 const getAllCategoriesFromDB = async (query: Record<string, unknown>) => {
   const page = Number(query.page) || 1;
@@ -28,10 +29,25 @@ const getAllCategoriesFromDB = async (query: Record<string, unknown>) => {
     .limit(limit)
     .sort({ sortOrder: 1, createdAt: -1 });
 
+  // Count subcategories and brands for each category
+  const categoriesWithCounts = await Promise.all(
+    result.map(async (category) => {
+      const subcategoriesCount = await Subcategory.countDocuments({
+        category: category._id,
+      });
+
+      return {
+        ...category.toObject(),
+        subcategories_count: subcategoriesCount,
+        brands_count: 0, // TODO: Add brands count when brand-category relationship is implemented
+      };
+    })
+  );
+
   const total = await Category.countDocuments(searchQuery);
 
   return {
-    result,
+    result: categoriesWithCounts,
     meta: {
       page,
       limit,
@@ -46,7 +62,17 @@ const getSingleCategoryFromDB = async (id: string) => {
   if (!category) {
     throw new AppError(httpStatus.NOT_FOUND, "Category not found");
   }
-  return category;
+
+  // Count subcategories for this category
+  const subcategoriesCount = await Subcategory.countDocuments({
+    category: category._id,
+  });
+
+  return {
+    ...category.toObject(),
+    subcategories_count: subcategoriesCount,
+    brands_count: 0, // TODO: Add brands count when brand-category relationship is implemented
+  };
 };
 
 const getCategoryBySlugFromDB = async (slug: string) => {
@@ -54,7 +80,17 @@ const getCategoryBySlugFromDB = async (slug: string) => {
   if (!category) {
     throw new AppError(httpStatus.NOT_FOUND, "Category not found");
   }
-  return category;
+
+  // Count subcategories for this category
+  const subcategoriesCount = await Subcategory.countDocuments({
+    category: category._id,
+  });
+
+  return {
+    ...category.toObject(),
+    subcategories_count: subcategoriesCount,
+    brands_count: 0, // TODO: Add brands count when brand-category relationship is implemented
+  };
 };
 
 const createCategoryIntoDB = async (
@@ -71,7 +107,13 @@ const createCategoryIntoDB = async (
   }
 
   const result = await Category.create(payload);
-  return result;
+
+  // Return with counts (new category will have 0 subcategories)
+  return {
+    ...result.toObject(),
+    subcategories_count: 0,
+    brands_count: 0,
+  };
 };
 
 const updateCategoryIntoDB = async (
@@ -96,7 +138,21 @@ const updateCategoryIntoDB = async (
   }
 
   const result = await Category.findByIdAndUpdate(id, payload, { new: true });
-  return result;
+
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "Category not found");
+  }
+
+  // Count subcategories for the updated category
+  const subcategoriesCount = await Subcategory.countDocuments({
+    category: result._id,
+  });
+
+  return {
+    ...result.toObject(),
+    subcategories_count: subcategoriesCount,
+    brands_count: 0,
+  };
 };
 
 const deleteCategoryFromDB = async (id: string) => {
