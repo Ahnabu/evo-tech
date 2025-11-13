@@ -58,8 +58,7 @@ const appendIfDefined = (
   }
 
   const sanitized = typeof value === "string" ? value.trim() : value;
-  const serialized =
-    typeof sanitized === "number" ? sanitized.toString() : sanitized;
+  const serialized = String(sanitized);
   formData.append(key, serialized);
 };
 

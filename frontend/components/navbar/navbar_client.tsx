@@ -26,6 +26,8 @@ import { getNameInitials } from "@/utils/essential_functions";
 import type { NavbarMenuType1 } from "./navbar";
 import { toast } from "sonner";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import axios from "@/utils/axios/axios";
+import { useRef } from "react";
 
 const NavbarClient = ({
   services,
@@ -46,6 +48,25 @@ const NavbarClient = ({
     window?.scrollY < 32 ? setIsScrolled(false) : setIsScrolled(true);
   }, 5);
 
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [suggestions, setSuggestions] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement | null>(null);
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const onDocClick = (e: MouseEvent) => {
+      if (!searchRef.current) return;
+      if (!searchRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener("click", onDocClick);
+    return () => document.removeEventListener("click", onDocClick);
+  }, []);
+
   useEffect(() => {
     detectScrollPositionDebounced();
     window.addEventListener(
@@ -61,7 +82,10 @@ const NavbarClient = ({
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
-      const result = await logout();
+      const result = (await logout()) as unknown as {
+        success?: boolean;
+        [key: string]: any;
+      };
 
       if (result?.success) {
         const response = await signOut({ redirect: false, callbackUrl: "/" });
@@ -83,6 +107,34 @@ const NavbarClient = ({
       toast.error("Something went wrong while signing out.");
     }
   }, 200);
+
+  // Debounced search API call
+  const performSearch = useDebounce(async (value: string) => {
+    const q = value.trim();
+    if (q.length < 2) {
+      setSuggestions([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const res = await axios.get(
+        `/products?search=${encodeURIComponent(q)}&limit=6`
+      );
+      if (res?.data?.data) {
+        setSuggestions(res.data.data);
+        setShowSuggestions(true);
+      } else {
+        setSuggestions([]);
+      }
+    } catch (err) {
+      console.error("Search error", err);
+      setSuggestions([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, 250);
 
   const isCurrentURL = (word: string) => {
     const pathSegments = pathname.split("/").filter(Boolean);
@@ -190,13 +242,22 @@ const NavbarClient = ({
                 </div>
               </div>
 
-              <div className="hidden md:flex flex-1 px-4 lg:px-6">
-                <div className="max-w-[760px] mx-auto w-full">
-                  <div className="relative">
+              <div className="flex-1 px-6">
+                <div className="max-w-[760px] mx-auto">
+                  <div className="relative" ref={searchRef}>
                     <input
                       type="search"
                       placeholder="Search for products..."
                       className="w-full h-12 rounded-full border border-stone-200 px-6 focus:ring-2 focus:ring-[#0866FF] outline-none"
+                      value={searchQuery}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setSearchQuery(v);
+                        performSearch(v);
+                      }}
+                      onFocus={() => {
+                        if (suggestions.length) setShowSuggestions(true);
+                      }}
                     />
                     <button
                       title="search"
@@ -205,6 +266,58 @@ const NavbarClient = ({
                     >
                       <FiSearch className="w-5 h-5 text-stone-600" />
                     </button>
+
+                    {/* Suggestions dropdown */}
+                    {showSuggestions && (
+                      <div className="absolute left-0 right-0 mt-2 z-50 bg-white border border-stone-100 rounded-md shadow-md overflow-hidden">
+                        {isSearching ? (
+                          <div className="p-3 text-sm text-stone-500">
+                            Searching...
+                          </div>
+                        ) : suggestions.length === 0 ? (
+                          <div className="p-3 text-sm text-stone-500">
+                            No results
+                          </div>
+                        ) : (
+                          suggestions.map((p) => (
+                            <button
+                              key={p._id}
+                              onClick={() => {
+                                setShowSuggestions(false);
+                                setSearchQuery("");
+                                router.push(`/items/${p.slug}`);
+                              }}
+                              className="w-full flex items-center gap-3 p-3 hover:bg-stone-50 text-left"
+                            >
+                              <div className="w-12 h-12 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center">
+                                {p.mainImage ? (
+                                  // Next/Image requires layout; using img for simplicity
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={p.mainImage}
+                                    alt={p.name}
+                                    className="w-full h-full object-cover"
+                                  />
+                                ) : (
+                                  <span className="text-sm text-stone-500">
+                                    No image
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <div className="font-medium text-sm text-stone-800">
+                                  {p.name}
+                                </div>
+                                <div className="text-xs text-stone-500">
+                                  {p.brand?.name || ""} •{" "}
+                                  {p.price ? `${p.price} BDT` : ""}
+                                </div>
+                              </div>
+                            </button>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -376,6 +489,8 @@ const NavbarClient = ({
           </div>
         </div>
       </div>
+
+      <div aria-hidden className="h-1 "></div>
     </>
   );
 };

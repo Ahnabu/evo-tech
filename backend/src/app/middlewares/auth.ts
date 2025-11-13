@@ -10,10 +10,12 @@ const auth = (...requiredRoles: string[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authorizationHeader = req.headers.authorization;
 
-    console.log('🔐 Auth middleware - Headers:', {
+    console.log("🔐 Auth middleware - Headers:", {
       hasAuth: !!authorizationHeader,
-      authHeader: authorizationHeader ? authorizationHeader.substring(0, 20) + '...' : 'none',
-      requiredRoles
+      authHeader: authorizationHeader
+        ? authorizationHeader.substring(0, 20) + "..."
+        : "none",
+      requiredRoles,
     });
 
     // Checking if the token is missing
@@ -31,14 +33,14 @@ const auth = (...requiredRoles: string[]) => {
     }
 
     // Verify token
-  let decoded: AuthJwtPayload;
+    let decoded: AuthJwtPayload;
     try {
       decoded = verifyToken(token, config.jwt_access_secret as string);
     } catch (error) {
       throw new AppError(httpStatus.UNAUTHORIZED, "Invalid token!");
     }
 
-  const { email, role } = decoded;
+    const { email, role } = decoded;
 
     // Check if user exists
     const user = await User.findOne({ email }).select("+password");
@@ -52,7 +54,7 @@ const auth = (...requiredRoles: string[]) => {
       throw new AppError(httpStatus.FORBIDDEN, "User is not active!");
     }
 
-    // Check role authorization
+    // Check role authorization - use userType from database
     if (requiredRoles.length && !requiredRoles.includes(role)) {
       throw new AppError(
         httpStatus.FORBIDDEN,

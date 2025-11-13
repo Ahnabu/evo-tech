@@ -69,15 +69,13 @@ const PopularProductsSlider = ({
     return (
       <section className="w-full max-w-[1440px] mx-auto px-4 sm:px-8 md:px-12 py-8">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg sm:text-2xl font-semibold text-stone-800">
-            {title}
-          </h3>
+          <h3 className="text-2xl font-bold text-stone-800">{title}</h3>
           <div className="flex items-center gap-3">
             <Link
               href="/products-and-accessories"
               className="text-sm text-stone-500 hover:text-brand-600 transition-colors"
             >
-              View all
+              More
             </Link>
             <div className="hidden md:flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-white border border-stone-200" />
@@ -116,7 +114,7 @@ const PopularProductsSlider = ({
               href="/products-and-accessories"
               className="text-sm text-stone-500 p-2 px-4 hover:bg-brand-600 rounded-xl font-semibold hover:text-white transition-colors"
             >
-              View all 
+              More 
               <ExternalLink size={14} className="inline-block ml-1 mb-0.5" />
             </Link>
             
@@ -156,10 +154,10 @@ const PopularProductsSlider = ({
               </div>
 
               <div className="p-3">
-                <h4 className="text-sm font-medium text-stone-800 line-clamp-2 min-h-[2.5rem]">
+                <h4 className="text-sm font-medium text-stone-800 line-clamp-2 min-h-[2rem]">
                   {p.name}
                 </h4>
-                <div className="mt-2 flex items-center justify-between">
+                <div className="flex items-center justify-between">
                   <div className="text-sm font-semibold text-stone-900">
                     BDT {p.price?.toLocaleString()}
                   </div>

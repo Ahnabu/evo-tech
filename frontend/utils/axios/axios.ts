@@ -1,4 +1,5 @@
 import Axios, { AxiosInstance } from "axios";
+import { getSession } from "next-auth/react";
 
 const ensureApiV1Path = (instance: AxiosInstance, url?: string) => {
   if (!url) return url;
@@ -37,7 +38,7 @@ const attachApiPrefix = (instance: AxiosInstance) => {
     (config) => {
       const baseUrl = config.baseURL ?? instance.defaults.baseURL ?? "";
       const currentUrl = config.url ?? "";
-      
+
       // If baseURL already contains /api/v1, strip /api prefix from relative URLs
       if (baseUrl.includes("/api/v1") && currentUrl.startsWith("/api/")) {
         config.url = currentUrl.replace(/^\/api\//, "/");
@@ -57,6 +58,25 @@ const axios = Axios.create({
   },
   withCredentials: true,
 });
+
+// Add interceptor to attach auth token from NextAuth session
+axios.interceptors.request.use(
+  async (config) => {
+    // Only run on client side
+    if (typeof window !== "undefined") {
+      try {
+        const session = await getSession();
+        if (session?.accessToken) {
+          config.headers.Authorization = `Bearer ${session.accessToken}`;
+        }
+      } catch (error) {
+        console.error("Failed to get session for axios request:", error);
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 attachApiPrefix(axios);
 

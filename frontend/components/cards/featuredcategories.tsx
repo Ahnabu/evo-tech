@@ -52,7 +52,7 @@ const FeaturedCategories = () => {
   if (loading) {
     // Skeleton row for categories
     return (
-      <section className="w-full py-12">
+      <section className="w-full py-8">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 md:px-12">
           <div className="flex items-center justify-between mb-8">
             <div className="flex-1">
@@ -61,8 +61,8 @@ const FeaturedCategories = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-            {Array.from({ length: 6 }).map((_, i) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-6">
+            {Array.from({ length: 5 }).map((_, i) => (
               <div
                 key={`cat-skel-${i}`}
                 className="animate-pulse bg-white rounded-[10px] overflow-hidden p-4"
@@ -79,7 +79,7 @@ const FeaturedCategories = () => {
   }
 
   return (
-    <section className="w-full py-12 sm:py-16 ">
+    <section className="w-full py-8">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-8 md:px-12">
         {/* Section Header with Navigation */}
         <div className="flex items-center justify-between mb-8 sm:mb-12">
