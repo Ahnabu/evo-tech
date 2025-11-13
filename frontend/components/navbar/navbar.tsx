@@ -1,6 +1,5 @@
 import { StaticImageData } from "next/image";
 import NavbarClient from "./navbar_client";
-import CategoryStrip from "./category_strip";
 
 import ThreeDPrintService from "@/public/assets/services/3d-printing.png";
 import LaserEngravingService from "@/public/assets/services/laser-engraving.png";
@@ -74,7 +73,6 @@ const NavBar = () => {
   return (
     <>
       <NavbarClient services={services} support={support} />
-      <CategoryStrip />
     </>
   );
 };

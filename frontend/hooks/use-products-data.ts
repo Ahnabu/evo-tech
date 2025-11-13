@@ -86,6 +86,8 @@ export function useProductsData(): UseProductsDataReturn {
         i_slug: product.slug,
         i_price: product.price,
         i_instock: product.inStock,
+        i_stock: product.stock,
+        i_lowstockthreshold: product.lowStockThreshold,
         i_mainimg: product.mainImage,
         i_category:
           product.category?.name ||

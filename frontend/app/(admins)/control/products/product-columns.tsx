@@ -31,12 +31,17 @@ export const getProductsColumns = (): ColumnDef<ProductDisplayType>[] => {
                 },
             },
             {
-                accessorKey: "i_instock",
-                header: () => <div className="text-left whitespace-nowrap">In Stock</div>,
+                accessorKey: "i_stock",
+                header: () => <div className="text-left whitespace-nowrap">Stock</div>,
                 cell: ({ row }) => {
-                    const itemInStock = Boolean(row.getValue("i_instock")) ? "Yes" : "No";
+                    const stockCount = row.getValue("i_stock") as number | undefined;
+                    const lowStockThreshold = (row.original as any).i_lowstockthreshold || 3;
+                    const isLowStock = stockCount !== undefined && stockCount <= lowStockThreshold;
+                    
                     return (
-                        <div className={`text-xs text-left ${itemInStock === "Yes" ? "text-emerald-600" : "text-red-600"}`}>{itemInStock}</div>
+                        <div className={`text-xs text-left font-medium ${isLowStock ? "text-red-600" : "text-emerald-600"}`}>
+                            {stockCount !== undefined ? stockCount : "N/A"}
+                        </div>
                     )
                 },
             },

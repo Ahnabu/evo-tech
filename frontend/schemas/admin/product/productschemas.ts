@@ -435,6 +435,8 @@ export type ProductDisplayType = {
   i_slug: string;
   i_price: number;
   i_instock: boolean;
+  i_stock?: number;
+  i_lowstockthreshold?: number;
   i_mainimg: string;
   i_category: string;
   i_subcategory?: string;

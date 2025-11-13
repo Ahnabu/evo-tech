@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
 
         // Backend API call for getting all products
         const backendRes = await axioswithIntercept.get(
-            `/api/admin/items/allitems${backendQueryString ? `?${backendQueryString}` : ""}`,
+            `/products${backendQueryString ? `?${backendQueryString}` : ""}`,
             {
                 headers: {
                     'Cache-Control': 'no-cache, no-store, must-revalidate',
@@ -76,11 +76,26 @@ export async function POST(request: NextRequest) {
     try {
         const formdata = await request.formData();
 
-        const backendRes = await axioswithIntercept.post(`/api/admin/items/create`,
+        const backendRes = await axioswithIntercept.post(`/products`,
             formdata,
+            {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            }
         );
 
         const data = backendRes.data;
+        
+        // Transform response to include item_name for frontend toast
+        if (data.data) {
+            return NextResponse.json({
+                ...data,
+                item_name: data.data.name,
+                item_slug: data.data.slug,
+            }, { status: backendRes.status });
+        }
+        
         return NextResponse.json(data, { status: backendRes.status });
 
     } catch (error: any) {
