@@ -70,10 +70,15 @@ interface UpdateProductFormProps {
 
 const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
   const router = useRouter();
-  const { getCategoriesForSelect, getSubcategoriesForSelect } = useTaxonomy();
+  const {
+    getCategoriesForSelect,
+    getSubcategoriesForSelect,
+    getBrandsForSelect,
+  } = useTaxonomy();
   const { getSectionsForSelect } = useFeaturedSections();
   const categories = getCategoriesForSelect();
   const featuredSections = getSectionsForSelect();
+  const brands = getBrandsForSelect();
 
   const {
     register,
@@ -378,7 +383,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
                         ((Array.isArray(newMainImg) && newMainImg.length > 0) ||
                           newMainFromExisting))) && (
                       <button
-                      aria-label="remove"
+                        aria-label="remove"
                         type="button"
                         onClick={() => handleRemoveImage(image.imgid)}
                         disabled={isSubmitting}
@@ -389,7 +394,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
                     )}
                   {isRemoved && (
                     <button
-                    aria-label="undo"
+                      aria-label="undo"
                       type="button"
                       onClick={() => handleUndoRemoveImage(image.imgid)}
                       disabled={isSubmitting}
@@ -1081,7 +1086,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  {ItemBrandOptions.length > 0 && field.value !== "" && (
+                  {brands.length > 0 && field.value !== "" && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -1093,9 +1098,9 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
                       Clear
                     </Button>
                   )}
-                  {ItemBrandOptions.length > 0 &&
-                    ItemBrandOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.slug}>
+                  {brands.length > 0 &&
+                    brands.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
                     ))}
