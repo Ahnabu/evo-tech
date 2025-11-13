@@ -11,6 +11,7 @@ import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
 import "swiper/css/navigation";
+import { ExternalLink } from "lucide-react";
 
 const PopularProductsSlider = ({
   title = "Popular In Category",
@@ -109,27 +110,16 @@ const PopularProductsSlider = ({
         </h3>
 
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={() => swiperRef.current?.slidePrev()}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-stone-200 hover:border-brand-600 hover:bg-brand-50 transition-all duration-300 group"
-              aria-label="Previous products"
-            >
-              <IoChevronBackOutline className="w-6 h-6 text-stone-600 group-hover:text-brand-600" />
-            </button>
+          <div className=" items-center gap-3">
+            
             <Link
               href="/products-and-accessories"
-              className="text-sm text-stone-500 hover:text-brand-600 transition-colors"
+              className="text-sm text-stone-500 p-2 px-4 hover:bg-brand-600 rounded-xl font-semibold hover:text-white transition-colors"
             >
-              View all
+              View all 
+              <ExternalLink size={14} className="inline-block ml-1 mb-0.5" />
             </Link>
-            <button
-              onClick={() => swiperRef.current?.slideNext()}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-stone-200 hover:border-brand-600 hover:bg-brand-50 transition-all duration-300 group"
-              aria-label="Next products"
-            >
-              <IoChevronForwardOutline className="w-6 h-6 text-stone-600 group-hover:text-brand-600" />
-            </button>
+            
           </div>
         </div>
       </div>
@@ -145,6 +135,7 @@ const PopularProductsSlider = ({
         }}
         onSwiper={(s) => (swiperRef.current = s)}
         autoplay={{ delay: 4000, disableOnInteraction: true }}
+        navigation={true}
         loop={products.length > 6}
         className="products-swiper"
       >

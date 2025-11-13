@@ -30,10 +30,15 @@ import { useFeaturedSections } from "@/hooks/use-featured-sections";
 const AddProductForm = () => {
   const { data: session } = useSession();
   const router = useRouter();
-  const { getCategoriesForSelect, getSubcategoriesForSelect } = useTaxonomy();
+  const {
+    getCategoriesForSelect,
+    getSubcategoriesForSelect,
+    getBrandsForSelect,
+  } = useTaxonomy();
   const { getSectionsForSelect } = useFeaturedSections();
   const categories = getCategoriesForSelect();
   const featuredSections = getSectionsForSelect();
+  const brands = getBrandsForSelect();
 
   const {
     register,
@@ -924,7 +929,7 @@ const AddProductForm = () => {
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  {ItemBrandOptions.length > 0 && field.value !== "" && (
+                  {brands.length > 0 && field.value !== "" && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -936,9 +941,9 @@ const AddProductForm = () => {
                       Clear
                     </Button>
                   )}
-                  {ItemBrandOptions.length > 0 &&
-                    ItemBrandOptions.map((option) => (
-                      <SelectItem key={option.value} value={option.slug}>
+                  {brands.length > 0 &&
+                    brands.map((option) => (
+                      <SelectItem key={option.value} value={option.value}>
                         {option.label}
                       </SelectItem>
                     ))}
