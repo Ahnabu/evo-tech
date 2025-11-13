@@ -5,8 +5,10 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
+    "start:prod": "NODE_ENV=production node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
     "build": "tsc",
+    "build:prod": "NODE_ENV=production tsc",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "seed:orders": "ts-node-dev --transpile-only src/seedOrders.ts",

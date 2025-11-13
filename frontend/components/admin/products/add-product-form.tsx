@@ -207,7 +207,7 @@ const AddProductForm = () => {
 
     const axiosClient = createAxiosClientWithSession(session);
     const response = await axiosClient
-      .post(`/api/products`, formdata, {
+      .post(`/api/admin/products`, formdata, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
           "Content-Type": "multipart/form-data",

@@ -14,12 +14,14 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import EvoTechBDLogoGray from "@/public/assets/EvoTechBD-logo-gray.png";
 import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { BiPackage } from "react-icons/bi";
-import { IoChevronDown } from "react-icons/io5";
+import { IoChevronDown, IoMenu } from "react-icons/io5";
 import { FiSearch } from "react-icons/fi";
 import { TbDashboard, TbUser, TbLogout } from "react-icons/tb";
 
 import ServiceCard from "@/components/cards/servicecard";
 import ManageCart from "@/components/navbar/manage_cart";
+import MobileSidebar from "@/components/navbar/mobile_sidebar";
+import CategoryNav from "@/components/navbar/category_nav";
 import { getNameInitials } from "@/utils/essential_functions";
 import type { NavbarMenuType1 } from "./navbar";
 import { toast } from "sonner";
@@ -38,6 +40,7 @@ const NavbarClient = ({
   const router = useRouter();
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState<boolean | null>(null);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   const currentUser = useCurrentUser();
 
@@ -151,19 +154,36 @@ const NavbarClient = ({
   };
 
   const getProfileUrl = (userRole: string) => {
-    return userRole?.toLowerCase() === "user"
-      ? "/user/dashboard/profile"
-      : "/profile";
+    switch (userRole?.toLowerCase()) {
+      case "admin":
+        return "/control/profile";
+      case "employee":
+        return "/employee/profile";
+      case "user":
+      default:
+        return "/user/dashboard/profile";
+    }
   };
 
   const getOrderHistoryUrl = (userRole: string) => {
-    return userRole?.toLowerCase() === "user"
-      ? "/user/dashboard/order-history"
-      : "/order-history";
+    switch (userRole?.toLowerCase()) {
+      case "admin":
+        return "/control/orders";
+      case "employee":
+        return "/employee/orders";
+      case "user":
+      default:
+        return "/user/dashboard/order-history";
+    }
   };
 
   return (
     <>
+      <MobileSidebar 
+        isOpen={isMobileSidebarOpen} 
+        onClose={() => setIsMobileSidebarOpen(false)} 
+      />
+
       {/* <div className="w-full bg-white text-stone-700 text-[13px]">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between h-8">
           <div className="flex items-center gap-3">
@@ -191,17 +211,20 @@ const NavbarClient = ({
         </div>
       </div> */}
 
-      <div className="sticky top-0 z-50 bg-transparent w-full mx-auto">
+      <div className="sticky top-0 z-50 bg-white shadow-sm border-b border-stone-100 w-full mx-auto">
         <div className="max-w-[1400px] mx-auto flex justify-center">
           <div className="w-full">
-            <div
-              className={`flex items-center justify-between px-4 sm:px-6 h-[72px] transition-colors duration-200 ${
-                isScrolled
-                  ? "bg-white/60 backdrop-blur-sm border-b border-stone-100 shadow-sm"
-                  : "bg-transparent"
-              }`}
-            >
-              <div className="flex items-center min-w-[160px]">
+            <div className="flex items-center justify-between px-4 sm:px-6 h-[64px]">
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileSidebarOpen(true)}
+                className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-stone-100"
+                aria-label="Open menu"
+              >
+                <IoMenu className="w-6 h-6 text-stone-700" />
+              </button>
+
+              <div className="flex items-center gap-4 md:gap-6">
                 <Link href="/" className="flex items-center">
                   <Image
                     src={EvoTechBDLogoGray}
@@ -209,9 +232,14 @@ const NavbarClient = ({
                     width={140}
                     height={44}
                     priority
-                    className="object-contain"
+                    className="object-contain w-[100px] md:w-[140px]"
                   />
                 </Link>
+                
+                {/* Desktop Category Navigation */}
+                <div className="hidden lg:flex items-center">
+                  <CategoryNav />
+                </div>
               </div>
 
               <div className="flex-1 px-6">
@@ -294,12 +322,20 @@ const NavbarClient = ({
                 </div>
               </div>
 
-              <div className="flex items-center gap-4 min-w-[240px] justify-end">
-                <Link href="/track-order" className="flex items-center gap-3">
+              {/* Mobile Search Icon */}
+              <button
+                className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-stone-100"
+                aria-label="Search"
+              >
+                <FiSearch className="w-5 h-5 text-stone-600" />
+              </button>
+
+              <div className="flex items-center gap-2 md:gap-4 min-w-[120px] md:min-w-[240px] justify-end">
+                <Link href="/track-order" className="hidden sm:flex items-center gap-3">
                   <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                     <BiPackage className="w-5 h-5 text-stone-700" />
                   </div>
-                  <div className="hidden sm:block text-sm font-[600] text-stone-700">
+                  <div className="hidden lg:block text-sm font-[600] text-stone-700">
                     Track Order
                   </div>
                 </Link>

@@ -11,6 +11,8 @@ export async function POST(
     const axioswithIntercept = await axiosIntercept();
     const { itemid } = await params;
 
+    console.log('Update product API called with itemid:', itemid);
+
     try {
         const formdata = await request.formData();
 
@@ -32,6 +34,18 @@ export async function POST(
             'item_brand': 'brand',
             'item_weight': 'weight',
             'landing_section_id': 'landingpageSectionId',
+            'stock': 'stock',
+            'lowStockThreshold': 'lowStockThreshold',
+            'sku': 'sku',
+            'description': 'description',
+            'shortDescription': 'shortDescription',
+            'isFeatured': 'isFeatured',
+            'published': 'published',
+            'isPreOrder': 'isPreOrder',
+            'preOrderDate': 'preOrderDate',
+            'preOrderPrice': 'preOrderPrice',
+            'seoTitle': 'seoTitle',
+            'seoDescription': 'seoDescription',
         };
 
         // Transform the form data

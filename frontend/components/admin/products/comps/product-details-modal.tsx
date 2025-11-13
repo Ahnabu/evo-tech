@@ -90,8 +90,8 @@ export function ProductDetailsModal({ productSlug, open, onOpenChange }: Product
     setError(null);
 
     try {
-      // Fetch product details
-      const productResponse = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/products/slug/${slug}`);
+      // Fetch product details using relative path for Next.js API routes
+      const productResponse = await fetch(`/api/products/slug/${slug}`);
       
       if (!productResponse.ok) {
         throw new Error('Failed to fetch product details');
@@ -107,7 +107,7 @@ export function ProductDetailsModal({ productSlug, open, onOpenChange }: Product
 
       // Fetch additional images
       const imagesResponse = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE_URL}/product-images?product=${productInfo._id}`
+        `/api/product-images?product=${productInfo._id}`
       );
 
       let additionalImages: ProductImage[] = [];
@@ -134,8 +134,8 @@ export function ProductDetailsModal({ productSlug, open, onOpenChange }: Product
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden">
-        <DialogHeader className="px-6 py-4 border-b">
+      <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden bg-white">
+        <DialogHeader className="px-6 py-4 border-b bg-white">
           <DialogTitle className="text-xl font-semibold">Product Details</DialogTitle>
         </DialogHeader>
 
@@ -148,8 +148,8 @@ export function ProductDetailsModal({ productSlug, open, onOpenChange }: Product
             <p className="text-red-500 text-sm">{error}</p>
           </div>
         ) : product ? (
-          <ScrollArea className="max-h-[calc(90vh-80px)]">
-            <div className="p-6 space-y-6">
+          <ScrollArea className="max-h-[calc(90vh-80px)] bg-white">
+            <div className="p-6 space-y-6 bg-white">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Left Column - Images */}
                 <div className="space-y-4">

@@ -190,16 +190,19 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
               </div>
 
               {itemInfo.i_features && itemInfo.i_features.length > 0 && (
-                <ul className="flex flex-col w-full h-fit list-disc list-outside border-t border-stone-300 my-2 pl-8 pr-4 pt-5 pb-3 gap-0.5">
-                  {itemInfo.i_features.map((feature: string, idx: number) => (
-                    <li
-                      key={`i_topfeature_${idx}`}
-                      className="w-full h-fit text-[12px] md:text-[13px] leading-5 font-[500] text-stone-800"
-                    >
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex flex-col w-full h-fit border-t border-stone-300 my-2 pt-5 pb-3">
+                  <h3 className="text-sm md:text-base font-semibold text-stone-900 mb-3 px-4">Key Features</h3>
+                  <ul className="flex flex-col w-full h-fit list-disc list-outside pl-8 pr-4 gap-0.5">
+                    {itemInfo.i_features.map((feature: string, idx: number) => (
+                      <li
+                        key={`i_topfeature_${idx}`}
+                        className="w-full h-fit text-[12px] md:text-[13px] leading-5 font-[500] text-stone-800"
+                      >
+                        {feature}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
 
               <div className="relative flex w-full h-fit my-1">

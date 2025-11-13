@@ -28,7 +28,29 @@ const getSingleUser = catchAsync(async (req, res) => {
 
 const updateUser = catchAsync(async (req, res) => {
   const { id } = req.params;
+  const requestingUser = req.user;
+
+  console.log('🔄 Update user request:', {
+    id,
+    requestingUserId: requestingUser?._id,
+    requestingUserRole: requestingUser?.role,
+    body: req.body
+  });
+
+  // Check if user is trying to update their own profile or if they're an admin
+  if (requestingUser?.role !== 'admin' && requestingUser?._id !== id) {
+    console.log('❌ Forbidden: User trying to update another user profile');
+    return sendResponse(res, {
+      success: false,
+      statusCode: httpStatus.FORBIDDEN,
+      message: "You can only update your own profile",
+      data: null,
+    });
+  }
+
   const result = await UserServices.updateUserIntoDB(req.body, id);
+
+  console.log('✅ User updated successfully:', result?._id);
 
   sendResponse(res, {
     success: true,

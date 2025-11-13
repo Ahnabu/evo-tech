@@ -11,6 +11,8 @@ import httpStatus from "http-status";
 import { generateUniqueSlug } from "../../utils/slugify";
 import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
 import { Brand } from "../brand/brand.model";
+import { Category } from "../category/category.model";
+import { Subcategory } from "../subcategory/subcategory.model";
 import { Types } from "mongoose";
 
 const getAllProductsFromDB = async (query: Record<string, unknown>) => {
@@ -222,6 +224,73 @@ const updateProductIntoDB = async (
   const product = await Product.findById(id);
   if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  // Convert string values to numbers where needed
+  if (payload.price) payload.price = Number(payload.price);
+  if (payload.previousPrice) payload.previousPrice = Number(payload.previousPrice);
+  if (payload.weight) payload.weight = Number(payload.weight);
+  if (payload.stock) payload.stock = Number(payload.stock);
+  if (payload.lowStockThreshold) payload.lowStockThreshold = Number(payload.lowStockThreshold);
+  if (payload.preOrderPrice) payload.preOrderPrice = Number(payload.preOrderPrice);
+
+  // Convert boolean strings to actual booleans
+  if (typeof payload.inStock === "string") {
+    payload.inStock = payload.inStock === "true";
+  }
+  if (typeof payload.published === "string") {
+    payload.published = payload.published === "true";
+  }
+  if (typeof payload.isFeatured === "string") {
+    payload.isFeatured = payload.isFeatured === "true";
+  }
+  if (typeof payload.isPreOrder === "string") {
+    payload.isPreOrder = payload.isPreOrder === "true";
+  }
+
+  // Handle empty strings for optional ObjectId fields - remove them
+  if ((payload.subcategory as any) === "" || payload.subcategory === null || payload.subcategory === undefined) {
+    delete payload.subcategory;
+  }
+  if ((payload.brand as any) === "" || payload.brand === null || payload.brand === undefined) {
+    delete payload.brand;
+  }
+  if ((payload.landingpageSectionId as any) === "" || payload.landingpageSectionId === null || payload.landingpageSectionId === undefined) {
+    delete payload.landingpageSectionId;
+  }
+
+  // Validate ObjectIds for category, subcategory, and brand
+  if (payload.category) {
+    if (typeof payload.category === "string" && !Types.ObjectId.isValid(payload.category)) {
+      const category = await Category.findOne({ slug: payload.category });
+      if (category) {
+        payload.category = category._id as any;
+      } else {
+        throw new AppError(httpStatus.BAD_REQUEST, "Invalid category");
+      }
+    }
+  }
+
+  if (payload.subcategory) {
+    if (typeof payload.subcategory === "string" && !Types.ObjectId.isValid(payload.subcategory as string)) {
+      const subcategory = await Subcategory.findOne({ slug: payload.subcategory as string });
+      if (subcategory) {
+        payload.subcategory = subcategory._id as any;
+      } else {
+        delete payload.subcategory;
+      }
+    }
+  }
+
+  if (payload.brand) {
+    if (typeof payload.brand === "string" && !Types.ObjectId.isValid(payload.brand as string)) {
+      const brand = await Brand.findOne({ slug: payload.brand as string });
+      if (brand) {
+        payload.brand = brand._id as any;
+      } else {
+        delete payload.brand;
+      }
+    }
   }
 
   if (payload.name && payload.name !== product.name) {

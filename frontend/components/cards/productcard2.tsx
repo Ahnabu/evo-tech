@@ -13,6 +13,9 @@ import axiosErrorLogger from "@/components/error/axios_error";
 
 const ProductCard2 = ({ eachItem }: { eachItem: any; }) => {
 
+    const threshold = eachItem.i_lowstockthreshold || 3;
+    const isLowStock = eachItem.i_stock !== undefined && eachItem.i_stock <= threshold && eachItem.i_stock > 0;
+
     const setCartLocal = (cartLocal: any) => {
         localStorage.setItem('evoFrontCart', JSON.stringify(cartLocal));
     
@@ -89,6 +92,9 @@ const ProductCard2 = ({ eachItem }: { eachItem: any; }) => {
                                 loading="lazy"
                                 className="object-cover object-center hover:scale-[1.05] transition duration-250 ease-linear"
                             />
+                            {isLowStock && (
+                                <div className="absolute top-2 right-2 w-3 h-3 bg-red-600 rounded-full shadow-md" title={`Only ${eachItem.i_stock} left in stock`} />
+                            )}
                         </div>
                     </Link>
                 </div>

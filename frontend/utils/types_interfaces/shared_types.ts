@@ -16,6 +16,8 @@ type Productcardtype = {
     prodprice: number;
     instock: boolean;
     prodprevprice: number;
+    stock?: number;
+    lowStockThreshold?: number;
 };
 
 type Productcardtype2 = {
@@ -26,6 +28,7 @@ type Productcardtype2 = {
     prodprice: number;
     instock: boolean;
     prodprevprice: number;
+    stock?: number;
 };
 
 
