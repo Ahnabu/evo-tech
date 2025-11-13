@@ -4,6 +4,9 @@ import { z } from "zod";
 // BASE VALIDATION SCHEMAS
 // ==============================================
 
+// Allowed image types
+const allowedImageTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
+
 // Common slug validation - lowercase, alphanumeric with hyphens
 const slugSchema = z
     .string()
@@ -62,12 +65,76 @@ export const categoryTableSchema = z.object({
 export const createCategorySchema = z.object({
     name: nameSchema,
     active: activeSchema,
+    image: z
+        .preprocess(
+            (value) => {
+                // Handle FileList
+                if (value instanceof FileList) {
+                    return value.item(0) ?? undefined;
+                }
+                // Handle File array from FileUploader component
+                if (Array.isArray(value) && value.length > 0) {
+                    return value[0];
+                }
+                // Handle empty array
+                if (Array.isArray(value) && value.length === 0) {
+                    return undefined;
+                }
+                return value;
+            },
+            z.any()
+        )
+        .superRefine((val, ctx) => {
+            // Image is optional, so check only if provided
+            if (val && val instanceof File) {
+                // validate the file type.
+                if (!allowedImageTypes.includes(val.type)) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: "Only jpeg|png|jpg|webp file allowed",
+                    });
+                }
+            }
+        })
+        .optional(),
 });
 
 // Update Category Schema
 export const updateCategorySchema = z.object({
     name: nameSchema,
     active: activeSchema,
+    image: z
+        .preprocess(
+            (value) => {
+                // Handle FileList
+                if (value instanceof FileList) {
+                    return value.item(0) ?? undefined;
+                }
+                // Handle File array from FileUploader component
+                if (Array.isArray(value) && value.length > 0) {
+                    return value[0];
+                }
+                // Handle empty array
+                if (Array.isArray(value) && value.length === 0) {
+                    return undefined;
+                }
+                return value;
+            },
+            z.any()
+        )
+        .superRefine((val, ctx) => {
+            // Image is optional, so check only if provided
+            if (val && val instanceof File) {
+                // validate the file type.
+                if (!allowedImageTypes.includes(val.type)) {
+                    ctx.addIssue({
+                        code: z.ZodIssueCode.custom,
+                        message: "Only jpeg|png|jpg|webp file allowed",
+                    });
+                }
+            }
+        })
+        .optional(),
 });
 
 // Category ID param validation

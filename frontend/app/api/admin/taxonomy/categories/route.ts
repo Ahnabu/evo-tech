@@ -28,10 +28,15 @@ export async function POST(request: NextRequest) {
     const axioswithIntercept = await axiosIntercept();
 
     try {
-        const reqBody = await request.json();
+        // Get FormData from the request (for file uploads)
+        const formData = await request.formData();
 
         // backend API call for creating category (requires admin auth)
-        const backendRes = await axioswithIntercept.post(`/categories`, reqBody);
+        const backendRes = await axioswithIntercept.post(`/categories`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
 
         const data = backendRes.data;
         return NextResponse.json(data, { status: backendRes.status });

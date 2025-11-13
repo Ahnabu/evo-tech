@@ -5,7 +5,6 @@ import type { Row } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { DeleteDialog } from "@/components/dialogs/delete-dialog";
 import axios from "axios";
-import { frontBaseURL } from "@/lib/env-vars";
 import { UpdateSubcategoryForm } from "@/components/admin/taxonomy/subcategories/add-update-subcategory-form";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from '@/store/store';
@@ -34,7 +33,7 @@ const SubcategoryTableRowActions = ({ row }: RowActionProps) => {
         if (subcategory) {
             startDeleteTransition(async () => {
                 try {
-                    const response = await axios.delete(`${frontBaseURL}/api/admin/taxonomy/subcategories/${subcategory.id}`, {
+                    const response = await axios.delete(`/api/admin/taxonomy/subcategories/${subcategory.id}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                         },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,6 @@ import {
   CreateCategoryInput,
   UpdateCategoryInput,
 } from "@/schemas/admin/product/taxonomySchemas";
-import { frontBaseURL } from "@/lib/env-vars";
 import { AddingDialog } from "@/components/dialogs/adding-dialog";
 import { EditingDialog } from "@/components/dialogs/editing-dialog";
 import { useDispatch } from "react-redux";
@@ -60,8 +59,6 @@ const CategoryForm = ({
 }: CategoryFormProps) => {
   const isUpdate = mode === "update";
   const dispatch = useDispatch<AppDispatch>();
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [uploadingImage, setUploadingImage] = useState(false);
 
   const form = useForm<CreateCategoryInput | UpdateCategoryInput>({
     resolver: zodResolver(
@@ -72,10 +69,12 @@ const CategoryForm = ({
         ? {
             name: categoryData.name,
             active: categoryData.active,
+            image: undefined,
           }
         : {
             name: "",
             active: true,
+            image: undefined,
           },
   });
 
@@ -102,9 +101,9 @@ const CategoryForm = ({
     formData.append("sortOrder", "0");
     formData.append("isActive", values.active.toString());
 
-    // Append image file if selected
-    if (imageFile) {
-      formData.append("image", imageFile);
+    // Append image file if selected - backend expects field name 'image'
+    if (values.image) {
+      formData.append("image", values.image);
     }
 
     const url = isUpdate
@@ -138,7 +137,6 @@ const CategoryForm = ({
     if (response && response.success) {
       toast.success(isUpdate ? `Category updated` : `Category created`);
       form.reset();
-      setImageFile(null);
 
       // Transform backend data to frontend format
       const categoryData = response.data;
@@ -198,28 +196,28 @@ const CategoryForm = ({
           <FormDescription className="text-xs text-stone-500">
             Upload a background image for the category card (recommended: wide format 1920x600px, max 4MB)
           </FormDescription>
-          <FileUploader
-            maxFileCount={1}
-            maxSize={4 * 1024 * 1024}
-            progresses={{}}
-            disabled={uploadingImage || form.formState.isSubmitting}
-            onValueChange={(files) => {
-              setImageFile(files[0] || null);
-            }}
-            accept={{
-              "image/jpeg": [],
-              "image/png": [],
-              "image/webp": [],
-              "image/jpg": [],
-            }}
+          <Controller
+            control={form.control}
+            name="image"
+            render={({ field }) => (
+              <FileUploader
+                value={field.value ? [field.value] : []}
+                onValueChange={(files) => {
+                  field.onChange(files[0] || undefined);
+                }}
+                maxFileCount={1}
+                maxSize={4 * 1024 * 1024}
+                progresses={{}}
+                disabled={form.formState.isSubmitting}
+                accept={{
+                  "image/jpeg": [],
+                  "image/png": [],
+                  "image/webp": [],
+                  "image/jpg": [],
+                }}
+              />
+            )}
           />
-          {imageFile && (
-            <div className="mt-2 p-2 bg-stone-50 rounded-md border border-stone-200">
-              <p className="text-xs text-stone-600">
-                Selected: <span className="font-medium">{imageFile.name}</span>
-              </p>
-            </div>
-          )}
         </div>
 
         <FormField

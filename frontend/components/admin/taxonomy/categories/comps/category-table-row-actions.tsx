@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DeleteDialog } from "@/components/dialogs/delete-dialog";
 import axios from "axios";
-import { frontBaseURL } from "@/lib/env-vars";
 import { UpdateCategoryForm } from "@/components/admin/taxonomy/categories/add-update-category-form";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from '@/store/store';
@@ -36,7 +35,7 @@ const CategoryTableRowActions = ({ row }: RowActionProps) => {
         if (category) {
             startDeleteTransition(async () => {
                 try {
-                    const response = await axios.delete(`${frontBaseURL}/api/admin/taxonomy/categories/${category.id}`, {
+                    const response = await axios.delete(`/api/admin/taxonomy/categories/${category.id}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                         },

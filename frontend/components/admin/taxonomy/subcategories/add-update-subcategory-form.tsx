@@ -23,7 +23,6 @@ import {
 import { toast } from 'sonner'
 import axios from 'axios'
 import { createSubcategorySchema, updateSubcategorySchema, CreateSubcategoryInput, UpdateSubcategoryInput } from '@/schemas/admin/product/taxonomySchemas'
-import { frontBaseURL } from '@/lib/env-vars'
 import { AddingDialog } from '@/components/dialogs/adding-dialog'
 import { EditingDialog } from '@/components/dialogs/editing-dialog'
 import { useDispatch } from 'react-redux'

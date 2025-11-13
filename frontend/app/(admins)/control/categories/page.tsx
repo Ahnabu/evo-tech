@@ -18,6 +18,7 @@ const getCategories = async (): Promise<CategoryTableType[]> => {
                 sortorder: category.sortOrder || 0,
                 active: category.isActive,
                 url: category.url || `/${category.slug}`,
+                image: category.image,
                 subcategories_count: category.subcategories_count || 0,
                 brands_count: category.brands_count || 0,
                 created_at: category.createdAt,
