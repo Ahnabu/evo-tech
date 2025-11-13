@@ -73,7 +73,7 @@ const PopularProductsSlider = ({
           </h3>
           <div className="flex items-center gap-3">
             <Link
-              href="/products"
+              href="/products-and-accessories"
               className="text-sm text-stone-500 hover:text-brand-600 transition-colors"
             >
               View all
@@ -118,7 +118,7 @@ const PopularProductsSlider = ({
               <IoChevronBackOutline className="w-6 h-6 text-stone-600 group-hover:text-brand-600" />
             </button>
             <Link
-              href="/products"
+              href="/products-and-accessories"
               className="text-sm text-stone-500 hover:text-brand-600 transition-colors"
             >
               View all

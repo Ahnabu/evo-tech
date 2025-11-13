@@ -2,11 +2,10 @@ import { NextResponse, NextRequest } from "next/server";
 import axiosIntercept from "@/utils/axios/axiosIntercept";
 import { isAxiosError } from "axios";
 import axiosErrorLogger from "@/components/error/axios_error";
-import { currentRouteProps } from "@/utils/types_interfaces/shared_types";
 
 export async function POST(
   request: NextRequest,
-  { params }: currentRouteProps
+  { params }: { params: Promise<{ clientid: string }> }
 ) {
   const axioswithIntercept = await axiosIntercept();
   const { clientid } = await params;
@@ -42,7 +41,7 @@ export async function POST(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: currentRouteProps
+  { params }: { params: Promise<{ clientid: string }> }
 ) {
   const axioswithIntercept = await axiosIntercept();
   const { clientid } = await params;

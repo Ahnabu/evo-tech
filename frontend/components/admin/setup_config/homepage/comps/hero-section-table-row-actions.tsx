@@ -12,61 +12,67 @@ import { toast } from "sonner";
 import { deleteHeroSection } from "@/actions/admin/setupConfig/homepage/heroSection";
 
 interface HeroSectionTableRowActionsProps {
-    row: Row<HeroSectionDisplayType>;
+  row: Row<HeroSectionDisplayType>;
 }
 
 const HeroSectionTableRowActions = ({
-    row,
+  row,
 }: HeroSectionTableRowActionsProps) => {
+  const [isOpen, setIsOpen] = React.useState(false);
+  const [isDeletePending, startDeleteTransition] = React.useTransition();
+  const dispatch = useDispatch<AppDispatch>();
 
-    const [isOpen, setIsOpen] = React.useState(false);
-    const [isDeletePending, startDeleteTransition] = React.useTransition();
-    const dispatch = useDispatch<AppDispatch>();
+  const heroSection = row.original;
 
-    const heroSection = row.original;
-
-    const handleSectionUpdateAfterDeletion = () => {
-        dispatch(removeAHeroSection({
-            carouselItemId: heroSection.tcarousel_itemid
-        }));
-    };
-
-    const handleDelete = () => {
-        
-        if (heroSection) {
-            startDeleteTransition(async () => {
-                const { error } = await deleteHeroSection({
-                    id: heroSection.tcarousel_itemid,
-                });
-
-                if (error) {
-                    toast.error(error || "An error occurred while deleting the hero section");
-                    return;
-                }
-
-                setIsOpen(false); // Close on success
-                toast.success("Hero section has been deleted");
-                handleSectionUpdateAfterDeletion(); // update redux state
-            });
-        } else {
-            toast.error('Something went wrong!');
-        }
-    };
-
-    return (
-        <div className="px-2 flex justify-end items-center gap-1" role="group" aria-label="Actions">
-            <UpdateHeroSectionForm sectionData={heroSection} />
-
-            <DeleteDialog<HeroSectionDisplayType>
-                rowitem={row.original}
-                open={isOpen}
-                onOpenChange={setIsOpen}
-                onDelete={handleDelete}
-                isDeletePending={isDeletePending}
-                entityName="hero section"
-            />
-        </div>
+  const handleSectionUpdateAfterDeletion = () => {
+    dispatch(
+      removeAHeroSection({
+        bannerId: heroSection._id,
+      })
     );
+  };
+
+  const handleDelete = () => {
+    if (heroSection) {
+      startDeleteTransition(async () => {
+        const { error } = await deleteHeroSection({
+          id: heroSection._id,
+        });
+
+        if (error) {
+          toast.error(
+            error || "An error occurred while deleting the hero section"
+          );
+          return;
+        }
+
+        setIsOpen(false); // Close on success
+        toast.success("Hero section has been deleted");
+        handleSectionUpdateAfterDeletion(); // update redux state
+      });
+    } else {
+      toast.error("Something went wrong!");
+    }
+  };
+
+  return (
+    <div
+      className="px-2 flex justify-end items-center gap-1"
+      role="group"
+      aria-label="Actions"
+    >
+      <UpdateHeroSectionForm sectionData={heroSection} />
+
+      <DeleteDialog<HeroSectionDisplayType>
+        rowitem={row.original}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        onDelete={handleDelete}
+        isDeletePending={isDeletePending}
+        entityName="hero section"
+      />
+    </div>
+  );
 };
 
 export default HeroSectionTableRowActions;

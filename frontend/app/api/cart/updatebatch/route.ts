@@ -1,10 +1,8 @@
-'use server';
-
-import { NextRequest, NextResponse } from 'next/server';
-import axiosIntercept from '@/utils/axios/axiosIntercept';
-import { isAxiosError } from 'axios';
-import axiosErrorLogger from '@/components/error/axios_error';
-import { transformCartItems } from '@/app/api/shopping/cart/utils';
+import { NextRequest, NextResponse } from "next/server";
+import axiosIntercept from "@/utils/axios/axiosIntercept";
+import { isAxiosError } from "axios";
+import axiosErrorLogger from "@/components/error/axios_error";
+import { transformCartItems } from "@/app/api/shopping/cart/utils";
 
 type BatchUpdateItem = {
   item_id: string;
@@ -17,10 +15,13 @@ const findMatchingCartItem = (
   target: BatchUpdateItem
 ) => {
   return cartItems.find((cartItem) => {
-    const productId = cartItem.product?._id || '';
+    const productId = cartItem.product?._id || "";
     const color = cartItem.selectedColor || null;
-    const normalizedColor = typeof color === 'string' ? color.toLowerCase() : color;
-    const targetColor = target.item_color ? target.item_color.toLowerCase() : null;
+    const normalizedColor =
+      typeof color === "string" ? color.toLowerCase() : color;
+    const targetColor = target.item_color
+      ? target.item_color.toLowerCase()
+      : null;
 
     const productMatches = productId === target.item_id;
     const colorMatches = targetColor ? normalizedColor === targetColor : true;
@@ -36,23 +37,25 @@ export async function PUT(request: NextRequest) {
     axiosWithIntercept = await axiosIntercept();
   } catch (error) {
     axiosErrorLogger({ error });
-    return NextResponse.json({ message: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
   }
 
   try {
-  const body = await request.json();
-    const updates: BatchUpdateItem[] = Array.isArray(body?.items) ? body.items : [];
-  const cartToken = typeof body?.cart_t === 'string' ? body.cart_t : null;
+    const body = await request.json();
+    const updates: BatchUpdateItem[] = Array.isArray(body?.items)
+      ? body.items
+      : [];
+    const cartToken = typeof body?.cart_t === "string" ? body.cart_t : null;
 
     if (updates.length === 0) {
       return NextResponse.json(
-        { message: 'No cart items provided for update' },
+        { message: "No cart items provided for update" },
         { status: 400 }
       );
     }
 
     // Fetch current cart snapshot once
-    const currentCartResponse = await axiosWithIntercept.get('/shopping/cart');
+    const currentCartResponse = await axiosWithIntercept.get("/shopping/cart");
     const currentItems = Array.isArray(currentCartResponse.data?.data)
       ? currentCartResponse.data.data
       : [];
@@ -76,12 +79,12 @@ export async function PUT(request: NextRequest) {
     }
 
     // Fetch the refreshed cart after updates
-    const refreshedCart = await axiosWithIntercept.get('/shopping/cart');
+    const refreshedCart = await axiosWithIntercept.get("/shopping/cart");
     const cartdata = transformCartItems(refreshedCart.data?.data);
 
     return NextResponse.json(
       {
-        message: 'Cart items updated',
+        message: "Cart items updated",
         cartdata,
         ctoken: cartToken,
       },
@@ -90,13 +93,12 @@ export async function PUT(request: NextRequest) {
   } catch (error: any) {
     axiosErrorLogger({ error });
     if (isAxiosError(error) && error.response) {
-      return NextResponse.json(
-        error.response.data,
-        { status: error.response.status ?? 500 }
-      );
+      return NextResponse.json(error.response.data, {
+        status: error.response.status ?? 500,
+      });
     }
     return NextResponse.json(
-      { message: 'Failed to update cart items' },
+      { message: "Failed to update cart items" },
       { status: 500 }
     );
   }

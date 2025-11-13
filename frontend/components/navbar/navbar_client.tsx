@@ -112,7 +112,7 @@ const NavbarClient = ({
 
   return (
     <>
-      <div className="w-full bg-white text-stone-700 text-[13px]">
+      {/* <div className="w-full bg-white text-stone-700 text-[13px]">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between h-8">
           <div className="flex items-center gap-3">
             <span className="inline-flex items-center px-3 py-0.5 rounded-full bg-red-500 text-white text-[12px] font-[700]">
@@ -137,7 +137,7 @@ const NavbarClient = ({
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="sticky top-0 z-50 bg-transparent w-full mx-auto">
         <div className="max-w-[1400px] mx-auto flex justify-center">

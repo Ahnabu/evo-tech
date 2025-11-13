@@ -8,13 +8,22 @@ import { Navigation, Pagination, Autoplay } from "swiper/modules";
 import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
 import { HiArrowRight } from "react-icons/hi2";
 
-const BannerCarousel = ({
-  uniqueid,
-  slides,
-}: {
+type BannerSlide = {
+  image: string;
+  title?: string;
+  subtitle?: string;
+  description?: string;
+  button_text?: string;
+  button_url?: string;
+  more_text?: string;
+};
+
+interface BannerCarouselProps {
   uniqueid: string;
-  slides: any[];
-}) => {
+  slides: BannerSlide[];
+}
+
+const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
   const pagination = {
     clickable: true,
     el: `#${uniqueid} .sw-custom-pagination`,
@@ -44,68 +53,69 @@ const BannerCarousel = ({
         navigation={navigation}
         pagination={pagination}
         id={uniqueid}
-        className="w-full h-full group/swiperbttn"
+        className="group/banner h-full w-full"
       >
         {slides.map((slide, index) => (
-          <SwiperSlide key={`slide${index}`} className="relative w-full h-full">
-            <div className="relative w-full h-full overflow-hidden ">
-              {/* Background Image with overlay */}
-              <div className="absolute inset-0 z-[1]">
-                <Image
-                  src={slide.imgurl}
-                  alt={slide.title}
-                  fill
-                  quality={95}
-                  draggable="false"
-                  sizes="100vw"
-                  priority
-                  className="object-cover object-center opacity-90"
-                />
-                {/* Gradient Overlay for better text readability */}
-                <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-black/20 to-transparent"></div>
-              </div>
+          <SwiperSlide
+            key={`slide${index}`}
+            className="flex w-full justify-center px-3 sm:px-6 py-10 md:py-14"
+          >
+            <div className="relative w-full max-w-[1200px] min-h-[420px] lg:min-h-[500px]">
+              <div className="relative overflow-hidden rounded-[32px] border border-stone-100 bg-white ">
+                <div className="pointer-events-none absolute -left-36 bottom-[-140px] h-[360px] w-[360px] rounded-full blur-3xl" />
+                <div className="pointer-events-none absolute -right-44 top-[-160px] h-[420px] w-[420px] rounded-full bg-sky-100/55 blur-3xl" />
 
-              {/* Content Container - Levithub Style */}
-              <div className="z-[6] absolute inset-0 px-8 sm:px-12 md:px-20 lg:px-28 flex items-center">
-                <div className="max-w-[560px] flex flex-col gap-4 md:gap-6">
-                  {/* Title - Large and Bold like Levithub */}
-                  <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-tight text-black drop-shadow-2xl">
-                    {slide.title}
-                  </h1>
+                <div className="relative flex flex-col-reverse items-center gap-10 px-6 py-10 sm:px-10 sm:py-12 lg:flex-row lg:px-16 lg:py-16">
+                  <div className="flex w-full flex-col gap-4 text-left lg:w-[52%] lg:gap-6">
+                    {slide.more_text && (
+                      <span className="inline-flex items-center gap-2 self-start rounded-full bg-emerald-50 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
+                        {slide.more_text}
+                      </span>
+                    )}
+                    {slide.title && (
+                      <h2 className="text-3xl font-semibold leading-tight tracking-tight text-stone-900 sm:text-4xl lg:text-5xl">
+                        {slide.title}
+                      </h2>
+                    )}
+                    {slide.subtitle && (
+                      <p className="font-medium text-emerald-700 sm:text-lg lg:text-xl">
+                        {slide.subtitle}
+                      </p>
+                    )}
+                    {slide.description && (
+                      <p className="max-w-xl text-sm  text-stone-600 sm:text-base">
+                        {slide.description}
+                      </p>
+                    )}
+                    {slide.button_text && (
+                      <div className="pt-2">
+                        <Link
+                          href={slide.button_url || "#"}
+                          className="group inline-flex items-center gap-2 rounded-full bg-stone-900 px-5 py-3 text-sm font-semibold text-white transition-all duration-300 hover:bg-stone-700 sm:text-base"
+                        >
+                          <span>{slide.button_text}</span>
+                          <HiArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+                        </Link>
+                      </div>
+                    )}
+                  </div>
 
-                  {/* Subtitle */}
-                  {slide.subtitle && (
-                    <p className="text-lg sm:text-xl md:text-2xl font-medium text-black/95 drop-shadow-lg">
-                      {slide.subtitle}
-                    </p>
-                  )}
-
-                  {/* Description */}
-                  {slide.description && (
-                    <p className="text-base sm:text-lg text-black/90 drop-shadow-md max-w-xl">
-                      {slide.description}
-                    </p>
-                  )}
-
-                  {/* Call to Action Button - Levithub Style */}
-                  {slide.button_text && (
-                    <div className="flex gap-4 mt-4">
-                      <Link
-                        href={slide.button_url || "#"}
-                        className="group/btn inline-flex items-center gap-3 px-6 py-3 text-base sm:text-lg font-semibold text-white bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 rounded-full shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 ease-out"
-                      >
-                        <span>{slide.button_text}</span>
-                        <HiArrowRight className="w-5 h-5" />
-                      </Link>
+                  <div className="relative flex w-full justify-center lg:w-[48%]">
+                    <div className="relative aspect-[4/5] w-full max-w-[420px]">
+                      <div className="absolute inset-0 rounded-[28px] bg-gradient-to-br from-emerald-50 via-white to-sky-50" />
+                      <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[28px] border border-white/60 shadow-[0_35px_80px_-45px_rgba(15,23,42,0.45)]">
+                        <Image
+                          src={slide.image}
+                          alt={slide.title || "Hero banner"}
+                          fill
+                          sizes="(max-width: 1024px) 80vw, 420px"
+                          priority={index === 0}
+                          draggable="false"
+                          className="object-contain p-6 drop-shadow-[0_30px_55px_rgba(15,23,42,0.28)]"
+                        />
+                      </div>
                     </div>
-                  )}
-
-                  {/* Additional Text */}
-                  {slide.more_text && (
-                    <p className="text-sm sm:text-base text-white/80 font-light">
-                      {slide.more_text}
-                    </p>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
@@ -116,21 +126,20 @@ const BannerCarousel = ({
         <button
           type="button"
           aria-label="previous button for banner carousel"
-          className="sw-custom-prev-bttn z-10 absolute top-[50%] translate-y-[-50%] left-4 sm:left-6 md:left-8 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center opacity-0 group-hover/swiperbttn:opacity-100 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 text-white transition-all duration-300 ease-out hover:scale-110"
+          className="sw-custom-prev-bttn absolute left-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-stone-800 opacity-0 shadow-lg transition-all duration-300 hover:-translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl group-hover/banner:opacity-100 md:flex lg:left-6"
         >
-          <IoChevronBackOutline className="w-6 h-6 sm:w-7 sm:h-7" />
+          <IoChevronBackOutline className="h-6 w-6" />
         </button>
 
         <button
           type="button"
           aria-label="next button for banner carousel"
-          className="sw-custom-next-bttn z-10 absolute top-[50%] translate-y-[-50%] right-4 sm:right-6 md:right-8 w-12 h-12 sm:w-14 sm:h-14 flex items-center justify-center opacity-0 group-hover/swiperbttn:opacity-100 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 border border-white/30 text-white transition-all duration-300 ease-out hover:scale-110"
+          className="sw-custom-next-bttn absolute right-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-stone-800 opacity-0 shadow-lg transition-all duration-300 hover:translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl group-hover/banner:opacity-100 md:flex lg:right-6"
         >
-          <IoChevronForwardOutline className="w-6 h-6 sm:w-7 sm:h-7" />
+          <IoChevronForwardOutline className="h-6 w-6" />
         </button>
 
-        {/* Pagination Dots - Bottom Center like Levithub */}
-        <div className="sw-custom-pagination z-10 absolute bottom-8 left-0 right-0 flex justify-center gap-2"></div>
+        <div className="sw-custom-pagination pointer-events-none absolute bottom-6 left-0 right-0 flex justify-center gap-2"></div>
       </Swiper>
     </>
   );

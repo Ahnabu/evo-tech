@@ -176,8 +176,8 @@ const AddProductForm = () => {
     }
 
     // Inventory fields
-    formdata.append("stock", data.stock);
-    formdata.append("lowStockThreshold", data.lowStockThreshold);
+    formdata.append("stock", data.stock ?? "0");
+    formdata.append("lowStockThreshold", data.lowStockThreshold ?? "10");
 
     // Boolean flags
     formdata.append("isFeatured", String(Boolean(data.isFeatured)));

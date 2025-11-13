@@ -39,7 +39,7 @@ interface LPFeaturedItemSectionTypes {
 
 // Minimal banner shape expected by BannerCarousel
 type Banner = {
-  imgurl: string;
+  image: string;
   title?: string;
   subtitle?: string;
   description?: string;
@@ -69,7 +69,7 @@ const LandingHeaderCarousel = async () => {
     return { data: { data: [] } };
   });
   const slides: Banner[] = (response?.data?.data || []).map((banner: any) => ({
-    imgurl: banner.image,
+    image: banner.image,
     title: banner.title,
     subtitle: banner.subtitle,
     description: banner.description,
@@ -88,7 +88,6 @@ const LandingHeaderCarousel = async () => {
     </>
   );
 };
-
 
 const ApplicationFields = () => {
   const applicationFields = [
@@ -221,17 +220,12 @@ const WhyShopWithUs = () => {
 const Home = () => {
   return (
     <>
-      <div className="w-full flex justify-center mb-8">
-        <div className="w-full max-w-[1200px] px-4">
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <div
-              id="carousel1"
-              className="w-full h-[460px] md:h-[520px] lg:h-[600px]"
-            >
-              <Suspense fallback={<CarouselFallback />}>
-                <LandingHeaderCarousel />
-              </Suspense>
-            </div>
+      <div className="mb-8 flex w-full justify-center">
+        <div className="w-full max-w-[1400px] px-3 sm:px-6">
+          <div id="carousel1" className="w-full">
+            <Suspense fallback={<CarouselFallback />}>
+              <LandingHeaderCarousel />
+            </Suspense>
           </div>
         </div>
       </div>
