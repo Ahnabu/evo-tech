@@ -36,7 +36,8 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
-      const result = await logout();
+      const logoutResponse = await logout();
+      const result = (logoutResponse as unknown) as { success?: boolean } | null;
       
       if (result?.success) {
         const response = await signOut({ redirect: false, callbackUrl: "/" });
