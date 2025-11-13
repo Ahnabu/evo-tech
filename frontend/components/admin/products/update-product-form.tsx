@@ -304,8 +304,8 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
 
     if (response && response.message && response.item_name) {
       toast.success(`Item '${response.item_name}' updated`);
-      // router.replace(`${process.env.NEXT_PUBLIC_FEND_URL}/control/products/update/${response.item_slug}`, { scroll: false }); // because slug can also be changed
-      router.push(`${process.env.NEXT_PUBLIC_FEND_URL}/control/products`, {
+      // router.replace(`/control/products/update/${response.item_slug}`, { scroll: false }); // because slug can also be changed
+      router.push(`/control/products`, {
         scroll: true,
       });
     }

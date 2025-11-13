@@ -248,12 +248,23 @@ const updateProductIntoDB = async (
     payload.isPreOrder = payload.isPreOrder === "true";
   }
 
+  // Handle empty strings for optional ObjectId fields - remove them
+  if ((payload.subcategory as any) === "" || payload.subcategory === null || payload.subcategory === undefined) {
+    delete payload.subcategory;
+  }
+  if ((payload.brand as any) === "" || payload.brand === null || payload.brand === undefined) {
+    delete payload.brand;
+  }
+  if ((payload.landingpageSectionId as any) === "" || payload.landingpageSectionId === null || payload.landingpageSectionId === undefined) {
+    delete payload.landingpageSectionId;
+  }
+
   // Validate ObjectIds for category, subcategory, and brand
   if (payload.category) {
     if (typeof payload.category === "string" && !Types.ObjectId.isValid(payload.category)) {
       const category = await Category.findOne({ slug: payload.category });
       if (category) {
-        payload.category = category._id;
+        payload.category = category._id as any;
       } else {
         throw new AppError(httpStatus.BAD_REQUEST, "Invalid category");
       }
@@ -261,10 +272,10 @@ const updateProductIntoDB = async (
   }
 
   if (payload.subcategory) {
-    if (typeof payload.subcategory === "string" && !Types.ObjectId.isValid(payload.subcategory)) {
-      const subcategory = await Subcategory.findOne({ slug: payload.subcategory });
+    if (typeof payload.subcategory === "string" && !Types.ObjectId.isValid(payload.subcategory as string)) {
+      const subcategory = await Subcategory.findOne({ slug: payload.subcategory as string });
       if (subcategory) {
-        payload.subcategory = subcategory._id;
+        payload.subcategory = subcategory._id as any;
       } else {
         delete payload.subcategory;
       }
@@ -272,10 +283,10 @@ const updateProductIntoDB = async (
   }
 
   if (payload.brand) {
-    if (typeof payload.brand === "string" && !Types.ObjectId.isValid(payload.brand)) {
-      const brand = await Brand.findOne({ slug: payload.brand });
+    if (typeof payload.brand === "string" && !Types.ObjectId.isValid(payload.brand as string)) {
+      const brand = await Brand.findOne({ slug: payload.brand as string });
       if (brand) {
-        payload.brand = brand._id;
+        payload.brand = brand._id as any;
       } else {
         delete payload.brand;
       }

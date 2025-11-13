@@ -64,10 +64,15 @@ const getSingleUserByUuidFromDB = async (uuid: string) => {
 };
 
 const updateUserIntoDB = async (payload: Partial<TUser>, id: string) => {
+  console.log('📝 Updating user:', { id, payload });
+  
   const result = await User.findByIdAndUpdate(id, payload, {
     new: true,
+    runValidators: true,
   });
 
+  console.log('✅ User updated:', result);
+  
   return result;
 };
 
