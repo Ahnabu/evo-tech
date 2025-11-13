@@ -42,7 +42,7 @@ const CategoryStrip = () => {
   }
 
   return (
-    <div className="w-full  py-2 text-center text-stone-700 shadow-sm border-t border-stone-100">
+    <div className="w-full py-1 text-center text-stone-700 shadow-sm border-t border-stone-100">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6">
         <div className="flex items-center justify-center gap-2 overflow-x-auto scrollbar-hide py-2">
           {categories.map((category) => (

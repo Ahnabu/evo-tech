@@ -18,8 +18,24 @@ export const checkoutSchema = z
     phone: z
       .string()
       .nonempty("Phone no is required")
-      .regex(/^\d+$/, "Phone no must contain only numeric digits")
-      .length(11, "Phone no must be 11 digits"),
+      .transform((val) => {
+        // Remove spaces and dashes
+        let normalized = val.replace(/[\s-]/g, "");
+        // Convert +880 or 880 prefix to 0
+        if (normalized.startsWith("+880")) {
+          normalized = "0" + normalized.slice(4);
+        } else if (normalized.startsWith("880")) {
+          normalized = "0" + normalized.slice(3);
+        }
+        return normalized;
+      })
+      .refine((val) => /^\d+$/.test(val), {
+        message: "Phone no must contain only numeric digits",
+      })
+      .refine((val) => val.length === 11, {
+        message:
+          "Phone no must be 11 digits (use format: 01XXXXXXXXX or +8801XXXXXXXXX)",
+      }),
     email: z.union([
       z.string().email("Provide a valid email address"),
       z.literal(""),
@@ -46,11 +62,9 @@ export const checkoutSchema = z
     }),
     pickupPointId: z.string().nullable().optional(), // optional
     transactionId: z.string().nullable().optional(), // optional
-    terms: z
-      .boolean()
-      .refine((value) => value === true, {
-        message: "Accept terms and conditions to proceed",
-      }),
+    terms: z.boolean().refine((value) => value === true, {
+      message: "Accept terms and conditions to proceed",
+    }),
   })
   .superRefine((data, ctx) => {
     // Payment method is always required (check for empty string)

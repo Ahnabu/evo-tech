@@ -856,206 +856,210 @@ const CheckoutParts = () => {
             ) : null}
           </div>
 
-          <h3 className="flex items-center w-full h-fit mt-5 text-center text-[14px] sm:text-[15px] leading-6 font-[600] text-stone-900">
-            <span className="flex justify-center items-center w-5 h-5 text-[13px] leading-4 mr-1.5 text-[#0866FF] bg-[#0866FF]/15 rounded-full">
-              3
-            </span>
-            {`Payment Method*`}
-          </h3>
+          {shippingType && (
+            <>
+              <h3 className="flex items-center w-full h-fit text-center text-[14px] sm:text-[15px] leading-6 font-[600] text-stone-900">
+                <span className="flex justify-center items-center w-5 h-5 text-[13px] leading-4 mr-1.5 text-[#0866FF] bg-[#0866FF]/15 rounded-full">
+                  3
+                </span>
+                {`Payment Method*`}
+              </h3>
 
-          <div className="flex flex-col w-full h-fit py-2 gap-2.5 border-t border-stone-300">
-            {shippingType !== "pickup_point" &&
-              shippingType !== "express_delivery" && (
+              <div className="flex flex-col w-full h-fit py-2 gap-2.5 border-t border-stone-300">
+                {shippingType !== "pickup_point" &&
+                  shippingType !== "express_delivery" && (
+                    <div className="flex items-center w-full h-fit py-0.5">
+                      <input
+                        type="radio"
+                        id="cod"
+                        {...register("paymentMethod")}
+                        value="cod"
+                        className="mr-2 accent-stone-800"
+                      />
+                      <label
+                        htmlFor="cod"
+                        className="text-[12px] sm:text-[13px] font-[600] text-stone-700"
+                      >
+                        Cash on Delivery
+                      </label>
+                    </div>
+                  )}
+
+                {shippingType === "pickup_point" && (
+                  <div className="flex items-center w-full h-fit py-0.5">
+                    <input
+                      type="radio"
+                      id="cop"
+                      {...register("paymentMethod")}
+                      value="cop"
+                      className="mr-2 accent-stone-800"
+                    />
+                    <label
+                      htmlFor="cop"
+                      className="text-[12px] sm:text-[13px] font-[600] text-stone-700"
+                    >
+                      Cash on Pickup
+                    </label>
+                  </div>
+                )}
+
                 <div className="flex items-center w-full h-fit py-0.5">
                   <input
                     type="radio"
-                    id="cod"
+                    id="bkash"
                     {...register("paymentMethod")}
-                    value="cod"
+                    value="bkash"
                     className="mr-2 accent-stone-800"
                   />
                   <label
-                    htmlFor="cod"
+                    htmlFor="bkash"
                     className="text-[12px] sm:text-[13px] font-[600] text-stone-700"
                   >
-                    Cash on Delivery
+                    bKash
                   </label>
                 </div>
-              )}
 
-            {shippingType === "pickup_point" && (
-              <div className="flex items-center w-full h-fit py-0.5">
-                <input
-                  type="radio"
-                  id="cop"
-                  {...register("paymentMethod")}
-                  value="cop"
-                  className="mr-2 accent-stone-800"
-                />
-                <label
-                  htmlFor="cop"
-                  className="text-[12px] sm:text-[13px] font-[600] text-stone-700"
-                >
-                  Cash on Pickup
-                </label>
-              </div>
-            )}
-
-            <div className="flex items-center w-full h-fit py-0.5">
-              <input
-                type="radio"
-                id="bkash"
-                {...register("paymentMethod")}
-                value="bkash"
-                className="mr-2 accent-stone-800"
-              />
-              <label
-                htmlFor="bkash"
-                className="text-[12px] sm:text-[13px] font-[600] text-stone-700"
-              >
-                bKash
-              </label>
-            </div>
-
-            <div className="flex items-center w-full h-fit py-0.5">
-              <input
-                type="radio"
-                id="bank_transfer"
-                {...register("paymentMethod")}
-                value="bank_transfer"
-                className="mr-2 accent-stone-800"
-              />
-              <label
-                htmlFor="bank_transfer"
-                className="text-[12px] sm:text-[13px] font-[600] text-stone-700"
-              >
-                Bank Transfer
-              </label>
-            </div>
-
-            {errors.paymentMethod && (
-              <EvoFormInputError>
-                {errors.paymentMethod.message}
-              </EvoFormInputError>
-            )}
-
-            {/* bKash Automatic Payment Info */}
-            {paymentMethod === "bkash" && (
-              <div className="flex flex-col w-full h-fit mt-2 p-3 rounded-[4px] border border-[#E2136E] bg-gradient-to-br from-[#E2136E]/5 to-transparent gap-2">
-                <div className="flex items-center gap-2">
-                  <svg
-                    className="w-5 h-5 text-[#E2136E]"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                  <p className="text-[12px] sm:text-[13px] font-[600] text-[#E2136E]">
-                    {`Automatic bKash Payment`}
-                  </p>
-                </div>
-                <div className="text-[11px] sm:text-[12px] font-[500] leading-5 text-stone-600">
-                  <ul className="list-disc list-inside space-y-1">
-                    <li>
-                      {`You will be redirected to bKash payment portal after placing your order.`}
-                    </li>
-                    <li>
-                      {`Complete the payment securely on bKash's official website.`}
-                    </li>
-                    <li>
-                      {`Payment amount: `}
-                      <span className="text-[#E2136E] font-semibold">{`${currencyFormatBDT(
-                        totalPayableAmount
-                      )} BDT`}</span>
-                      {` (all charges inclusive)`}
-                    </li>
-                    <li>
-                      {`After successful payment, you'll be redirected back to your order confirmation page.`}
-                    </li>
-                    <li>
-                      {`Your order will be processed automatically once payment is confirmed.`}
-                    </li>
-                  </ul>
-                </div>
-              </div>
-            )}
-
-            {/* Bank Transfer Manual Payment */}
-            {paymentMethod === "bank_transfer" && (
-              <div className="flex flex-col w-full h-fit mt-2 p-2 rounded-[4px] border border-stone-300 gap-2">
-                <div className="flex flex-col w-full h-fit py-2 gap-1">
-                  <p className="text-[11px] sm:text-[12px] font-[600] leading-4 text-evoAdminAccent">
-                    {`Payment Instruction:`}
-                  </p>
-
-                  <div className="text-[11px] sm:text-[12px] font-[500] leading-4 text-stone-600">
-                    <ul className="list-disc list-inside">
-                      <li>
-                        {`Bank Name: `}
-                        <span className="text-evoAdminPrimary font-semibold">{`Islami Bank Bangladesh PLC.`}</span>
-                      </li>
-                      <li>
-                        {`Branch: `}
-                        <span className="text-evoAdminPrimary font-semibold">{`Cantonment Branch, Dhaka`}</span>
-                      </li>
-                      <li>
-                        {`Name: `}
-                        <span className="text-evoAdminPrimary font-semibold">{`MD. MAHFUZ HASAN`}</span>
-                      </li>
-                      <li>
-                        {`Account No: `}
-                        <span className="text-evoAdminPrimary font-semibold">{`20502036700154115`}</span>
-                      </li>
-                      <li>
-                        {`Routing No: `}
-                        <span className="text-evoAdminPrimary font-semibold">{`125260738`}</span>
-                      </li>
-                      <li>
-                        {`Payable amount- `}
-                        <span className="text-evoAdminPrimary font-semibold">{`${currencyFormatBDT(
-                          totalPayableAmount
-                        )} BDT`}</span>
-                      </li>
-                      <li>
-                        {`After completing the payment, enter your `}
-                        <span className="text-evoAdminAccent font-semibold">{`Transaction ID`}</span>
-                        {` below.`}
-                      </li>
-                      <li>{`Once your order is placed, payment status will be updated in a while.`}</li>
-                      <li>{`Orders will be processed and shipped only after the payment has been successfully received.`}</li>
-                    </ul>
-                  </div>
-                </div>
-
-                <div className="relative w-full h-fit pt-1.5">
+                <div className="flex items-center w-full h-fit py-0.5">
                   <input
-                    type="text"
-                    id="tranId"
-                    {...register("transactionId")}
-                    placeholder="Enter TrxID"
-                    autoCorrect="off"
-                    spellCheck="false"
-                    className="peer w-full h-[40px] custom-input-style1"
+                    type="radio"
+                    id="bank_transfer"
+                    {...register("paymentMethod")}
+                    value="bank_transfer"
+                    className="mr-2 accent-stone-800"
                   />
                   <label
-                    htmlFor="tranId"
-                    className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                    htmlFor="bank_transfer"
+                    className="text-[12px] sm:text-[13px] font-[600] text-stone-700"
                   >
-                    {`Transaction ID`}
+                    Bank Transfer
                   </label>
-                  {errors.transactionId && (
-                    <EvoFormInputError>
-                      {errors.transactionId.message}
-                    </EvoFormInputError>
-                  )}
                 </div>
+
+                {errors.paymentMethod && (
+                  <EvoFormInputError>
+                    {errors.paymentMethod.message}
+                  </EvoFormInputError>
+                )}
+
+                {/* bKash Automatic Payment Info */}
+                {paymentMethod === "bkash" && (
+                  <div className="flex flex-col w-full h-fit mt-2 p-3 rounded-[4px] border border-[#E2136E] bg-gradient-to-br from-[#E2136E]/5 to-transparent gap-2">
+                    <div className="flex items-center gap-2">
+                      <svg
+                        className="w-5 h-5 text-[#E2136E]"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      <p className="text-[12px] sm:text-[13px] font-[600] text-[#E2136E]">
+                        {`Automatic bKash Payment`}
+                      </p>
+                    </div>
+                    <div className="text-[11px] sm:text-[12px] font-[500] leading-5 text-stone-600">
+                      <ul className="list-disc list-inside space-y-1">
+                        <li>
+                          {`You will be redirected to bKash payment portal after placing your order.`}
+                        </li>
+                        <li>
+                          {`Complete the payment securely on bKash's official website.`}
+                        </li>
+                        <li>
+                          {`Payment amount: `}
+                          <span className="text-[#E2136E] font-semibold">{`${currencyFormatBDT(
+                            totalPayableAmount
+                          )} BDT`}</span>
+                          {` (all charges inclusive)`}
+                        </li>
+                        <li>
+                          {`After successful payment, you'll be redirected back to your order confirmation page.`}
+                        </li>
+                        <li>
+                          {`Your order will be processed automatically once payment is confirmed.`}
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bank Transfer Manual Payment */}
+                {paymentMethod === "bank_transfer" && (
+                  <div className="flex flex-col w-full h-fit mt-2 p-2 rounded-[4px] border border-stone-300 gap-2">
+                    <div className="flex flex-col w-full h-fit py-2 gap-1">
+                      <p className="text-[11px] sm:text-[12px] font-[600] leading-4 text-evoAdminAccent">
+                        {`Payment Instruction:`}
+                      </p>
+
+                      <div className="text-[11px] sm:text-[12px] font-[500] leading-4 text-stone-600">
+                        <ul className="list-disc list-inside">
+                          <li>
+                            {`Bank Name: `}
+                            <span className="text-evoAdminPrimary font-semibold">{`Islami Bank Bangladesh PLC.`}</span>
+                          </li>
+                          <li>
+                            {`Branch: `}
+                            <span className="text-evoAdminPrimary font-semibold">{`Cantonment Branch, Dhaka`}</span>
+                          </li>
+                          <li>
+                            {`Name: `}
+                            <span className="text-evoAdminPrimary font-semibold">{`MD. MAHFUZ HASAN`}</span>
+                          </li>
+                          <li>
+                            {`Account No: `}
+                            <span className="text-evoAdminPrimary font-semibold">{`20502036700154115`}</span>
+                          </li>
+                          <li>
+                            {`Routing No: `}
+                            <span className="text-evoAdminPrimary font-semibold">{`125260738`}</span>
+                          </li>
+                          <li>
+                            {`Payable amount- `}
+                            <span className="text-evoAdminPrimary font-semibold">{`${currencyFormatBDT(
+                              totalPayableAmount
+                            )} BDT`}</span>
+                          </li>
+                          <li>
+                            {`After completing the payment, enter your `}
+                            <span className="text-evoAdminAccent font-semibold">{`Transaction ID`}</span>
+                            {` below.`}
+                          </li>
+                          <li>{`Once your order is placed, payment status will be updated in a while.`}</li>
+                          <li>{`Orders will be processed and shipped only after the payment has been successfully received.`}</li>
+                        </ul>
+                      </div>
+                    </div>
+
+                    <div className="relative w-full h-fit pt-1.5">
+                      <input
+                        type="text"
+                        id="tranId"
+                        {...register("transactionId")}
+                        placeholder="Enter TrxID"
+                        autoCorrect="off"
+                        spellCheck="false"
+                        className="peer w-full h-[40px] custom-input-style1"
+                      />
+                      <label
+                        htmlFor="tranId"
+                        className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                      >
+                        {`Transaction ID`}
+                      </label>
+                      {errors.transactionId && (
+                        <EvoFormInputError>
+                          {errors.transactionId.message}
+                        </EvoFormInputError>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          )}
 
           <div className="flex flex-col w-full h-fit py-0.5 mt-1">
             <div className="flex items-center w-full h-fit">

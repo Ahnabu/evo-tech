@@ -220,7 +220,7 @@ const WhyShopWithUs = () => {
 const Home = () => {
   return (
     <>
-      <div className="mb-8 flex w-full justify-center">
+      <div className="flex w-full justify-center">
         <div className="w-full max-w-[1400px] px-3 sm:px-6">
           <div id="carousel1" className="w-full">
             <Suspense fallback={<CarouselFallback />}>
@@ -232,12 +232,12 @@ const Home = () => {
       <FeaturedCategories />
       <PopularProductsSlider title="Popular Products" />
 
-      <div className="w-full max-w-[1440px] h-fit pb-12 flex flex-col items-center font-inter">
+      <div className="w-full max-w-[1440px] h-fit pb-8 flex flex-col items-center font-inter">
         <div
           id="application_fields"
-          className="flex flex-col items-center w-full min-h-[400px] px-4 sm:px-8 py-8 gap-8 bg-[radial-gradient(at_center,_var(--tw-gradient-stops))] from-[#f0f7fc] to-[#eeeeee] to-40%"
+          className="flex flex-col items-center w-full min-h-[400px] px-4 sm:px-8 py-6 gap-5 bg-[radial-gradient(at_center,_var(--tw-gradient-stops))] from-[#f0f7fc] to-[#eeeeee] to-40%"
         >
-          <h2 className="flex justify-center w-full h-fit mt-4 px-3 py-1 font-[600] text-[20px] sm:text-[24px] leading-8 text-stone-700 text-center">
+          <h2 className="flex justify-center w-full h-fit px-3 py-1 font-bold text-[20px] sm:text-[24px] leading-8 text-stone-700 text-center">
             Application Fields
           </h2>
           <div className="flex justify-center w-full h-fit max-sm:px-5">
@@ -247,7 +247,7 @@ const Home = () => {
 
         <div
           id="our_clients"
-          className="flex flex-col items-center w-full min-h-[250px] bg-gradient-to-r from-[#eeeeee] via-[#e8eae8] to-[#eeeeee] gap-10 px-3 sm:px-8 md:px-12 "
+          className="flex flex-col items-center w-full min-h-[250px] bg-gradient-to-r from-[#eeeeee] via-[#e8eae8] to-[#eeeeee] gap-5 px-3 sm:px-8 md:px-12 "
         >
           <h2 className="flex justify-center w-full h-fit mt-4 px-3 py-1 font-[600] text-[20px] sm:text-[24px] leading-8 text-stone-700 text-center">
             We Proudly Served

@@ -2,9 +2,7 @@ import { Order, OrderItem } from "./order.model";
 import { TOrder, TOrderItem } from "./order.interface";
 import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
-import { Cart } from "../cart/cart.model";
 import { Product } from "../product/product.model";
-import { v4 as uuidv4 } from "uuid";
 import { Types } from "mongoose";
 
 const generateOrderNumber = (): string => {
@@ -15,8 +13,22 @@ const generateOrderNumber = (): string => {
   return `ORD-${timestamp}-${random}`;
 };
 
-// Ensure returned order objects have both `firstname`/`lastname` (existing DB fields)
-// and camelCase `firstName`/`lastName` so frontend consumers can use either.
+// Normalize phone number: convert +8801234567890 to 01234567890
+const normalizePhoneNumber = (phone: string): string => {
+  if (!phone) return phone;
+  // Remove all spaces and dashes
+  let normalized = phone.replace(/[\s-]/g, "");
+  // If starts with +880, replace with 0
+  if (normalized.startsWith("+880")) {
+    normalized = "0" + normalized.slice(4);
+  }
+  // If starts with 880, replace with 0
+  else if (normalized.startsWith("880")) {
+    normalized = "0" + normalized.slice(3);
+  }
+  return normalized;
+};
+
 export const normalizeOrderObject = (orderDoc: any) => {
   if (!orderDoc) return orderDoc;
   const obj = orderDoc.toObject ? orderDoc.toObject() : { ...orderDoc };
@@ -29,18 +41,24 @@ export const normalizeOrderObject = (orderDoc: any) => {
   return obj;
 };
 
-const placeOrderIntoDB = async (payload: TOrder, userUuid: string) => {
-  // Get cart items
-  const cartItems = await Cart.find({ user: userUuid }).populate("product");
+const placeOrderIntoDB = async (
+  payload: TOrder & { items: any[] },
+  userUuid: string
+) => {
+  const { items, ...orderData } = payload;
 
-  if (!cartItems || cartItems.length === 0) {
+  // Cart is managed in frontend Redux, use items from request body
+  if (!items || items.length === 0) {
     throw new AppError(httpStatus.BAD_REQUEST, "Cart is empty");
   }
 
-  // Validate stock availability
-  for (const item of cartItems) {
-    const product = item.product as any;
-    if (!product.inStock || product.stock < item.quantity) {
+  // Validate stock availability for all items
+  for (const item of items) {
+    const product = await Product.findById(item.item_id);
+    if (!product) {
+      throw new AppError(httpStatus.NOT_FOUND, `Product not found`);
+    }
+    if (!product.inStock || (product.stock ?? 0) < item.item_quantity) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
         `Product "${product.name}" is out of stock or insufficient quantity available`
@@ -48,49 +66,60 @@ const placeOrderIntoDB = async (payload: TOrder, userUuid: string) => {
     }
   }
 
-  // Calculate totals
-  let subtotal = 0;
-  cartItems.forEach((item: any) => {
-    subtotal += item.product.price * item.quantity;
-  });
+  // Process items and create product details
+  const productDetails = await Promise.all(
+    items.map(async (item) => {
+      const product = await Product.findById(item.item_id);
+      if (!product) {
+        throw new AppError(httpStatus.NOT_FOUND, `Product not found`);
+      }
+      return {
+        product,
+        quantity: item.item_quantity,
+        selectedColor: item.item_color || "",
+        subtotal: product.price * item.item_quantity,
+      };
+    })
+  );
+
+  // Normalize phone number
+  if (orderData.phone) {
+    orderData.phone = normalizePhoneNumber(orderData.phone);
+  }
 
   // Generate order number
-  payload.orderNumber = generateOrderNumber();
-  payload.user = userUuid;
-  payload.isGuest = false;
-  payload.subtotal = subtotal;
-  payload.totalPayable =
-    subtotal +
-    (payload.deliveryCharge || 0) +
-    (payload.additionalCharge || 0) -
-    (payload.discount || 0);
+  orderData.orderNumber = generateOrderNumber();
+  orderData.user = userUuid;
+  orderData.isGuest = false;
+
+  // Use the subtotal and totalPayable sent from frontend
+  console.log("✅ Using frontend-calculated values:", {
+    subtotal: orderData.subtotal,
+    totalPayable: orderData.totalPayable,
+  });
 
   // Create order
-  const order = await Order.create(payload);
+  const order = await Order.create(orderData);
 
-  // Create order items and update product stock
-  const orderItemsData = cartItems.map((item: any) => ({
+  // Create order items
+  const orderItemsData = productDetails.map((detail) => ({
     order: order._id,
-    product: item.product._id,
-    productName: item.product.name,
-    productPrice: item.product.price,
-    quantity: item.quantity,
-    selectedColor: item.selectedColor,
-    subtotal: item.product.price * item.quantity,
+    product: detail.product._id,
+    productName: detail.product.name,
+    productPrice: detail.product.price,
+    quantity: detail.quantity,
+    selectedColor: detail.selectedColor,
+    subtotal: detail.subtotal,
   }));
 
   await OrderItem.insertMany(orderItemsData);
 
   // Update product stock quantities
-  for (const item of cartItems) {
-    const product = item.product as any;
-    await Product.findByIdAndUpdate(product._id, {
-      $inc: { stock: -item.quantity },
+  for (const detail of productDetails) {
+    await Product.findByIdAndUpdate(detail.product._id, {
+      $inc: { stock: -detail.quantity },
     });
   }
-
-  // Clear cart
-  await Cart.deleteMany({ user: userUuid });
 
   // Get full order with items
   const fullOrder = await Order.findById(order._id);
@@ -338,6 +367,11 @@ const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
       };
     })
   );
+
+  // Normalize phone number
+  if (orderData.phone) {
+    orderData.phone = normalizePhoneNumber(orderData.phone);
+  }
 
   // Generate order number
   orderData.orderNumber = generateOrderNumber();
