@@ -7,7 +7,7 @@ import { EvoFormInputError } from "@/components/error/form-input-error";
 import { FileUploader } from "@/components/file_upload/file-uploader";
 import { AddProductSchema } from "@/schemas/admin/product/productschemas";
 import { useSession } from "next-auth/react";
-import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
+import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/lib/all_utils";
@@ -205,8 +205,7 @@ const AddProductForm = () => {
       formdata.append("seoDescription", data.seoDescription);
     }
 
-    const axiosClient = createAxiosClientWithSession(session);
-    const response = await axiosClient
+    const response = await axios
       .post(`/api/admin/products`, formdata, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",

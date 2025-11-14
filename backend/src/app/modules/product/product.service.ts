@@ -30,16 +30,43 @@ const getAllProductsFromDB = async (query: Record<string, unknown>) => {
     ];
   }
 
+  // Handle category - accept both ObjectId and slug
   if (query.category) {
-    searchQuery.category = query.category;
+    if (Types.ObjectId.isValid(query.category as string)) {
+      searchQuery.category = query.category;
+    } else {
+      // Look up category by slug
+      const category = await Category.findOne({ slug: query.category as string });
+      if (category) {
+        searchQuery.category = category._id;
+      }
+    }
   }
 
+  // Handle subcategory - accept both ObjectId and slug
   if (query.subcategory) {
-    searchQuery.subcategory = query.subcategory;
+    if (Types.ObjectId.isValid(query.subcategory as string)) {
+      searchQuery.subcategory = query.subcategory;
+    } else {
+      // Look up subcategory by slug
+      const subcategory = await Subcategory.findOne({ slug: query.subcategory as string });
+      if (subcategory) {
+        searchQuery.subcategory = subcategory._id;
+      }
+    }
   }
 
+  // Handle brand - accept both ObjectId and slug
   if (query.brand) {
-    searchQuery.brand = query.brand;
+    if (Types.ObjectId.isValid(query.brand as string)) {
+      searchQuery.brand = query.brand;
+    } else {
+      // Look up brand by slug
+      const brand = await Brand.findOne({ slug: query.brand as string });
+      if (brand) {
+        searchQuery.brand = brand._id;
+      }
+    }
   }
 
   if (query.inStock !== undefined) {

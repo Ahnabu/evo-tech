@@ -65,8 +65,8 @@ const FeaturedSectionForm = ({ mode = 'create', sectionData, onSuccess }: Featur
         }
 
         const url = isUpdate
-            ? `${frontBaseURL}/api/admin/setupconfig/homepage/featured/${sectionData!.sectionid}`
-            : `${frontBaseURL}/api/admin/setupconfig/homepage/featured`
+            ? `/api/admin/setupconfig/homepage/featured/${sectionData!.sectionid}`
+            : `/api/admin/setupconfig/homepage/featured`
 
         const method = isUpdate ? 'PUT' : 'POST'
 

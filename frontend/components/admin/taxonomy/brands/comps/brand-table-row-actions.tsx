@@ -32,7 +32,7 @@ const BrandTableRowActions = ({ row }: RowActionProps) => {
         if (brand) {
             startDeleteTransition(async () => {
                 try {
-                    const response = await axios.delete(`${frontBaseURL}/api/admin/taxonomy/brands/${brand.id}`, {
+                    const response = await axios.delete(`/api/admin/taxonomy/brands/${brand.id}`, {
                         headers: {
                             'X-Requested-With': 'XMLHttpRequest',
                         },

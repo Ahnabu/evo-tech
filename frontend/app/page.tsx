@@ -24,6 +24,7 @@ import Designers3DModel from "@/public/assets/application_fields/minimalist-vase
 import Industry3DModel from "@/public/assets/application_fields/industrial-robot-arm-clean-3d-Model.png";
 import FeaturedCategories from "@/components/cards/featuredcategories";
 import PopularProductsSlider from "@/components/cards/popularproductsslider";
+import Featured3DPrintersMaterials from "@/components/cards/featured-3d-printers-materials";
 
 export const metadata: Metadata = {
   title: {
@@ -230,6 +231,7 @@ const Home = () => {
         </div>
       </div>
       <FeaturedCategories />
+      <Featured3DPrintersMaterials />
       <PopularProductsSlider title="Popular Products" />
 
       <div className="w-full max-w-[1440px] h-fit pb-8 flex flex-col items-center font-inter">

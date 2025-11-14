@@ -27,15 +27,7 @@ async function fetchTaxonomyData(): Promise<TaxonomyCategory[]> {
     
     // Fetch categories and subcategories separately since /taxonomy/alldata doesn't exist yet
     const [categoriesRes, subcategoriesRes, brandsRes] = await Promise.all([
-      fetch(`${backAPIURL}/categories`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        next: { revalidate: 300 }, // 5 minutes
-      }),
-      fetch(`${backAPIURL}/subcategories`, {
+      fetch(`${backAPIURL}/categories?limit=100`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -43,7 +35,15 @@ async function fetchTaxonomyData(): Promise<TaxonomyCategory[]> {
         },
         next: { revalidate: 300 },
       }),
-      fetch(`${backAPIURL}/brands`, {
+      fetch(`${backAPIURL}/subcategories?limit=100`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        next: { revalidate: 300 },
+      }),
+      fetch(`${backAPIURL}/brands?limit=100`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
