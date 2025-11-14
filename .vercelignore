@@ -1,0 +1,6 @@
+# Vercel ignores - explicitly specify what NOT to deploy
+backend/
+.git/
+*.log
+node_modules/
+.DS_Store
