@@ -1,5 +1,4 @@
 import Axios, { AxiosInstance } from "axios";
-import { getSession } from "next-auth/react";
 
 const ensureApiV1Path = (instance: AxiosInstance, url?: string) => {
   if (!url) return url;
@@ -59,25 +58,6 @@ const axios = Axios.create({
   withCredentials: true,
 });
 
-// Add interceptor to attach auth token from NextAuth session
-axios.interceptors.request.use(
-  async (config) => {
-    // Only run on client side
-    if (typeof window !== "undefined") {
-      try {
-        const session = await getSession();
-        if (session?.accessToken) {
-          config.headers.Authorization = `Bearer ${session.accessToken}`;
-        }
-      } catch (error) {
-        console.error("Failed to get session for axios request:", error);
-      }
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
-
 attachApiPrefix(axios);
 
 export const axiosPrivate = Axios.create({
@@ -89,5 +69,29 @@ export const axiosPrivate = Axios.create({
 });
 
 attachApiPrefix(axiosPrivate);
+
+// For client-side authenticated requests, create a helper function
+export const createAuthAxios = async () => {
+  if (typeof window === "undefined") {
+    // Server-side, return the base axios instance
+    return axios;
+  }
+  
+  // Client-side, attach auth token
+  const { getSession } = await import("next-auth/react");
+  const session = await getSession();
+  
+  const authAxios = Axios.create({
+    baseURL: process.env.NEXT_PUBLIC_API_URL,
+    headers: {
+      "Content-Type": "application/json",
+      ...(session?.accessToken && { Authorization: `Bearer ${session.accessToken}` }),
+    },
+    withCredentials: true,
+  });
+  
+  attachApiPrefix(authAxios);
+  return authAxios;
+};
 
 export default axios;
