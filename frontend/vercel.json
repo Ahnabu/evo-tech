@@ -1,5 +1,5 @@
 {
-  "buildCommand": "next build",
+  "buildCommand": "node vercel-build.js",
   "devCommand": "next dev",
   "installCommand": "npm install",
   "framework": "nextjs",
