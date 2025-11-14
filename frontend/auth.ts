@@ -68,6 +68,7 @@ declare module "@auth/core/jwt" {
     }
 }
 
+export const runtime = "nodejs";
 
 export const {
     handlers,
