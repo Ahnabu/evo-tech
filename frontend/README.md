@@ -79,6 +79,13 @@ Next.js 14 frontend application for the Evo-Tech Bangladesh e-commerce platform 
    NEXTAUTH_URL=http://localhost:3000
    ```
 
+   Optional but recommended:
+   ```
+   NEXT_PUBLIC_API_URL=http://localhost:5000
+   NEXT_PUBLIC_FEND_URL=http://localhost:3000
+   AUTH_SECRET=your-secret-key
+   ```
+
 5. Run the development server:
    ```bash
    npm run dev
@@ -199,9 +206,11 @@ frontend/
 
 ## Environment Variables
 
-- `NEXT_PUBLIC_BACKEND_URL` - Backend API URL
-- `NEXTAUTH_SECRET` - NextAuth secret key
-- `NEXTAUTH_URL` - NextAuth base URL
+- `NEXT_PUBLIC_BACKEND_URL` - Backend API base (e.g. `https://api.example.com/api/v1`)
+- `NEXT_PUBLIC_API_URL` - Optional override for the public Axios client (defaults to backend URL)
+- `NEXT_PUBLIC_FEND_URL` - Public origin of this frontend (used for absolute links and admin utilities)
+- `NEXTAUTH_SECRET` / `AUTH_SECRET` - Secrets used by NextAuth JWT/session handling
+- `NEXTAUTH_URL` - Base URL of the deployed site (include protocol)
 
 ## Building for Production
 
@@ -221,8 +230,15 @@ This app can be deployed to Vercel, Netlify, or any platform supporting Next.js.
 
 For Vercel deployment:
 1. Connect your GitHub repository
-2. Set environment variables in Vercel dashboard
-3. Deploy
+2. Configure the following Environment Variables in the Vercel dashboard for each environment (Preview/Production):
+   - `NEXT_PUBLIC_BACKEND_URL` – points to your public API base, e.g. `https://api.your-backend.com/api/v1`
+   - `NEXT_PUBLIC_API_URL` – optional override for the Axios client (defaults to the backend URL above)
+   - `NEXT_PUBLIC_FEND_URL` – your frontend origin, e.g. `https://evo-tech.vercel.app`
+   - `NEXTAUTH_URL` – must match the deployed frontend URL, including protocol
+   - `NEXTAUTH_SECRET` and `AUTH_SECRET` – strong random strings shared with your Auth provider
+3. Trigger a deployment (Vercel will run `npm run build` automatically)
+
+> Tip: The updated `next.config.mjs` now falls back to the Vercel-provided domain when `NEXT_PUBLIC_FEND_URL` is not set, but you should still define it explicitly for custom domains.
 
 ## Contributing
 
