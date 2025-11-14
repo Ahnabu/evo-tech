@@ -93,6 +93,16 @@ const deleteOrder = (0, catchAsync_1.catchAsync)(async (req, res) => {
         data: null,
     });
 });
+const trackOrder = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { trackingCode } = req.params;
+    const result = await order_service_1.OrderServices.trackOrderByTrackingCode(trackingCode);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Order tracking information retrieved successfully",
+        data: result,
+    });
+});
 exports.OrderControllers = {
     placeOrder,
     placeGuestOrder,
@@ -102,5 +112,6 @@ exports.OrderControllers = {
     getSingleOrder,
     updateOrderStatus,
     deleteOrder,
+    trackOrder,
 };
 //# sourceMappingURL=order.controller.js.map

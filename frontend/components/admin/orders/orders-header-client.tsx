@@ -152,12 +152,15 @@ const OrdersHeaderClient = () => {
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="text-xs">
-                        <SelectValue placeholder={<span className="text-stone-400 text-xs">Select order status</span>} />
+                        <SelectValue
+                          placeholder={
+                            <span className="text-stone-400 text-xs">
+                              Select order status
+                            </span>
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <Button
@@ -189,12 +192,15 @@ const OrdersHeaderClient = () => {
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="text-xs">
-                        <SelectValue placeholder={<span className="text-stone-400 text-xs">Select payment status</span>} />
+                        <SelectValue
+                          placeholder={
+                            <span className="text-stone-400 text-xs">
+                              Select payment status
+                            </span>
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <Button
@@ -220,7 +226,12 @@ const OrdersHeaderClient = () => {
           </div>
 
           <div className="flex gap-2 items-center">
-            <Button type="submit" size="sm" aria-label="filter orders">
+            <Button
+              variant="outline"
+              type="submit"
+              size="sm"
+              aria-label="filter orders"
+            >
               Filter
             </Button>
             <Button
@@ -246,7 +257,7 @@ const OrdersHeaderClient = () => {
             aria-label="export button for orders"
           >
             <Download className="mr-0.5 size-4" />
-            {isExporting ? 'Exporting...' : 'Export'}
+            {isExporting ? "Exporting..." : "Export"}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">

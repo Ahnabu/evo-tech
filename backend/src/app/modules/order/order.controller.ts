@@ -5,7 +5,10 @@ import { OrderServices } from "./order.service";
 
 const placeOrder = catchAsync(async (req, res) => {
   const userUuid = req.user.uuid;
-  const result = await OrderServices.placeOrderIntoDB(req.body, userUuid as string);
+  const result = await OrderServices.placeOrderIntoDB(
+    req.body,
+    userUuid as string
+  );
 
   sendResponse(res, {
     success: true,
@@ -45,7 +48,10 @@ const linkGuestOrders = catchAsync(async (req, res) => {
 
 const getUserOrders = catchAsync(async (req, res) => {
   const userUuid = req.user.uuid;
-  const orders = await OrderServices.getUserOrdersFromDB(userUuid as string, req.query);
+  const orders = await OrderServices.getUserOrdersFromDB(
+    userUuid as string,
+    req.query
+  );
 
   sendResponse(res, {
     success: true,
@@ -112,6 +118,18 @@ const deleteOrder = catchAsync(async (req, res) => {
   });
 });
 
+const trackOrder = catchAsync(async (req, res) => {
+  const { trackingCode } = req.params;
+  const result = await OrderServices.trackOrderByTrackingCode(trackingCode);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Order tracking information retrieved successfully",
+    data: result,
+  });
+});
+
 export const OrderControllers = {
   placeOrder,
   placeGuestOrder,
@@ -121,4 +139,5 @@ export const OrderControllers = {
   getSingleOrder,
   updateOrderStatus,
   deleteOrder,
+  trackOrder,
 };

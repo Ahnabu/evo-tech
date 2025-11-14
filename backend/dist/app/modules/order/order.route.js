@@ -9,8 +9,9 @@ const order_controller_1 = require("./order.controller");
 const auth_1 = __importDefault(require("../../middlewares/auth"));
 const user_constant_1 = require("../user/user.constant");
 const router = express_1.default.Router();
-// Guest checkout - no auth required
+// Public routes - no auth required
 router.post("/guest", order_controller_1.OrderControllers.placeGuestOrder);
+router.get("/track/:trackingCode", order_controller_1.OrderControllers.trackOrder);
 // User routes
 router.post("/", (0, auth_1.default)(user_constant_1.USER_ROLE.USER, user_constant_1.USER_ROLE.ADMIN), order_controller_1.OrderControllers.placeOrder);
 router.post("/link-guest-orders", (0, auth_1.default)(user_constant_1.USER_ROLE.USER, user_constant_1.USER_ROLE.ADMIN), order_controller_1.OrderControllers.linkGuestOrders);

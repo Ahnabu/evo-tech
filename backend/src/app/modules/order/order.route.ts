@@ -5,8 +5,9 @@ import { USER_ROLE } from "../user/user.constant";
 
 const router = express.Router();
 
-// Guest checkout - no auth required
+// Public routes - no auth required
 router.post("/guest", OrderControllers.placeGuestOrder);
+router.get("/track/:trackingCode", OrderControllers.trackOrder);
 
 // User routes
 router.post(

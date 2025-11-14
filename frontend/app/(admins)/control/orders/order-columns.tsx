@@ -136,6 +136,8 @@ export const ordersColumns: ColumnDef<OrderWithItemsType>[] = [
             return "warning";
           case "partial":
             return "failed";
+          case "failed":
+            return "failed";
           default:
             return "default";
         }

@@ -13,6 +13,18 @@ const generateOrderNumber = (): string => {
   return `ORD-${timestamp}-${random}`;
 };
 
+// Generate unique tracking ID with date format: YYYYMMDD-XXXXX (8-10 digits)
+const generateTrackingId = (): string => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  const random = Math.floor(Math.random() * 100000)
+    .toString()
+    .padStart(5, "0");
+  return `${year}${month}${day}${random}`; // e.g., 2025111412345 (13 digits total)
+};
+
 // Normalize phone number: convert +8801234567890 to 01234567890
 const normalizePhoneNumber = (phone: string): string => {
   if (!phone) return phone;
@@ -87,8 +99,9 @@ const placeOrderIntoDB = async (
     orderData.phone = normalizePhoneNumber(orderData.phone);
   }
 
-  // Generate order number
+  // Generate order number and tracking ID
   orderData.orderNumber = generateOrderNumber();
+  orderData.trackingCode = generateTrackingId();
   orderData.user = userUuid;
   orderData.isGuest = false;
 
@@ -373,8 +386,9 @@ const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
     orderData.phone = normalizePhoneNumber(orderData.phone);
   }
 
-  // Generate order number
+  // Generate order number and tracking ID
   orderData.orderNumber = generateOrderNumber();
+  orderData.trackingCode = generateTrackingId();
   orderData.isGuest = true;
   orderData.guestEmail = orderData.email;
 
@@ -449,6 +463,55 @@ const linkGuestOrdersToUserIntoDB = async (email: string, userUuid: string) => {
   };
 };
 
+// Track order by tracking code - public endpoint (no auth required)
+const trackOrderByTrackingCode = async (trackingCode: string) => {
+  const order = await Order.findOne({ trackingCode }).lean();
+
+  if (!order) {
+    throw new AppError(
+      httpStatus.NOT_FOUND,
+      "Order not found with this tracking code"
+    );
+  }
+
+  // Get order items
+  const orderItems = await OrderItem.find({ order: order._id })
+    .populate("product", "name price images")
+    .lean();
+
+  // Return sanitized order info (hide sensitive customer details for public access)
+  return {
+    order: {
+      orderNumber: order.orderNumber,
+      trackingCode: order.trackingCode,
+      orderStatus: order.orderStatus,
+      paymentStatus: order.paymentStatus,
+      paymentMethod: order.paymentMethod,
+      shippingType: order.shippingType,
+      city: order.city,
+      subtotal: order.subtotal,
+      discount: order.discount,
+      deliveryCharge: order.deliveryCharge,
+      additionalCharge: order.additionalCharge,
+      totalPayable: order.totalPayable,
+      createdAt: order.createdAt,
+      deliveredAt: order.deliveredAt,
+      // Partially mask sensitive info
+      customerName: `${order.firstname} ${order.lastname?.charAt(0)}***`,
+      phone: order.phone
+        ? `${order.phone.slice(0, 3)}****${order.phone.slice(-2)}`
+        : "",
+    },
+    items: orderItems.map((item) => ({
+      productName: item.productName,
+      quantity: item.quantity,
+      selectedColor: item.selectedColor,
+      subtotal: item.subtotal,
+      product: item.product,
+    })),
+  };
+};
+
 export const OrderServices = {
   placeOrderIntoDB,
   placeGuestOrderIntoDB,
@@ -458,4 +521,5 @@ export const OrderServices = {
   getSingleOrderFromDB,
   updateOrderStatusIntoDB,
   deleteOrderFromDB,
+  trackOrderByTrackingCode,
 };

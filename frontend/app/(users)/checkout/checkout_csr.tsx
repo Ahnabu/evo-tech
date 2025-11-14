@@ -29,6 +29,7 @@ import { districtsOfBD } from "@/utils/bd_districts";
 import { IoChevronDown, IoCheckmark } from "react-icons/io5";
 import { useEffect, useMemo, useState } from "react";
 import axios from "@/utils/axios/axios";
+import createAxiosClient from "@/utils/axios/axiosClient";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { useRouter } from "next/navigation";
 import { calculatePayment } from "./checkout_payment_calc";
@@ -204,7 +205,14 @@ const CheckoutParts = () => {
       additionalCharge: requestBody.additionalCharge,
     });
 
-    const orderResponse = await axios
+    // Use authenticated axios instance if user is logged in, otherwise use guest axios
+    const axiosInstance = isAuthenticated ? await createAxiosClient() : axios;
+    console.log(
+      "🔐 Using axios instance:",
+      isAuthenticated ? "Authenticated (with JWT token)" : "Guest (no auth)"
+    );
+
+    const orderResponse = await axiosInstance
       .post(orderEndpoint, requestBody)
       .then((res) => {
         console.log("✅ Order response received:", res.data);
@@ -254,8 +262,8 @@ const CheckoutParts = () => {
             isAuthenticated
           );
 
-          // Create bKash payment
-          const paymentResponse = await axios
+          // Create bKash payment - use authenticated axios if user is logged in
+          const paymentResponse = await axiosInstance
             .post(bkashEndpoint, {
               amount: order.totalPayable,
               orderId: order._id,

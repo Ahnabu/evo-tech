@@ -7,5 +7,6 @@ export declare const OrderControllers: {
     getSingleOrder: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
     updateOrderStatus: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
     deleteOrder: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
+    trackOrder: (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction) => Promise<void>;
 };
 //# sourceMappingURL=order.controller.d.ts.map

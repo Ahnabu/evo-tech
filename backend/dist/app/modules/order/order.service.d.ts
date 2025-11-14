@@ -1,4 +1,5 @@
 import { TOrder, TOrderItem } from "./order.interface";
+import { Types } from "mongoose";
 export declare const normalizeOrderObject: (orderDoc: any) => any;
 export declare const OrderServices: {
     placeOrderIntoDB: (payload: TOrder & {
@@ -61,5 +62,32 @@ export declare const OrderServices: {
     }> & {
         __v: number;
     }) | null>;
+    trackOrderByTrackingCode: (trackingCode: string) => Promise<{
+        order: {
+            orderNumber: string;
+            trackingCode: string | undefined;
+            orderStatus: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
+            paymentStatus: "pending" | "paid" | "failed" | "refunded";
+            paymentMethod: string;
+            shippingType: string;
+            city: string;
+            subtotal: number;
+            discount: number;
+            deliveryCharge: number;
+            additionalCharge: number;
+            totalPayable: number;
+            createdAt: Date | undefined;
+            deliveredAt: Date | undefined;
+            customerName: string;
+            phone: string;
+        };
+        items: {
+            productName: string;
+            quantity: number;
+            selectedColor: string | undefined;
+            subtotal: number;
+            product: Types.ObjectId;
+        }[];
+    }>;
 };
 //# sourceMappingURL=order.service.d.ts.map
