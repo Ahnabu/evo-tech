@@ -24,7 +24,12 @@ const nextConfig = {
         serverActions: {
             bodySizeLimit: '2mb',
         },
+        // Disable static optimization for problematic routes
+        workerThreads: false,
+        cpus: 1,
     },
+    // Force all pages to be dynamic by default to avoid manifest issues
+    dynamicIO: true,
     env: {
         NEXT_PUBLIC_FEND_URL: frontUrl,
         NEXT_PUBLIC_BACKEND_URL: backendUrl,
