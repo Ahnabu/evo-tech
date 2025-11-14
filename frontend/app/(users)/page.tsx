@@ -31,6 +31,9 @@ export const metadata: Metadata = {
   },
 };
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 interface LPFeaturedItemSectionTypes {
   title: string;
   view_more_url: string;
