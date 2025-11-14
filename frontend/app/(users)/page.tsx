@@ -1,3 +1,5 @@
+"use client";
+
 import { Suspense } from "react";
 import { Metadata } from "next";
 import Image from "next/image";
