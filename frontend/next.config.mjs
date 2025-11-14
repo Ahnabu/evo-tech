@@ -20,6 +20,11 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? backendUrl;
 
 const nextConfig = {
     reactStrictMode: true,
+    experimental: {
+        serverActions: {
+            bodySizeLimit: '2mb',
+        },
+    },
     env: {
         NEXT_PUBLIC_FEND_URL: frontUrl,
         NEXT_PUBLIC_BACKEND_URL: backendUrl,

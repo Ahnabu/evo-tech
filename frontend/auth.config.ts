@@ -5,6 +5,8 @@ import axios from "axios";
 import { LoginSchema } from "@/schemas";
 import { authUsingApi } from "@/dal/user";
 
+export const runtime = "nodejs";
+
 const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL;
 
 export class CustomCredSignin extends CredentialsSignin {
