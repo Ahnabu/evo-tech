@@ -5,11 +5,11 @@ import axios from "@/utils/axios/axios";
 import CategoryCard from "@/components/cards/categorycard";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation, Pagination, Autoplay } from "swiper/modules";
-import { IoChevronBackOutline, IoChevronForwardOutline } from "react-icons/io5";
+import { Pagination, Autoplay } from "swiper/modules";
+// Navigation arrows are intentionally removed for autoplay; keep UI minimal
 import type { Swiper as SwiperType } from "swiper";
 import "swiper/css";
-import "swiper/css/navigation";
+// navigation styles removed — autoplay-only
 import "swiper/css/pagination";
 
 interface Category {
@@ -25,7 +25,7 @@ interface Category {
 const FeaturedCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const swiperRef = useRef<SwiperType | null>(null);
+  // Removed manual navigation; autoplay will handle sliding
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -92,29 +92,13 @@ const FeaturedCategories = () => {
             </p>
           </div>
 
-          {/* Navigation Arrows */}
-          <div className="hidden md:flex items-center gap-3">
-            <button
-              onClick={() => swiperRef.current?.slidePrev()}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-stone-200 hover:border-brand-600 hover:bg-brand-50 transition-all duration-300 group"
-              aria-label="Previous categories"
-            >
-              <IoChevronBackOutline className="w-6 h-6 text-stone-600 group-hover:text-brand-600" />
-            </button>
-            <button
-              onClick={() => swiperRef.current?.slideNext()}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-white border-2 border-stone-200 hover:border-brand-600 hover:bg-brand-50 transition-all duration-300 group"
-              aria-label="Next categories"
-            >
-              <IoChevronForwardOutline className="w-6 h-6 text-stone-600 group-hover:text-brand-600" />
-            </button>
-          </div>
+          {/* Navigation is hidden to rely on autoplay - keeps UI clean */}
         </div>
 
         {/* Categories Slider */}
         <div className="relative">
           <Swiper
-            modules={[Navigation, Pagination, Autoplay]}
+            modules={[Pagination, Autoplay]}
             spaceBetween={24}
             slidesPerView={2}
             slidesPerGroup={1}
@@ -139,9 +123,6 @@ const FeaturedCategories = () => {
                 spaceBetween: 24,
               },
             }}
-            onSwiper={(swiper) => {
-              swiperRef.current = swiper;
-            }}
             className="category-swiper"
           >
             {categories.map((category) => (
@@ -157,23 +138,7 @@ const FeaturedCategories = () => {
             ))}
           </Swiper>
 
-          {/* Mobile Navigation Arrows */}
-          <div className="flex md:hidden items-center justify-center gap-3 mt-6">
-            <button
-              onClick={() => swiperRef.current?.slidePrev()}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-brand-600 text-white hover:bg-brand-700 transition-all duration-300"
-              aria-label="Previous categories"
-            >
-              <IoChevronBackOutline className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => swiperRef.current?.slideNext()}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-brand-600 text-white hover:bg-brand-700 transition-all duration-300"
-              aria-label="Next categories"
-            >
-              <IoChevronForwardOutline className="w-5 h-5" />
-            </button>
-          </div>
+          {/* Mobile navigation removed. Autoplay handles movement for categories. */}
         </div>
       </div>
     </section>

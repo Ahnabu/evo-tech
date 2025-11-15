@@ -60,13 +60,15 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
             key={`slide${index}`}
             className="flex w-full justify-center px-3"
           >
-            <div className="relative w-full my-6 max-w-[1200px] min-h-[220px] max-h-[360px] lg:min-h-[260px] lg:max-h-[420px] overflow-hidden rounded-[24px] bg-white border border-stone-100 px-4 py-6 sm:px-8 sm:py-8 lg:px-12 lg:py-12">
+            <div className="relative w-full my-4 max-w-[1200px] min-h-[140px] sm:min-h-[220px] max-h-[360px] lg:min-h-[260px] lg:max-h-[420px] overflow-hidden rounded-[24px] bg-white border border-stone-100 px-4 py-4 sm:px-8 sm:py-8 lg:px-12 lg:py-12">
               <div className="relative">
-                <div className="pointer-events-none absolute left-[-40px] bottom-[-40px] h-[160px] w-[160px] rounded-full blur-2xl" />
-                <div className="pointer-events-none absolute right-[-40px] top-[-40px] h-[180px] w-[180px] rounded-full bg-sky-100/55 blur-2xl" />
+                {/* Decorative accents - hide on small screens for simpler mobile layout */}
+                <div className="pointer-events-none hidden md:block absolute left-[-40px] bottom-[-40px] h-[160px] w-[160px] rounded-full blur-2xl" />
+                <div className="pointer-events-none hidden md:block absolute right-[-40px] top-[-40px] h-[180px] w-[180px] rounded-full bg-sky-100/55 blur-2xl" />
 
-                <div className="flex flex-col-reverse items-center gap-6 lg:flex-row">
-                  <div className="flex w-full flex-col gap-4 text-left lg:w-[52%] lg:gap-6">
+                {/* Mobile: image on top then text. Desktop: row layout */}
+                <div className="flex flex-col items-center gap-4 lg:flex-row">
+                  <div className="hidden sm:flex sm:w-[52%] flex-col gap-4 sm:text-left lg:gap-6">
                     {slide.more_text && (
                       <span className="inline-flex items-center gap-2 self-start rounded-full bg-emerald-50 px-4 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-700">
                         {slide.more_text}
@@ -100,8 +102,8 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
                     )}
                   </div>
 
-                  <div className="relative flex w-full justify-center lg:w-[48%]">
-                    <div className="relative aspect-[3/4] w-full max-w-[300px]">
+                  <div className="relative flex w-full justify-center sm:w-full lg:w-[48%]">
+                    <div className="relative aspect-[16/9] sm:aspect-[3/4] w-full max-w-[90%] sm:max-w-[350px] lg:max-w-[300px]">
                       <div className="absolute inset-0 rounded-[20px] " />
                       <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[20px] border border-white/60 shadow-sm">
                         <Image
@@ -111,7 +113,7 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
                           sizes="(max-width: 1024px) 80vw, 300px"
                           priority={index === 0}
                           draggable="false"
-                          className="object-contain p-3"
+                          className="object-contain p-3 max-h-[80vh]"
                         />
                       </div>
                     </div>

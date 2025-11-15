@@ -138,6 +138,7 @@ const ModernProductsContainer = ({
           <ModernProductFilters
             availableBrands={availableBrands}
             availableSubcategories={availableSubcategories}
+            availableCategories={availableCategories}
             categorySlug={categoryData?.slug}
           />
         </div>
@@ -176,6 +177,7 @@ const ModernProductsContainer = ({
                 <ModernProductFilters
                   availableBrands={availableBrands}
                   availableSubcategories={availableSubcategories}
+                  availableCategories={availableCategories}
                   categorySlug={categoryData?.slug}
                 />
               </div>

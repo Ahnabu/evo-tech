@@ -15,7 +15,9 @@ interface LogoCarouselProps {
 const LogoCarousel = memo(({ logos }: LogoCarouselProps) => {
   // Memoize computed values to prevent re-renders
   const { shouldAnimate, containerClasses, listClasses } = useMemo(() => {
-    const shouldAnimate = logos.length >= 9;
+    // Always use a marquee animation when there is more than one logo
+    const shouldAnimate = logos.length > 1;
+    const speed = logos.length >= 9 ? 30 : logos.length >= 6 ? 20 : 12; // seconds
 
     return {
       shouldAnimate,
@@ -23,7 +25,7 @@ const LogoCarousel = memo(({ logos }: LogoCarouselProps) => {
         shouldAnimate ? "justify-start" : "justify-center"
       } flex-nowrap overflow-hidden [mask-image:_linear-gradient(to_right,_transparent_0,_black_35%,_black_65%,_transparent_100%)]`,
       listClasses: `w-fit flex items-center [&_li]:mx-8 ${
-        shouldAnimate ? "animate-[hr-slide_20s_linear_infinite]" : ""
+        shouldAnimate ? `animate-[hr-slide_${speed}s_linear_infinite]` : ""
       }`,
     };
   }, [logos.length]);
@@ -37,9 +39,12 @@ const LogoCarousel = memo(({ logos }: LogoCarouselProps) => {
         : logo.brand_name;
 
       const hasUrl = Boolean(logo.brand_url);
-console.log(logo)
       return (
-        <li key={key} className="relative text-center w-fit h-fit" aria-label={label}>
+        <li
+          key={key}
+          className="relative text-center w-fit h-fit"
+          aria-label={label}
+        >
           <a
             href={logo.brand_url ?? "#"}
             target={hasUrl ? "_blank" : undefined}

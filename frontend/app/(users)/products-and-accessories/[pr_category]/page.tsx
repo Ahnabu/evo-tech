@@ -78,6 +78,13 @@ const ProductCategory = async ({ params, searchParams }: currentRouteProps) => {
     queryParams.set("minPrice", minPrice);
   }
 
+  // If product listing is on `all` category route and the filter adds a category by slug
+  // (e.g. ?category=materials), include that in the query for the server.
+  if (!categoryId && resolvedSearchParams?.category) {
+    // backend product service accepts slug or id — pass through as-is
+    queryParams.set("category", resolvedSearchParams.category as string);
+  }
+
   if (maxPrice) {
     queryParams.set("maxPrice", maxPrice);
   }
@@ -168,6 +175,16 @@ const ProductCategory = async ({ params, searchParams }: currentRouteProps) => {
 
     // Use fetched subcategories as-is (no per-subcategory counts)
     availableSubcategories = fetchedSubcats;
+  }
+
+  // If there is no category context (e.g. 'all' listing) — fetch all active brands
+  // so the Brand filter remains available for 'all' listings.
+  if (!categoryId) {
+    const brandsResponse = await axios
+      .get(`/brands?isActive=true&limit=1000`)
+      .then((res) => res.data)
+      .catch(() => null);
+    availableBrands = brandsResponse?.data || [];
   }
 
   // Fetch all active categories (for right-side related categories / 3D paintings section)

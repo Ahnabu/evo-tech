@@ -15,6 +15,7 @@ import { IoShieldCheckmarkOutline } from "react-icons/io5";
 import { FiExternalLink } from "react-icons/fi";
 import { PiMedal } from "react-icons/pi";
 import { RiTestTubeFill } from "react-icons/ri";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import Architects3DModel from "@/public/assets/application_fields/3D-Hagia-Sophia-Model.png";
 import Medical3DModel from "@/public/assets/application_fields/foot-anatomy-3dmodel.png";
@@ -51,8 +52,21 @@ type Banner = {
 
 // Stable loading components to prevent re-render cascades
 const CarouselLoader = () => (
-  <div className="w-full h-full flex justify-center items-center text-stone-500 text-[13px] leading-6 font-[400] bg-stone-800">
-    <RiTestTubeFill className="size-8 lg:size-10 p-2 rounded-full bg-[#0866FF]/25 text-[#0866FF]/90" />
+  <div className="w-full flex justify-center items-center py-6">
+    <div className="w-full max-w-[1200px] px-3">
+      <div className="relative rounded-[24px] overflow-hidden">
+        <Skeleton className="h-[160px] sm:h-[220px] md:h-[260px] w-full bg-gradient-to-r from-stone-100 to-stone-200" />
+
+        <div className="absolute left-6 top-6 w-2/3 sm:w-1/2 md:w-1/2">
+          <Skeleton className="h-6 w-[80%] mb-3" />
+          <Skeleton className="h-4 w-[60%] mb-4" />
+          <div className="flex gap-3">
+            <Skeleton className="h-10 w-28 rounded-full" />
+            <Skeleton className="h-10 w-20 rounded-full" />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 );
 

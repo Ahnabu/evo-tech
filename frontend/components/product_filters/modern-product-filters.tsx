@@ -9,12 +9,14 @@ import * as Slider from "@radix-ui/react-slider";
 interface ModernProductFiltersProps {
   availableBrands: any[];
   availableSubcategories: any[];
+  availableCategories?: any[];
   categorySlug?: string;
 }
 
 const ModernProductFilters = ({
   availableBrands,
   availableSubcategories,
+  availableCategories,
   categorySlug,
 }: ModernProductFiltersProps) => {
   const router = useRouter();
@@ -146,22 +148,49 @@ const ModernProductFilters = ({
           </Slider.Root>
 
           <div className="flex items-center justify-between text-sm">
-            <span className="text-stone-600">
-              ৳{priceRange[0].toLocaleString()}
-            </span>
-            <span className="text-stone-600">
-              ৳{priceRange[1].toLocaleString()}
-            </span>
-          </div>
+            <div className="flex gap-4 items-center">
+              <span className="text-stone-600">
+                ৳{priceRange[0].toLocaleString()}
+              </span>
+              <span className="text-stone-400">–</span>
+              <span className="text-stone-600">
+                ৳{priceRange[1].toLocaleString()}
+              </span>
+            </div>
 
-          <button
-            onClick={applyPriceFilter}
-            className="w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium"
-          >
-            Apply
-          </button>
+            <div className="flex-none">
+              <button
+                onClick={applyPriceFilter}
+                className="py-2 px-4 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors text-sm font-medium"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* Category Filter */}
+      {availableCategories && availableCategories.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="font-semibold text-stone-900 text-sm uppercase tracking-wide">
+            Categories
+          </h4>
+          <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2">
+            {availableCategories.map((cat: any) => (
+              <FilterCheckbox
+                key={cat._id}
+                label={cat.name}
+                checked={
+                  (searchParams.get("category") || categorySlug || "") ===
+                  (cat.slug || cat._id)
+                }
+                onChange={() => toggleFilter("category", cat.slug || cat._id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Brand Filter */}
       {availableBrands.length > 0 && (
