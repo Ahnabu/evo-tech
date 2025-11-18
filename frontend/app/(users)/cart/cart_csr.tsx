@@ -13,9 +13,11 @@ import {
   removeCartItem,
 } from "@/store/slices/cartslice";
 import Link from "next/link";
-import { useCallback, useRef, useEffect } from "react";
+import { useCallback, useRef, useEffect, useMemo } from "react";
 import axiosLocal from "@/utils/axios/axiosLocal";
 import { toast } from "sonner";
+import type { CartItem } from "@/schemas/cartSchema";
+import { calculateCartBreakdown } from "@/utils/cart-totals";
 
 const CartListing = () => {
   const cartItems = useSelector(
@@ -201,22 +203,33 @@ const CartListing = () => {
     [dispatch]
   );
 
-  const getEffectiveQuantity = (item: any) => {
-    const pendingUpdate = pendingUpdates.find(
-      (update) =>
-        update.item_id === item.item_id && update.item_color === item.item_color
-    );
-    return pendingUpdate ? pendingUpdate.new_quantity : item.item_quantity;
-  };
+  const getEffectiveQuantity = useCallback(
+    (item: any) => {
+      const pendingUpdate = pendingUpdates.find(
+        (update) =>
+          update.item_id === item.item_id &&
+          update.item_color === item.item_color
+      );
+      return pendingUpdate ? pendingUpdate.new_quantity : item.item_quantity;
+    },
+    [pendingUpdates]
+  );
 
-  const calculateSubtotal = () => {
-    if (!cartItems) return 0;
+  const cartSnapshot = useMemo<CartItem[]>(() => {
+    if (!cartItems) return [];
+    return cartItems.map((item) => ({
+      ...item,
+      item_quantity: getEffectiveQuantity(item),
+    }));
+  }, [cartItems, getEffectiveQuantity]);
 
-    return cartItems.reduce((acc, item) => {
-      const effectiveQuantity = getEffectiveQuantity(item);
-      return acc + item.item_price * effectiveQuantity;
-    }, 0);
-  };
+  const {
+    cartSubTotal,
+    preOrderDepositDue,
+    preOrderBalanceDue,
+    dueNowSubtotal,
+    hasPreOrderItems,
+  } = useMemo(() => calculateCartBreakdown(cartSnapshot), [cartSnapshot]);
 
   return (
     <>
@@ -261,9 +274,31 @@ const CartListing = () => {
                   {`Subtotal:`}
                 </div>
                 <div className="w-fit px-2 py-1 text-[13px] sm:text-[15px] text-stone-700 tracking-tight">
-                  {`BDT ${currencyFormatBDT(calculateSubtotal())}`}
+                  {`BDT ${currencyFormatBDT(cartSubTotal)}`}
                 </div>
               </div>
+
+              {hasPreOrderItems && (
+                <div className="flex flex-col w-full h-fit gap-1 rounded-md border border-stone-200 bg-stone-50 px-3 py-2">
+                  <div className="flex items-center justify-between text-[12px] sm:text-[13px] text-stone-600">
+                    <span>{`Deposit due now (50% of pre-order):`}</span>
+                    <span className="font-[600] text-stone-800">
+                      {`BDT ${currencyFormatBDT(preOrderDepositDue)}`}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] sm:text-[12px] text-stone-600">
+                    <span>{`Balance payable later:`}</span>
+                    <span className="font-[600] text-stone-800">
+                      {`BDT ${currencyFormatBDT(preOrderBalanceDue)}`}
+                    </span>
+                  </div>
+                  <p className="text-[10px] sm:text-[11px] text-stone-500">
+                    {`Approximate amount due at checkout (before shipping/fees): BDT ${currencyFormatBDT(
+                      dueNowSubtotal
+                    )}`}
+                  </p>
+                </div>
+              )}
 
               <Link
                 href="/checkout"

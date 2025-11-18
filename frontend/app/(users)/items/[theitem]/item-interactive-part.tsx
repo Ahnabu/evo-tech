@@ -111,7 +111,8 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
       (item) =>
         item.item_id === singleitem.itemid &&
         (item.item_color || "").toLowerCase() ===
-          (itemColorfromURL || "").toLowerCase()
+          (itemColorfromURL || "").toLowerCase() &&
+        (item.item_isPreOrder ?? false) === false
     );
 
     let updatedCart: CartItem[];
@@ -161,6 +162,8 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
         item_color: itemColorfromURL.toLowerCase() || null,
         item_quantity: Number(itemQuantity),
         item_price: singleitem.i_price,
+        item_isPreOrder: false,
+        item_preorderPrice: singleitem.i_preorderprice || null,
       };
 
       updatedCart = [...currentCart, newCartItem];
@@ -211,7 +214,8 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
       (item) =>
         item.item_id === singleitem.itemid &&
         (item.item_color || "").toLowerCase() ===
-          (itemColorfromURL || "").toLowerCase()
+          (itemColorfromURL || "").toLowerCase() &&
+        (item.item_isPreOrder ?? false) === false
     );
 
     let updatedCart: CartItem[];
@@ -240,6 +244,8 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
         item_color: itemColorfromURL.toLowerCase() || null,
         item_quantity: Number(itemQuantity),
         item_price: singleitem.i_price,
+        item_isPreOrder: false,
+        item_preorderPrice: singleitem.i_preorderprice || null,
       };
 
       updatedCart = [...currentCart, newCartItem];
@@ -295,7 +301,8 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
       (item) =>
         item.item_id === singleitem.itemid &&
         (item.item_color || "").toLowerCase() ===
-          (itemColorfromURL || "").toLowerCase()
+          (itemColorfromURL || "").toLowerCase() &&
+        (item.item_isPreOrder ?? false) === true
     );
 
     let updatedCart: CartItem[];
@@ -325,6 +332,8 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
         item_color: itemColorfromURL.toLowerCase() || null,
         item_quantity: Number(itemQuantity),
         item_price: itemPrice,
+        item_isPreOrder: true,
+        item_preorderPrice: singleitem.i_preorderprice || null,
       };
 
       updatedCart = [...currentCart, newCartItem];

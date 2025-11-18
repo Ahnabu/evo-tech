@@ -27,6 +27,14 @@ export interface TOrder {
   deliveryCharge: number;
   additionalCharge: number;
   totalPayable: number;
+  isPreOrderOrder?: boolean; // flag if any line item is pre-order
+  depositDue?: number;
+  depositPaid?: number;
+  depositStatus?: "pending" | "paid";
+  balanceDue?: number;
+  balancePaid?: number;
+  balanceStatus?: "pending" | "paid";
+  preOrderItemsCount?: number;
   orderStatus:
     | "pending"
     | "confirmed"
@@ -34,7 +42,7 @@ export interface TOrder {
     | "shipped"
     | "delivered"
     | "cancelled";
-  paymentStatus: "pending" | "paid" | "failed" | "refunded";
+  paymentStatus: "pending" | "partial" | "paid" | "failed" | "refunded";
   notes?: string;
   trackingCode?: string;
   viewed: boolean;

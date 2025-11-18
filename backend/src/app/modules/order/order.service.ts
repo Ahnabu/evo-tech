@@ -53,6 +53,51 @@ export const normalizeOrderObject = (orderDoc: any) => {
   return obj;
 };
 
+interface DepositBreakdown {
+  isPreOrderOrder: boolean;
+  preOrderItemsCount: number;
+  depositDue: number;
+  balanceDue: number;
+  depositStatus: "pending" | "paid";
+  balanceStatus: "pending" | "paid";
+}
+
+const roundToTwo = (value: number) => Math.round(value * 100) / 100;
+
+const calculateDepositBreakdown = (
+  productDetails: Array<{ product: any; quantity: number }>,
+  totalPayable: number
+): DepositBreakdown => {
+  let preOrderItemsCount = 0;
+  let preOrderTotal = 0;
+
+  productDetails.forEach(({ product, quantity }) => {
+    if (product?.isPreOrder) {
+      preOrderItemsCount += quantity;
+      const unitPrice =
+        typeof product.preOrderPrice === "number" &&
+        !isNaN(product.preOrderPrice)
+          ? product.preOrderPrice
+          : product.price;
+      preOrderTotal += unitPrice * quantity;
+    }
+  });
+
+  const depositDue =
+    preOrderItemsCount > 0 ? roundToTwo(preOrderTotal * 0.5) : 0;
+  const normalizedTotal = typeof totalPayable === "number" ? totalPayable : 0;
+  const balanceDue = roundToTwo(Math.max(normalizedTotal - depositDue, 0));
+
+  return {
+    isPreOrderOrder: preOrderItemsCount > 0,
+    preOrderItemsCount,
+    depositDue,
+    balanceDue,
+    depositStatus: depositDue > 0 ? "pending" : "paid",
+    balanceStatus: balanceDue > 0 ? "pending" : "paid",
+  };
+};
+
 const placeOrderIntoDB = async (
   payload: TOrder & { items: any[] },
   userUuid: string
@@ -109,6 +154,17 @@ const placeOrderIntoDB = async (
   console.log("✅ Using frontend-calculated values:", {
     subtotal: orderData.subtotal,
     totalPayable: orderData.totalPayable,
+  });
+
+  // Compute deposit/balance information for pre-order items
+  const depositInfo = calculateDepositBreakdown(
+    productDetails,
+    orderData.totalPayable || 0
+  );
+
+  Object.assign(orderData, depositInfo, {
+    depositPaid: 0,
+    balancePaid: 0,
   });
 
   // Create order
@@ -397,6 +453,17 @@ const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
   console.log("✅ Using frontend-calculated values:", {
     subtotal: orderData.subtotal,
     totalPayable: orderData.totalPayable,
+  });
+
+  // Compute deposit/balance data for guest orders
+  const depositInfo = calculateDepositBreakdown(
+    productDetails,
+    orderData.totalPayable || 0
+  );
+
+  Object.assign(orderData, depositInfo, {
+    depositPaid: 0,
+    balancePaid: 0,
   });
 
   // Create order

@@ -7,6 +7,67 @@ import config from "../../config";
 import { Order } from "../order/order.model";
 import AppError from "../../errors/AppError";
 
+const toTwoDecimals = (value: number) => Math.round(value * 100) / 100;
+
+const getOutstandingAmounts = (order: any) => {
+  const depositDue = order.depositDue ?? 0;
+  const depositPaid = order.depositPaid ?? 0;
+  const balanceDue =
+    order.balanceDue ?? Math.max((order.totalPayable ?? 0) - depositDue, 0);
+  const balancePaid = order.balancePaid ?? 0;
+
+  return {
+    depositOutstanding: Math.max(depositDue - depositPaid, 0),
+    balanceOutstanding: Math.max(balanceDue - balancePaid, 0),
+  };
+};
+
+const applyPaymentProgress = (order: any, paymentAmount: number) => {
+  let remaining = paymentAmount;
+  const depositDue = order.depositDue ?? 0;
+  const balanceDue =
+    order.balanceDue ?? Math.max((order.totalPayable ?? 0) - depositDue, 0);
+
+  const depositPaid = order.depositPaid ?? 0;
+  const balancePaid = order.balancePaid ?? 0;
+
+  order.depositStatus =
+    order.depositStatus || (depositDue > 0 ? "pending" : "paid");
+  order.balanceStatus =
+    order.balanceStatus || (balanceDue > 0 ? "pending" : "paid");
+
+  const depositOutstanding = Math.max(depositDue - depositPaid, 0);
+  if (depositOutstanding > 0 && remaining > 0) {
+    const applied = Math.min(remaining, depositOutstanding);
+    order.depositPaid = toTwoDecimals(depositPaid + applied);
+    remaining -= applied;
+    if (Math.max(depositDue - order.depositPaid, 0) <= 0.01) {
+      order.depositStatus = "paid";
+    }
+  }
+
+  const balanceOutstanding = Math.max(balanceDue - (order.balancePaid ?? 0), 0);
+  if (remaining > 0 && balanceOutstanding > 0) {
+    const applied = Math.min(remaining, balanceOutstanding);
+    order.balancePaid = toTwoDecimals(balancePaid + applied);
+    remaining -= applied;
+    if (Math.max(balanceDue - order.balancePaid, 0) <= 0.01) {
+      order.balanceStatus = "paid";
+    }
+  }
+
+  if (
+    (depositDue === 0 || order.depositStatus === "paid") &&
+    order.balanceStatus === "paid"
+  ) {
+    order.paymentStatus = "paid";
+  } else if ((order.depositPaid ?? 0) > 0 || (order.balancePaid ?? 0) > 0) {
+    order.paymentStatus = "partial";
+  } else {
+    order.paymentStatus = "pending";
+  }
+};
+
 /**
  * Create a bKash payment
  */
@@ -27,11 +88,24 @@ const createBkashPayment = catchAsync(async (req: Request, res: Response) => {
     );
   }
 
+  const { depositOutstanding, balanceOutstanding } =
+    getOutstandingAmounts(order);
+
+  let amountToCharge =
+    depositOutstanding > 0 ? depositOutstanding : balanceOutstanding;
+
+  if (!amountToCharge || amountToCharge <= 0) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "No outstanding amount due for this order"
+    );
+  }
+
   const paymentData = {
     mode: "0011" as const,
     payerReference: order.phone || "customer",
     callbackURL: `${config.frontend_url}/payment/callback`,
-    amount: amount.toString(),
+    amount: toTwoDecimals(amountToCharge).toString(),
     currency: "BDT" as const,
     intent: "sale" as const,
     merchantInvoiceNumber: order.orderNumber || orderId,
@@ -66,13 +140,20 @@ const executeBkashPayment = catchAsync(async (req: Request, res: Response) => {
   // Execute the payment
   const result = await BkashService.executePayment(paymentID);
 
-  // Update order with transaction details
-  await Order.findByIdAndUpdate(orderId, {
-    bkashTransactionId: result.trxID,
-    paymentStatus:
-      result.transactionStatus === "Completed" ? "paid" : "pending",
-    paymentMethod: "bkash",
-  });
+  const order = await Order.findById(orderId);
+  if (!order) {
+    throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+  }
+
+  order.bkashTransactionId = result.trxID;
+  order.paymentMethod = "bkash";
+
+  if (result.transactionStatus === "Completed") {
+    const paidAmount = Number(result.amount) || 0;
+    applyPaymentProgress(order, paidAmount);
+  }
+
+  await order.save();
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -118,8 +199,10 @@ const handleBkashCallback = catchAsync(async (req: Request, res: Response) => {
 
     if (order) {
       order.bkashTransactionId = paymentStatus.trxID || "";
-      order.paymentStatus =
-        paymentStatus.transactionStatus === "Completed" ? "paid" : "pending";
+      if (paymentStatus.transactionStatus === "Completed") {
+        const paidAmount = Number(paymentStatus.amount) || 0;
+        applyPaymentProgress(order, paidAmount);
+      }
       await order.save();
     }
 
@@ -158,8 +241,10 @@ const handleBkashWebhook = catchAsync(async (req: Request, res: Response) => {
 
     if (order) {
       order.bkashTransactionId = paymentStatus.trxID || "";
-      order.paymentStatus =
-        paymentStatus.transactionStatus === "Completed" ? "paid" : "pending";
+      if (paymentStatus.transactionStatus === "Completed") {
+        const paidAmount = Number(paymentStatus.amount) || 0;
+        applyPaymentProgress(order, paidAmount);
+      }
       await order.save();
     }
   }

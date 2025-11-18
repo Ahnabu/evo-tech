@@ -11,6 +11,8 @@ type RawCartItem = {
     subcategory?: { slug?: string } | string;
     brand?: { slug?: string } | string;
     weight?: number;
+    isPreOrder?: boolean;
+    preOrderPrice?: number | null;
   } | null;
   quantity?: number;
   selectedColor?: string | null;
@@ -46,6 +48,11 @@ export const transformCartItems = (items: RawCartItem[] | undefined | null) => {
       item_subcategory: extractSlug(subcategory),
       item_brand: extractSlug(brand),
       item_weight: typeof product.weight === "number" ? product.weight : 0,
+      item_isPreOrder: Boolean(product.isPreOrder),
+      item_preorderPrice:
+        typeof product.preOrderPrice === "number"
+          ? product.preOrderPrice
+          : null,
     };
   });
 };

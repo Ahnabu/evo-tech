@@ -1,4 +1,5 @@
 import { CartItem } from "@/schemas/cartSchema";
+import { calculateCartBreakdown } from "@/utils/cart-totals";
 import { getAdditionalChargeforWeight } from "@/utils/essential_functions";
 
 export const calculatePayment = (
@@ -7,23 +8,13 @@ export const calculatePayment = (
 ) => {
   const bKashCashoutRate = 0.0185; // 1.85% from Any Agent
 
-  let cartSubTotal = 0;
   let totalWeight = 0;
   let chargeforWeight = 0;
   let bKashCharge = 0;
+  const breakdown = calculateCartBreakdown(cartItems);
 
   if (cartItems && cartItems.length > 0) {
     console.log("🛒 Cart items for calculation:", cartItems);
-
-    cartSubTotal = cartItems.reduce((acc, item) => {
-      const price = Number(item.item_price) || 0;
-      const quantity = Number(item.item_quantity) || 0;
-      const subtotal = price * quantity;
-      console.log(
-        `  Item: ${item.item_name}, Price: ${price}, Qty: ${quantity}, Subtotal: ${subtotal}`
-      );
-      return acc + subtotal;
-    }, 0);
 
     totalWeight = cartItems.reduce((acc, item) => {
       const weight = Number(item.item_weight) || 0;
@@ -36,25 +27,28 @@ export const calculatePayment = (
     );
 
     if (paymentMethod === "bkash") {
-      bKashCharge = Math.round(cartSubTotal * bKashCashoutRate);
+      bKashCharge = Math.round(breakdown.dueNowSubtotal * bKashCashoutRate);
     } else {
       bKashCharge = 0;
     }
 
     console.log("💳 Payment calculation result:", {
-      cartSubTotal,
+      cartSubTotal: breakdown.cartSubTotal,
       totalWeight,
       chargeforWeight,
       bKashCharge,
+      preOrderSubtotal: breakdown.preOrderSubtotal,
+      preOrderDepositDue: breakdown.preOrderDepositDue,
+      preOrderBalanceDue: breakdown.preOrderBalanceDue,
     });
   } else {
     console.log("⚠️ No cart items found for calculation");
   }
 
   return {
-    cartSubTotal: cartSubTotal,
-    totalWeight: totalWeight,
-    chargeforWeight: chargeforWeight,
-    bKashCharge: bKashCharge,
+    ...breakdown,
+    totalWeight,
+    chargeforWeight,
+    bKashCharge,
   };
 };

@@ -87,7 +87,17 @@ const CheckoutParts = () => {
     }
   }, [errors]);
 
-  const { cartSubTotal, chargeforWeight, bKashCharge } = useMemo(() => {
+  const {
+    cartSubTotal,
+    chargeforWeight,
+    bKashCharge,
+    preOrderSubtotal,
+    preOrderDepositDue,
+    preOrderBalanceDue,
+    dueNowSubtotal,
+    hasPreOrderItems,
+    preOrderItemsCount,
+  } = useMemo(() => {
     return calculatePayment(cartItems ?? [], paymentMethod);
   }, [cartItems, paymentMethod]);
 
@@ -96,6 +106,17 @@ const CheckoutParts = () => {
       cartSubTotal + (deliveryCharge ?? 0) + bKashCharge - (discountAmount ?? 0)
     );
   }, [cartSubTotal, deliveryCharge, bKashCharge, discountAmount]);
+
+  const dueNowTotal = useMemo(() => {
+    const baseAmount =
+      dueNowSubtotal +
+      (deliveryCharge ?? 0) +
+      bKashCharge -
+      (discountAmount ?? 0);
+    return Math.max(Math.round(baseAmount * 100) / 100, 0);
+  }, [dueNowSubtotal, deliveryCharge, bKashCharge, discountAmount]);
+
+  const payLaterAmount = hasPreOrderItems ? preOrderBalanceDue : 0;
 
   // delivery charge calculation
   useEffect(() => {
@@ -135,6 +156,10 @@ const CheckoutParts = () => {
       bKashCharge,
       discountAmount,
       totalPayableAmount,
+      dueNowTotal,
+      preOrderSubtotal,
+      preOrderDepositDue,
+      preOrderBalanceDue,
       cartItems: cartItems?.length || 0,
     });
 
@@ -1230,6 +1255,38 @@ const CheckoutParts = () => {
             </div>
           )}
 
+          {hasPreOrderItems && (
+            <div className="flex flex-col w-full h-fit gap-1 py-2 px-3 rounded-[6px] border border-stone-200 bg-stone-50">
+              <div className="flex items-center justify-between text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600">
+                <span>{`Pre-order items:`}</span>
+                <span className="font-[600] text-stone-800">
+                  {preOrderItemsCount}
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600">
+                <span>{`Pre-order subtotal:`}</span>
+                <span className="font-[600] text-stone-800">
+                  {currencyFormatBDT(preOrderSubtotal)} BDT
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-900">
+                <span>{`Deposit due now (50%):`}</span>
+                <span className="text-brand-700">
+                  {currencyFormatBDT(preOrderDepositDue)} BDT
+                </span>
+              </div>
+              <div className="flex items-center justify-between text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600">
+                <span>{`Balance payable later:`}</span>
+                <span className="font-[600] text-stone-800">
+                  {currencyFormatBDT(preOrderBalanceDue)} BDT
+                </span>
+              </div>
+              <p className="text-[10px] sm:text-[11px] leading-4 text-stone-500">
+                {`We’ll collect the remaining balance before shipping pre-order items.`}
+              </p>
+            </div>
+          )}
+
           <div className="flex items-center justify-between w-full h-fit py-0.5">
             <p className="text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600">
               {`Subtotal:`}
@@ -1258,10 +1315,30 @@ const CheckoutParts = () => {
           </div>
 
           <div className="flex items-center justify-between w-full h-fit py-1.5 border-t border-stone-300">
-            <p className="text-[13px] sm:text-[14px] leading-5 font-[600] text-stone-900">
-              {`Total Payable:`}
+            <p className="text-[12px] sm:text-[13px] leading-5 font-[600] text-stone-900">
+              {`Due Now (at checkout):`}
             </p>
-            <p className="text-[14px] sm:text-[15px] leading-5 font-[700] text-brand-700">
+            <p className="text-[13px] sm:text-[14px] leading-5 font-[700] text-brand-700">
+              {currencyFormatBDT(dueNowTotal)} BDT
+            </p>
+          </div>
+
+          {hasPreOrderItems && (
+            <div className="flex items-center justify-between w-full h-fit py-0.5">
+              <p className="text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600">
+                {`Pay Later (pre-order balance):`}
+              </p>
+              <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
+                {currencyFormatBDT(payLaterAmount)} BDT
+              </p>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between w-full h-fit py-1">
+            <p className="text-[13px] sm:text-[14px] leading-5 font-[600] text-stone-900">
+              {`Total Order Value:`}
+            </p>
+            <p className="text-[14px] sm:text-[15px] leading-5 font-[700] text-stone-900">
               {currencyFormatBDT(totalPayableAmount)} BDT
             </p>
           </div>
