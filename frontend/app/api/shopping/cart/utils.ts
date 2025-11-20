@@ -53,6 +53,18 @@ export const transformCartItems = (items: RawCartItem[] | undefined | null) => {
         typeof product.preOrderPrice === "number"
           ? product.preOrderPrice
           : null,
+      item_stock:
+        typeof (product as any).stock === "number"
+          ? (product as any).stock
+          : null,
+      item_lowstockthreshold:
+        typeof (product as any).lowStockThreshold === "number"
+          ? (product as any).lowStockThreshold
+          : null,
+      item_instock:
+        typeof (product as any).inStock === "boolean"
+          ? (product as any).inStock
+          : undefined,
     };
   });
 };

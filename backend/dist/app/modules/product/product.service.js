@@ -13,6 +13,7 @@ const brand_model_1 = require("../brand/brand.model");
 const category_model_1 = require("../category/category.model");
 const subcategory_model_1 = require("../subcategory/subcategory.model");
 const mongoose_1 = require("mongoose");
+const notification_service_1 = require("../notification/notification.service");
 const getAllProductsFromDB = async (query) => {
     const page = Number(query.page) || 1;
     const limit = Number(query.limit) || 10;
@@ -32,7 +33,9 @@ const getAllProductsFromDB = async (query) => {
         }
         else {
             // Look up category by slug
-            const category = await category_model_1.Category.findOne({ slug: query.category });
+            const category = await category_model_1.Category.findOne({
+                slug: query.category,
+            });
             if (category) {
                 searchQuery.category = category._id;
             }
@@ -45,7 +48,9 @@ const getAllProductsFromDB = async (query) => {
         }
         else {
             // Look up subcategory by slug
-            const subcategory = await subcategory_model_1.Subcategory.findOne({ slug: query.subcategory });
+            const subcategory = await subcategory_model_1.Subcategory.findOne({
+                slug: query.subcategory,
+            });
             if (subcategory) {
                 searchQuery.subcategory = subcategory._id;
             }
@@ -206,6 +211,7 @@ const createProductIntoDB = async (payload, mainImageBuffer, additionalImagesBuf
             });
         }
     }
+    await notification_service_1.NotificationServices.evaluateStockForProduct(result._id);
     return result;
 };
 const updateProductIntoDB = async (id, payload, mainImageBuffer, additionalImagesBuffers) => {
@@ -240,18 +246,25 @@ const updateProductIntoDB = async (id, payload, mainImageBuffer, additionalImage
         payload.isPreOrder = payload.isPreOrder === "true";
     }
     // Handle empty strings for optional ObjectId fields - remove them
-    if (payload.subcategory === "" || payload.subcategory === null || payload.subcategory === undefined) {
+    if (payload.subcategory === "" ||
+        payload.subcategory === null ||
+        payload.subcategory === undefined) {
         delete payload.subcategory;
     }
-    if (payload.brand === "" || payload.brand === null || payload.brand === undefined) {
+    if (payload.brand === "" ||
+        payload.brand === null ||
+        payload.brand === undefined) {
         delete payload.brand;
     }
-    if (payload.landingpageSectionId === "" || payload.landingpageSectionId === null || payload.landingpageSectionId === undefined) {
+    if (payload.landingpageSectionId === "" ||
+        payload.landingpageSectionId === null ||
+        payload.landingpageSectionId === undefined) {
         delete payload.landingpageSectionId;
     }
     // Validate ObjectIds for category, subcategory, and brand
     if (payload.category) {
-        if (typeof payload.category === "string" && !mongoose_1.Types.ObjectId.isValid(payload.category)) {
+        if (typeof payload.category === "string" &&
+            !mongoose_1.Types.ObjectId.isValid(payload.category)) {
             const category = await category_model_1.Category.findOne({ slug: payload.category });
             if (category) {
                 payload.category = category._id;
@@ -262,8 +275,11 @@ const updateProductIntoDB = async (id, payload, mainImageBuffer, additionalImage
         }
     }
     if (payload.subcategory) {
-        if (typeof payload.subcategory === "string" && !mongoose_1.Types.ObjectId.isValid(payload.subcategory)) {
-            const subcategory = await subcategory_model_1.Subcategory.findOne({ slug: payload.subcategory });
+        if (typeof payload.subcategory === "string" &&
+            !mongoose_1.Types.ObjectId.isValid(payload.subcategory)) {
+            const subcategory = await subcategory_model_1.Subcategory.findOne({
+                slug: payload.subcategory,
+            });
             if (subcategory) {
                 payload.subcategory = subcategory._id;
             }
@@ -273,7 +289,8 @@ const updateProductIntoDB = async (id, payload, mainImageBuffer, additionalImage
         }
     }
     if (payload.brand) {
-        if (typeof payload.brand === "string" && !mongoose_1.Types.ObjectId.isValid(payload.brand)) {
+        if (typeof payload.brand === "string" &&
+            !mongoose_1.Types.ObjectId.isValid(payload.brand)) {
             const brand = await brand_model_1.Brand.findOne({ slug: payload.brand });
             if (brand) {
                 payload.brand = brand._id;
@@ -307,6 +324,9 @@ const updateProductIntoDB = async (id, payload, mainImageBuffer, additionalImage
                 sortOrder: existingImagesCount + i + 1,
             });
         }
+    }
+    if (result) {
+        await notification_service_1.NotificationServices.evaluateStockForProduct(result._id);
     }
     return result;
 };

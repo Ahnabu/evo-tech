@@ -14,6 +14,7 @@ import { LandingSectionRoutes } from "../modules/landingsection/landingsection.r
 import { PermissionRoutes } from "../modules/permission/permission.route";
 import { PaymentRoutes } from "../modules/payment/payment.route";
 import { CouponRoutes } from "../modules/coupon/coupon.route";
+import { NotificationRoutes } from "../modules/notification/notification.route";
 
 const router = express.Router();
 
@@ -77,6 +78,10 @@ const moduleRoutes = [
   {
     path: "/coupons",
     route: CouponRoutes,
+  },
+  {
+    path: "/notifications",
+    route: NotificationRoutes,
   },
 ];
 

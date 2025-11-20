@@ -24,6 +24,7 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { checkoutSchema } from "@/schemas";
+import type { CartItem } from "@/schemas/cartSchema";
 import { EvoFormInputError } from "@/components/error/form-input-error";
 import { districtsOfBD } from "@/utils/bd_districts";
 import { IoChevronDown, IoCheckmark } from "react-icons/io5";
@@ -36,6 +37,9 @@ import { calculatePayment } from "./checkout_payment_calc";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { validateCoupon } from "@/actions/user/coupons";
 import { applyCoupon, removeCoupon } from "@/store/slices/discountSlice";
+import { summarizeCartStock, assessCartItemStock } from "@/utils/cart-stock";
+import { HiMiniExclamationTriangle } from "react-icons/hi2";
+import { PiInfoBold } from "react-icons/pi";
 
 type CheckoutFormValuesType = z.infer<typeof checkoutSchema>;
 
@@ -97,6 +101,7 @@ const CheckoutParts = () => {
     dueNowSubtotal,
     hasPreOrderItems,
     preOrderItemsCount,
+    regularSubtotal,
   } = useMemo(() => {
     return calculatePayment(cartItems ?? [], paymentMethod);
   }, [cartItems, paymentMethod]);
@@ -117,6 +122,14 @@ const CheckoutParts = () => {
   }, [dueNowSubtotal, deliveryCharge, bKashCharge, discountAmount]);
 
   const payLaterAmount = hasPreOrderItems ? preOrderBalanceDue : 0;
+
+  const cartStockSummary = useMemo(
+    () => summarizeCartStock(cartItems ?? []),
+    [cartItems]
+  );
+
+  const isPlaceOrderDisabled =
+    isSubmitting || cartStockSummary.hasBlockingIssues;
 
   // delivery charge calculation
   useEffect(() => {
@@ -237,6 +250,8 @@ const CheckoutParts = () => {
       isAuthenticated ? "Authenticated (with JWT token)" : "Guest (no auth)"
     );
 
+    let lastOrderErrorMessage = "";
+
     const orderResponse = await axiosInstance
       .post(orderEndpoint, requestBody)
       .then((res) => {
@@ -246,7 +261,12 @@ const CheckoutParts = () => {
       .catch((error: any) => {
         console.error("❌ Order failed:", error);
         axiosErrorLogger({ error });
-        return null;
+        lastOrderErrorMessage =
+          error?.response?.data?.message ||
+          error?.response?.data?.error ||
+          error?.message ||
+          "";
+        return error?.response?.data ?? null;
       });
 
     // Check for successful order response
@@ -342,7 +362,15 @@ const CheckoutParts = () => {
         }, 1500);
       }
     } else {
-      toast.error("Sorry! Order could not be placed.");
+      const backendMessage =
+        lastOrderErrorMessage ||
+        orderResponse?.message ||
+        orderResponse?.error ||
+        "";
+      toast.error(
+        backendMessage ||
+          "Sorry! Order could not be placed. Please review your cart and try again."
+      );
     }
   };
 
@@ -474,6 +502,50 @@ const CheckoutParts = () => {
 
   return (
     <>
+      {(cartStockSummary.hasBlockingIssues ||
+        cartStockSummary.warningIssues.length > 0) && (
+        <div className="flex w-full flex-col gap-3 rounded-md border border-stone-200 bg-white/60 p-4 mb-2">
+          {cartStockSummary.hasBlockingIssues && (
+            <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              <p className="flex items-center gap-2 text-[13px] font-semibold">
+                <HiMiniExclamationTriangle className="h-4 w-4" />
+                Resolve stock issues to place your order
+              </p>
+              <ul className="mt-2 space-y-1 text-[12px]">
+                {cartStockSummary.blockingIssues.map((issue) => (
+                  <li key={`checkout-stock-blocker-${issue.itemId}`}>
+                    <span className="font-semibold">{issue.itemName}</span>{" "}
+                    {issue.isOutOfStock
+                      ? "is currently out of stock."
+                      : `has only ${issue.availableStock ?? 0} unit${
+                          (issue.availableStock ?? 0) === 1 ? "" : "s"
+                        } left. Please lower the quantity.`}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {!cartStockSummary.hasBlockingIssues &&
+            cartStockSummary.warningIssues.length > 0 && (
+              <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                <p className="flex items-center gap-2 text-[13px] font-semibold">
+                  <PiInfoBold className="h-4 w-4" />
+                  Low stock reminder
+                </p>
+                <ul className="mt-2 space-y-1 text-[12px]">
+                  {cartStockSummary.warningIssues.map((issue) => (
+                    <li key={`checkout-stock-warning-${issue.itemId}`}>
+                      <span className="font-semibold">{issue.itemName}</span>{" "}
+                      {`has only ${issue.availableStock ?? 0} left.`}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+        </div>
+      )}
+
       <div className="relative flex flex-col items-center md:flex-row md:justify-start md:items-start w-full h-fit gap-5">
         <form
           id="checkoutform"
@@ -1121,8 +1193,12 @@ const CheckoutParts = () => {
 
           <button
             type="submit"
-            disabled={isSubmitting}
-            className="w-full h-[44px] flex items-center justify-center px-6 py-2 mt-3 text-[13px] sm:text-[14px] leading-5 font-[600] text-white bg-stone-900 disabled:bg-stone-700 disabled:hover:bg-stone-700 hover:bg-stone-800 rounded-[4px] transition-colors duration-100"
+            disabled={isPlaceOrderDisabled}
+            className={`w-full h-[44px] flex items-center justify-center px-6 py-2 mt-3 text-[13px] sm:text-[14px] leading-5 font-[600] text-white rounded-[4px] transition-colors duration-100 ${
+              isPlaceOrderDisabled
+                ? "bg-stone-700 cursor-not-allowed"
+                : "bg-stone-900 hover:bg-stone-800"
+            }`}
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
@@ -1152,57 +1228,82 @@ const CheckoutParts = () => {
               "Place Order"
             )}
           </button>
+          {cartStockSummary.hasBlockingIssues && (
+            <p className="text-center md:text-left text-[12px] font-medium text-red-600">
+              Remove or adjust the highlighted items to place your order.
+            </p>
+          )}
         </form>
 
         <div className="md:sticky md:top-24 flex flex-col w-full md:max-w-[280px] min-[900px]:max-w-[350px] lg:max-w-[400px] min-[1250px]:max-w-[450px] h-fit gap-2 px-5 lg:px-8 py-1 text-stone-700 md:border-l-2 md:border-stone-300">
           <div className="flex flex-col w-full h-[220px] py-3 border-y-2 max-md:border-t-stone-300 border-t-transparent border-b-stone-300 overflow-y-auto scrollbar-custom">
-            {cartItems.map((eachCartItem: any, index: number) => (
-              <div
-                key={`cartitem${index}`}
-                className="flex w-full h-fit py-2 border-t border-[#dddbda] gap-1"
-              >
-                <div className="flex w-fit h-fit py-1">
-                  <div
-                    className="relative w-[45px] sm:w-[50px] aspect-square flex-none border border-stone-300 rounded-[3px] overflow-hidden focus:outline-none bg-[#ffffff]"
-                    aria-label={`${eachCartItem.item_name}`}
-                  >
-                    <Image
-                      src={eachCartItem.item_imgurl}
-                      alt={`item image`}
-                      fill
-                      quality={100}
-                      draggable="false"
-                      sizes="100%"
-                      className="object-cover object-center"
-                    />
+            {cartItems.map((eachCartItem: CartItem, index: number) => {
+              const stockStatus = assessCartItemStock(eachCartItem);
+              return (
+                <div
+                  key={`cartitem${index}`}
+                  className="flex w-full h-fit py-2 border-t border-[#dddbda] gap-1"
+                >
+                  <div className="flex w-fit h-fit py-1">
+                    <div
+                      className="relative w-[45px] sm:w-[50px] aspect-square flex-none border border-stone-300 rounded-[3px] overflow-hidden focus:outline-none bg-[#ffffff]"
+                      aria-label={`${eachCartItem.item_name}`}
+                    >
+                      <Image
+                        src={eachCartItem.item_imgurl}
+                        alt={`item image`}
+                        fill
+                        quality={100}
+                        draggable="false"
+                        sizes="100%"
+                        className="object-cover object-center"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col w-full h-fit py-1">
+                    <h4 className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
+                      {`${eachCartItem.item_name}${
+                        eachCartItem.item_color
+                          ? ` (${eachCartItem.item_color})`
+                          : ""
+                      }`}
+                    </h4>
+                    <p className="text-[10px] sm:text-[11px] leading-4 font-[500] text-stone-600">
+                      {`${eachCartItem.item_quantity} x ${currencyFormatBDT(
+                        eachCartItem.item_price
+                      )} BDT`}
+                    </p>
+                    {(stockStatus.isOutOfStock || stockStatus.exceedsStock) && (
+                      <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-red-600">
+                        <HiMiniExclamationTriangle className="h-3 w-3" />
+                        {stockStatus.isOutOfStock
+                          ? "This item is currently unavailable."
+                          : stockStatus.message}
+                      </p>
+                    )}
+                    {!stockStatus.isOutOfStock &&
+                      !stockStatus.exceedsStock &&
+                      stockStatus.isLowStock &&
+                      stockStatus.availableStock !== null && (
+                        <p className="mt-1 flex items-center gap-1 text-[10px] font-medium text-amber-600">
+                          <PiInfoBold className="h-3 w-3" />
+                          {`Only ${stockStatus.availableStock} left.`}
+                        </p>
+                      )}
+                  </div>
+
+                  <div className="flex items-start justify-end w-[65px] sm:w-[75px] h-fit py-1">
+                    <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
+                      {currencyFormatBDT(
+                        eachCartItem.item_quantity * eachCartItem.item_price
+                      )}{" "}
+                      BDT
+                    </p>
                   </div>
                 </div>
-
-                <div className="flex flex-col w-full h-fit py-1">
-                  <h4 className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
-                    {`${eachCartItem.item_name}${
-                      eachCartItem.item_color
-                        ? ` (${eachCartItem.item_color})`
-                        : ""
-                    }`}
-                  </h4>
-                  <p className="text-[10px] sm:text-[11px] leading-4 font-[500] text-stone-600">
-                    {`${eachCartItem.item_quantity} x ${currencyFormatBDT(
-                      eachCartItem.item_price
-                    )} BDT`}
-                  </p>
-                </div>
-
-                <div className="flex items-start justify-end w-[65px] sm:w-[75px] h-fit py-1">
-                  <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
-                    {currencyFormatBDT(
-                      eachCartItem.item_quantity * eachCartItem.item_price
-                    )}{" "}
-                    BDT
-                  </p>
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {!appliedCouponCode ? (
@@ -1289,7 +1390,7 @@ const CheckoutParts = () => {
 
           <div className="flex items-center justify-between w-full h-fit py-0.5">
             <p className="text-[11px] sm:text-[12px] leading-4 font-[500] text-stone-600">
-              {`Subtotal:`}
+              {`Cart value (all items):`}
             </p>
             <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
               {currencyFormatBDT(cartSubTotal)} BDT
@@ -1321,6 +1422,47 @@ const CheckoutParts = () => {
             <p className="text-[13px] sm:text-[14px] leading-5 font-[700] text-brand-700">
               {currencyFormatBDT(dueNowTotal)} BDT
             </p>
+          </div>
+
+          <div className="flex flex-col gap-1 w-full text-[11px] sm:text-[12px] leading-4 text-stone-600">
+            <div className="flex items-center justify-between">
+              <span>{`Regular items today:`}</span>
+              <span className="font-[600] text-stone-800">
+                {currencyFormatBDT(regularSubtotal)} BDT
+              </span>
+            </div>
+            {hasPreOrderItems && (
+              <div className="flex items-center justify-between">
+                <span>{`Pre-order deposit today:`}</span>
+                <span className="font-[600] text-stone-800">
+                  {currencyFormatBDT(preOrderDepositDue)} BDT
+                </span>
+              </div>
+            )}
+            {deliveryCharge !== null && (
+              <div className="flex items-center justify-between">
+                <span>{`Shipping estimate:`}</span>
+                <span className="font-[600] text-stone-800">
+                  {currencyFormatBDT(deliveryCharge || 0)} BDT
+                </span>
+              </div>
+            )}
+            {bKashCharge > 0 && (
+              <div className="flex items-center justify-between">
+                <span>{`Digital payment fee:`}</span>
+                <span className="font-[600] text-stone-800">
+                  {currencyFormatBDT(bKashCharge)} BDT
+                </span>
+              </div>
+            )}
+            {discountAmount ? (
+              <div className="flex items-center justify-between text-rose-600">
+                <span>{`Discount applied:`}</span>
+                <span className="font-[600]">
+                  -{currencyFormatBDT(discountAmount)} BDT
+                </span>
+              </div>
+            ) : null}
           </div>
 
           {hasPreOrderItems && (

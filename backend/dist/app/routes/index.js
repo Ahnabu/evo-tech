@@ -19,6 +19,7 @@ const landingsection_route_1 = require("../modules/landingsection/landingsection
 const permission_route_1 = require("../modules/permission/permission.route");
 const payment_route_1 = require("../modules/payment/payment.route");
 const coupon_route_1 = require("../modules/coupon/coupon.route");
+const notification_route_1 = require("../modules/notification/notification.route");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -80,6 +81,10 @@ const moduleRoutes = [
     {
         path: "/coupons",
         route: coupon_route_1.CouponRoutes,
+    },
+    {
+        path: "/notifications",
+        route: notification_route_1.NotificationRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

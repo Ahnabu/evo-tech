@@ -67,7 +67,7 @@ export declare const OrderServices: {
             orderNumber: string;
             trackingCode: string | undefined;
             orderStatus: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled";
-            paymentStatus: "pending" | "paid" | "failed" | "refunded";
+            paymentStatus: "partial" | "pending" | "paid" | "failed" | "refunded";
             paymentMethod: string;
             shippingType: string;
             city: string;

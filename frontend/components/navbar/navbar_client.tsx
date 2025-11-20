@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
 import Image from "next/image";
 import Link from "next/link";
 import { Avatar } from "@nextui-org/avatar";
@@ -12,13 +11,11 @@ import { signOut } from "next-auth/react";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 import EvoTechBDLogoGray from "@/public/assets/EvoTechBD-logo-gray.png";
-import { MdChevronLeft, MdChevronRight } from "react-icons/md";
 import { BiPackage } from "react-icons/bi";
-import { IoChevronDown, IoMenu } from "react-icons/io5";
+import {  IoMenu } from "react-icons/io5";
 import { FiSearch } from "react-icons/fi";
 import { TbDashboard, TbUser, TbLogout } from "react-icons/tb";
 
-import ServiceCard from "@/components/cards/servicecard";
 import ManageCart from "@/components/navbar/manage_cart";
 import MobileSidebar from "@/components/navbar/mobile_sidebar";
 import CategoryNav from "@/components/navbar/category_nav";
@@ -82,26 +79,23 @@ const NavbarClient = ({
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
-      const result = (await logout()) as unknown as {
-        success?: boolean;
-        [key: string]: any;
-      };
+      const result = await logout();
 
-      if (result?.success) {
-        const response = await signOut({ redirect: false, callbackUrl: "/" });
-
-        if (!response?.url) {
-          console.error("NextAuth signOut error:", response);
-          toast.error("Something went wrong while signing out.");
-          return;
-        }
-
-        toast.success("You signed out of your account.");
-        router.push(response.url ?? "/");
-        router.refresh();
-      } else {
-        toast.error("Something went wrong while signing out.");
+      if (!result?.success) {
+        toast.error(result?.error ?? "Unable to clear session");
       }
+
+      const response = await signOut({ redirect: false, callbackUrl: "/" });
+
+      if (!response?.url) {
+        console.error("NextAuth signOut error:", response);
+        toast.error("Something went wrong while signing out.");
+        return;
+      }
+
+      toast.success("You signed out of your account.");
+      router.push(response.url ?? "/");
+      router.refresh();
     } catch (err) {
       console.error("Sign out error:", err);
       toast.error("Something went wrong while signing out.");
@@ -179,9 +173,9 @@ const NavbarClient = ({
 
   return (
     <>
-      <MobileSidebar 
-        isOpen={isMobileSidebarOpen} 
-        onClose={() => setIsMobileSidebarOpen(false)} 
+      <MobileSidebar
+        isOpen={isMobileSidebarOpen}
+        onClose={() => setIsMobileSidebarOpen(false)}
       />
 
       {/* <div className="w-full bg-white text-stone-700 text-[13px]">
@@ -235,7 +229,7 @@ const NavbarClient = ({
                     className="object-contain w-[100px] md:w-[140px]"
                   />
                 </Link>
-                
+
                 {/* Desktop Category Navigation */}
                 <div className="hidden lg:flex items-center">
                   <CategoryNav />
@@ -331,13 +325,14 @@ const NavbarClient = ({
               </button>
 
               <div className="flex items-center gap-2 md:gap-4 min-w-[120px] md:min-w-[240px] justify-end">
-                <Link href="/track-order" className="hidden sm:flex items-center gap-3">
+                <Link
+                  href="/track-order"
+                  className="hidden sm:flex items-center gap-3"
+                >
                   <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                     <BiPackage className="w-5 h-5 text-stone-700" />
                   </div>
-                  <div className="hidden lg:block text-sm font-[600] text-stone-700">
-                    Track Order
-                  </div>
+                  
                 </Link>
 
                 {currentUser ? (
@@ -382,15 +377,6 @@ const NavbarClient = ({
                           <span>Dashboard</span>
                         </Link>
                       </DropdownMenu.Item>
-                      <DropdownMenu.Item asChild>
-                        <Link
-                          href={getOrderHistoryUrl(currentUser.role || "user")}
-                          className="flex items-center gap-3 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100"
-                        >
-                          <BiPackage className="w-4 h-4" />
-                          <span>Order History</span>
-                        </Link>
-                      </DropdownMenu.Item>
                       <DropdownMenu.Separator className="h-px bg-stone-200 my-1" />
                       <DropdownMenu.Item asChild>
                         <button
@@ -409,15 +395,9 @@ const NavbarClient = ({
                     <div className="hidden sm:flex items-center gap-4">
                       <Link
                         href="/login"
-                        className="text-sm font-medium text-stone-700 hover:text-stone-900 transition-colors"
+                        className="text-sm font-medium  hover:text-stone-900 transition-colors bg-brand-400 px-4 py-2 rounded-lg hover:bg-brand-500 text-white"
                       >
                         Sign in
-                      </Link>
-                      <Link
-                        href="/register"
-                        className="px-4 py-2 text-sm font-medium bg-[#0866FF] text-white rounded-lg hover:bg-[#0653D3] transition-colors"
-                      >
-                        Sign up
                       </Link>
                     </div>
 

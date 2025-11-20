@@ -9,6 +9,7 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const product_model_1 = require("../product/product.model");
 const mongoose_1 = require("mongoose");
+const notification_service_1 = require("../notification/notification.service");
 const generateOrderNumber = () => {
     const timestamp = Date.now().toString();
     const random = Math.floor(Math.random() * 10000)
@@ -56,6 +57,36 @@ const normalizeOrderObject = (orderDoc) => {
     return obj;
 };
 exports.normalizeOrderObject = normalizeOrderObject;
+const roundToTwo = (value) => Math.round(value * 100) / 100;
+const calculateDepositBreakdown = (productDetails, totalPayable) => {
+    let preOrderItemsCount = 0;
+    let preOrderSubtotal = 0;
+    productDetails.forEach(({ product, quantity }) => {
+        if (product?.isPreOrder) {
+            preOrderItemsCount += quantity;
+            const unitPrice = typeof product.preOrderPrice === "number" &&
+                !isNaN(product.preOrderPrice)
+                ? product.preOrderPrice
+                : product.price;
+            preOrderSubtotal += unitPrice * quantity;
+        }
+    });
+    const preOrderDepositPortion = preOrderItemsCount > 0 ? preOrderSubtotal * 0.5 : 0;
+    const deferredPreOrderPortion = roundToTwo(preOrderItemsCount > 0
+        ? Math.max(preOrderSubtotal - preOrderDepositPortion, 0)
+        : 0);
+    const normalizedTotal = typeof totalPayable === "number" ? totalPayable : 0;
+    const depositDue = roundToTwo(Math.max(normalizedTotal - deferredPreOrderPortion, 0));
+    const balanceDue = deferredPreOrderPortion;
+    return {
+        isPreOrderOrder: preOrderItemsCount > 0,
+        preOrderItemsCount,
+        depositDue,
+        balanceDue,
+        depositStatus: depositDue > 0 ? "pending" : "paid",
+        balanceStatus: balanceDue > 0 ? "pending" : "paid",
+    };
+};
 const placeOrderIntoDB = async (payload, userUuid) => {
     const { items, ...orderData } = payload;
     // Cart is managed in frontend Redux, use items from request body
@@ -99,6 +130,12 @@ const placeOrderIntoDB = async (payload, userUuid) => {
         subtotal: orderData.subtotal,
         totalPayable: orderData.totalPayable,
     });
+    // Compute deposit/balance information for pre-order items
+    const depositInfo = calculateDepositBreakdown(productDetails, orderData.totalPayable || 0);
+    Object.assign(orderData, depositInfo, {
+        depositPaid: 0,
+        balancePaid: 0,
+    });
     // Create order
     const order = await order_model_1.Order.create(orderData);
     // Create order items
@@ -117,6 +154,7 @@ const placeOrderIntoDB = async (payload, userUuid) => {
         await product_model_1.Product.findByIdAndUpdate(detail.product._id, {
             $inc: { stock: -detail.quantity },
         });
+        await notification_service_1.NotificationServices.evaluateStockForProduct(detail.product._id);
     }
     // Get full order with items
     const fullOrder = await order_model_1.Order.findById(order._id);
@@ -316,6 +354,12 @@ const placeGuestOrderIntoDB = async (payload) => {
         subtotal: orderData.subtotal,
         totalPayable: orderData.totalPayable,
     });
+    // Compute deposit/balance data for guest orders
+    const depositInfo = calculateDepositBreakdown(productDetails, orderData.totalPayable || 0);
+    Object.assign(orderData, depositInfo, {
+        depositPaid: 0,
+        balancePaid: 0,
+    });
     // Create order
     const order = await order_model_1.Order.create(orderData);
     // Create order items
@@ -334,6 +378,7 @@ const placeGuestOrderIntoDB = async (payload) => {
         await product_model_1.Product.findByIdAndUpdate(detail.product._id, {
             $inc: { stock: -detail.quantity },
         });
+        await notification_service_1.NotificationServices.evaluateStockForProduct(detail.product._id);
     }
     // Get full order with items
     const fullOrder = await order_model_1.Order.findById(order._id);

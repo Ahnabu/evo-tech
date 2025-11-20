@@ -23,7 +23,9 @@ interface Category {
 
 const CategoryNav = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const [subcategories, setSubcategories] = useState<Record<string, Subcategory[]>>({});
+  const [subcategories, setSubcategories] = useState<
+    Record<string, Subcategory[]>
+  >({});
   const [hoveredCategory, setHoveredCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -51,17 +53,19 @@ const CategoryNav = () => {
     if (subcategories[categoryId]) return;
 
     try {
-      const response = await axios.get(`/subcategories?category=${categoryId}&isActive=true`);
+      const response = await axios.get(
+        `/subcategories?category=${categoryId}&isActive=true`
+      );
       const data = response?.data?.data || [];
-      setSubcategories(prev => ({
+      setSubcategories((prev) => ({
         ...prev,
-        [categoryId]: data
+        [categoryId]: data,
       }));
     } catch (error) {
       axiosErrorLogger({ error });
-      setSubcategories(prev => ({
+      setSubcategories((prev) => ({
         ...prev,
-        [categoryId]: []
+        [categoryId]: [],
       }));
     }
   };
@@ -89,7 +93,7 @@ const CategoryNav = () => {
             onMouseLeave={() => setHoveredCategory(null)}
           >
             <Link
-              href={`/${category.slug}`}
+              href={`/products-and-accessories/${category.slug || "all"}`}
               className="px-3 py-2 capitalize text-sm font-medium text-stone-700 hover:text-brand-600 hover:bg-stone-50 rounded-md transition-all duration-200 whitespace-nowrap flex items-center gap-1"
             >
               {category.name}
@@ -104,7 +108,12 @@ const CategoryNav = () => {
                 {categorySubcategories.map((subcategory) => (
                   <Link
                     key={subcategory._id}
-                    href={`/${category.slug}/${subcategory.slug}`}
+                    href={{
+                      pathname: `/products-and-accessories/${
+                        category.slug || "all"
+                      }`,
+                      query: { subcategory: subcategory.slug },
+                    }}
                     className="block px-4 py-2 text-sm text-stone-700 hover:bg-stone-100 hover:text-brand-600 transition-colors capitalize"
                   >
                     {subcategory.name}

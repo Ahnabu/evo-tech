@@ -2,7 +2,7 @@
 
 import CartItemRow from "./cartitem_row";
 import { currencyFormatBDT } from "@/lib/all_utils";
-import { PiSmileySadLight } from "react-icons/pi";
+import { PiSmileySadLight, PiInfoBold } from "react-icons/pi";
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import {
@@ -14,10 +14,13 @@ import {
 } from "@/store/slices/cartslice";
 import Link from "next/link";
 import { useCallback, useRef, useEffect, useMemo } from "react";
+import type { MouseEvent } from "react";
 import axiosLocal from "@/utils/axios/axiosLocal";
 import { toast } from "sonner";
 import type { CartItem } from "@/schemas/cartSchema";
 import { calculateCartBreakdown } from "@/utils/cart-totals";
+import { summarizeCartStock } from "@/utils/cart-stock";
+import { HiMiniExclamationTriangle } from "react-icons/hi2";
 
 const CartListing = () => {
   const cartItems = useSelector(
@@ -154,47 +157,62 @@ const CartListing = () => {
         ? JSON.parse(localevoFrontCart)
         : null;
 
-      let cartreqbody = {};
+      let cartreqbody: { cart_t?: string } = {};
       if (parsedCart && parsedCart.ctoken) {
         cartreqbody = {
           cart_t: parsedCart.ctoken,
         };
       }
 
-      try {
-        const response = await axiosLocal.delete("/api/cart/remove", {
-          data: {
-            item_id: itemId,
-            item_color: itemColor,
-            ...cartreqbody,
-          },
-        });
+      const removeItemLocally = (ctokenOverride?: string) => {
+        dispatch(removeCartItem({ item_id: itemId, item_color: itemColor }));
 
-        if (response.data && response.data.message === "Cart item removed") {
-          dispatch(removeCartItem({ item_id: itemId, item_color: itemColor }));
-          toast.success("Item removed from cart");
-
-          if (
-            parsedCart &&
-            parsedCart.items &&
-            Array.isArray(parsedCart.items)
-          ) {
-            const updatedCartItems = parsedCart.items.filter(
-              (item: any) =>
-                !(item.item_id === itemId && item.item_color === itemColor)
-            );
-            const updatedCart = {
-              items: updatedCartItems,
-              ctoken: response.data.ctoken,
-            };
-            setCartLocal(updatedCart);
-          }
+        if (parsedCart && parsedCart.items && Array.isArray(parsedCart.items)) {
+          const updatedCartItems = parsedCart.items.filter(
+            (item: any) =>
+              !(item.item_id === itemId && item.item_color === itemColor)
+          );
+          const updatedCart = {
+            items: updatedCartItems,
+            ctoken: ctokenOverride ?? parsedCart.ctoken ?? "",
+          };
+          setCartLocal(updatedCart);
         }
+      };
+
+      try {
+        const shouldSyncServer = Boolean(cartreqbody.cart_t);
+
+        if (shouldSyncServer) {
+          const response = await axiosLocal.delete("/api/cart/remove", {
+            data: {
+              item_id: itemId,
+              item_color: itemColor,
+              ...cartreqbody,
+            },
+          });
+
+          if (response.data && response.data.message === "Cart item removed") {
+            removeItemLocally(response.data.ctoken);
+            toast.success("Item removed from cart");
+            return;
+          }
+
+          throw new Error("Unexpected response while removing cart item");
+        }
+
+        // Guest carts only exist locally, so just update Redux/localStorage
+        removeItemLocally(parsedCart?.ctoken);
+        toast.success("Item removed from cart");
       } catch (error: any) {
-        if (error.response) {
-          toast.error(error.response.data.message);
+        const status = error?.response?.status;
+        const message = error?.response?.data?.message;
+
+        if (status === 401 || status === 403) {
+          removeItemLocally(parsedCart?.ctoken);
+          toast.success("Item removed from cart");
         } else {
-          toast.error("Failed to remove item");
+          toast.error(message || "Failed to remove item");
         }
       } finally {
         dispatch(setIsUpdating(false));
@@ -231,11 +249,70 @@ const CartListing = () => {
     hasPreOrderItems,
   } = useMemo(() => calculateCartBreakdown(cartSnapshot), [cartSnapshot]);
 
+  const cartStockSummary = useMemo(
+    () => summarizeCartStock(cartSnapshot),
+    [cartSnapshot]
+  );
+
+  const isCheckoutBlocked = cartStockSummary.hasBlockingIssues;
+
+  const handleCheckoutClick = useCallback(
+    (event: MouseEvent<HTMLAnchorElement>) => {
+      if (isCheckoutBlocked) {
+        event.preventDefault();
+        toast.error("Resolve stock issues before proceeding to checkout.");
+      }
+    },
+    [isCheckoutBlocked]
+  );
+
   return (
     <>
       {cartItems ? (
         cartItems.length > 0 ? (
           <div className="flex flex-col w-full h-fit gap-7 animate-in fade-in duration-300">
+            {cartStockSummary.hasBlockingIssues && (
+              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <p className="flex items-center gap-2 text-[13px] font-semibold">
+                  <HiMiniExclamationTriangle className="h-4 w-4" />
+                  Fix stock issues before checkout
+                </p>
+                <ul className="mt-2 space-y-1 text-[12px]">
+                  {cartStockSummary.blockingIssues.map((issue) => (
+                    <li key={`cart-stock-blocker-${issue.itemId}`}>
+                      <span className="font-semibold">{issue.itemName}</span>{" "}
+                      {issue.isOutOfStock
+                        ? "is no longer available."
+                        : `has only ${issue.availableStock ?? 0} unit${
+                            (issue.availableStock ?? 0) === 1 ? "" : "s"
+                          } available.`}
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-[11px] font-medium">
+                  Please remove or adjust these items to continue.
+                </p>
+              </div>
+            )}
+
+            {!cartStockSummary.hasBlockingIssues &&
+              cartStockSummary.warningIssues.length > 0 && (
+                <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  <p className="flex items-center gap-2 text-[13px] font-semibold">
+                    <PiInfoBold className="h-4 w-4" />
+                    Low stock alert
+                  </p>
+                  <ul className="mt-2 space-y-1 text-[12px]">
+                    {cartStockSummary.warningIssues.map((issue) => (
+                      <li key={`cart-stock-warning-${issue.itemId}`}>
+                        <span className="font-semibold">{issue.itemName}</span>{" "}
+                        {`has only ${issue.availableStock ?? 0} left.`}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
             <div className="flex flex-col w-full h-fit gap-2 overflow-x-auto scrollbar-custom">
               <div className="flex w-full h-fit gap-1">
                 <div className="flex-initial min-w-[65px] w-[80px] px-2 py-1 text-center text-stone-600 tracking-tight bg-stone-50">
@@ -254,7 +331,7 @@ const CartListing = () => {
                   Total
                 </div>
               </div>
-              {cartItems.map((eachCartItem: any, index: number) => (
+              {cartSnapshot.map((eachCartItem: CartItem, index: number) => (
                 <CartItemRow
                   key={`${eachCartItem.item_id}_${
                     eachCartItem.item_color || "nocolor"
@@ -302,10 +379,21 @@ const CartListing = () => {
 
               <Link
                 href="/checkout"
-                className="flex w-fit h-fit px-7 sm:px-9 py-2 text-[13px] sm:text-[14px] font-[500] text-white bg-stone-800 rounded-md focus:outline-none hover:bg-stone-700 hover:scale-105 active:scale-95 transition-all duration-200 ease-out"
+                onClick={handleCheckoutClick}
+                aria-disabled={isCheckoutBlocked}
+                className={`flex w-fit h-fit px-7 sm:px-9 py-2 text-[13px] sm:text-[14px] font-[500] text-white rounded-md focus:outline-none transition-all duration-200 ease-out ${
+                  isCheckoutBlocked
+                    ? "bg-stone-500 cursor-not-allowed"
+                    : "bg-stone-800 hover:bg-stone-700 hover:scale-105 active:scale-95"
+                }`}
               >
-                Checkout
+                {isCheckoutBlocked ? "Resolve stock issues" : "Checkout"}
               </Link>
+              {isCheckoutBlocked && (
+                <p className="text-[11px] text-red-600">
+                  Update or remove the highlighted items to unlock checkout.
+                </p>
+              )}
             </div>
           </div>
         ) : (

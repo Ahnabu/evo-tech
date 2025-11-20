@@ -4,6 +4,7 @@ import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 import { Product } from "../product/product.model";
 import { Types } from "mongoose";
+import { NotificationServices } from "../notification/notification.service";
 
 const generateOrderNumber = (): string => {
   const timestamp = Date.now().toString();
@@ -69,7 +70,7 @@ const calculateDepositBreakdown = (
   totalPayable: number
 ): DepositBreakdown => {
   let preOrderItemsCount = 0;
-  let preOrderTotal = 0;
+  let preOrderSubtotal = 0;
 
   productDetails.forEach(({ product, quantity }) => {
     if (product?.isPreOrder) {
@@ -79,14 +80,22 @@ const calculateDepositBreakdown = (
         !isNaN(product.preOrderPrice)
           ? product.preOrderPrice
           : product.price;
-      preOrderTotal += unitPrice * quantity;
+      preOrderSubtotal += unitPrice * quantity;
     }
   });
 
-  const depositDue =
-    preOrderItemsCount > 0 ? roundToTwo(preOrderTotal * 0.5) : 0;
+  const preOrderDepositPortion =
+    preOrderItemsCount > 0 ? preOrderSubtotal * 0.5 : 0;
+  const deferredPreOrderPortion = roundToTwo(
+    preOrderItemsCount > 0
+      ? Math.max(preOrderSubtotal - preOrderDepositPortion, 0)
+      : 0
+  );
   const normalizedTotal = typeof totalPayable === "number" ? totalPayable : 0;
-  const balanceDue = roundToTwo(Math.max(normalizedTotal - depositDue, 0));
+  const depositDue = roundToTwo(
+    Math.max(normalizedTotal - deferredPreOrderPortion, 0)
+  );
+  const balanceDue = deferredPreOrderPortion;
 
   return {
     isPreOrderOrder: preOrderItemsCount > 0,
@@ -188,6 +197,7 @@ const placeOrderIntoDB = async (
     await Product.findByIdAndUpdate(detail.product._id, {
       $inc: { stock: -detail.quantity },
     });
+    await NotificationServices.evaluateStockForProduct(detail.product._id);
   }
 
   // Get full order with items
@@ -487,6 +497,7 @@ const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
     await Product.findByIdAndUpdate(detail.product._id, {
       $inc: { stock: -detail.quantity },
     });
+    await NotificationServices.evaluateStockForProduct(detail.product._id);
   }
 
   // Get full order with items

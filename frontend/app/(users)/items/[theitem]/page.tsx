@@ -11,7 +11,9 @@ import axiosErrorLogger from "@/components/error/axios_error";
 import axios from "@/utils/axios/axios";
 import { Suspense } from "react";
 
-export const generateMetadata = async (props: currentRouteProps): Promise<Metadata> => {
+export const generateMetadata = async (
+  props: currentRouteProps
+): Promise<Metadata> => {
   const params = await props.params;
   const itemslug = params.theitem;
 
@@ -63,6 +65,27 @@ const fetchItemData = async (itemSlugHere: string) => {
   }));
 
   // Transform product data to match existing frontend structure
+  const normalizedStock =
+    typeof product.stock === "number"
+      ? product.stock
+      : typeof product.stock === "string" && product.stock.trim() !== ""
+      ? Number(product.stock)
+      : null;
+
+  const normalizedLowStockThreshold =
+    typeof product.lowStockThreshold === "number"
+      ? product.lowStockThreshold
+      : typeof product.lowStockThreshold === "string" &&
+        product.lowStockThreshold.trim() !== ""
+      ? Number(product.lowStockThreshold)
+      : null;
+
+  const hasStockCount =
+    typeof normalizedStock === "number" && Number.isFinite(normalizedStock);
+  const hasLowStockThreshold =
+    typeof normalizedLowStockThreshold === "number" &&
+    Number.isFinite(normalizedLowStockThreshold);
+
   const itemInfo = {
     itemid: product._id,
     i_name: product.name,
@@ -70,7 +93,16 @@ const fetchItemData = async (itemSlugHere: string) => {
     i_price: product.price,
     i_prevprice: product.previousPrice || 0,
     i_preorderprice: product.preOrderPrice || null,
-    i_instock: product.inStock !== undefined ? product.inStock : true,
+    i_stock: hasStockCount ? normalizedStock : null,
+    i_lowstockthreshold: hasLowStockThreshold
+      ? normalizedLowStockThreshold
+      : null,
+    i_instock:
+      typeof product.inStock === "boolean"
+        ? product.inStock
+        : hasStockCount
+        ? (normalizedStock as number) > 0
+        : true,
     i_mainimg: product.mainImage || "",
     i_images:
       formattedImages.length > 0
@@ -91,7 +123,7 @@ const fetchItemData = async (itemSlugHere: string) => {
     i_features: product.features || [],
     i_colors: product.colors || [],
     i_description: product.description || "",
-    i_sectionsdata: null as any, 
+    i_sectionsdata: null as any,
   };
 
   return itemInfo;
@@ -127,7 +159,6 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
 
   return (
     <>
-
       <div className="w-full max-w-[1440px] h-fit pb-12 flex flex-col items-center font-inter">
         <div
           id="item-page-header"
@@ -191,7 +222,9 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
 
               {itemInfo.i_features && itemInfo.i_features.length > 0 && (
                 <div className="flex flex-col w-full h-fit border-t border-stone-300 my-2 pt-5 pb-3">
-                  <h3 className="text-sm md:text-base font-semibold text-stone-900 mb-3 px-4">Key Features</h3>
+                  <h3 className="text-sm md:text-base font-semibold text-stone-900 mb-3 px-4">
+                    Key Features
+                  </h3>
                   <ul className="flex flex-col w-full h-fit list-disc list-outside pl-8 pr-4 gap-0.5">
                     {itemInfo.i_features.map((feature: string, idx: number) => (
                       <li

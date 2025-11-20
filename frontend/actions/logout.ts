@@ -1,27 +1,22 @@
 "use server";
 
-import { signOut } from "@/auth";
 import { cookies } from "next/headers";
 
-export const logout = async () => {
+type LogoutResult = {
+  success: boolean;
+  error?: string;
+};
+
+export const logout = async (): Promise<LogoutResult> => {
   try {
-    // Clear all auth-related cookies
     const cookieStore = await cookies();
 
-    // Clear session token cookies
-    cookieStore.delete("authjs.session-token");
-    cookieStore.delete("__Secure-authjs.session-token");
-
-    // Clear last page cookie
+    // Clear any custom cookies we control; NextAuth cookies are handled client-side
     cookieStore.delete("last_pg");
 
-    // Clear CSRF token
-    cookieStore.delete("authjs.csrf-token");
-    cookieStore.delete("__Host-authjs.csrf-token");
-
-    // Sign out from NextAuth (this will also clear the session)
-    await signOut({ redirect: false });
+    return { success: true };
   } catch (err) {
     console.error("Logout error:", err);
+    return { success: false, error: "Failed to clear session cookies" };
   }
 };

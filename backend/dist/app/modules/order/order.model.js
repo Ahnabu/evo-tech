@@ -102,6 +102,40 @@ const orderSchema = new mongoose_1.Schema({
         type: Number,
         required: true,
     },
+    isPreOrderOrder: {
+        type: Boolean,
+        default: false,
+    },
+    preOrderItemsCount: {
+        type: Number,
+        default: 0,
+    },
+    depositDue: {
+        type: Number,
+        default: 0,
+    },
+    depositPaid: {
+        type: Number,
+        default: 0,
+    },
+    depositStatus: {
+        type: String,
+        enum: ["pending", "paid"],
+        default: "pending",
+    },
+    balanceDue: {
+        type: Number,
+        default: 0,
+    },
+    balancePaid: {
+        type: Number,
+        default: 0,
+    },
+    balanceStatus: {
+        type: String,
+        enum: ["pending", "paid"],
+        default: "pending",
+    },
     orderStatus: {
         type: String,
         enum: [
@@ -116,7 +150,7 @@ const orderSchema = new mongoose_1.Schema({
     },
     paymentStatus: {
         type: String,
-        enum: ["pending", "paid", "failed", "refunded"],
+        enum: ["pending", "partial", "paid", "failed", "refunded"],
         default: "pending",
     },
     notes: {

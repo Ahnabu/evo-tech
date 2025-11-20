@@ -12,4 +12,7 @@ export interface CartItem {
   item_price: number;
   item_isPreOrder?: boolean;
   item_preorderPrice?: number | null;
+  item_stock?: number | null;
+  item_lowstockthreshold?: number | null;
+  item_instock?: boolean;
 }

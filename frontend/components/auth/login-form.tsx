@@ -12,11 +12,12 @@ import { ShowFormError } from "@/components/ui/form-error";
 import { ShowFormSuccess } from "@/components/ui/form-success";
 import { login } from "@/actions/login";
 import { useRouter } from "next/navigation";
-import { DEFAULT_SIGNIN_REDIRECT_USER } from "@/routeslist";
 import axios from "@/utils/axios/axios";
+import { useSession } from "next-auth/react";
 
 const LoginForm = () => {
   const router = useRouter();
+  const { update } = useSession();
   const [formerror, setFormError] = useState<string>("");
   const [formsuccess, setFormSuccess] = useState<string>("");
   const {
@@ -54,11 +55,9 @@ const LoginForm = () => {
           console.log("Failed to link guest orders:", error);
         }
 
-        // Wait a moment for session to be fully set, then redirect
-        setTimeout(() => {
-          router.push(DEFAULT_SIGNIN_REDIRECT_USER);
-          router.refresh();
-        }, 100);
+        await update();
+        router.push("/");
+        router.refresh();
       }
     }
   };
