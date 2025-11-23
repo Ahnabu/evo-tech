@@ -12,7 +12,7 @@ import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 import EvoTechBDLogoGray from "@/public/assets/EvoTechBD-logo-gray.png";
 import { BiPackage } from "react-icons/bi";
-import {  IoMenu } from "react-icons/io5";
+import { IoMenu } from "react-icons/io5";
 import { FiSearch } from "react-icons/fi";
 import { TbDashboard, TbUser, TbLogout } from "react-icons/tb";
 
@@ -208,17 +208,17 @@ const NavbarClient = ({
       <div className="sticky top-0 z-50 bg-white shadow-sm border-b border-stone-100 w-full mx-auto">
         <div className="max-w-[1400px] mx-auto flex justify-center">
           <div className="w-full">
-            <div className="flex items-center justify-between px-4 sm:px-6 h-[64px]">
+            <div className="flex items-center justify-between px-2 sm:px-6 h-[64px]">
               {/* Mobile Menu Button */}
               <button
                 onClick={() => setIsMobileSidebarOpen(true)}
-                className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-stone-100"
+                className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-stone-100 flex-shrink-0"
                 aria-label="Open menu"
               >
                 <IoMenu className="w-6 h-6 text-stone-700" />
               </button>
 
-              <div className="flex items-center gap-4 md:gap-6">
+              <div className="flex items-center gap-2 md:gap-6 flex-shrink-0">
                 <Link href="/" className="flex items-center">
                   <Image
                     src={EvoTechBDLogoGray}
@@ -226,7 +226,7 @@ const NavbarClient = ({
                     width={140}
                     height={44}
                     priority
-                    className="object-contain w-[100px] md:w-[140px]"
+                    className="object-contain w-[70px] md:w-[140px]"
                   />
                 </Link>
 
@@ -236,13 +236,13 @@ const NavbarClient = ({
                 </div>
               </div>
 
-              <div className="flex-1 px-6">
-                <div className="max-w-[760px] mx-auto">
+              <div className="flex-1 px-1 sm:px-6 max-w-[760px]">
+                <div className="w-full">
                   <div className="relative" ref={searchRef}>
                     <input
                       type="search"
-                      placeholder="Search for products..."
-                      className="w-full h-12 rounded-full border border-stone-200 px-6 focus:ring-2 focus:ring-[#0866FF] outline-none"
+                      placeholder="Search..."
+                      className="w-full h-10 sm:h-12 rounded-full border border-stone-200 px-3 pr-10 sm:px-6 sm:pr-14 text-sm focus:ring-2 focus:ring-[#0866FF] outline-none"
                       value={searchQuery}
                       onChange={(e) => {
                         const v = e.target.value;
@@ -256,14 +256,14 @@ const NavbarClient = ({
                     <button
                       title="search"
                       aria-label="submit search"
-                      className="absolute right-3 top-1/2 -translate-y-1/2 bg-white w-10 h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-100"
+                      className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 bg-white w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center shadow-sm border border-stone-100"
                     >
-                      <FiSearch className="w-5 h-5 text-stone-600" />
+                      <FiSearch className="w-4 h-4 sm:w-5 sm:h-5 text-stone-600" />
                     </button>
 
                     {/* Suggestions dropdown */}
                     {showSuggestions && (
-                      <div className="absolute left-0 right-0 mt-2 z-50 bg-white border border-stone-100 rounded-md shadow-md overflow-hidden">
+                      <div className="absolute left-0 right-0 mt-2 z-50 bg-white border border-stone-100 rounded-md shadow-md overflow-hidden max-h-[400px] overflow-y-auto">
                         {isSearching ? (
                           <div className="p-3 text-sm text-stone-500">
                             Searching...
@@ -281,9 +281,9 @@ const NavbarClient = ({
                                 setSearchQuery("");
                                 router.push(`/items/${p.slug}`);
                               }}
-                              className="w-full flex items-center gap-3 p-3 hover:bg-stone-50 text-left"
+                              className="w-full flex items-center gap-2 sm:gap-3 p-2 sm:p-3 hover:bg-stone-50 text-left"
                             >
-                              <div className="w-12 h-12 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center">
+                              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gray-100 rounded-md overflow-hidden flex items-center justify-center flex-shrink-0">
                                 {p.mainImage ? (
                                   // Next/Image requires layout; using img for simplicity
                                   // eslint-disable-next-line @next/next/no-img-element
@@ -298,11 +298,11 @@ const NavbarClient = ({
                                   </span>
                                 )}
                               </div>
-                              <div className="flex-1">
-                                <div className="font-medium text-sm text-stone-800">
+                              <div className="flex-1 min-w-0">
+                                <div className="font-medium text-xs sm:text-sm text-stone-800 truncate">
                                   {p.name}
                                 </div>
-                                <div className="text-xs text-stone-500">
+                                <div className="text-xs text-stone-500 truncate">
                                   {p.brand?.name || ""} •{" "}
                                   {p.price ? `${p.price} BDT` : ""}
                                 </div>
@@ -316,15 +316,7 @@ const NavbarClient = ({
                 </div>
               </div>
 
-              {/* Mobile Search Icon */}
-              <button
-                className="md:hidden w-10 h-10 flex items-center justify-center rounded-lg hover:bg-stone-100"
-                aria-label="Search"
-              >
-                <FiSearch className="w-5 h-5 text-stone-600" />
-              </button>
-
-              <div className="flex items-center gap-2 md:gap-4 min-w-[120px] md:min-w-[240px] justify-end">
+              <div className="flex items-center gap-1 sm:gap-2 md:gap-4 flex-shrink-0 justify-end">
                 <Link
                   href="/track-order"
                   className="hidden sm:flex items-center gap-3"
@@ -332,7 +324,6 @@ const NavbarClient = ({
                   <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                     <BiPackage className="w-5 h-5 text-stone-700" />
                   </div>
-                  
                 </Link>
 
                 {currentUser ? (
@@ -342,7 +333,7 @@ const NavbarClient = ({
                         aria-label="user menu"
                         className="flex items-center rounded-lg"
                       >
-                        <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                           <Avatar
                             name={getNameInitials(
                               `${currentUser.firstName} ${currentUser.lastName}`
@@ -404,7 +395,7 @@ const NavbarClient = ({
                     {/* Mobile Sign In Button */}
                     <div className="sm:hidden">
                       <Link href="/login" className="flex items-center gap-2">
-                        <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
+                        <div className="w-10 h-10 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                           <TbUser className="w-5 h-5 text-stone-700" />
                         </div>
                       </Link>
@@ -412,8 +403,8 @@ const NavbarClient = ({
                   </>
                 )}
 
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
+                <div className="flex items-center">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                     <ManageCart />
                   </div>
                 </div>
