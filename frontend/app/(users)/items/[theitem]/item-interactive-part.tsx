@@ -387,7 +387,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
         <div className="flex w-full h-fit gap-2">
           <button
             onClick={handleBuyNow}
-            disabled={!singleitem.i_instock}
+            disabled={!singleitem.i_instock && !singleitem.i_ispreorder}
             type="button"
             aria-label="buy now button"
             className="w-full h-fit px-6 py-2 border border-stone-600 rounded-[4px] text-[12px] md:text-[14px] leading-5 tracking-tight font-[500] text-stone-100 bg-stone-900 disabled:bg-stone-700 disabled:hover:bg-stone-700 hover:bg-stone-800 transition-colors duration-100 ease-linear"
@@ -396,7 +396,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
           </button>
           <button
             onClick={handleAddToCart}
-            disabled={!singleitem.i_instock}
+            disabled={!singleitem.i_instock && !singleitem.i_ispreorder}
             type="button"
             aria-label="add to cart button"
             className="w-full h-fit px-6 py-2 border border-stone-600 rounded-[4px] text-[12px] md:text-[14px] leading-5 tracking-tight font-[500] text-stone-900 hover:text-stone-100 hover:bg-stone-900 disabled:hover:text-stone-900 disabled:hover:bg-transparent transition-colors duration-100 ease-linear"
@@ -409,7 +409,6 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
           singleitem.i_preorderprice < singleitem.i_price && (
             <button
               onClick={() => handlePreOrder()}
-              disabled={!singleitem.i_instock}
               type="button"
               aria-label="pre-order button"
               className="w-full h-fit px-6 py-2.5 border-2 border-brand-500 rounded-[4px] text-[12px] md:text-[14px] leading-5 tracking-tight font-[600] text-white bg-brand-600 disabled:bg-brand-300 disabled:hover:bg-brand-300 hover:bg-brand-700 transition-colors duration-100 ease-linear shadow-sm"

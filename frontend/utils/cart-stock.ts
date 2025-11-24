@@ -35,16 +35,22 @@ export const assessCartItemStock = (
   const lowStockThreshold =
     (parseNumber(item.item_lowstockthreshold) ?? availableStock ?? 0) || 5;
 
+  // If item is a preorder, skip stock validation
+  const isPreOrder = item.item_isPreOrder === true;
+
   const isOutOfStock =
-    item.item_instock === false ||
-    (typeof availableStock === "number" && availableStock <= 0);
+    !isPreOrder &&
+    (item.item_instock === false ||
+      (typeof availableStock === "number" && availableStock <= 0));
 
   const exceedsStock =
+    !isPreOrder &&
     !isOutOfStock &&
     typeof availableStock === "number" &&
     requestedQuantity > availableStock;
 
   const isLowStock =
+    !isPreOrder &&
     !isOutOfStock &&
     typeof availableStock === "number" &&
     availableStock > 0 &&
@@ -57,6 +63,8 @@ export const assessCartItemStock = (
     message = `Only ${availableStock} in stock. Reduce the quantity to continue.`;
   } else if (isLowStock && typeof availableStock === "number") {
     message = `Only ${availableStock} left in stock.`;
+  } else if (isPreOrder) {
+    message = "Pre-order item - no stock validation required.";
   }
 
   return {

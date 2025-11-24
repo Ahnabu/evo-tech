@@ -119,7 +119,7 @@ const ProductCard2 = ({ eachItem }: { eachItem: any; }) => {
                         View Details
                     </Link>
                     :
-                    <button type="button" aria-label="add to cart" onClick={handleAddToCart} disabled={!eachItem.i_instock} className="w-full h-fit px-5 py-2 text-center text-[12px] sm:text-[13px] leading-5 font-[600] tracking-tight text-stone-100 bg-stone-900 disabled:bg-stone-600 hover:bg-stone-700 rounded-[6px] overflow-hidden transition-colors duration-100 ease-linear">
+                    <button type="button" aria-label="add to cart" onClick={handleAddToCart} disabled={!eachItem.i_instock && !eachItem.i_ispreorder} className="w-full h-fit px-5 py-2 text-center text-[12px] sm:text-[13px] leading-5 font-[600] tracking-tight text-stone-100 bg-stone-900 disabled:bg-stone-600 hover:bg-stone-700 rounded-[6px] overflow-hidden transition-colors duration-100 ease-linear">
                         Add to Cart
                         <IoCart className="inline w-4 h-4 ml-1" />
                     </button>
