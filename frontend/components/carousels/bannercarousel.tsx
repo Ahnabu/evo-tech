@@ -58,7 +58,7 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
         {slides.map((slide, index) => (
           <SwiperSlide
             key={`slide${index}`}
-            className="flex w-full justify-center px-3"
+            className="flex w-full justify-center px-3 md:px-16 lg:px-20"
           >
             <div className="relative w-full my-4 max-w-[1200px] min-h-[140px] sm:min-h-[220px] max-h-[360px] lg:min-h-[260px] lg:max-h-[420px] overflow-hidden rounded-[24px] bg-white border border-stone-100 px-4 py-4 sm:px-8 sm:py-8 lg:px-12 lg:py-12">
               <div className="relative">
@@ -128,7 +128,7 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
         <button
           type="button"
           aria-label="previous button for banner carousel"
-          className="sw-custom-prev-bttn absolute left-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-stone-800 opacity-0 shadow-lg transition-all duration-300 hover:-translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl group-hover/banner:opacity-100 md:flex lg:left-6"
+          className="sw-custom-prev-bttn absolute left-2 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-stone-800 opacity-0 shadow-lg transition-all duration-300 hover:-translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl group-hover/banner:opacity-100 md:flex lg:left-4"
         >
           <IoChevronBackOutline className="h-6 w-6" />
         </button>
@@ -136,7 +136,7 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
         <button
           type="button"
           aria-label="next button for banner carousel"
-          className="sw-custom-next-bttn absolute right-4 top-1/2 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-stone-800 opacity-0 shadow-lg transition-all duration-300 hover:translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl group-hover/banner:opacity-100 md:flex lg:right-6"
+          className="sw-custom-next-bttn absolute right-2 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-stone-800 opacity-0 shadow-lg transition-all duration-300 hover:translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl group-hover/banner:opacity-100 md:flex lg:right-4"
         >
           <IoChevronForwardOutline className="h-6 w-6" />
         </button>
