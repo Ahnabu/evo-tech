@@ -74,6 +74,7 @@ class BkashService {
         }
         try {
             const response = await makeRequest(`${this.config.base_url}/tokenized/checkout/token/grant`, "POST", {
+                "Content-Type": "application/json",
                 Accept: "application/json",
                 username: this.config.username,
                 password: this.config.password,

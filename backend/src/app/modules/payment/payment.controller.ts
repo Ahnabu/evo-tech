@@ -103,9 +103,9 @@ const createBkashPayment = catchAsync(async (req: Request, res: Response) => {
 
   const paymentData = {
     mode: "0011" as const,
-    payerReference: order.phone || "customer",
+    payerReference: order.phone || "01619777283",
     callbackURL: `${config.frontend_url}/payment/callback`,
-    amount: toTwoDecimals(amountToCharge).toString(),
+    amount: toTwoDecimals(amountToCharge).toFixed(2),
     currency: "BDT" as const,
     intent: "sale" as const,
     merchantInvoiceNumber: order.orderNumber || orderId,

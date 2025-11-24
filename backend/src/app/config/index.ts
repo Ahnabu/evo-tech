@@ -20,14 +20,22 @@ export default {
   cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
   cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
-  cors_origin: process.env.NODE_ENV === "production" 
-    ? (process.env.FRONTEND_URL || process.env.CORS_ORIGIN || "http://localhost:3000").split(",").map(url => url.trim())
-    : ["http://localhost:3000", "http://localhost:3001"],
+  cors_origin:
+    process.env.NODE_ENV === "production"
+      ? (
+          process.env.FRONTEND_URL ||
+          process.env.CORS_ORIGIN ||
+          "http://localhost:3000"
+        )
+          .split(",")
+          .map((url) => url.trim())
+      : ["http://localhost:3000", "http://localhost:3001"],
   frontend_url: process.env.FRONTEND_URL || "http://localhost:3000",
   // bKash Payment Gateway Configuration
   bkash_base_url:
-    process.env.BKASH_BASE_URL ||
-    "https://tokenized.sandbox.bka.sh/v1.2.0-beta",
+    process.env.SANDBOX === "true"
+      ? "https://tokenized.sandbox.bka.sh/v1.2.0-beta"
+      : "https://tokenized.pay.bka.sh/v1.2.0-beta",
   bkash_app_key: process.env.BKASH_APP_KEY,
   bkash_app_secret: process.env.BKASH_APP_SECRET,
   bkash_username: process.env.BKASH_USERNAME,

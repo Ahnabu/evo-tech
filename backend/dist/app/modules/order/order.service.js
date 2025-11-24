@@ -93,14 +93,17 @@ const placeOrderIntoDB = async (payload, userUuid) => {
     if (!items || items.length === 0) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Cart is empty");
     }
-    // Validate stock availability for all items
+    // Validate stock availability for all items (except preorder items)
     for (const item of items) {
         const product = await product_model_1.Product.findById(item.item_id);
         if (!product) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, `Product not found`);
         }
-        if (!product.inStock || (product.stock ?? 0) < item.item_quantity) {
-            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `Product "${product.name}" is out of stock or insufficient quantity available`);
+        // Skip stock validation for preorder items
+        if (!product.isPreOrder) {
+            if (!product.inStock || (product.stock ?? 0) < item.item_quantity) {
+                throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `Product "${product.name}" is out of stock or insufficient quantity available`);
+            }
         }
     }
     // Process items and create product details
@@ -307,14 +310,17 @@ const placeGuestOrderIntoDB = async (payload) => {
     if (!orderData.email) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Email is required for guest checkout");
     }
-    // Validate stock availability for all items
+    // Validate stock availability for all items (except preorder items)
     for (const item of items) {
         const product = await product_model_1.Product.findById(item.item_id || item.product);
         if (!product) {
             throw new AppError_1.default(http_status_1.default.NOT_FOUND, `Product not found`);
         }
-        if (!product.inStock || (product.stock && product.stock < item.quantity)) {
-            throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `Product "${product.name}" is out of stock or insufficient quantity available`);
+        // Skip stock validation for preorder items
+        if (!product.isPreOrder) {
+            if (!product.inStock || (product.stock && product.stock < item.quantity)) {
+                throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `Product "${product.name}" is out of stock or insufficient quantity available`);
+            }
         }
     }
     console.log("📦 Backend received order data:", {
