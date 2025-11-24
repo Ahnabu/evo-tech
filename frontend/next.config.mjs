@@ -21,6 +21,8 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL ?? backendUrl;
 
 const nextConfig = {
   reactStrictMode: true,
+  // For Hostinger deployment, use standalone output
+  output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",
