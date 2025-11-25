@@ -129,6 +129,11 @@ const adminSecondarySidebarMenus = [
                 permissions: ["MANAGE_SITE_SETTINGS"],
             },
             {
+                title: "Terms & Conditions",
+                url: "/control/terms",
+                permissions: ["MANAGE_SITE_SETTINGS"],
+            },
+            {
                 title: "Roles & Permissions",
                 url: "/control/setup-config/roles-permissions",
                 permissions: ["MANAGE_PERMISSIONS"],
