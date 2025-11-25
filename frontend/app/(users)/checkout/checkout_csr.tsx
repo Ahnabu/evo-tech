@@ -568,11 +568,11 @@ const CheckoutParts = () => {
                 placeholder="Enter first name"
                 autoCorrect="off"
                 spellCheck="false"
-                className="peer w-full h-[40px] custom-input-style1"
+                className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 border-2 border-blue-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-blue-400/60 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 shadow-sm hover:shadow-md"
               />
               <label
                 htmlFor="firstName"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-blue-600 bg-white rounded-md transition-all peer-focus:text-blue-600 peer-placeholder-shown:text-blue-400"
               >
                 {`First Name*`}
               </label>
@@ -591,11 +591,11 @@ const CheckoutParts = () => {
                 placeholder="Enter last name"
                 autoCorrect="off"
                 spellCheck="false"
-                className="peer w-full h-[40px] custom-input-style1"
+                className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-purple-50/50 to-pink-50/50 border-2 border-purple-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-purple-400/60 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 shadow-sm hover:shadow-md"
               />
               <label
                 htmlFor="lastName"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-purple-600 bg-white rounded-md transition-all peer-focus:text-purple-600 peer-placeholder-shown:text-purple-400"
               >
                 {`Last Name`}
               </label>
@@ -615,11 +615,11 @@ const CheckoutParts = () => {
                 autoCorrect="off"
                 inputMode="tel"
                 autoComplete="tel"
-                className="peer w-full h-[40px] custom-input-style1"
+                className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 border-2 border-emerald-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-emerald-400/60 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 shadow-sm hover:shadow-md"
               />
               <label
                 htmlFor="phone"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-emerald-600 bg-white rounded-md transition-all peer-focus:text-emerald-600 peer-placeholder-shown:text-emerald-400"
               >
                 {`Phone*`}
               </label>
@@ -638,11 +638,11 @@ const CheckoutParts = () => {
                 spellCheck="false"
                 inputMode="email"
                 autoComplete="email"
-                className="peer w-full h-[40px] custom-input-style1"
+                className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-cyan-50/50 to-sky-50/50 border-2 border-cyan-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-cyan-400/60 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-all duration-200 shadow-sm hover:shadow-md"
               />
               <label
                 htmlFor="email"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-cyan-600 bg-white rounded-md transition-all peer-focus:text-cyan-600 peer-placeholder-shown:text-cyan-400"
               >
                 {`Email`}
               </label>
@@ -660,11 +660,11 @@ const CheckoutParts = () => {
               placeholder="Enter house & street name/no"
               autoCorrect="off"
               spellCheck="false"
-              className="peer w-full h-[40px] custom-input-style1"
+              className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-orange-50/50 to-amber-50/50 border-2 border-orange-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-orange-400/60 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200 shadow-sm hover:shadow-md"
             />
             <label
               htmlFor="housestreet"
-              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+              className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-orange-600 bg-white rounded-md transition-all peer-focus:text-orange-600 peer-placeholder-shown:text-orange-400"
             >
               {`House & Street*`}
             </label>

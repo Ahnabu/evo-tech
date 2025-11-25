@@ -58,6 +58,23 @@ const axios = Axios.create({
   withCredentials: true,
 });
 
+// Add auth interceptor for client-side requests
+if (typeof window !== "undefined") {
+  axios.interceptors.request.use(
+    async (config) => {
+      const { getSession } = await import("next-auth/react");
+      const session = await getSession();
+      
+      if (session?.accessToken) {
+        config.headers.Authorization = `Bearer ${session.accessToken}`;
+      }
+      
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+}
+
 attachApiPrefix(axios);
 
 export const axiosPrivate = Axios.create({

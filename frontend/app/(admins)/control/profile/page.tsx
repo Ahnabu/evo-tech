@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import axios from 'axios';
+import axios from '@/utils/axios/axios';
 import { toast } from 'sonner';
 
 export default function AdminProfilePage() {
@@ -148,8 +148,8 @@ export default function AdminProfilePage() {
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="relative">
+                            <label className="absolute left-2 -top-2 px-2 text-xs font-[700] text-blue-600 bg-white z-10">
                                 First Name
                             </label>
                             {isEditing ? (
@@ -157,16 +157,17 @@ export default function AdminProfilePage() {
                                     type="text"
                                     value={firstName}
                                     onChange={(e) => setFirstName(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Enter first name"
+                                    className="w-full h-[42px] px-4 py-2.5 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 border-2 border-blue-200 rounded-lg text-sm font-medium text-gray-900 placeholder:text-blue-400/60 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 shadow-sm hover:shadow-md"
                                     required
                                 />
                             ) : (
-                                <p className="text-gray-900 py-2">{currentUser.firstName}</p>
+                                <div className="w-full h-[42px] px-4 py-2.5 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 border-2 border-blue-200 rounded-lg text-sm font-medium text-gray-900 flex items-center shadow-sm">{currentUser.firstName}</div>
                             )}
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="relative">
+                            <label className="absolute left-2 -top-2 px-2 text-xs font-[700] text-purple-600 bg-white z-10">
                                 Last Name
                             </label>
                             {isEditing ? (
@@ -174,24 +175,25 @@ export default function AdminProfilePage() {
                                     type="text"
                                     value={lastName}
                                     onChange={(e) => setLastName(e.target.value)}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="Enter last name"
+                                    className="w-full h-[42px] px-4 py-2.5 bg-gradient-to-br from-purple-50/50 to-pink-50/50 border-2 border-purple-200 rounded-lg text-sm font-medium text-gray-900 placeholder:text-purple-400/60 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 shadow-sm hover:shadow-md"
                                     required
                                 />
                             ) : (
-                                <p className="text-gray-900 py-2">{currentUser.lastName}</p>
+                                <div className="w-full h-[42px] px-4 py-2.5 bg-gradient-to-br from-purple-50/50 to-pink-50/50 border-2 border-purple-200 rounded-lg text-sm font-medium text-gray-900 flex items-center shadow-sm">{currentUser.lastName}</div>
                             )}
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="relative">
+                            <label className="absolute left-2 -top-2 px-2 text-xs font-[700] text-cyan-600 bg-white z-10">
                                 Email
                             </label>
-                            <p className="text-gray-900 py-2">{currentUser.email}</p>
-                            <p className="text-xs text-gray-500">Email cannot be changed</p>
+                            <div className="w-full h-[42px] px-4 py-2.5 bg-gradient-to-br from-cyan-50/50 to-sky-50/50 border-2 border-cyan-200 rounded-lg text-sm font-medium text-gray-900 flex items-center shadow-sm">{currentUser.email}</div>
+                            <p className="text-xs text-cyan-500 mt-1 ml-1">Email cannot be changed</p>
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="relative">
+                            <label className="absolute left-2 -top-2 px-2 text-xs font-[700] text-emerald-600 bg-white z-10">
                                 Phone
                             </label>
                             {isEditing ? (
@@ -200,10 +202,10 @@ export default function AdminProfilePage() {
                                     value={phone}
                                     onChange={(e) => setPhone(e.target.value)}
                                     placeholder="Enter phone number"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="w-full h-[42px] px-4 py-2.5 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 border-2 border-emerald-200 rounded-lg text-sm font-medium text-gray-900 placeholder:text-emerald-400/60 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 shadow-sm hover:shadow-md"
                                 />
                             ) : (
-                                <p className="text-gray-900 py-2">{currentUser.phone || 'Not provided'}</p>
+                                <div className="w-full h-[42px] px-4 py-2.5 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 border-2 border-emerald-200 rounded-lg text-sm font-medium text-gray-900 flex items-center shadow-sm">{currentUser.phone || 'Not provided'}</div>
                             )}
                         </div>
 
