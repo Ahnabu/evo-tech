@@ -319,7 +319,7 @@ const AddProductFeaturesForm = ({ itemInfo, canUpdate = false }: ItemProps & { c
                                                 value={field.value}
                                                 onValueChange={field.onChange}
                                                 maxFileCount={1}
-                                                maxSize={2 * 1024 * 1024}
+                                                maxSize={10 * 1024 * 1024}
                                             />
                                         </div>
                                     )}
@@ -391,7 +391,7 @@ const AddProductFeaturesForm = ({ itemInfo, canUpdate = false }: ItemProps & { c
                                                 value={field.value}
                                                 onValueChange={field.onChange}
                                                 maxFileCount={1}
-                                                maxSize={2 * 1024 * 1024}
+                                                maxSize={10 * 1024 * 1024}
                                             />
                                         </div>
                                     )}

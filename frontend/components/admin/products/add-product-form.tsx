@@ -723,7 +723,7 @@ const AddProductForm = () => {
                     value={field.value}
                     onValueChange={field.onChange}
                     maxFileCount={1}
-                    maxSize={2 * 1024 * 1024}
+                    maxSize={10 * 1024 * 1024}
                     className="lg:min-h-32"
                     accept={{
                       "image/jpeg": [],
@@ -758,7 +758,7 @@ const AddProductForm = () => {
                     value={field.value}
                     onValueChange={field.onChange}
                     maxFileCount={10}
-                    maxSize={2 * 1024 * 1024}
+                    maxSize={10 * 1024 * 1024}
                     multiple
                     className="lg:min-h-32"
                     accept={{

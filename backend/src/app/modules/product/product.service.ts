@@ -357,9 +357,31 @@ const updateProductIntoDB = async (
     payload.slug = await generateUniqueSlug(payload.name, Product);
   }
 
+  // Handle setting an existing image as the new main image
+  if ((payload as any).newMainFromExisting) {
+    const imageId = (payload as any).newMainFromExisting;
+    const existingImage = await ProductImage.findById(imageId);
+    if (existingImage && existingImage.product.toString() === id) {
+      payload.mainImage = existingImage.imageUrl;
+      // Remove this image from ProductImage collection since it's now the main image
+      await ProductImage.findByIdAndDelete(imageId);
+    }
+    delete (payload as any).newMainFromExisting;
+  }
+
+  // Handle new main image upload
   if (mainImageBuffer) {
     const imageUrl = await uploadToCloudinary(mainImageBuffer, "products");
     payload.mainImage = imageUrl;
+  }
+
+  // Handle removing images
+  if ((payload as any).removeImages && Array.isArray((payload as any).removeImages)) {
+    const imagesToRemove = (payload as any).removeImages;
+    for (const imageId of imagesToRemove) {
+      await ProductImage.findByIdAndDelete(imageId);
+    }
+    delete (payload as any).removeImages;
   }
 
   const result = await Product.findByIdAndUpdate(id, payload, { new: true })
@@ -409,6 +431,18 @@ const deleteProductFromDB = async (id: string) => {
 };
 
 // Product Images
+const getProductImagesFromDB = async (productId: string) => {
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  const images = await ProductImage.find({ product: productId }).sort({
+    sortOrder: 1,
+  });
+  return images;
+};
+
 const addProductImageIntoDB = async (
   productId: string,
   imageBuffer: Buffer,
@@ -567,6 +601,7 @@ export const ProductServices = {
   createProductIntoDB,
   updateProductIntoDB,
   deleteProductFromDB,
+  getProductImagesFromDB,
   addProductImageIntoDB,
   deleteProductImageFromDB,
   addFeatureHeaderIntoDB,

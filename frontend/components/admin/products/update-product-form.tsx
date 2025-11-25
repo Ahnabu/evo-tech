@@ -198,43 +198,64 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
   const onSubmit = async (data: z.infer<typeof UpdateProductSchema>) => {
     const formdata = new FormData();
 
-    formdata.append("item_name", data.item_name);
-    formdata.append("item_slug", data.item_slug);
-    formdata.append("item_price", data.item_price);
-    formdata.append("item_prevprice", data.item_prevprice);
-    formdata.append("item_instock", String(Boolean(data.item_instock)));
-    if (data.item_newmainimg) {
-      formdata.append("item_newmainimg", data.item_newmainimg);
+    // Send field names matching backend schema
+    formdata.append("name", data.item_name);
+    formdata.append("slug", data.item_slug);
+    formdata.append("price", data.item_price);
+    formdata.append("previousPrice", data.item_prevprice);
+    formdata.append("inStock", String(Boolean(data.item_instock)));
+    
+    // Handle new main image
+    if (data.item_newmainimg && data.item_newmainimg instanceof File) {
+      formdata.append("mainImage", data.item_newmainimg);
     }
+    
+    // Handle setting existing image as main
     if (data.item_newmainfromexisting) {
-      formdata.append(
-        "item_newmainfromexisting",
-        data.item_newmainfromexisting
-      );
+      formdata.append("newMainFromExisting", data.item_newmainfromexisting);
     }
-    if (data.item_features) {
+    
+    // Features array
+    if (data.item_features && data.item_features.length > 0) {
       data.item_features.forEach((feature: string) => {
-        formdata.append("item_features[]", feature);
+        if (feature && feature.trim()) {
+          formdata.append("features[]", feature);
+        }
       });
     }
-    if (data.item_colors) {
+    
+    // Colors array
+    if (data.item_colors && data.item_colors.length > 0) {
       data.item_colors.forEach((color: string) => {
-        formdata.append("item_colors[]", color);
+        if (color && color.trim()) {
+          formdata.append("colors[]", color);
+        }
       });
     }
-    formdata.append("item_category", data.item_category);
-    formdata.append("item_subcategory", data.item_subcategory ?? "");
-    formdata.append("item_brand", data.item_brand);
-    formdata.append("item_weight", data.item_weight ?? "");
-    formdata.append("landing_section_id", data.landing_section_id ?? "");
-    if (data.additional_newimages) {
+    
+    formdata.append("category", data.item_category);
+    if (data.item_subcategory) {
+      formdata.append("subcategory", data.item_subcategory);
+    }
+    formdata.append("brand", data.item_brand);
+    if (data.item_weight) {
+      formdata.append("weight", data.item_weight);
+    }
+    if (data.landing_section_id) {
+      formdata.append("landingpageSectionId", data.landing_section_id);
+    }
+    
+    // Additional new images
+    if (data.additional_newimages && Array.isArray(data.additional_newimages)) {
       data.additional_newimages.forEach((file: File) => {
-        formdata.append("additional_newimages[]", file);
+        formdata.append("additionalImages", file);
       });
     }
-    if (data.remove_additional_images) {
+    
+    // Images to remove
+    if (data.remove_additional_images && data.remove_additional_images.length > 0) {
       data.remove_additional_images.forEach((imageId: string) => {
-        formdata.append("remove_additional_images[]", imageId);
+        formdata.append("removeImages[]", imageId);
       });
     }
 
@@ -250,11 +271,11 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     }
 
     // Inventory fields
-    if (data.stock) {
-      formdata.append("stock", data.stock);
+    if (data.stock !== undefined && data.stock !== null && data.stock !== "") {
+      formdata.append("stock", data.stock.toString());
     }
-    if (data.lowStockThreshold) {
-      formdata.append("lowStockThreshold", data.lowStockThreshold);
+    if (data.lowStockThreshold !== undefined && data.lowStockThreshold !== null && data.lowStockThreshold !== "") {
+      formdata.append("lowStockThreshold", data.lowStockThreshold.toString());
     }
 
     // Boolean flags
@@ -273,7 +294,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       formdata.append("preOrderDate", data.preOrderDate);
     }
     if (data.isPreOrder && data.preOrderPrice) {
-      formdata.append("preOrderPrice", data.preOrderPrice);
+      formdata.append("preOrderPrice", data.preOrderPrice.toString());
     }
 
     // SEO fields
@@ -442,7 +463,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
                       field.onChange(files); // important: keep this at the end of the function
                     }}
                     maxFileCount={1}
-                    maxSize={2 * 1024 * 1024}
+                    maxSize={10 * 1024 * 1024}
                     className="lg:min-h-32"
                     accept={{
                       "image/jpeg": [],
@@ -479,7 +500,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
                     value={field.value}
                     onValueChange={field.onChange}
                     maxFileCount={10}
-                    maxSize={2 * 1024 * 1024}
+                    maxSize={10 * 1024 * 1024}
                     multiple
                     className="lg:min-h-32"
                     accept={{

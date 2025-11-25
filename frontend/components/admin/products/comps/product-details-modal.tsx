@@ -6,6 +6,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/evo_dialog";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -105,9 +106,10 @@ export function ProductDetailsModal({ productSlug, open, onOpenChange }: Product
 
       const productInfo = productData.data;
 
-      // Fetch additional images
+      // Fetch additional images from backend API
+      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
       const imagesResponse = await fetch(
-        `/api/product-images?product=${productInfo._id}`
+        `${baseURL}/products/${productInfo._id}/images`
       );
 
       let additionalImages: ProductImage[] = [];
@@ -137,6 +139,9 @@ export function ProductDetailsModal({ productSlug, open, onOpenChange }: Product
       <DialogContent className="max-w-5xl max-h-[90vh] p-0 overflow-hidden bg-white">
         <DialogHeader className="px-6 py-4 border-b bg-white">
           <DialogTitle className="text-xl font-semibold">Product Details</DialogTitle>
+          <DialogDescription className="sr-only">
+            View detailed information about the product including images, description, and specifications
+          </DialogDescription>
         </DialogHeader>
 
         {isLoading ? (

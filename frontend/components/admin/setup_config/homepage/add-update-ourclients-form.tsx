@@ -280,7 +280,7 @@ const OurClientsForm = ({
                       value={field.value}
                       onValueChange={field.onChange}
                       maxFileCount={1}
-                      maxSize={2 * 1024 * 1024} // 2MB
+                      maxSize={10 * 1024 * 1024} // 10MB
                       className="lg:min-h-32"
                       accept={{
                         "image/jpeg": [],

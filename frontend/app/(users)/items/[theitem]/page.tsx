@@ -46,7 +46,7 @@ const fetchItemData = async (itemSlugHere: string) => {
 
   // Fetch additional product images
   const imagesResponse = await axios
-    .get(`/product-images?product=${product._id}`)
+    .get(`/products/${product._id}/images`)
     .then((res) => res.data)
     .catch(() => null);
 

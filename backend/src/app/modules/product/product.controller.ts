@@ -92,6 +92,18 @@ const deleteProduct = catchAsync(async (req, res) => {
 });
 
 // Product Images
+const getProductImages = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+  const result = await ProductServices.getProductImagesFromDB(productId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Product images retrieved successfully",
+    data: result,
+  });
+});
+
 const addProductImage = catchAsync(async (req, res) => {
   const { productId } = req.params;
   const imageBuffer = req.file?.buffer;
@@ -266,6 +278,7 @@ export const ProductControllers = {
   createProduct,
   updateProduct,
   deleteProduct,
+  getProductImages,
   addProductImage,
   deleteProductImage,
   addFeatureHeader,

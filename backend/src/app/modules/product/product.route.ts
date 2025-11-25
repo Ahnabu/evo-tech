@@ -34,71 +34,75 @@ router.put(
 router.delete("/:id", auth(USER_ROLE.ADMIN), ProductControllers.deleteProduct);
 
 // Product Images
+router.get(
+  "/:productId/images",
+  ProductControllers.getProductImages
+);
 router.post(
   "/:productId/images",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,
   ProductControllers.addProductImage
 );
 router.delete(
   "/images/:imageId",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   ProductControllers.deleteProductImage
 );
 
 // Feature Headers
 router.post(
   "/:productId/feature-headers",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   ProductControllers.addFeatureHeader
 );
 router.put(
   "/feature-headers/:headerId",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   ProductControllers.updateFeatureHeader
 );
 router.delete(
   "/feature-headers/:headerId",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   ProductControllers.deleteFeatureHeader
 );
 
 // Feature Subsections
 router.post(
   "/:productId/feature-subsections",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,
   ProductControllers.addFeatureSubsection
 );
 router.put(
   "/feature-subsections/:subsectionId",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,
   ProductControllers.updateFeatureSubsection
 );
 router.delete(
   "/feature-subsections/:subsectionId",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   ProductControllers.deleteFeatureSubsection
 );
 
 // Specifications
 router.post(
   "/:productId/specifications",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   ProductControllers.addSpecification
 );
 router.put(
   "/specifications/:specId",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   ProductControllers.updateSpecification
 );
 router.delete(
   "/specifications/:specId",
-  auth(USER_ROLE.ADMIN),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   ProductControllers.deleteSpecification
 );
 
