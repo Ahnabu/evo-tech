@@ -47,7 +47,7 @@ export default function Featured3DPrintersMaterials() {
         const materialsRes = await axios.get("/api/products", {
           params: {
             category: "materials",
-            limit: 3,
+            limit: 2,
             published: true,
           },
         });
@@ -105,15 +105,15 @@ export default function Featured3DPrintersMaterials() {
   }
 
   return (
-    <section className="w-full py-8 bg-gradient-to-b from-gray-50 to-white">
-      <div className="max-w-[1600px] mx-auto  px-4 sm:px-6 lg:px-8">
+    <section className="w-full py-6 bg-gradient-to-b from-gray-50 to-white">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         {sections.map((section, sectionIndex) => (
           <div
             key={section.categorySlug}
-            className={sectionIndex > 0 ? "mt-6 " : ""}
+            className={sectionIndex > 0 ? "mt-8" : ""}
           >
             {/* Section Header */}
-            <div className="flex items-center justify-between gap-3 sm:gap-4 mb-5 sm:mb-6">
+            <div className="flex items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5">
               <h3 className="text-lg sm:text-2xl font-semibold text-stone-800">
                 {section.categoryName}
               </h3>
@@ -134,12 +134,12 @@ export default function Featured3DPrintersMaterials() {
             {/* Products Grid */}
             <Swiper
               modules={[Autoplay]}
-              spaceBetween={20}
+              spaceBetween={16}
               slidesPerView={2}
               breakpoints={{
-                640: { slidesPerView: 3, spaceBetween: 18 },
-                1024: { slidesPerView: 4, spaceBetween: 20 },
-                1280: { slidesPerView: 4, spaceBetween: 20 },
+                640: { slidesPerView: 3, spaceBetween: 16 },
+                1024: { slidesPerView: 4, spaceBetween: 18 },
+                1280: { slidesPerView: 5, spaceBetween: 18 },
               }}
               autoplay={{
                 delay: 3500,
@@ -153,10 +153,10 @@ export default function Featured3DPrintersMaterials() {
                 <SwiperSlide key={product._id}>
                   <Link
                     href={`/items/${product.slug}`}
-                    className="group block w-full my-1 rounded-lg overflow-hidden shadow-md hover:shadow-md transition transform hover:-translate-y-1"
+                    className="group block w-full my-1 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition transform hover:-translate-y-1"
                   >
                     {/* Product Image Container */}
-                    <div className="relative w-full aspect-square  bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
+                    <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
                       <Image
                         src={product.mainImage || "/placeholder.png"}
                         alt={product.name}
@@ -180,20 +180,20 @@ export default function Featured3DPrintersMaterials() {
                     </div>
 
                     {/* Product Info */}
-                    <div className="p-3 sm:p-3.5 flex flex-col gap-1 flex-1">
-                      <h3 className="text-xs sm:text-sm font-semibold text-gray-900 line-clamp-2 min-h-[2rem] group-hover:text-blue-600 transition-colors leading-tight">
+                    <div className="p-2 sm:p-2.5 flex flex-col gap-0.5 flex-1">
+                      <h3 className="text-[11px] sm:text-xs font-semibold text-gray-900 line-clamp-2 min-h-[1.75rem] group-hover:text-blue-600 transition-colors leading-tight">
                         {product.name}
                       </h3>
 
                       {product.shortDescription && (
-                        <p className="text-[10px] sm:text-xs text-gray-500 line-clamp-1 leading-tight">
+                        <p className="text-[9px] sm:text-[10px] text-gray-500 line-clamp-1 leading-tight">
                           {product.shortDescription}
                         </p>
                       )}
 
-                      <div className="mt-auto pt-1">
-                        <div className="flex items-baseline gap-2 flex-wrap">
-                          <span className="text-sm sm:text-base lg:text-lg font-bold text-gray-900">
+                      <div className="mt-auto pt-0.5">
+                        <div className="flex items-baseline gap-1.5 flex-wrap">
+                          <span className="text-xs sm:text-sm lg:text-base font-bold text-gray-900">
                             BDT {product.price.toLocaleString()}
                           </span>
                           {product.previousPrice &&
