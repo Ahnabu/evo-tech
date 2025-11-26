@@ -1,269 +1,292 @@
 "use client";
 
-import { z } from "zod";
-import axios from "axios";
-import { useForm, useFieldArray } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { EvoFormInputError } from "@/components/error/form-input-error";
-import { specsSectionSchema } from "@/schemas/admin/product/productspecsSchema";
-import { toast } from "sonner";
 import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+import { PlusCircle, Trash2, Loader2 } from "lucide-react";
 
-interface Spec {
-    specid: string;
-    label: string;
-    value: string;
-    sortorder: number;
-};
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
-interface ItemProps {
-    itemInfo: {
-        itemid: string;
-        i_slug: string;
-        i_sectionsdata?: {
-            specifications_section?: Spec[];
-        };
-    };
+// Types
+interface Specification {
+  _id: string;
+  title: string;
+  value: string;
+  sortOrder: number;
 }
 
-const AddProductSpecsForm = ({ itemInfo, canUpdate = false }: ItemProps & { canUpdate: boolean; }) => {
-    const [removeAllSpecsPending, setRemoveAllSpecsPending] = useState(false);
-    const [oldSpecs, setOldSpecs] = useState<Spec[]>(itemInfo.i_sectionsdata?.specifications_section ?? []);
+interface ItemInfo {
+  itemid: string;
+  itemname: string;
+}
 
-    // States for storing removed IDs
-    const [specsToRemove, setSpecsToRemove] = useState<string[]>([]);
+interface AddSpecsFormProps {
+  itemInfo: ItemInfo;
+  specifications?: Specification[];
+  onRefresh?: () => void;
+}
 
-    const { register, handleSubmit, control, reset, watch, formState: { errors, isSubmitting } } = useForm<z.infer<typeof specsSectionSchema>>({
-        resolver: zodResolver(specsSectionSchema),
-        defaultValues: {
-            specs: [],
-        },
-    });
+// Schema
+const specificationSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  value: z.string().min(1, "Value is required"),
+  sortOrder: z.coerce.number().min(0, "Sort order must be 0 or greater"),
+});
 
-    const specs = watch("specs", []);
+type SpecificationFormValues = z.infer<typeof specificationSchema>;
 
-    const canSubmit = specs.length > 0;
+export function AddProductSpecsForm({
+  itemInfo,
+  specifications = [],
+  onRefresh,
+}: AddSpecsFormProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const [deletingSpecId, setDeletingSpecId] = useState<string | null>(null);
 
-    // Field array for headers
-    const {
-        fields: specFields,
-        append: appendSpec,
-        remove: removeSpec,
-    } = useFieldArray({
-        control,
-        name: "specs",
-    });
+  const form = useForm<SpecificationFormValues>({
+    resolver: zodResolver(specificationSchema),
+    defaultValues: {
+      title: "",
+      value: "",
+      sortOrder: specifications.length,
+    },
+  });
 
-    // Handler for removing a spec
-    const handleRemoveSpec = (specId: string) => {
-        setOldSpecs((prev) => prev.filter((spec) => spec.specid !== specId));
-        setSpecsToRemove((prev) => [...prev, specId]);
-    };
-
-
-    const handleRemoveAllFeatures = async (itemId: string) => {
-        setRemoveAllSpecsPending(true);
-        const delResponse = await axios.delete(`/api/admin/products/specifications/deleteall/${itemId}`)
-            .then((res) => {
-                return res.data;
-            })
-            .catch((error: any) => {
-                if (error.response) {
-                    toast.error(error.response.data.message ? error.response.data.message : "Something went wrong");
-                } else {
-                    toast.error("Something went wrong");
-                }
-                return null;
-            }).finally(() => {
-                setRemoveAllSpecsPending(false);
-            });
-
-        if (delResponse && delResponse.message) {
-            toast.success(`All specifications for this item are deleted`);
+  // Add Specification
+  const handleAddSpecification = async (values: SpecificationFormValues) => {
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/products/${itemInfo.itemid}/specifications`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
         }
-    };
+      );
 
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add specification");
+      }
 
-    const onSubmit = async (data: z.infer<typeof specsSectionSchema>) => {
+      toast.success("Specification added successfully");
+      form.reset({
+        title: "",
+        value: "",
+        sortOrder: specifications.length + 1,
+      });
+      onRefresh?.();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to add specification");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-        const formdata = new FormData();
-        let apiToUse: string;
+  // Delete Specification
+  const handleDeleteSpecification = async (specId: string) => {
+    setDeletingSpecId(specId);
+    try {
+      const response = await fetch(`/api/products/specifications/${specId}`, {
+        method: "DELETE",
+      });
 
-        // for updating existing specs
-        if (canUpdate) {
-            // Append specs_section_new if present
-            if (data.specs && data.specs.length > 0) {
-                data.specs.forEach((spec, index) => {
-                    formdata.append(`specs_section_new[${index}][label]`, spec.label);
-                    formdata.append(`specs_section_new[${index}][value]`, spec.value);
-                });
-            }
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete specification");
+      }
 
-            // Append remove_specs if present
-            if (specsToRemove.length > 0) {
-                specsToRemove.forEach((specId) => {
-                    formdata.append("remove_specs[]", specId);
-                });
-            }
+      toast.success("Specification deleted successfully");
+      onRefresh?.();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete specification");
+    } finally {
+      setDeletingSpecId(null);
+    }
+  };
 
-            apiToUse = `/api/admin/products/specifications/update/${itemInfo.itemid}`;
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-lg">Product Specifications</CardTitle>
+        <CardDescription>
+          Add technical specifications for this product (e.g., Build Volume:
+          256×256×256 mm)
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleAddSpecification)}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Title</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., Build Volume" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="value"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Value</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g., 256×256×256 mm" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="sortOrder"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Sort Order</FormLabel>
+                    <FormControl>
+                      <Input type="number" min={0} {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Add Specification
+            </Button>
+          </form>
+        </Form>
 
-        } else { // for inserting specs
-
-            if (data.specs && data.specs.length > 0) {
-                data.specs.forEach((spec, index) => {
-                    formdata.append(`specs_section[${index}][label]`, spec.label);
-                    formdata.append(`specs_section[${index}][value]`, spec.value);
-                });
-            }
-
-            apiToUse = `/api/admin/products/specifications/add/${itemInfo.itemid}`;
-        }
-
-        const response = await axios.post(apiToUse,
-            formdata,
-            {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                withCredentials: true,
-            },
-        ).then((res) => {
-            return res.data;
-        })
-            .catch((error: any) => {
-                if (error.response) {
-                    toast.error(error.response.data.message ? error.response.data.message : "Something went wrong");
-                } else {
-                    toast.error("Something went wrong");
-                }
-                return null;
-            });
-
-        if (response && response.message) {
-            toast.success(canUpdate ? `Specifications updated` : `Specifications stored`);
-            reset();
-        }
-    };
-
-
-
-    return (
-        <>
-            <div className="w-full max-w-3xl p-4 space-y-8 font-inter">
-                {/* Specs List */}
-                <div>
-                    <h2 className="text-base font-bold mb-4 text-stone-700">Specifications List:</h2>
-                    {oldSpecs.length === 0 ? (
-                        <p className="text-sm text-stone-700 font-normal">No Specs available.</p>
-                    ) : (
-                        <ul className="space-y-4">
-                            {oldSpecs.map((spec) => (
-                                <li
-                                    key={spec.specid}
-                                    className="flex items-center justify-between border px-4 py-2 rounded shadow-sm shadow-stone-400 gap-3"
+        {/* Existing Specifications */}
+        {specifications.length > 0 && (
+          <div className="mt-6">
+            <h4 className="font-medium mb-3">Existing Specifications</h4>
+            <div className="border rounded-lg overflow-hidden">
+              <table className="w-full">
+                <thead className="bg-muted">
+                  <tr>
+                    <th className="text-left p-3 text-sm font-medium">Label</th>
+                    <th className="text-left p-3 text-sm font-medium">Value</th>
+                    <th className="text-center p-3 text-sm font-medium w-20">
+                      Order
+                    </th>
+                    <th className="text-right p-3 text-sm font-medium w-20">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {specifications
+                    .sort((a, b) => a.sortOrder - b.sortOrder)
+                    .map((spec, index) => (
+                      <tr
+                        key={spec._id}
+                        className={
+                          index % 2 === 0 ? "bg-background" : "bg-muted/50"
+                        }
+                      >
+                        <td className="p-3 text-sm font-medium">
+                          {spec.title}
+                        </td>
+                        <td className="p-3 text-sm text-muted-foreground">
+                          {spec.value}
+                        </td>
+                        <td className="p-3 text-sm text-center">
+                          {spec.sortOrder}
+                        </td>
+                        <td className="p-3 text-right">
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                disabled={deletingSpecId === spec._id}
+                              >
+                                {deletingSpecId === spec._id ? (
+                                  <Loader2 className="h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>
+                                  Delete Specification?
+                                </AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete &quot;
+                                  {spec.title}&quot;? This action cannot be
+                                  undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() =>
+                                    handleDeleteSpecification(spec._id)
+                                  }
+                                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="w-full">
-                                            <p className="text-sm font-semibold w-full truncate">{spec.label}</p>
-                                            <p className="text-sm font-semibold text-gray-500 w-full truncate">{spec.value}</p>
-                                            {/* <p className="text-xs text-gray-500 w-full truncate">{`Sort Order: ${spec.sortorder}`}</p> */}
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => handleRemoveSpec(spec.specid)}
-                                        className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 text-xs"
-                                    >
-                                        Remove
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            </div>
-
-            <form id="addproductspecsform" onSubmit={handleSubmit(onSubmit)} className="mt-5 max-w-3xl p-6 space-y-4 text-sm font-inter">
-                {/* Subsections Section */}
-                <div>
-                    <h3 className="text-[13px] leading-5 md:text-base font-[500] mb-2">Specifications</h3>
-                    {specFields.map((field, index) => (
-                        <div key={field.id} className="border p-4 mb-4 rounded">
-                            <div>
-                                <label className="block mb-1">Label</label>
-                                <input
-                                    type="text"
-                                    {...register(`specs.${index}.label` as const)}
-                                    className="w-full border p-2 rounded"
-                                />
-                                {errors.specs?.[index]?.label && (
-                                    <EvoFormInputError>
-                                        {errors.specs[index].label?.message}
-                                    </EvoFormInputError>
-                                )}
-                            </div>
-                            <div className="mt-2">
-                                <label className="block mb-1">Value</label>
-                                <input
-                                    type="text"
-                                    {...register(`specs.${index}.value` as const)}
-                                    className="w-full border p-2 rounded"
-                                />
-                                {errors.specs?.[index]?.value && (
-                                    <EvoFormInputError>
-                                        {errors.specs[index].value?.message}
-                                    </EvoFormInputError>
-                                )}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => removeSpec(index)}
-                                className="mt-5 bg-red-500 text-white px-3 py-1 rounded"
-                            >
-                                Remove Specification
-                            </button>
-                        </div>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </td>
+                      </tr>
                     ))}
-                    <button
-                        type="button"
-                        onClick={() =>
-                            appendSpec({
-                                label: "",
-                                value: "",
-                            })
-                        }
-                        className="bg-[#0866FF] text-white px-3 py-1 rounded"
-                    >
-                        {`+ Add Specification`}
-                    </button>
-                </div>
-
-                {/* Submit Button */}
-                <div className="pt-10 w-full flex justify-end gap-3">
-
-                    <button type="submit" aria-label="add product" disabled={isSubmitting || (!canSubmit && !(specsToRemove.length > 0))}
-                        className="px-7 py-2 bg-stone-800 text-white rounded text-xs md:text-sm hover:bg-stone-900 disabled:bg-stone-600"
-                    >
-                        {canUpdate
-                            ? (isSubmitting ? 'Updating...' : `Update Specs`)
-                            : (isSubmitting ? 'Adding...' : `Add Specs`)
-                        }
-                    </button>
-                </div>
-            </form>
-
-            <div className="w-full max-w-3xl flex justify-end px-6">
-                <button disabled={!canUpdate}
-                    onClick={() => handleRemoveAllFeatures(itemInfo.itemid)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm disabled:bg-red-400"
-                >
-                    {removeAllSpecsPending ? `Removing...` : `Remove All Specs`}
-                </button>
+                </tbody>
+              </table>
             </div>
-        </>
-    );
-
-
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
-export { AddProductSpecsForm };
+// Backward compatibility export
+export { AddProductSpecsForm as AddSpecsForm };

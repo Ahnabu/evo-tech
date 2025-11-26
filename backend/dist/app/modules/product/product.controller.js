@@ -107,6 +107,16 @@ const deleteProductImage = (0, catchAsync_1.catchAsync)(async (req, res) => {
     });
 });
 // Feature Headers
+const getFeatureHeaders = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { productId } = req.params;
+    const result = await product_service_1.ProductServices.getFeatureHeadersFromDB(productId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Feature headers retrieved successfully",
+        data: result,
+    });
+});
 const addFeatureHeader = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { productId } = req.params;
     const result = await product_service_1.ProductServices.addFeatureHeaderIntoDB(productId, req.body);
@@ -138,6 +148,16 @@ const deleteFeatureHeader = (0, catchAsync_1.catchAsync)(async (req, res) => {
     });
 });
 // Feature Subsections
+const getFeatureSubsections = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { productId } = req.params;
+    const result = await product_service_1.ProductServices.getFeatureSubsectionsFromDB(productId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Feature subsections retrieved successfully",
+        data: result,
+    });
+});
 const addFeatureSubsection = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { productId } = req.params;
     const imageBuffer = req.file?.buffer;
@@ -171,6 +191,16 @@ const deleteFeatureSubsection = (0, catchAsync_1.catchAsync)(async (req, res) =>
     });
 });
 // Specifications
+const getSpecifications = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { productId } = req.params;
+    const result = await product_service_1.ProductServices.getSpecificationsFromDB(productId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Specifications retrieved successfully",
+        data: result,
+    });
+});
 const addSpecification = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { productId } = req.params;
     const result = await product_service_1.ProductServices.addSpecificationIntoDB(productId, req.body);
@@ -201,6 +231,57 @@ const deleteSpecification = (0, catchAsync_1.catchAsync)(async (req, res) => {
         data: null,
     });
 });
+// Color Variations
+const getColorVariations = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { productId } = req.params;
+    const result = await product_service_1.ProductServices.getColorVariationsFromDB(productId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Color variations retrieved successfully",
+        data: result,
+    });
+});
+const addColorVariation = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { productId } = req.params;
+    const result = await product_service_1.ProductServices.addColorVariationIntoDB(productId, req.body);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.CREATED,
+        message: "Color variation added successfully",
+        data: result,
+    });
+});
+const updateColorVariation = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { colorId } = req.params;
+    const result = await product_service_1.ProductServices.updateColorVariationIntoDB(colorId, req.body);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Color variation updated successfully",
+        data: result,
+    });
+});
+const deleteColorVariation = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { colorId } = req.params;
+    await product_service_1.ProductServices.deleteColorVariationFromDB(colorId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Color variation deleted successfully",
+        data: null,
+    });
+});
+// Get all unique colors
+const getAllUniqueColors = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const result = await product_service_1.ProductServices.getAllUniqueColorsFromDB();
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Unique colors retrieved successfully",
+        data: result,
+    });
+});
 exports.ProductControllers = {
     getAllProducts,
     getSingleProduct,
@@ -211,14 +292,22 @@ exports.ProductControllers = {
     getProductImages,
     addProductImage,
     deleteProductImage,
+    getFeatureHeaders,
     addFeatureHeader,
     updateFeatureHeader,
     deleteFeatureHeader,
+    getFeatureSubsections,
     addFeatureSubsection,
     updateFeatureSubsection,
     deleteFeatureSubsection,
+    getSpecifications,
     addSpecification,
     updateSpecification,
     deleteSpecification,
+    getColorVariations,
+    addColorVariation,
+    updateColorVariation,
+    deleteColorVariation,
+    getAllUniqueColors,
 };
 //# sourceMappingURL=product.controller.js.map

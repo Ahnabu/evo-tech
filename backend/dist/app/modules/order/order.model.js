@@ -104,6 +104,14 @@ const orderSchema = new mongoose_1.Schema({
         type: Number,
         required: true,
     },
+    amountPaid: {
+        type: Number,
+        default: 0,
+    },
+    amountDue: {
+        type: Number,
+        default: 0,
+    },
     isPreOrderOrder: {
         type: Boolean,
         default: false,

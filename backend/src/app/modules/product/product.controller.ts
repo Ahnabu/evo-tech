@@ -139,6 +139,18 @@ const deleteProductImage = catchAsync(async (req, res) => {
 });
 
 // Feature Headers
+const getFeatureHeaders = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+  const result = await ProductServices.getFeatureHeadersFromDB(productId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Feature headers retrieved successfully",
+    data: result,
+  });
+});
+
 const addFeatureHeader = catchAsync(async (req, res) => {
   const { productId } = req.params;
   const result = await ProductServices.addFeatureHeaderIntoDB(
@@ -182,6 +194,18 @@ const deleteFeatureHeader = catchAsync(async (req, res) => {
 });
 
 // Feature Subsections
+const getFeatureSubsections = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+  const result = await ProductServices.getFeatureSubsectionsFromDB(productId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Feature subsections retrieved successfully",
+    data: result,
+  });
+});
+
 const addFeatureSubsection = catchAsync(async (req, res) => {
   const { productId } = req.params;
   const imageBuffer = req.file?.buffer;
@@ -229,6 +253,18 @@ const deleteFeatureSubsection = catchAsync(async (req, res) => {
 });
 
 // Specifications
+const getSpecifications = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+  const result = await ProductServices.getSpecificationsFromDB(productId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Specifications retrieved successfully",
+    data: result,
+  });
+});
+
 const addSpecification = catchAsync(async (req, res) => {
   const { productId } = req.params;
   const result = await ProductServices.addSpecificationIntoDB(
@@ -271,6 +307,73 @@ const deleteSpecification = catchAsync(async (req, res) => {
   });
 });
 
+// Color Variations
+const getColorVariations = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+  const result = await ProductServices.getColorVariationsFromDB(productId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Color variations retrieved successfully",
+    data: result,
+  });
+});
+
+const addColorVariation = catchAsync(async (req, res) => {
+  const { productId } = req.params;
+  const result = await ProductServices.addColorVariationIntoDB(
+    productId,
+    req.body
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Color variation added successfully",
+    data: result,
+  });
+});
+
+const updateColorVariation = catchAsync(async (req, res) => {
+  const { colorId } = req.params;
+  const result = await ProductServices.updateColorVariationIntoDB(
+    colorId,
+    req.body
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Color variation updated successfully",
+    data: result,
+  });
+});
+
+const deleteColorVariation = catchAsync(async (req, res) => {
+  const { colorId } = req.params;
+  await ProductServices.deleteColorVariationFromDB(colorId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Color variation deleted successfully",
+    data: null,
+  });
+});
+
+// Get all unique colors
+const getAllUniqueColors = catchAsync(async (req, res) => {
+  const result = await ProductServices.getAllUniqueColorsFromDB();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Unique colors retrieved successfully",
+    data: result,
+  });
+});
+
 export const ProductControllers = {
   getAllProducts,
   getSingleProduct,
@@ -281,13 +384,21 @@ export const ProductControllers = {
   getProductImages,
   addProductImage,
   deleteProductImage,
+  getFeatureHeaders,
   addFeatureHeader,
   updateFeatureHeader,
   deleteFeatureHeader,
+  getFeatureSubsections,
   addFeatureSubsection,
   updateFeatureSubsection,
   deleteFeatureSubsection,
+  getSpecifications,
   addSpecification,
   updateSpecification,
   deleteSpecification,
+  getColorVariations,
+  addColorVariation,
+  updateColorVariation,
+  deleteColorVariation,
+  getAllUniqueColors,
 };

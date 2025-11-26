@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
@@ -34,6 +35,8 @@ interface OrderUpdateFormProps {
 
 const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
   const router = useRouter();
+  const [payAmount, setPayAmount] = useState<number>(0);
+
   const form = useForm<OrderStatusesUpdateType>({
     resolver: zodResolver(orderStatusesUpdateSchema),
     defaultValues: {
@@ -45,8 +48,16 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
       deliveryCharge: orderData.deliveryCharge,
       additionalCharge: orderData.additionalCharge,
       totalPayable: orderData.totalPayable,
+      amountPaid: orderData.amountPaid || 0,
     },
   });
+
+  // Watch for changes in totalPayable and amountPaid
+  const totalPayable = form.watch("totalPayable") ?? 0;
+  const amountPaid = form.watch("amountPaid") ?? 0;
+
+  // Calculate due amount (accounting for the pay amount that will be added)
+  const amountDue = totalPayable - amountPaid - payAmount;
 
   const onSubmit = async (data: OrderStatusesUpdateType) => {
     try {
@@ -67,6 +78,23 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
         updateData.additionalCharge = data.additionalCharge;
       if (data.totalPayable !== undefined)
         updateData.totalPayable = data.totalPayable;
+      if (data.amountPaid !== undefined) {
+        // Add the pay amount to the current paid amount
+        const finalAmountPaid = data.amountPaid + (payAmount || 0);
+        updateData.amountPaid = finalAmountPaid;
+
+        // Auto-calculate payment status based on amount paid
+        const total = data.totalPayable || orderData.totalPayable;
+        const paid = finalAmountPaid;
+
+        if (paid >= total) {
+          updateData.paymentStatus = "paid";
+        } else if (paid > 0) {
+          updateData.paymentStatus = "partial";
+        } else {
+          updateData.paymentStatus = "pending";
+        }
+      }
 
       const orderId = orderData._id || orderData.orderNumber;
       console.log("📤 Updating order:", orderId, "with data:", updateData);
@@ -86,6 +114,9 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
 
       if (response.data.success) {
         toast.success(response.data.message || "Order updated successfully");
+
+        // Reset pay amount field
+        setPayAmount(0);
 
         // Refresh the page data
         router.refresh();
@@ -158,6 +189,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="partial">Partial</SelectItem>
                         <SelectItem value="paid">Paid</SelectItem>
                         <SelectItem value="failed">Failed</SelectItem>
                         <SelectItem value="refunded">Refunded</SelectItem>
@@ -194,7 +226,88 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
 
           <div className="border-t pt-4">
             <p className="text-sm font-semibold mb-3">Payment Details</p>
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+              <FormField
+                control={form.control}
+                name="totalPayable"
+                render={({ field }) => (
+                  <FormItem>
+                    <p className="text-xs font-medium whitespace-nowrap">
+                      Total (৳)
+                    </p>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseFloat(e.target.value) || 0)
+                        }
+                        value={field.value || 0}
+                        disabled={form.formState.isSubmitting}
+                        className="text-xs bg-white placeholder:text-stone-400 placeholder:text-xs font-semibold"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="amountPaid"
+                render={({ field }) => (
+                  <FormItem>
+                    <p className="text-xs font-medium whitespace-nowrap text-green-700">
+                      Paid (৳)
+                    </p>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        placeholder="0"
+                        {...field}
+                        onChange={(e) =>
+                          field.onChange(parseFloat(e.target.value) || 0)
+                        }
+                        value={field.value || 0}
+                        disabled={form.formState.isSubmitting}
+                        className="text-xs bg-white placeholder:text-stone-400 placeholder:text-xs font-medium text-green-700 border-green-300 focus-visible:ring-green-500"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div>
+                <p className="text-xs font-medium whitespace-nowrap text-red-700 mb-2">
+                  Due (৳)
+                </p>
+                <div className="h-9 px-3 py-2 border border-red-300 rounded-md bg-red-50 flex items-center">
+                  <span className="text-xs font-medium text-red-700">
+                    {amountDue >= 0 ? amountDue.toFixed(2) : "0.00"}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-medium whitespace-nowrap text-blue-700 mb-2">
+                  Pay (৳)
+                </p>
+                <Input
+                  type="number"
+                  placeholder="Enter amount"
+                  value={payAmount || ""}
+                  onChange={(e) =>
+                    setPayAmount(parseFloat(e.target.value) || 0)
+                  }
+                  disabled={form.formState.isSubmitting}
+                  className="text-xs bg-white placeholder:text-stone-400 placeholder:text-xs font-medium text-blue-700 border-blue-300 focus-visible:ring-blue-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <FormField
                 control={form.control}
                 name="subtotal"
@@ -206,7 +319,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="0.00"
+                        placeholder="0"
                         {...field}
                         onChange={(e) =>
                           field.onChange(parseFloat(e.target.value) || 0)
@@ -232,7 +345,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="0.00"
+                        placeholder="0"
                         {...field}
                         onChange={(e) =>
                           field.onChange(parseFloat(e.target.value) || 0)
@@ -258,7 +371,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="0.00"
+                        placeholder="0"
                         {...field}
                         onChange={(e) =>
                           field.onChange(parseFloat(e.target.value) || 0)
@@ -284,7 +397,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                     <FormControl>
                       <Input
                         type="number"
-                        placeholder="0.00"
+                        placeholder="0"
                         {...field}
                         onChange={(e) =>
                           field.onChange(parseFloat(e.target.value) || 0)
@@ -292,32 +405,6 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                         value={field.value || 0}
                         disabled={form.formState.isSubmitting}
                         className="text-xs bg-white placeholder:text-stone-400 placeholder:text-xs"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="totalPayable"
-                render={({ field }) => (
-                  <FormItem>
-                    <p className="text-xs font-medium whitespace-nowrap">
-                      Total Payable (৳)
-                    </p>
-                    <FormControl>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        {...field}
-                        onChange={(e) =>
-                          field.onChange(parseFloat(e.target.value) || 0)
-                        }
-                        value={field.value || 0}
-                        disabled={form.formState.isSubmitting}
-                        className="text-xs bg-white placeholder:text-stone-400 placeholder:text-xs font-semibold"
                       />
                     </FormControl>
                     <FormMessage />

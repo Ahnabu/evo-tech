@@ -285,6 +285,22 @@ const updateOrderStatusIntoDB = async (orderId, payload) => {
     if (payload.orderStatus === "delivered" && !order.deliveredAt) {
         payload.deliveredAt = new Date();
     }
+    // Calculate amountDue and auto-update payment status if amountPaid is provided
+    if (payload.amountPaid !== undefined) {
+        const totalPayable = payload.totalPayable || order.totalPayable;
+        const amountPaid = payload.amountPaid;
+        payload.amountDue = totalPayable - amountPaid;
+        // Auto-calculate payment status based on amount paid
+        if (amountPaid >= totalPayable) {
+            payload.paymentStatus = "paid";
+        }
+        else if (amountPaid > 0) {
+            payload.paymentStatus = "partial";
+        }
+        else {
+            payload.paymentStatus = "pending";
+        }
+    }
     const result = await order_model_1.Order.findByIdAndUpdate(orderId, payload, {
         new: true,
     });
@@ -318,7 +334,8 @@ const placeGuestOrderIntoDB = async (payload) => {
         }
         // Skip stock validation for preorder items
         if (!product.isPreOrder) {
-            if (!product.inStock || (product.stock && product.stock < item.quantity)) {
+            if (!product.inStock ||
+                (product.stock && product.stock < item.quantity)) {
                 throw new AppError_1.default(http_status_1.default.BAD_REQUEST, `Product "${product.name}" is out of stock or insufficient quantity available`);
             }
         }

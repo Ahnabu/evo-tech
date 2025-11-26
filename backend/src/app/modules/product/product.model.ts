@@ -5,6 +5,7 @@ import {
   TFeaturesSectionHeader,
   TFeaturesSectionSubsection,
   TSpecification,
+  TProductColorVariation,
 } from "./product.interface";
 
 const productSchema = new Schema<TProduct>(
@@ -228,6 +229,37 @@ const specificationSchema = new Schema<TSpecification>(
   }
 );
 
+// Product Color Variation Schema
+const productColorVariationSchema = new Schema<TProductColorVariation>(
+  {
+    product: {
+      type: Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    colorName: {
+      type: String,
+      required: true,
+    },
+    colorCode: {
+      type: String,
+      required: true,
+    },
+    stock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    sortOrder: {
+      type: Number,
+      default: 0,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
 export const Product = model<TProduct>("Product", productSchema);
 export const ProductImage = model<TProductImage>(
   "ProductImage",
@@ -244,4 +276,8 @@ export const FeaturesSectionSubsection = model<TFeaturesSectionSubsection>(
 export const Specification = model<TSpecification>(
   "Specification",
   specificationSchema
+);
+export const ProductColorVariation = model<TProductColorVariation>(
+  "ProductColorVariation",
+  productColorVariationSchema
 );

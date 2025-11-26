@@ -1,6 +1,5 @@
 import { UpdateProductForm } from "@/components/admin/products/update-product-form";
-import { AddProductFeaturesForm } from "@/components/admin/products/add-features-form";
-import { AddProductSpecsForm } from "@/components/admin/products/add-specs-form";
+import { ProductSectionsWrapper } from "@/components/admin/products/product-sections-wrapper";
 import { currentRouteProps } from "@/utils/types_interfaces/shared_types";
 import axiosIntercept from "@/utils/axios/axiosIntercept";
 import axiosErrorLogger from "@/components/error/axios_error";
@@ -62,6 +61,7 @@ const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
               subsections: product.featureSubsections || [],
             },
             specifications_section: product.specifications || [],
+            color_variations: product.colorVariations || [],
           },
         };
       }
@@ -76,13 +76,6 @@ const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
     return null;
   }
 
-  const hasPrevFeatures =
-    itemInfo.i_sectionsdata?.features_section?.header?.length > 0 ||
-    itemInfo.i_sectionsdata?.features_section?.subsections?.length > 0;
-
-  const hasPrevSpecs =
-    itemInfo.i_sectionsdata?.specifications_section?.length > 0;
-
   return (
     <div className="w-full h-fit flex flex-col px-5 md:px-7 py-8 gap-6 font-inter">
       <div className="flex flex-col gap-4">
@@ -93,22 +86,18 @@ const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
 
       <UpdateProductForm itemInfo={itemInfo} />
 
-      <div className="mt-4">
-        <h2 className="text-base lg:text-lg font-semibold tracking-tight text-stone-900 mb-4">
-          Features Section
-        </h2>
-        <AddProductFeaturesForm
-          itemInfo={itemInfo}
-          canUpdate={hasPrevFeatures}
-        />
-      </div>
-
-      <div className="mt-4">
-        <h2 className="text-base lg:text-lg font-semibold tracking-tight text-stone-900 mb-4">
-          Specifications Section
-        </h2>
-        <AddProductSpecsForm itemInfo={itemInfo} canUpdate={hasPrevSpecs} />
-      </div>
+      <ProductSectionsWrapper
+        initialData={{
+          itemid: itemInfo.itemid,
+          itemname: itemInfo.i_name,
+          headers: itemInfo.i_sectionsdata?.features_section?.header || [],
+          subsections:
+            itemInfo.i_sectionsdata?.features_section?.subsections || [],
+          specifications: itemInfo.i_sectionsdata?.specifications_section || [],
+          colorVariations: itemInfo.i_sectionsdata?.color_variations || [],
+          reviews: [],
+        }}
+      />
     </div>
   );
 };

@@ -1,121 +1,177 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { m, Variants } from 'framer-motion';
-import StarRating from '@/components/star-rating';
-import StarRatingChart from '@/components/star-rating-chart';
-import ReviewItem from '@/components/review_item/review-item';
-import { sumOfNumArrValues, calcMeanRating } from '@/utils/essential_functions';
-import useSWR from 'swr';
-import axios from '@/utils/axios/axios';
-import axiosErrorLogger from '@/components/error/axios_error';
-import EvoPagination from "@/components/ui/evo_pagination";
-import EvoDropdown from '@/components/ui/evo_dropdown';
-import { DropdownItem } from "@nextui-org/dropdown";
+import { useState, useEffect } from "react";
+import { m, Variants } from "framer-motion";
+import StarRating from "@/components/star-rating";
+import axios from "@/utils/axios/axios";
+import axiosErrorLogger from "@/components/error/axios_error";
 
-
-const ItemReviewsSection = ({ reviewsItemId, framerSectionVariants }: { reviewsItemId: string; framerSectionVariants: Variants; }) => {
-    const [reviewsDataLocal, setReviewsDataLocal] = useState<any>({ reviews_count_perstar: [0, 0, 0, 0, 0], reviews_data: [] });
-    const [reviewsPage, setReviewsPage] = useState<number>(1);
-    const [reviewsSortBy, setReviewsSortBy] = useState<string>("mosthelpful");
-
-    const { data: reviews, } = useSWR([reviewsItemId, reviewsPage, reviewsSortBy],
-        async ([itemId, pageno, sortBy]) => {
-            const response = await axios.get(`/api/item/${itemId}/reviews?page=${pageno}&sortby=${sortBy}`)
-                .then((res: any) => res.data)
-                .catch((error: any) => {
-                    axiosErrorLogger({ error });
-                    return null;
-                });
-
-            return response;
-        },
-        {
-            refreshInterval: 60000,
-            revalidateOnFocus: false,
-        }
-    );
-
-    useEffect(() => {
-        if (reviews && reviews.reviewsalldata) {
-            setReviewsDataLocal({
-                ...reviews.reviewsalldata,
-                reviews_count_perstar: reviews.reviewsalldata.reviews_count_perstar ? reviews.reviewsalldata.reviews_count_perstar : [0, 0, 0, 0, 0],
-                reviews_data: reviews.reviewsalldata.reviews_data?.length > 0 ? reviews.reviewsalldata.reviews_data : [],
-            });
-        }
-    }, [reviews]);
-
-
-
-    return (
-        <m.div
-            variants={framerSectionVariants}
-            initial="initial"
-            whileInView="visible"
-            viewport={{ once: true, amount: 0.05 }}
-            className="flex flex-col items-center w-full min-h-[200px] py-5 sm:pb-8 gap-2"
-        >
-            <div className="flex flex-wrap justify-center w-fit max-w-full h-fit gap-x-3 sm:gap-x-4 gap-y-2">
-                <div className="flex flex-col items-center w-fit max-w-full h-fit gap-1">
-                    <p className="w-fit h-fit text-center text-[20px] leading-7 sm:text-[23px] sm:leading-8 lg:text-[28px] lg:leading-10 tracking-tight font-[600] text-stone-800">{calcMeanRating(reviewsDataLocal.reviews_count_perstar)}</p>
-                    <StarRating rating={calcMeanRating(reviewsDataLocal.reviews_count_perstar)} starClassName="sm:w-[15px] sm:h-[15px] lg:w-[16px] lg:h-[16px]" />
-                    <p className="w-fit h-fit text-[12px] sm:text-[13px] leading-5 font-[400] text-stone-600">{`${sumOfNumArrValues(reviewsDataLocal.reviews_count_perstar)} reviews`}</p>
-                </div>
-
-                <div className="flex w-fit max-w-full h-fit">
-                    <StarRatingChart reviewsCountPerStarArray={reviewsDataLocal.reviews_count_perstar} />
-                </div>
-            </div>
-
-            <div className="flex flex-col items-center w-full h-fit px-2 pt-3 pb-1 gap-2">
-                <button type="button" aria-label="write a review" className="flex w-fit h-fit px-3 py-1.5 sm:py-2 text-[12px] sm:text-[13px] leading-5 font-[500] text-stone-50 bg-[#0866FF] hover:bg-[#0855FF] rounded-[8px]">
-                    Write a review
-                </button>
-
-                {reviewsDataLocal.reviews_data.length > 0 &&
-                    <div className="flex justify-end w-full h-fit mt-4 gap-2">
-                        <EvoDropdown
-                            dropdownLabel="Sort By"
-                            onKeyChange={(key) => {
-                                if (key === reviewsSortBy) return;
-                                setReviewsSortBy(key);
-                                setReviewsPage(1);
-                            }}
-                            selectedKey={reviewsSortBy}
-                            ariaLabelForMenu="sort reviews by"
-                            dropdownTriggerClassName="max-w-[120px] w-full h-fit"
-                        >
-                            <DropdownItem key="mosthelpful">Most Helpful</DropdownItem>
-                            <DropdownItem key="newest">Newest</DropdownItem>
-                        </EvoDropdown>
-                    </div>
-                }
-            </div>
-
-            <div className="flex flex-col w-full h-fit px-3 lg:px-4 my-5">
-                {reviewsDataLocal.reviews_data.length > 0 &&
-                    reviewsDataLocal.reviews_data.map((review: any, index: number) => (
-                        <ReviewItem key={`review_item${index}`} individualreview={review} />
-                    ))
-                }
-            </div>
-
-            {reviewsDataLocal.reviews_data.length > 0 && reviewsDataLocal.current_page && reviewsDataLocal.last_page &&
-                <div className="w-full h-fit flex justify-center py-3 mt-4">
-                    <EvoPagination
-                        paginationProps={{
-                            currentPage: reviewsDataLocal.current_page,
-                            lastPage: reviewsDataLocal.last_page,
-                            onChange: (page: number) => {
-                                setReviewsPage(page);
-                            }
-                        }}
-                    />
-                </div>
-            }
-        </m.div>
-    );
+interface Review {
+  _id: string;
+  userName: string;
+  userImage?: string;
+  rating: number;
+  reviewText: string;
+  isVerifiedPurchase: boolean;
+  createdAt: string;
 }
+
+const ItemReviewsSection = ({
+  reviewsItemId,
+  framerSectionVariants,
+}: {
+  reviewsItemId: string;
+  framerSectionVariants: Variants;
+}) => {
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const response = await axios.get(`/products/${reviewsItemId}/reviews`);
+        const reviewsData = response.data?.data || [];
+        setReviews(reviewsData);
+        setTotalReviews(reviewsData.length);
+
+        // Calculate average rating
+        if (reviewsData.length > 0) {
+          const sum = reviewsData.reduce(
+            (acc: number, review: Review) => acc + review.rating,
+            0
+          );
+          setAverageRating(sum / reviewsData.length);
+        } else {
+          setAverageRating(0);
+        }
+      } catch (error: any) {
+        axiosErrorLogger({ error });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, [reviewsItemId]);
+
+  if (loading) {
+    return (
+      <m.div
+        variants={framerSectionVariants}
+        initial="initial"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.05 }}
+        className="flex flex-col items-center w-full min-h-[200px] py-5 sm:pb-8 gap-2"
+      >
+        <div className="flex items-center justify-center w-full h-[200px]">
+          <div className="w-6 h-6 border-3 border-stone-400 border-t-stone-800 rounded-full animate-spin"></div>
+        </div>
+      </m.div>
+    );
+  }
+
+  return (
+    <m.div
+      variants={framerSectionVariants}
+      initial="initial"
+      whileInView="visible"
+      viewport={{ once: true, amount: 0.05 }}
+      className="flex flex-col items-center w-full min-h-[200px] py-5 sm:pb-8 gap-4"
+    >
+      <div className="flex flex-col items-center w-full h-fit gap-2">
+        <h2 className="text-[20px] sm:text-[24px] lg:text-[28px] font-bold text-stone-800">
+          Customer Reviews
+        </h2>
+
+        {totalReviews > 0 ? (
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[24px] font-semibold text-stone-800">
+                {averageRating.toFixed(1)}
+              </span>
+              <StarRating rating={averageRating} starClassName="w-5 h-5" />
+            </div>
+            <p className="text-[13px] text-stone-600">
+              Based on {totalReviews}{" "}
+              {totalReviews === 1 ? "review" : "reviews"}
+            </p>
+          </div>
+        ) : (
+          <p className="text-[14px] text-stone-600">No reviews yet</p>
+        )}
+      </div>
+
+      {reviews.length > 0 && (
+        <div className="flex flex-col w-full h-fit px-3 lg:px-4 gap-4 mt-4">
+          {reviews.map((review) => (
+            <div
+              key={review._id}
+              className="flex flex-col w-full h-fit p-4 border border-stone-200 rounded-lg gap-3"
+            >
+              <div className="flex items-start gap-3">
+                {review.userImage ? (
+                  <img
+                    src={review.userImage}
+                    alt={review.userName}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-stone-200 flex items-center justify-center">
+                    <span className="text-stone-600 text-sm font-semibold">
+                      {review.userName.charAt(0).toUpperCase()}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex-1">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-stone-800">
+                        {review.userName}
+                      </p>
+                      {review.isVerifiedPurchase && (
+                        <span className="text-[11px] bg-green-100 text-green-700 px-2 py-0.5 rounded-full">
+                          Verified Purchase
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[12px] text-stone-500">
+                      {new Date(review.createdAt).toLocaleDateString("en-US", {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      })}
+                    </span>
+                  </div>
+
+                  <div className="mt-1">
+                    <StarRating
+                      rating={review.rating}
+                      starClassName="w-4 h-4"
+                    />
+                  </div>
+
+                  <p className="mt-2 text-[14px] text-stone-700 leading-relaxed">
+                    {review.reviewText}
+                  </p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {reviews.length === 0 && (
+        <div className="flex flex-col items-center justify-center w-full h-[150px] text-center">
+          <p className="text-[14px] text-stone-600">
+            No reviews yet. Be the first to review this product!
+          </p>
+        </div>
+      )}
+    </m.div>
+  );
+};
 
 export default ItemReviewsSection;

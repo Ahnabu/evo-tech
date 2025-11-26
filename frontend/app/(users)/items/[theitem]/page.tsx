@@ -86,6 +86,36 @@ const fetchItemData = async (itemSlugHere: string) => {
     typeof normalizedLowStockThreshold === "number" &&
     Number.isFinite(normalizedLowStockThreshold);
 
+  // Fetch feature headers, subsections, specifications, and color variations
+  const [
+    featureHeadersResponse,
+    featureSubsectionsResponse,
+    specificationsResponse,
+    colorVariationsResponse,
+  ] = await Promise.all([
+    axios
+      .get(`/products/${product._id}/feature-headers`)
+      .then((res) => res.data)
+      .catch(() => null),
+    axios
+      .get(`/products/${product._id}/feature-subsections`)
+      .then((res) => res.data)
+      .catch(() => null),
+    axios
+      .get(`/products/${product._id}/specifications`)
+      .then((res) => res.data)
+      .catch(() => null),
+    axios
+      .get(`/products/${product._id}/color-variations`)
+      .then((res) => res.data)
+      .catch(() => null),
+  ]);
+
+  const featureHeaders = featureHeadersResponse?.data || [];
+  const featureSubsections = featureSubsectionsResponse?.data || [];
+  const specifications = specificationsResponse?.data || [];
+  const colorVariations = colorVariationsResponse?.data || [];
+
   const itemInfo = {
     itemid: product._id,
     i_name: product.name,
@@ -122,8 +152,13 @@ const fetchItemData = async (itemSlugHere: string) => {
     i_reviews: product.reviewCount || 0,
     i_features: product.features || [],
     i_colors: product.colors || [],
+    i_colorVariations: colorVariations,
     i_description: product.description || "",
-    i_sectionsdata: null as any,
+    i_sectionsdata: {
+      featureHeaders,
+      featureSubsections,
+      specifications,
+    },
   };
 
   return itemInfo;
@@ -255,13 +290,19 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
           </div>
         </div>
 
-        {itemInfo.i_sectionsdata && (
-          <ItemSections
-            itemId={itemInfo.itemid}
-            featuresdata={itemInfo.i_sectionsdata.features_section}
-            specsdata={itemInfo.i_sectionsdata.specifications_section}
-          />
-        )}
+        {itemInfo.i_sectionsdata &&
+          (itemInfo.i_sectionsdata.featureHeaders.length > 0 ||
+            itemInfo.i_sectionsdata.featureSubsections.length > 0 ||
+            itemInfo.i_sectionsdata.specifications.length > 0) && (
+            <ItemSections
+              itemId={itemInfo.itemid}
+              featuresdata={{
+                header: itemInfo.i_sectionsdata.featureHeaders,
+                subsections: itemInfo.i_sectionsdata.featureSubsections,
+              }}
+              specsdata={itemInfo.i_sectionsdata.specifications}
+            />
+          )}
       </div>
     </>
   );

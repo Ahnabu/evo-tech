@@ -27,6 +27,8 @@ export interface TOrder {
   deliveryCharge: number;
   additionalCharge: number;
   totalPayable: number;
+  amountPaid?: number;
+  amountDue?: number;
   isPreOrderOrder?: boolean; // flag if any line item is pre-order
   depositDue?: number;
   depositPaid?: number;

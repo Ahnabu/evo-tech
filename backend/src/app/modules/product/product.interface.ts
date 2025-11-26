@@ -74,3 +74,14 @@ export interface TSpecification {
   createdAt?: Date;
   updatedAt?: Date;
 }
+
+export interface TProductColorVariation {
+  _id?: string;
+  product: Types.ObjectId;
+  colorName: string;
+  colorCode: string; // hex color code like #FF0000
+  stock: number;
+  sortOrder: number;
+  createdAt?: Date;
+  updatedAt?: Date;
+}

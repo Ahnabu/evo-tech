@@ -23,6 +23,8 @@ export const orderSchema = z.object({
   deliveryCharge: z.number(),
   additionalCharge: z.number(),
   totalPayable: z.number(),
+  amountPaid: z.number().default(0),
+  amountDue: z.number().default(0),
   orderStatus: z.enum([
     "pending",
     "confirmed",
@@ -31,7 +33,7 @@ export const orderSchema = z.object({
     "delivered",
     "cancelled",
   ]),
-  paymentStatus: z.enum(["pending", "paid", "failed", "refunded"]),
+  paymentStatus: z.enum(["pending", "partial", "paid", "failed", "refunded"]),
   notes: z.string().optional(),
   trackingCode: z.string().optional(),
   viewed: z.boolean(),
@@ -65,13 +67,16 @@ export const orderStatusesUpdateSchema = z.object({
       "cancelled",
     ])
     .optional(),
-  paymentStatus: z.enum(["pending", "paid", "failed", "refunded"]).optional(),
+  paymentStatus: z
+    .enum(["pending", "partial", "paid", "failed", "refunded"])
+    .optional(),
   trackingCode: z.string().nullable().optional(),
   subtotal: z.number().positive().optional(),
   discount: z.number().min(0).optional(),
   deliveryCharge: z.number().min(0).optional(),
   additionalCharge: z.number().min(0).optional(),
   totalPayable: z.number().positive().optional(),
+  amountPaid: z.number().min(0).optional(),
 });
 
 export type OrderType = z.infer<typeof orderSchema>;

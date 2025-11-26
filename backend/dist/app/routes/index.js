@@ -21,6 +21,7 @@ const payment_route_1 = require("../modules/payment/payment.route");
 const coupon_route_1 = require("../modules/coupon/coupon.route");
 const notification_route_1 = require("../modules/notification/notification.route");
 const terms_route_1 = require("../modules/terms/terms.route");
+const review_route_1 = require("../modules/review/review.route");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -90,6 +91,10 @@ const moduleRoutes = [
     {
         path: "/terms",
         route: terms_route_1.TermsRoutes,
+    },
+    {
+        path: "/",
+        route: review_route_1.ReviewRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

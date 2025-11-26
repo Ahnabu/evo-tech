@@ -35,6 +35,11 @@ export declare const ProductServices: {
         }> & {
             __v: number;
         })[];
+        colorVariations: (import("mongoose").Document<unknown, {}, import("./product.interface").TProductColorVariation, {}, {}> & import("./product.interface").TProductColorVariation & Required<{
+            _id: string;
+        }> & {
+            __v: number;
+        })[];
         _id: string;
         name: string;
         slug: string;
@@ -86,6 +91,11 @@ export declare const ProductServices: {
             __v: number;
         })[];
         specifications: (import("mongoose").Document<unknown, {}, import("./product.interface").TSpecification, {}, {}> & import("./product.interface").TSpecification & Required<{
+            _id: string;
+        }> & {
+            __v: number;
+        })[];
+        colorVariations: (import("mongoose").Document<unknown, {}, import("./product.interface").TProductColorVariation, {}, {}> & import("./product.interface").TProductColorVariation & Required<{
             _id: string;
         }> & {
             __v: number;
@@ -154,6 +164,11 @@ export declare const ProductServices: {
     }> & {
         __v: number;
     }>;
+    getFeatureHeadersFromDB: (productId: string) => Promise<(import("mongoose").Document<unknown, {}, import("./product.interface").TFeaturesSectionHeader, {}, {}> & import("./product.interface").TFeaturesSectionHeader & Required<{
+        _id: string;
+    }> & {
+        __v: number;
+    })[]>;
     addFeatureHeaderIntoDB: (productId: string, payload: any) => Promise<import("mongoose").Document<unknown, {}, import("./product.interface").TFeaturesSectionHeader, {}, {}> & import("./product.interface").TFeaturesSectionHeader & Required<{
         _id: string;
     }> & {
@@ -169,6 +184,11 @@ export declare const ProductServices: {
     }> & {
         __v: number;
     }>;
+    getFeatureSubsectionsFromDB: (productId: string) => Promise<(import("mongoose").Document<unknown, {}, import("./product.interface").TFeaturesSectionSubsection, {}, {}> & import("./product.interface").TFeaturesSectionSubsection & Required<{
+        _id: string;
+    }> & {
+        __v: number;
+    })[]>;
     addFeatureSubsectionIntoDB: (productId: string, payload: any, imageBuffer?: Buffer) => Promise<import("mongoose").Document<unknown, {}, import("./product.interface").TFeaturesSectionSubsection, {}, {}> & import("./product.interface").TFeaturesSectionSubsection & Required<{
         _id: string;
     }> & {
@@ -184,6 +204,11 @@ export declare const ProductServices: {
     }> & {
         __v: number;
     }>;
+    getSpecificationsFromDB: (productId: string) => Promise<(import("mongoose").Document<unknown, {}, import("./product.interface").TSpecification, {}, {}> & import("./product.interface").TSpecification & Required<{
+        _id: string;
+    }> & {
+        __v: number;
+    })[]>;
     addSpecificationIntoDB: (productId: string, payload: any) => Promise<import("mongoose").Document<unknown, {}, import("./product.interface").TSpecification, {}, {}> & import("./product.interface").TSpecification & Required<{
         _id: string;
     }> & {
@@ -199,5 +224,26 @@ export declare const ProductServices: {
     }> & {
         __v: number;
     }>;
+    getColorVariationsFromDB: (productId: string) => Promise<(import("mongoose").Document<unknown, {}, import("./product.interface").TProductColorVariation, {}, {}> & import("./product.interface").TProductColorVariation & Required<{
+        _id: string;
+    }> & {
+        __v: number;
+    })[]>;
+    addColorVariationIntoDB: (productId: string, payload: any) => Promise<import("mongoose").Document<unknown, {}, import("./product.interface").TProductColorVariation, {}, {}> & import("./product.interface").TProductColorVariation & Required<{
+        _id: string;
+    }> & {
+        __v: number;
+    }>;
+    updateColorVariationIntoDB: (colorId: string, payload: any) => Promise<import("mongoose").Document<unknown, {}, import("./product.interface").TProductColorVariation, {}, {}> & import("./product.interface").TProductColorVariation & Required<{
+        _id: string;
+    }> & {
+        __v: number;
+    }>;
+    deleteColorVariationFromDB: (colorId: string) => Promise<import("mongoose").Document<unknown, {}, import("./product.interface").TProductColorVariation, {}, {}> & import("./product.interface").TProductColorVariation & Required<{
+        _id: string;
+    }> & {
+        __v: number;
+    }>;
+    getAllUniqueColorsFromDB: () => Promise<any[]>;
 };
 //# sourceMappingURL=product.service.d.ts.map

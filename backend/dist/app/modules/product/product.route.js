@@ -13,6 +13,7 @@ const bodyParser_1 = require("../../middlewares/bodyParser");
 const router = express_1.default.Router();
 // Product CRUD
 router.get("/", product_controller_1.ProductControllers.getAllProducts);
+router.get("/colors/unique", product_controller_1.ProductControllers.getAllUniqueColors);
 router.get("/slug/:slug", product_controller_1.ProductControllers.getProductBySlug);
 router.get("/:id", product_controller_1.ProductControllers.getSingleProduct);
 router.post("/", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN), multer_config_1.multerUpload.fields([
@@ -29,16 +30,24 @@ router.get("/:productId/images", product_controller_1.ProductControllers.getProd
 router.post("/:productId/images", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), multer_config_1.multerUpload.single("image"), bodyParser_1.parseBody, product_controller_1.ProductControllers.addProductImage);
 router.delete("/images/:imageId", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.deleteProductImage);
 // Feature Headers
+router.get("/:productId/feature-headers", product_controller_1.ProductControllers.getFeatureHeaders);
 router.post("/:productId/feature-headers", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.addFeatureHeader);
 router.put("/feature-headers/:headerId", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.updateFeatureHeader);
 router.delete("/feature-headers/:headerId", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.deleteFeatureHeader);
 // Feature Subsections
+router.get("/:productId/feature-subsections", product_controller_1.ProductControllers.getFeatureSubsections);
 router.post("/:productId/feature-subsections", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), multer_config_1.multerUpload.single("image"), bodyParser_1.parseBody, product_controller_1.ProductControllers.addFeatureSubsection);
 router.put("/feature-subsections/:subsectionId", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), multer_config_1.multerUpload.single("image"), bodyParser_1.parseBody, product_controller_1.ProductControllers.updateFeatureSubsection);
 router.delete("/feature-subsections/:subsectionId", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.deleteFeatureSubsection);
 // Specifications
+router.get("/:productId/specifications", product_controller_1.ProductControllers.getSpecifications);
 router.post("/:productId/specifications", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.addSpecification);
 router.put("/specifications/:specId", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.updateSpecification);
 router.delete("/specifications/:specId", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.deleteSpecification);
+// Color Variations
+router.get("/:productId/color-variations", product_controller_1.ProductControllers.getColorVariations);
+router.post("/:productId/color-variations", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.addColorVariation);
+router.put("/color-variations/:colorId", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.updateColorVariation);
+router.delete("/color-variations/:colorId", (0, auth_1.default)(user_constant_1.USER_ROLE.ADMIN, user_constant_1.USER_ROLE.EMPLOYEE), product_controller_1.ProductControllers.deleteColorVariation);
 exports.ProductRoutes = router;
 //# sourceMappingURL=product.route.js.map

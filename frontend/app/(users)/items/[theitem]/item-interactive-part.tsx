@@ -75,25 +75,52 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
   };
 
   const handleAddToCart = () => {
-    // Validate color selection for filaments
+    // Validate color selection if product has color variations
+    const hasColorVariations =
+      singleitem.i_colorVariations && singleitem.i_colorVariations.length > 0;
+
     if (
-      singleitem.i_subcategory &&
-      singleitem.i_colors &&
-      singleitem.i_subcategory === "filaments" &&
-      singleitem.i_colors.length > 0
+      hasColorVariations ||
+      (singleitem.i_colors && singleitem.i_colors.length > 0)
     ) {
       if (!itemColorfromURL) {
         toast.error("Please select a color first");
         return;
       }
 
-      const colorExists = singleitem.i_colors.find(
-        (c: { name: string; hex: string }) =>
-          c.name.toLowerCase() === itemColorfromURL.toLowerCase()
-      );
-      if (!colorExists) {
-        toast.error("Selected color not available");
-        return;
+      // Check color variation stock if applicable
+      if (hasColorVariations) {
+        const selectedVariation = singleitem.i_colorVariations.find(
+          (cv: any) =>
+            cv.colorName.toLowerCase() === itemColorfromURL.toLowerCase()
+        );
+
+        if (!selectedVariation) {
+          toast.error("Selected color not available");
+          return;
+        }
+
+        if (selectedVariation.stock === 0) {
+          toast.error("Selected color is out of stock");
+          return;
+        }
+
+        if (selectedVariation.stock < Number(itemQuantity)) {
+          toast.error(
+            `Only ${selectedVariation.stock} units available for this color`
+          );
+          return;
+        }
+      } else {
+        // Legacy color check for old products
+        const colorExists = singleitem.i_colors.find(
+          (c: { name: string; hex: string }) =>
+            c.name.toLowerCase() === itemColorfromURL.toLowerCase()
+        );
+        if (!colorExists) {
+          toast.error("Selected color not available");
+          return;
+        }
       }
     }
 
@@ -178,25 +205,52 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
   };
 
   const handleBuyNow = () => {
-    // Validate color selection for filaments
+    // Validate color selection if product has color variations
+    const hasColorVariations =
+      singleitem.i_colorVariations && singleitem.i_colorVariations.length > 0;
+
     if (
-      singleitem.i_subcategory &&
-      singleitem.i_colors &&
-      singleitem.i_subcategory === "filaments" &&
-      singleitem.i_colors.length > 0
+      hasColorVariations ||
+      (singleitem.i_colors && singleitem.i_colors.length > 0)
     ) {
       if (!itemColorfromURL) {
         toast.error("Please select a color first");
         return;
       }
 
-      const colorExists = singleitem.i_colors.find(
-        (c: { name: string; hex: string }) =>
-          c.name.toLowerCase() === itemColorfromURL.toLowerCase()
-      );
-      if (!colorExists) {
-        toast.error("Selected color not available");
-        return;
+      // Check color variation stock if applicable
+      if (hasColorVariations) {
+        const selectedVariation = singleitem.i_colorVariations.find(
+          (cv: any) =>
+            cv.colorName.toLowerCase() === itemColorfromURL.toLowerCase()
+        );
+
+        if (!selectedVariation) {
+          toast.error("Selected color not available");
+          return;
+        }
+
+        if (selectedVariation.stock === 0) {
+          toast.error("Selected color is out of stock");
+          return;
+        }
+
+        if (selectedVariation.stock < Number(itemQuantity)) {
+          toast.error(
+            `Only ${selectedVariation.stock} units available for this color`
+          );
+          return;
+        }
+      } else {
+        // Legacy color check for old products
+        const colorExists = singleitem.i_colors.find(
+          (c: { name: string; hex: string }) =>
+            c.name.toLowerCase() === itemColorfromURL.toLowerCase()
+        );
+        if (!colorExists) {
+          toast.error("Selected color not available");
+          return;
+        }
       }
     }
 
@@ -262,25 +316,42 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
   };
 
   const handlePreOrder = () => {
-    // Validate color selection for filaments
+    // Validate color selection if product has color variations
+    const hasColorVariations =
+      singleitem.i_colorVariations && singleitem.i_colorVariations.length > 0;
+
     if (
-      singleitem.i_subcategory &&
-      singleitem.i_colors &&
-      singleitem.i_subcategory === "filaments" &&
-      singleitem.i_colors.length > 0
+      hasColorVariations ||
+      (singleitem.i_colors && singleitem.i_colors.length > 0)
     ) {
       if (!itemColorfromURL) {
         toast.error("Please select a color first");
         return;
       }
 
-      const colorExists = singleitem.i_colors.find(
-        (c: { name: string; hex: string }) =>
-          c.name.toLowerCase() === itemColorfromURL.toLowerCase()
-      );
-      if (!colorExists) {
-        toast.error("Selected color not available");
-        return;
+      // Check color variation availability if applicable
+      if (hasColorVariations) {
+        const selectedVariation = singleitem.i_colorVariations.find(
+          (cv: any) =>
+            cv.colorName.toLowerCase() === itemColorfromURL.toLowerCase()
+        );
+
+        if (!selectedVariation) {
+          toast.error("Selected color not available");
+          return;
+        }
+
+        // For pre-orders, we might allow 0 stock, but still validate color exists
+      } else {
+        // Legacy color check for old products
+        const colorExists = singleitem.i_colors.find(
+          (c: { name: string; hex: string }) =>
+            c.name.toLowerCase() === itemColorfromURL.toLowerCase()
+        );
+        if (!colorExists) {
+          toast.error("Selected color not available");
+          return;
+        }
       }
     }
 
@@ -351,21 +422,48 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
     router.push("/cart");
   };
 
+  // Check if product has color variations
+  const hasColorVariations =
+    singleitem.i_colorVariations && singleitem.i_colorVariations.length > 0;
+
+  // Format color variations for ColorSelector component
+  const formattedColors = hasColorVariations
+    ? singleitem.i_colorVariations.map((cv: any) => ({
+        name: cv.colorName,
+        hex: cv.colorCode,
+      }))
+    : singleitem.i_colors || [];
+
   return (
     <div className="flex flex-col w-full h-fit gap-2">
-      {singleitem.i_subcategory &&
-        singleitem.i_colors &&
-        singleitem.i_subcategory === "filaments" &&
-        singleitem.i_colors.length > 0 && (
-          <div className="relative flex flex-col w-full h-fit my-2 gap-3">
-            <span className="w-fit h-fit text-[13px] md:text-[14px] leading-5 tracking-tight font-[600]">{`Color:`}</span>
-            <ColorSelector
-              colors={singleitem.i_colors}
-              selectedColor={itemColorfromURL}
-              onColorSelect={handleColorSelect}
-            />
-          </div>
-        )}
+      {formattedColors.length > 0 && (
+        <div className="relative flex flex-col w-full h-fit my-2 gap-3">
+          <span className="w-fit h-fit text-[13px] md:text-[14px] leading-5 tracking-tight font-[600]">{`Color:`}</span>
+          <ColorSelector
+            colors={formattedColors}
+            selectedColor={itemColorfromURL}
+            onColorSelect={handleColorSelect}
+          />
+          {hasColorVariations && itemColorfromURL && (
+            <div className="text-[12px] text-stone-600">
+              {(() => {
+                const selectedVariation = singleitem.i_colorVariations.find(
+                  (cv: any) =>
+                    cv.colorName.toLowerCase() ===
+                    itemColorfromURL.toLowerCase()
+                );
+                return selectedVariation && selectedVariation.stock > 0 ? (
+                  <span className="text-emerald-600 font-[500]">
+                    {selectedVariation.stock} units available
+                  </span>
+                ) : selectedVariation && selectedVariation.stock === 0 ? (
+                  <span className="text-red-500 font-[500]">Out of stock</span>
+                ) : null;
+              })()}
+            </div>
+          )}
+        </div>
+      )}
 
       <div className="relative flex items-center w-fit h-fit gap-3">
         <span className="w-fit h-fit text-[14px] md:text-[16px] leading-5 tracking-tight font-[600]">

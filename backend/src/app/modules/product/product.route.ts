@@ -9,6 +9,7 @@ const router = express.Router();
 
 // Product CRUD
 router.get("/", ProductControllers.getAllProducts);
+router.get("/colors/unique", ProductControllers.getAllUniqueColors);
 router.get("/slug/:slug", ProductControllers.getProductBySlug);
 router.get("/:id", ProductControllers.getSingleProduct);
 router.post(
@@ -34,10 +35,7 @@ router.put(
 router.delete("/:id", auth(USER_ROLE.ADMIN), ProductControllers.deleteProduct);
 
 // Product Images
-router.get(
-  "/:productId/images",
-  ProductControllers.getProductImages
-);
+router.get("/:productId/images", ProductControllers.getProductImages);
 router.post(
   "/:productId/images",
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
@@ -52,6 +50,7 @@ router.delete(
 );
 
 // Feature Headers
+router.get("/:productId/feature-headers", ProductControllers.getFeatureHeaders);
 router.post(
   "/:productId/feature-headers",
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
@@ -69,6 +68,10 @@ router.delete(
 );
 
 // Feature Subsections
+router.get(
+  "/:productId/feature-subsections",
+  ProductControllers.getFeatureSubsections
+);
 router.post(
   "/:productId/feature-subsections",
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
@@ -90,6 +93,7 @@ router.delete(
 );
 
 // Specifications
+router.get("/:productId/specifications", ProductControllers.getSpecifications);
 router.post(
   "/:productId/specifications",
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
@@ -104,6 +108,27 @@ router.delete(
   "/specifications/:specId",
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   ProductControllers.deleteSpecification
+);
+
+// Color Variations
+router.get(
+  "/:productId/color-variations",
+  ProductControllers.getColorVariations
+);
+router.post(
+  "/:productId/color-variations",
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
+  ProductControllers.addColorVariation
+);
+router.put(
+  "/color-variations/:colorId",
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
+  ProductControllers.updateColorVariation
+);
+router.delete(
+  "/color-variations/:colorId",
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
+  ProductControllers.deleteColorVariation
 );
 
 export const ProductRoutes = router;

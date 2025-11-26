@@ -26,6 +26,8 @@ export interface TOrder {
     deliveryCharge: number;
     additionalCharge: number;
     totalPayable: number;
+    amountPaid?: number;
+    amountDue?: number;
     isPreOrderOrder?: boolean;
     depositDue?: number;
     depositPaid?: number;

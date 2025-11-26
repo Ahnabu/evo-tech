@@ -69,4 +69,14 @@ export interface TSpecification {
     createdAt?: Date;
     updatedAt?: Date;
 }
+export interface TProductColorVariation {
+    _id?: string;
+    product: Types.ObjectId;
+    colorName: string;
+    colorCode: string;
+    stock: number;
+    sortOrder: number;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
 //# sourceMappingURL=product.interface.d.ts.map

@@ -1,456 +1,567 @@
 "use client";
 
-import { z } from "zod";
-import axios from "axios";
-import { useForm, useFieldArray, Controller } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { EvoFormInputError } from "@/components/error/form-input-error";
-import { FileUploader } from "@/components/file_upload/file-uploader";
-import { featuresSectionSchema } from "@/schemas/admin/product/productfeaturesSchema";
-import { toast } from "sonner";
 import { useState } from "react";
-import Image from "next/image";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
+import { toast } from "sonner";
+import { PlusCircle, Trash2, ImageIcon, Loader2 } from "lucide-react";
 
-interface Header {
-    f_headerid: string;
-    title: string;
-    imgurl: string;
-    sortorder: number;
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+
+// Types
+interface FeaturesSectionHeader {
+  _id: string;
+  title: string;
+  sortOrder: number;
 }
 
-interface Subsection {
-    f_subsectionid: string;
-    title: string;
-    imgurl: string;
-    content: string;
-    sortorder: number;
+interface FeaturesSectionSubsection {
+  _id: string;
+  title: string;
+  content?: string;
+  imageUrl?: string;
+  sortOrder: number;
 }
 
-interface ItemProps {
-    itemInfo: {
-        itemid: string;
-        i_slug: string;
-        i_sectionsdata?: {
-            features_section?: {
-                header?: Header[];
-                subsections?: Subsection[];
-            };
-        };
-    };
+interface ItemInfo {
+  itemid: string;
+  itemname: string;
 }
 
-const AddProductFeaturesForm = ({ itemInfo, canUpdate = false }: ItemProps & { canUpdate: boolean; }) => {
-    const [removeAllFeaturesPending, setRemoveAllFeaturesPending] = useState(false);
-    const [oldHeaders, setOldHeaders] = useState<Header[]>(itemInfo.i_sectionsdata?.features_section?.header ?? []);
-    const [oldSubSections, setOldSubSections] = useState<Subsection[]>(itemInfo.i_sectionsdata?.features_section?.subsections ?? []);
+interface AddFeaturesFormProps {
+  itemInfo: ItemInfo;
+  headers?: FeaturesSectionHeader[];
+  subsections?: FeaturesSectionSubsection[];
+  onRefresh?: () => void;
+}
 
-    // States for storing removed IDs
-    const [headersToRemove, setHeadersToRemove] = useState<string[]>([]);
-    const [subsectionsToRemove, setSubsectionsToRemove] = useState<string[]>([]);
+// Schemas
+const headerSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  sortOrder: z.coerce.number().min(0, "Sort order must be 0 or greater"),
+});
 
-    const { register, handleSubmit, control, reset, watch, formState: { errors, isSubmitting } } = useForm<z.infer<typeof featuresSectionSchema>>({
-        resolver: zodResolver(featuresSectionSchema),
-        defaultValues: {
-            headers: [],
-            subsections: [],
-        },
-    });
+const subsectionSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().min(1, "Description is required"),
+  sortOrder: z.coerce.number().min(0, "Sort order must be 0 or greater"),
+});
 
-    const headers = watch("headers", []);
-    const subsections = watch("subsections", []);
+type HeaderFormValues = z.infer<typeof headerSchema>;
+type SubsectionFormValues = z.infer<typeof subsectionSchema>;
 
-    const canSubmit = headers.length > 0 || subsections.length > 0;
+export function AddProductFeaturesForm({
+  itemInfo,
+  headers = [],
+  subsections = [],
+  onRefresh,
+}: AddFeaturesFormProps) {
+  const [isHeaderLoading, setIsHeaderLoading] = useState(false);
+  const [isSubsectionLoading, setIsSubsectionLoading] = useState(false);
+  const [deletingHeaderId, setDeletingHeaderId] = useState<string | null>(null);
+  const [deletingSubsectionId, setDeletingSubsectionId] = useState<
+    string | null
+  >(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-    // Field array for headers
-    const {
-        fields: headerFields,
-        append: appendHeader,
-        remove: removeHeader,
-    } = useFieldArray({
-        control,
-        name: "headers",
-    });
+  // Header form
+  const headerForm = useForm<HeaderFormValues>({
+    resolver: zodResolver(headerSchema),
+    defaultValues: {
+      title: "",
+      sortOrder: headers.length,
+    },
+  });
 
-    // Field array for subsections
-    const {
-        fields: subsectionFields,
-        append: appendSubsection,
-        remove: removeSubsection,
-    } = useFieldArray({
-        control,
-        name: "subsections",
-    });
+  // Subsection form
+  const subsectionForm = useForm<SubsectionFormValues>({
+    resolver: zodResolver(subsectionSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      sortOrder: subsections.length,
+    },
+  });
 
-    // Handler for removing a header
-    const handleRemoveHeader = (headerId: string) => {
-        setOldHeaders((prev) => prev.filter((header) => header.f_headerid !== headerId));
-        setHeadersToRemove((prev) => [...prev, headerId]);
-    };
+  // Handle image selection
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
-    // Handler for removing a subsection
-    const handleRemoveSubsection = (subsectionId: string) => {
-        setOldSubSections((prev) =>
-            prev.filter((subsection) => subsection.f_subsectionid !== subsectionId)
-        );
-        setSubsectionsToRemove((prev) => [...prev, subsectionId]);
-    };
+  // Clear image selection
+  const clearImage = () => {
+    setSelectedImage(null);
+    setImagePreview(null);
+  };
 
-
-    const handleRemoveAllFeatures = async (itemId: string) => {
-        setRemoveAllFeaturesPending(true);
-        const delResponse = await axios.delete(`/api/admin/products/features/deleteall/${itemId}`)
-            .then((res) => {
-                return res.data;
-            })
-            .catch((error: any) => {
-                if (error.response) {
-                    toast.error(error.response.data.message ? error.response.data.message : "Something went wrong");
-                } else {
-                    toast.error("Something went wrong");
-                }
-                return null;
-            }).finally(() => {
-                setRemoveAllFeaturesPending(false);
-            });
-
-        if (delResponse && delResponse.message) {
-            toast.success(`All features for this item are deleted`);
+  // Add Header
+  const handleAddHeader = async (values: HeaderFormValues) => {
+    setIsHeaderLoading(true);
+    try {
+      const response = await fetch(
+        `/api/products/${itemInfo.itemid}/feature-headers`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(values),
         }
-    };
+      );
 
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add header");
+      }
 
-    const onSubmit = async (data: z.infer<typeof featuresSectionSchema>) => {
+      toast.success("Feature header added successfully");
+      headerForm.reset({ title: "", sortOrder: headers.length + 1 });
+      onRefresh?.();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to add header");
+    } finally {
+      setIsHeaderLoading(false);
+    }
+  };
 
-        const formdata = new FormData();
-        let apiToUse: string;
-
-        // for updating existing features
-        if (canUpdate) {
-            
-            // Append headers (if any)
-            if (data.headers && data.headers.length > 0) {
-                data.headers.forEach((header, index) => {
-                    formdata.append(`features_section_new[headers][${index}][title]`, header.title);
-                    formdata.append(`features_section_new[headers][${index}][image]`, header.image);
-                });
-            }
-            // Append subsections (if any)
-            if (data.subsections && data.subsections.length > 0) {
-                data.subsections.forEach((subsection, index) => {
-                    formdata.append(`features_section_new[subsections][${index}][title]`, subsection.title);
-                    formdata.append(`features_section_new[subsections][${index}][content]`, subsection.content);
-                    formdata.append(`features_section_new[subsections][${index}][image]`, subsection.image);
-                });
-            }
-
-            if (headersToRemove.length > 0) {
-                headersToRemove.forEach((id) => {
-                    formdata.append("remove_features_headers[]", id);
-                });
-            }
-            if (subsectionsToRemove.length > 0) {
-                subsectionsToRemove.forEach((id) => {
-                    formdata.append("remove_features_subsections[]", id);
-                });
-            }
-
-            apiToUse = `/api/admin/products/features/update/${itemInfo.itemid}`;
-
-        } else { // for inserting features
-            
-            if (data.headers && data.headers.length > 0) {
-                data.headers.forEach((header, index) => {
-                    formdata.append(`features_section[headers][${index}][title]`, header.title);
-                    formdata.append(`features_section[headers][${index}][image]`, header.image);
-                });
-            }
-            
-            if (data.subsections && data.subsections.length > 0) {
-                data.subsections.forEach((subsection, index) => {
-                    formdata.append(`features_section[subsections][${index}][title]`, subsection.title);
-                    formdata.append(`features_section[subsections][${index}][content]`, subsection.content);
-                    formdata.append(`features_section[subsections][${index}][image]`, subsection.image);
-                });
-            }
-
-            apiToUse = `/api/admin/products/features/add/${itemInfo.itemid}`;
+  // Delete Header
+  const handleDeleteHeader = async (headerId: string) => {
+    setDeletingHeaderId(headerId);
+    try {
+      const response = await fetch(
+        `/api/products/feature-headers/${headerId}`,
+        {
+          method: "DELETE",
         }
+      );
 
-        const response = await axios.post(apiToUse,
-            formdata,
-            {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                withCredentials: true,
-            },
-        ).then((res) => {
-            return res.data;
-        })
-            .catch((error: any) => {
-                if (error.response) {
-                    toast.error(error.response.data.message ? error.response.data.message : "Something went wrong");
-                } else {
-                    toast.error("Something went wrong");
-                }
-                return null;
-            });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete header");
+      }
 
-        if (response && response.message) {
-            toast.success(canUpdate ? `Features updated` : `Features stored`);
-            reset();
+      toast.success("Feature header deleted successfully");
+      onRefresh?.();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete header");
+    } finally {
+      setDeletingHeaderId(null);
+    }
+  };
+
+  // Add Subsection
+  const handleAddSubsection = async (values: SubsectionFormValues) => {
+    setIsSubsectionLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("content", values.description);
+      formData.append("sortOrder", values.sortOrder.toString());
+
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
+      const response = await fetch(
+        `/api/products/${itemInfo.itemid}/feature-subsections`,
+        {
+          method: "POST",
+          body: formData,
         }
-    };
+      );
 
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to add subsection");
+      }
 
+      toast.success("Feature subsection added successfully");
+      subsectionForm.reset({
+        title: "",
+        description: "",
+        sortOrder: subsections.length + 1,
+      });
+      clearImage();
+      onRefresh?.();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to add subsection");
+    } finally {
+      setIsSubsectionLoading(false);
+    }
+  };
 
-    return (
-        <>
-            <div className="w-full max-w-3xl p-4 space-y-8 font-inter">
-                {/* Headers List */}
-                <div>
-                    <h2 className="text-base font-bold mb-4 text-stone-700">Headers List:</h2>
-                    {oldHeaders.length === 0 ? (
-                        <p className="text-sm text-stone-700 font-normal">No headers available.</p>
-                    ) : (
-                        <ul className="space-y-4">
-                            {oldHeaders.map((header) => (
-                                <li
-                                    key={header.f_headerid}
-                                    className="flex items-center justify-between border p-4 rounded shadow-sm gap-3"
-                                >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="relative flex justify-center">
-                                            <Image
-                                                src={header.imgurl}
-                                                alt={header.title}
-                                                width={64}
-                                                height={64}
-                                                loading="lazy"
-                                                className="aspect-square shrink-0 rounded-md object-cover"
-                                            />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-semibold">{header.title}</p>
-                                            <p className="text-xs text-gray-500">Sort Order: {header.sortorder}</p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => handleRemoveHeader(header.f_headerid)}
-                                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
-                                    >
-                                        Remove
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
+  // Delete Subsection
+  const handleDeleteSubsection = async (subsectionId: string) => {
+    setDeletingSubsectionId(subsectionId);
+    try {
+      const response = await fetch(
+        `/api/products/feature-subsections/${subsectionId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-                {/* Subsections List */}
-                <div>
-                    <h2 className="text-base font-bold mb-4 text-stone-700">Subsections List:</h2>
-                    {oldSubSections.length === 0 ? (
-                        <p className="text-sm text-stone-700 font-normal">No subsections available.</p>
-                    ) : (
-                        <ul className="space-y-4">
-                            {oldSubSections.map((subsection) => (
-                                <li
-                                    key={subsection.f_subsectionid}
-                                    className="flex items-center justify-between border p-4 rounded shadow-sm gap-3"
-                                >
-                                    <div className="flex items-center space-x-4">
-                                        <div className="relative flex justify-center">
-                                            <Image
-                                                src={subsection.imgurl}
-                                                alt={subsection.title}
-                                                width={64}
-                                                height={64}
-                                                loading="lazy"
-                                                className="aspect-square shrink-0 rounded-md object-cover"
-                                            />
-                                        </div>
-                                        <div>
-                                            <p className="text-sm font-semibold">{subsection.title}</p>
-                                            <p className="text-sm text-stone-600">{subsection.content}</p>
-                                            <p className="text-xs text-gray-500">Sort Order: {subsection.sortorder}</p>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => handleRemoveSubsection(subsection.f_subsectionid)}
-                                        className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm"
-                                    >
-                                        Remove
-                                    </button>
-                                </li>
-                            ))}
-                        </ul>
-                    )}
-                </div>
-            </div>
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to delete subsection");
+      }
 
-            <form id="addproductfeaturesform" onSubmit={handleSubmit(onSubmit)} className="mt-5 max-w-3xl p-6 space-y-4 text-sm font-inter">
-                {/* Headers Section */}
-                <div>
-                    <h3 className="text-[13px] leading-5 md:text-base font-[500] mb-2">Headers</h3>
-                    {headerFields.map((field, index) => (
-                        <div key={field.id} className="border p-4 mb-4 rounded">
-                            <div>
-                                <label className="block mb-1">Header Title</label>
-                                <input
-                                    type="text"
-                                    {...register(`headers.${index}.title` as const)}
-                                    className="w-full border p-2 rounded"
-                                />
-                                {errors.headers?.[index]?.title && (
-                                    <EvoFormInputError>
-                                        {errors.headers[index].title?.message}
-                                    </EvoFormInputError>
-                                )}
-                            </div>
-                            <div className="mt-2">
-                                <label className="block mb-1">Header Image</label>
-                                <Controller
-                                    control={control}
-                                    name={`headers.${index}.image` as const}
-                                    render={({ field }) => (
-                                        <div className="mt-1 block">
-                                            <FileUploader
-                                                value={field.value}
-                                                onValueChange={field.onChange}
-                                                maxFileCount={1}
-                                                maxSize={10 * 1024 * 1024}
-                                            />
-                                        </div>
-                                    )}
-                                />
-                                {errors.headers?.[index]?.image && (
-                                    <EvoFormInputError>
-                                        {errors.headers?.[index]?.image?.message && String(errors.headers[index].image.message)}
-                                    </EvoFormInputError>
-                                )}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => removeHeader(index)}
-                                className="mt-5 bg-red-500 text-white px-3 py-1 rounded"
-                            >
-                                Remove Header
-                            </button>
-                        </div>
-                    ))}
-                    <button
-                        type="button"
-                        onClick={() =>
-                            appendHeader({ title: "", image: undefined as unknown as File })
-                        }
-                        className="bg-[#0866FF] text-white px-3 py-1 rounded"
-                    >
-                        {`+ Add Header`}
-                    </button>
-                </div>
+      toast.success("Feature subsection deleted successfully");
+      onRefresh?.();
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete subsection");
+    } finally {
+      setDeletingSubsectionId(null);
+    }
+  };
 
-                {/* Subsections Section */}
-                <div>
-                    <h3 className="text-[13px] leading-5 md:text-base font-[500] mb-2">Subsections</h3>
-                    {subsectionFields.map((field, index) => (
-                        <div key={field.id} className="border p-4 mb-4 rounded">
-                            <div>
-                                <label className="block mb-1">Subsection Title</label>
-                                <input
-                                    type="text"
-                                    {...register(`subsections.${index}.title` as const)}
-                                    className="w-full border p-2 rounded"
-                                />
-                                {errors.subsections?.[index]?.title && (
-                                    <EvoFormInputError>
-                                        {errors.subsections[index].title?.message}
-                                    </EvoFormInputError>
-                                )}
-                            </div>
-                            <div className="mt-2">
-                                <label className="block mb-1">Subsection Content</label>
-                                <textarea
-                                    {...register(`subsections.${index}.content` as const)}
-                                    className="w-full border p-2 rounded"
-                                />
-                                {errors.subsections?.[index]?.content && (
-                                    <EvoFormInputError>
-                                        {errors.subsections[index].content?.message}
-                                    </EvoFormInputError>
-                                )}
-                            </div>
-                            <div className="mt-2">
-                                <label className="block mb-1">Subsection Image</label>
-                                <Controller
-                                    control={control}
-                                    name={`subsections.${index}.image` as const}
-                                    render={({ field }) => (
-                                        <div className="mt-1 block">
-                                            <FileUploader
-                                                value={field.value}
-                                                onValueChange={field.onChange}
-                                                maxFileCount={1}
-                                                maxSize={10 * 1024 * 1024}
-                                            />
-                                        </div>
-                                    )}
-                                />
-                                {errors.subsections?.[index]?.image && (
-                                    <EvoFormInputError>
-                                        {errors.subsections[index].image?.message && String(errors.subsections[index].image.message)}
-                                    </EvoFormInputError>
-                                )}
-                            </div>
-                            <button
-                                type="button"
-                                onClick={() => removeSubsection(index)}
-                                className="mt-5 bg-red-500 text-white px-3 py-1 rounded"
-                            >
-                                Remove Subsection
-                            </button>
-                        </div>
-                    ))}
-                    <button
-                        type="button"
-                        onClick={() =>
-                            appendSubsection({
-                                title: "",
-                                content: "",
-                                image: undefined as unknown as File,
-                            })
-                        }
-                        className="bg-[#0866FF] text-white px-3 py-1 rounded"
-                    >
-                        {`+ Add Subsection`}
-                    </button>
-                </div>
-
-                {/* Submit Button */}
-                <div className="pt-10 w-full flex justify-end gap-3">
-                    <button type="submit" aria-label="add product" disabled={isSubmitting || (!canSubmit && !(headersToRemove.length > 0 || subsectionsToRemove.length > 0))}
-                        className="px-7 py-2 bg-stone-800 text-white rounded text-xs md:text-sm hover:bg-stone-900 disabled:bg-stone-600"
-                    >
-                        {canUpdate
-                            ? (isSubmitting ? 'Updating...' : `Update Features`)
-                            : (isSubmitting ? 'Adding...' : `Add Features`)
-                        }
-                    </button>
-                </div>
+  return (
+    <div className="space-y-6">
+      {/* Add Header Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Add Feature Section Header</CardTitle>
+          <CardDescription>
+            Create a header to group feature subsections
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...headerForm}>
+            <form
+              onSubmit={headerForm.handleSubmit(handleAddHeader)}
+              className="space-y-4"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={headerForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Header Title</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Design & Build" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={headerForm.control}
+                  name="sortOrder"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sort Order</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <Button type="submit" disabled={isHeaderLoading}>
+                {isHeaderLoading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Header
+              </Button>
             </form>
-            
-            <div className="w-full max-w-3xl flex justify-end px-6">
-                <button disabled={!canUpdate}
-                    onClick={() => handleRemoveAllFeatures(itemInfo.itemid)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 text-sm disabled:bg-red-400"
-                >
-                    {removeAllFeaturesPending ? `Removing...` : `Remove All Features`}
-                </button>
+          </Form>
+
+          {/* Existing Headers */}
+          {headers.length > 0 && (
+            <div className="mt-6">
+              <h4 className="font-medium mb-3">Existing Headers</h4>
+              <div className="space-y-2">
+                {headers
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((header) => (
+                    <div
+                      key={header._id}
+                      className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                    >
+                      <div>
+                        <span className="font-medium">{header.title}</span>
+                        <span className="text-sm text-muted-foreground ml-2">
+                          (Order: {header.sortOrder})
+                        </span>
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            disabled={deletingHeaderId === header._id}
+                          >
+                            {deletingHeaderId === header._id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Header?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This will also delete all subsections under this
+                              header. This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() => handleDeleteHeader(header._id)}
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  ))}
+              </div>
             </div>
-        </>
-    );
+          )}
+        </CardContent>
+      </Card>
 
+      {/* Add Subsection Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Add Feature Subsection</CardTitle>
+          <CardDescription>
+            Add detailed feature information under a header
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...subsectionForm}>
+            <form
+              onSubmit={subsectionForm.handleSubmit(handleAddSubsection)}
+              className="space-y-4"
+            >
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormField
+                  control={subsectionForm.control}
+                  name="title"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Title</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="e.g., Advanced Print Quality"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={subsectionForm.control}
+                  name="sortOrder"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Sort Order</FormLabel>
+                      <FormControl>
+                        <Input type="number" min={0} {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
+              <FormField
+                control={subsectionForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Detailed description of this feature..."
+                        rows={4}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Image Upload */}
+              <div className="space-y-2">
+                <Label>Feature Image (Optional)</Label>
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="max-w-xs"
+                  />
+                  {imagePreview && (
+                    <div className="relative">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="h-20 w-20 object-cover rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6"
+                        onClick={clearImage}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSubsectionLoading || headers.length === 0}
+              >
+                {isSubsectionLoading && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Subsection
+              </Button>
+              {headers.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Please add a header first before adding subsections.
+                </p>
+              )}
+            </form>
+          </Form>
+
+          {/* Existing Subsections */}
+          {subsections.length > 0 && (
+            <div className="mt-6">
+              <h4 className="font-medium mb-3">Existing Subsections</h4>
+              <div className="space-y-3">
+                {subsections
+                  .sort((a, b) => a.sortOrder - b.sortOrder)
+                  .map((subsection) => (
+                    <div
+                      key={subsection._id}
+                      className="flex items-start justify-between p-4 bg-muted rounded-lg"
+                    >
+                      <div className="flex gap-4 flex-1">
+                        {subsection.imageUrl && (
+                          <img
+                            src={subsection.imageUrl}
+                            alt={subsection.title}
+                            className="h-16 w-16 object-cover rounded-lg"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-medium">
+                              {subsection.title}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+                            {subsection.content}
+                          </p>
+                          <span className="text-xs text-muted-foreground">
+                            Order: {subsection.sortOrder}
+                          </span>
+                        </div>
+                      </div>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            disabled={deletingSubsectionId === subsection._id}
+                          >
+                            {deletingSubsectionId === subsection._id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Trash2 className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>
+                              Delete Subsection?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              onClick={() =>
+                                handleDeleteSubsection(subsection._id)
+                              }
+                              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
 }
-
-export { AddProductFeaturesForm };

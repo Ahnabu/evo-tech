@@ -4,6 +4,7 @@ import {
   FeaturesSectionHeader,
   FeaturesSectionSubsection,
   Specification,
+  ProductColorVariation,
 } from "./product.model";
 import { TProduct } from "./product.interface";
 import AppError from "../../errors/AppError";
@@ -143,6 +144,11 @@ const getSingleProductFromDB = async (id: string) => {
   const specifications = await Specification.find({ product: id }).sort({
     sortOrder: 1,
   });
+  const colorVariations = await ProductColorVariation.find({
+    product: id,
+  }).sort({
+    sortOrder: 1,
+  });
 
   return {
     ...product.toObject(),
@@ -150,6 +156,7 @@ const getSingleProductFromDB = async (id: string) => {
     featureHeaders,
     featureSubsections,
     specifications,
+    colorVariations,
   };
 };
 
@@ -175,6 +182,9 @@ const getProductBySlugFromDB = async (slug: string) => {
   const specifications = await Specification.find({
     product: product._id,
   }).sort({ sortOrder: 1 });
+  const colorVariations = await ProductColorVariation.find({
+    product: product._id,
+  }).sort({ sortOrder: 1 });
 
   return {
     ...product.toObject(),
@@ -182,6 +192,7 @@ const getProductBySlugFromDB = async (slug: string) => {
     featureHeaders,
     featureSubsections,
     specifications,
+    colorVariations,
   };
 };
 
@@ -376,7 +387,10 @@ const updateProductIntoDB = async (
   }
 
   // Handle removing images
-  if ((payload as any).removeImages && Array.isArray((payload as any).removeImages)) {
+  if (
+    (payload as any).removeImages &&
+    Array.isArray((payload as any).removeImages)
+  ) {
     const imagesToRemove = (payload as any).removeImages;
     for (const imageId of imagesToRemove) {
       await ProductImage.findByIdAndDelete(imageId);
@@ -472,6 +486,13 @@ const deleteProductImageFromDB = async (imageId: string) => {
 };
 
 // Feature Headers
+const getFeatureHeadersFromDB = async (productId: string) => {
+  const result = await FeaturesSectionHeader.find({ product: productId }).sort({
+    sortOrder: 1,
+  });
+  return result;
+};
+
 const addFeatureHeaderIntoDB = async (productId: string, payload: any) => {
   const product = await Product.findById(productId);
   if (!product) {
@@ -507,6 +528,13 @@ const deleteFeatureHeaderFromDB = async (headerId: string) => {
 };
 
 // Feature Subsections
+const getFeatureSubsectionsFromDB = async (productId: string) => {
+  const result = await FeaturesSectionSubsection.find({
+    product: productId,
+  }).sort({ sortOrder: 1 });
+  return result;
+};
+
 const addFeatureSubsectionIntoDB = async (
   productId: string,
   payload: any,
@@ -562,6 +590,13 @@ const deleteFeatureSubsectionFromDB = async (subsectionId: string) => {
 };
 
 // Specifications
+const getSpecificationsFromDB = async (productId: string) => {
+  const result = await Specification.find({ product: productId }).sort({
+    sortOrder: 1,
+  });
+  return result;
+};
+
 const addSpecificationIntoDB = async (productId: string, payload: any) => {
   const product = await Product.findById(productId);
   if (!product) {
@@ -594,6 +629,82 @@ const deleteSpecificationFromDB = async (specId: string) => {
   return result;
 };
 
+// Color Variations
+const getColorVariationsFromDB = async (productId: string) => {
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  const colorVariations = await ProductColorVariation.find({
+    product: productId,
+  }).sort({ sortOrder: 1 });
+
+  return colorVariations;
+};
+
+const addColorVariationIntoDB = async (productId: string, payload: any) => {
+  const product = await Product.findById(productId);
+  if (!product) {
+    throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  const result = await ProductColorVariation.create({
+    product: productId,
+    ...payload,
+  });
+
+  return result;
+};
+
+const updateColorVariationIntoDB = async (colorId: string, payload: any) => {
+  const result = await ProductColorVariation.findByIdAndUpdate(
+    colorId,
+    payload,
+    {
+      new: true,
+    }
+  );
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "Color variation not found");
+  }
+  return result;
+};
+
+const deleteColorVariationFromDB = async (colorId: string) => {
+  const result = await ProductColorVariation.findByIdAndDelete(colorId);
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "Color variation not found");
+  }
+  return result;
+};
+
+// Get all unique colors from color variations
+const getAllUniqueColorsFromDB = async () => {
+  const colors = await ProductColorVariation.aggregate([
+    {
+      $group: {
+        _id: {
+          colorName: "$colorName",
+          colorCode: "$colorCode",
+        },
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        colorName: "$_id.colorName",
+        colorCode: "$_id.colorCode",
+      },
+    },
+    {
+      $sort: { colorName: 1 },
+    },
+  ]);
+
+  return colors;
+};
+
 export const ProductServices = {
   getAllProductsFromDB,
   getSingleProductFromDB,
@@ -604,13 +715,21 @@ export const ProductServices = {
   getProductImagesFromDB,
   addProductImageIntoDB,
   deleteProductImageFromDB,
+  getFeatureHeadersFromDB,
   addFeatureHeaderIntoDB,
   updateFeatureHeaderIntoDB,
   deleteFeatureHeaderFromDB,
+  getFeatureSubsectionsFromDB,
   addFeatureSubsectionIntoDB,
   updateFeatureSubsectionIntoDB,
   deleteFeatureSubsectionFromDB,
+  getSpecificationsFromDB,
   addSpecificationIntoDB,
   updateSpecificationIntoDB,
   deleteSpecificationFromDB,
+  getColorVariationsFromDB,
+  addColorVariationIntoDB,
+  updateColorVariationIntoDB,
+  deleteColorVariationFromDB,
+  getAllUniqueColorsFromDB,
 };

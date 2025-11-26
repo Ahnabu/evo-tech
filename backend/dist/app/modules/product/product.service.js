@@ -128,12 +128,18 @@ const getSingleProductFromDB = async (id) => {
     const specifications = await product_model_1.Specification.find({ product: id }).sort({
         sortOrder: 1,
     });
+    const colorVariations = await product_model_1.ProductColorVariation.find({
+        product: id,
+    }).sort({
+        sortOrder: 1,
+    });
     return {
         ...product.toObject(),
         images,
         featureHeaders,
         featureSubsections,
         specifications,
+        colorVariations,
     };
 };
 const getProductBySlugFromDB = async (slug) => {
@@ -156,12 +162,16 @@ const getProductBySlugFromDB = async (slug) => {
     const specifications = await product_model_1.Specification.find({
         product: product._id,
     }).sort({ sortOrder: 1 });
+    const colorVariations = await product_model_1.ProductColorVariation.find({
+        product: product._id,
+    }).sort({ sortOrder: 1 });
     return {
         ...product.toObject(),
         images,
         featureHeaders,
         featureSubsections,
         specifications,
+        colorVariations,
     };
 };
 const createProductIntoDB = async (payload, mainImageBuffer, additionalImagesBuffers) => {
@@ -320,7 +330,8 @@ const updateProductIntoDB = async (id, payload, mainImageBuffer, additionalImage
         payload.mainImage = imageUrl;
     }
     // Handle removing images
-    if (payload.removeImages && Array.isArray(payload.removeImages)) {
+    if (payload.removeImages &&
+        Array.isArray(payload.removeImages)) {
         const imagesToRemove = payload.removeImages;
         for (const imageId of imagesToRemove) {
             await product_model_1.ProductImage.findByIdAndDelete(imageId);
@@ -395,6 +406,12 @@ const deleteProductImageFromDB = async (imageId) => {
     return result;
 };
 // Feature Headers
+const getFeatureHeadersFromDB = async (productId) => {
+    const result = await product_model_1.FeaturesSectionHeader.find({ product: productId }).sort({
+        sortOrder: 1,
+    });
+    return result;
+};
 const addFeatureHeaderIntoDB = async (productId, payload) => {
     const product = await product_model_1.Product.findById(productId);
     if (!product) {
@@ -421,6 +438,12 @@ const deleteFeatureHeaderFromDB = async (headerId) => {
     return result;
 };
 // Feature Subsections
+const getFeatureSubsectionsFromDB = async (productId) => {
+    const result = await product_model_1.FeaturesSectionSubsection.find({
+        product: productId,
+    }).sort({ sortOrder: 1 });
+    return result;
+};
 const addFeatureSubsectionIntoDB = async (productId, payload, imageBuffer) => {
     const product = await product_model_1.Product.findById(productId);
     if (!product) {
@@ -455,6 +478,12 @@ const deleteFeatureSubsectionFromDB = async (subsectionId) => {
     return result;
 };
 // Specifications
+const getSpecificationsFromDB = async (productId) => {
+    const result = await product_model_1.Specification.find({ product: productId }).sort({
+        sortOrder: 1,
+    });
+    return result;
+};
 const addSpecificationIntoDB = async (productId, payload) => {
     const product = await product_model_1.Product.findById(productId);
     if (!product) {
@@ -482,6 +511,68 @@ const deleteSpecificationFromDB = async (specId) => {
     }
     return result;
 };
+// Color Variations
+const getColorVariationsFromDB = async (productId) => {
+    const product = await product_model_1.Product.findById(productId);
+    if (!product) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Product not found");
+    }
+    const colorVariations = await product_model_1.ProductColorVariation.find({
+        product: productId,
+    }).sort({ sortOrder: 1 });
+    return colorVariations;
+};
+const addColorVariationIntoDB = async (productId, payload) => {
+    const product = await product_model_1.Product.findById(productId);
+    if (!product) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Product not found");
+    }
+    const result = await product_model_1.ProductColorVariation.create({
+        product: productId,
+        ...payload,
+    });
+    return result;
+};
+const updateColorVariationIntoDB = async (colorId, payload) => {
+    const result = await product_model_1.ProductColorVariation.findByIdAndUpdate(colorId, payload, {
+        new: true,
+    });
+    if (!result) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Color variation not found");
+    }
+    return result;
+};
+const deleteColorVariationFromDB = async (colorId) => {
+    const result = await product_model_1.ProductColorVariation.findByIdAndDelete(colorId);
+    if (!result) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Color variation not found");
+    }
+    return result;
+};
+// Get all unique colors from color variations
+const getAllUniqueColorsFromDB = async () => {
+    const colors = await product_model_1.ProductColorVariation.aggregate([
+        {
+            $group: {
+                _id: {
+                    colorName: "$colorName",
+                    colorCode: "$colorCode",
+                },
+            },
+        },
+        {
+            $project: {
+                _id: 0,
+                colorName: "$_id.colorName",
+                colorCode: "$_id.colorCode",
+            },
+        },
+        {
+            $sort: { colorName: 1 },
+        },
+    ]);
+    return colors;
+};
 exports.ProductServices = {
     getAllProductsFromDB,
     getSingleProductFromDB,
@@ -492,14 +583,22 @@ exports.ProductServices = {
     getProductImagesFromDB,
     addProductImageIntoDB,
     deleteProductImageFromDB,
+    getFeatureHeadersFromDB,
     addFeatureHeaderIntoDB,
     updateFeatureHeaderIntoDB,
     deleteFeatureHeaderFromDB,
+    getFeatureSubsectionsFromDB,
     addFeatureSubsectionIntoDB,
     updateFeatureSubsectionIntoDB,
     deleteFeatureSubsectionFromDB,
+    getSpecificationsFromDB,
     addSpecificationIntoDB,
     updateSpecificationIntoDB,
     deleteSpecificationFromDB,
+    getColorVariationsFromDB,
+    addColorVariationIntoDB,
+    updateColorVariationIntoDB,
+    deleteColorVariationFromDB,
+    getAllUniqueColorsFromDB,
 };
 //# sourceMappingURL=product.service.js.map
