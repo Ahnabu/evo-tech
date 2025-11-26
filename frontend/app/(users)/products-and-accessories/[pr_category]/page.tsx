@@ -5,6 +5,7 @@ import { unstable_noStore as noStore } from "next/cache";
 import type { Metadata } from "next";
 import { ModernProductsContainer } from "@/components/products/modern-products-container";
 import DynamicTextBySlug from "./dynamic-text-by-slug";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
   title: "Products & Accessories",
@@ -16,6 +17,30 @@ const ProductCategory = async ({ params, searchParams }: currentRouteProps) => {
   const resolvedSearchParams = await searchParams;
 
   const categorySlug = resolvedParams.pr_category;
+
+  // Redirect path-based category URLs to query-based URLs for consistent filtering
+  // e.g., /products-and-accessories/materials -> /products-and-accessories?category=materials
+  if (categorySlug && categorySlug !== "all") {
+    const existingParams = new URLSearchParams();
+
+    // Copy all existing search params
+    Object.entries(resolvedSearchParams).forEach(([key, value]) => {
+      if (value) {
+        existingParams.set(key, value as string);
+      }
+    });
+
+    // Add category if not already present
+    if (!existingParams.has("category")) {
+      existingParams.set("category", categorySlug);
+    }
+
+    const queryString = existingParams.toString();
+    redirect(
+      `/products-and-accessories${queryString ? `?${queryString}` : ""}`
+    );
+  }
+
   const pageno = resolvedSearchParams.page
     ? parseInt(resolvedSearchParams.page as string)
     : 1;

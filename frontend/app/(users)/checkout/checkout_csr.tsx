@@ -187,15 +187,15 @@ const CheckoutParts = () => {
     }
 
     const checkoutDetails = {
-      firstname: data.firstName,
-      lastname: data.lastName,
+      firstname: data.fullName,
+      lastname: "", // Not collected anymore
       phone: data.phone,
       email: data.email,
-      houseStreet: data.housestreet, // Fixed: Backend expects houseStreet (camelCase)
+      houseStreet: data.address, // Renamed from housestreet to address
       city: districtsOfBD.find((district) => district.key === data.city)
         ?.itemvalue,
       subdistrict: data.subdistrict,
-      postcode: data.postcode,
+      postcode: "", // Not collected anymore
       country: data.country,
       notes: data.notes,
       shippingType: data.shippingType,
@@ -290,6 +290,9 @@ const CheckoutParts = () => {
       });
       window.dispatchEvent(event);
 
+      // AUTOMATIC BKASH PAYMENT GATEWAY - COMMENTED FOR MANUAL TRANSACTION ID FLOW
+      // TODO: Re-enable this when automatic bKash payment gateway is needed
+      /*
       // If bKash payment is selected, initiate payment gateway
       if (data.paymentMethod === "bkash") {
         try {
@@ -361,6 +364,13 @@ const CheckoutParts = () => {
           router.push(`/order/${order._id}`);
         }, 1500);
       }
+      */
+
+      // MANUAL TRANSACTION ID FLOW (Current Implementation)
+      // For all payment methods including bKash, redirect to order confirmation page
+      setTimeout(() => {
+        router.push(`/order/${order._id}`);
+      }, 1500);
     } else {
       const backendMessage =
         lastOrderErrorMessage ||
@@ -486,7 +496,7 @@ const CheckoutParts = () => {
       <div className="flex flex-col items-center justify-center w-full h-[300px]">
         <p className="text-[13px] sm:text-[14px] leading-6 text-stone-800">{`Cart is empty!`}</p>
         <Link
-          href="/products-and-accessories/all"
+          href="/products-and-accessories"
           className="w-fit h-fit mt-6 px-4 py-1 rounded-[6px] border border-stone-800 hover:border-stone-600 text-[13px] sm:text-[14px] leading-6 text-stone-100 bg-stone-800 hover:bg-stone-600 transition-colors duration-100 ease-linear"
         >
           Continue Shopping
@@ -552,57 +562,32 @@ const CheckoutParts = () => {
           onSubmit={handleSubmit(onSubmit, onInvalidSubmit)}
           className="flex flex-col items-center w-full h-fit gap-4 pb-3 sm:pb-5"
         >
-          <h3 className="flex items-center w-full h-fit text-center text-[14px] sm:text-[15px] leading-6 font-[600] text-stone-900">
-            <span className="flex justify-center items-center w-5 h-5 text-[13px] leading-4 mr-1.5 text-[#0866FF] bg-[#0866FF]/15 rounded-full">
+          <h3 className="flex items-center w-full h-fit text-center text-[14px] sm:text-[15px] leading-6 font-[600] text-stone-800">
+            <span className="flex justify-center items-center w-5 h-5 text-[13px] leading-4 mr-1.5 text-stone-700 bg-stone-200 rounded-full">
               1
             </span>
             Customer Information
           </h3>
 
-          <div className="flex max-[300px]:flex-col w-full h-fit gap-x-2 gap-y-4">
-            <div className="relative w-full h-fit pt-1.5">
-              <input
-                type="text"
-                id="firstName"
-                {...register("firstName")}
-                placeholder="Enter first name"
-                autoCorrect="off"
-                spellCheck="false"
-                className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 border-2 border-blue-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-blue-400/60 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 shadow-sm hover:shadow-md"
-              />
-              <label
-                htmlFor="firstName"
-                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-blue-600 bg-white rounded-md transition-all peer-focus:text-blue-600 peer-placeholder-shown:text-blue-400"
-              >
-                {`First Name*`}
-              </label>
-              {errors.firstName && (
-                <EvoFormInputError>
-                  {errors.firstName.message}
-                </EvoFormInputError>
-              )}
-            </div>
-
-            <div className="relative w-full h-fit pt-1.5">
-              <input
-                type="text"
-                id="lastName"
-                {...register("lastName")}
-                placeholder="Enter last name"
-                autoCorrect="off"
-                spellCheck="false"
-                className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-purple-50/50 to-pink-50/50 border-2 border-purple-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-purple-400/60 focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-200 transition-all duration-200 shadow-sm hover:shadow-md"
-              />
-              <label
-                htmlFor="lastName"
-                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-purple-600 bg-white rounded-md transition-all peer-focus:text-purple-600 peer-placeholder-shown:text-purple-400"
-              >
-                {`Last Name`}
-              </label>
-              {errors.lastName && (
-                <EvoFormInputError>{errors.lastName.message}</EvoFormInputError>
-              )}
-            </div>
+          <div className="relative w-full h-fit pt-1.5">
+            <input
+              type="text"
+              id="fullName"
+              {...register("fullName")}
+              placeholder="Enter your name"
+              autoCorrect="off"
+              spellCheck="false"
+              className="peer w-full h-[42px] px-3 py-2 bg-stone-50 border-2 border-stone-300 rounded-lg text-[13px] font-[500] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-600 focus:ring-2 focus:ring-stone-200 transition-all duration-200"
+            />
+            <label
+              htmlFor="fullName"
+              className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-stone-700  rounded-md transition-all peer-focus:text-stone-800"
+            >
+              {`Name*`}
+            </label>
+            {errors.fullName && (
+              <EvoFormInputError>{errors.fullName.message}</EvoFormInputError>
+            )}
           </div>
 
           <div className="flex max-[410px]:flex-col w-full h-fit gap-x-2 gap-y-4">
@@ -615,11 +600,11 @@ const CheckoutParts = () => {
                 autoCorrect="off"
                 inputMode="tel"
                 autoComplete="tel"
-                className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-emerald-50/50 to-teal-50/50 border-2 border-emerald-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-emerald-400/60 focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="peer w-full h-[42px] px-3 py-2 bg-stone-50 border-2 border-stone-300 rounded-lg text-[13px] font-[500] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-600 focus:ring-2 focus:ring-stone-200 transition-all duration-200"
               />
               <label
                 htmlFor="phone"
-                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-emerald-600 bg-white rounded-md transition-all peer-focus:text-emerald-600 peer-placeholder-shown:text-emerald-400"
+                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-stone-700 rounded-md transition-all peer-focus:text-stone-800"
               >
                 {`Phone*`}
               </label>
@@ -638,11 +623,11 @@ const CheckoutParts = () => {
                 spellCheck="false"
                 inputMode="email"
                 autoComplete="email"
-                className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-cyan-50/50 to-sky-50/50 border-2 border-cyan-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-cyan-400/60 focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-200 transition-all duration-200 shadow-sm hover:shadow-md"
+                className="peer w-full h-[42px] px-3 py-2 bg-stone-50 border-2 border-stone-300 rounded-lg text-[13px] font-[500] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-600 focus:ring-2 focus:ring-stone-200 transition-all duration-200"
               />
               <label
                 htmlFor="email"
-                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-cyan-600 bg-white rounded-md transition-all peer-focus:text-cyan-600 peer-placeholder-shown:text-cyan-400"
+                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-stone-700  rounded-md transition-all peer-focus:text-stone-800"
               >
                 {`Email`}
               </label>
@@ -655,23 +640,21 @@ const CheckoutParts = () => {
           <div className="relative w-full h-fit pt-1.5">
             <input
               type="text"
-              id="housestreet"
-              {...register("housestreet")}
-              placeholder="Enter house & street name/no"
+              id="address"
+              {...register("address")}
+              placeholder="Enter your address"
               autoCorrect="off"
               spellCheck="false"
-              className="peer w-full h-[42px] px-3 py-2 bg-gradient-to-br from-orange-50/50 to-amber-50/50 border-2 border-orange-200 rounded-lg text-[13px] font-[500] text-gray-900 placeholder:text-orange-400/60 focus:outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all duration-200 shadow-sm hover:shadow-md"
+              className="peer w-full h-[42px] px-3 py-2 bg-stone-50 border-2 border-stone-300 rounded-lg text-[13px] font-[500] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-600 focus:ring-2 focus:ring-stone-200 transition-all duration-200"
             />
             <label
-              htmlFor="housestreet"
-              className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-orange-600 bg-white rounded-md transition-all peer-focus:text-orange-600 peer-placeholder-shown:text-orange-400"
+              htmlFor="address"
+              className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-stone-700  rounded-md transition-all peer-focus:text-stone-800"
             >
-              {`House & Street*`}
+              {`Address*`}
             </label>
-            {errors.housestreet && (
-              <EvoFormInputError>
-                {errors.housestreet.message}
-              </EvoFormInputError>
+            {errors.address && (
+              <EvoFormInputError>{errors.address.message}</EvoFormInputError>
             )}
           </div>
 
@@ -753,7 +736,7 @@ const CheckoutParts = () => {
               />
               <p
                 id="citylabel"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 after:border-stone-400 peer-disabled/city:before:border-stone-300 peer-disabled/city:after:border-stone-300"
+                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-700 before:border-stone-400 after:border-stone-400 peer-disabled/city:before:border-stone-300 peer-disabled/city:after:border-stone-300"
               >
                 {`City/District*`}
               </p>
@@ -773,7 +756,7 @@ const CheckoutParts = () => {
               />
               <label
                 htmlFor="subdistrict"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
               >
                 {`Thana/Subdistrict*`}
               </label>
@@ -785,48 +768,26 @@ const CheckoutParts = () => {
             </div>
           </div>
 
-          <div className="flex max-[410px]:flex-col w-full h-fit gap-x-2 gap-y-4">
-            <div className="relative w-full h-fit pt-1.5">
-              <input
-                type="text"
-                id="postcode"
-                {...register("postcode")}
-                placeholder="Enter post code"
-                autoCorrect="off"
-                className="peer w-full h-[40px] custom-input-style1"
-              />
-              <label
-                htmlFor="postcode"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
-              >
-                {`Post Code`}
-              </label>
-              {errors.postcode && (
-                <EvoFormInputError>{errors.postcode.message}</EvoFormInputError>
-              )}
-            </div>
-
-            <div className="relative w-full h-fit pt-1.5">
-              <input
-                type="text"
-                id="country"
-                {...register("country")}
-                placeholder="Enter country"
-                autoCorrect="off"
-                disabled
-                autoComplete="off"
-                className="peer w-full h-[40px] custom-input-style1 disabled:cursor-default"
-              />
-              <label
-                htmlFor="country"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
-              >
-                {`Country*`}
-              </label>
-              {errors.country && (
-                <EvoFormInputError>{errors.country.message}</EvoFormInputError>
-              )}
-            </div>
+          <div className="relative w-full h-fit pt-1.5">
+            <input
+              type="text"
+              id="country"
+              {...register("country")}
+              placeholder="Enter country"
+              autoCorrect="off"
+              disabled
+              autoComplete="off"
+              className="peer w-full h-[40px] custom-input-style1 disabled:cursor-default"
+            />
+            <label
+              htmlFor="country"
+              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+            >
+              {`Country*`}
+            </label>
+            {errors.country && (
+              <EvoFormInputError>{errors.country.message}</EvoFormInputError>
+            )}
           </div>
 
           <div className="relative w-full h-fit pt-4">
@@ -1046,90 +1007,105 @@ const CheckoutParts = () => {
                   </EvoFormInputError>
                 )}
 
-                {/* bKash Automatic Payment Info */}
+                {/* bKash Manual Payment (Similar to Bank Transfer) */}
                 {paymentMethod === "bkash" && (
                   <div className="flex flex-col w-full h-fit mt-2 p-3 rounded-[4px] border border-[#E2136E] bg-gradient-to-br from-[#E2136E]/5 to-transparent gap-2">
-                    <div className="flex items-center gap-2">
-                      <svg
-                        className="w-5 h-5 text-[#E2136E]"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <p className="text-[12px] sm:text-[13px] font-[600] text-[#E2136E]">
-                        {`Automatic bKash Payment`}
+                    <div className="flex flex-col w-full h-fit py-2 gap-1">
+                      <p className="text-[11px] sm:text-[12px] font-[600] leading-4 text-[#E2136E]">
+                        {`Payment Instruction:`}
                       </p>
+
+                      <div className="text-[11px] sm:text-[12px] font-[500] leading-4 text-stone-700">
+                        <ul className="list-disc list-inside space-y-1">
+                          <li>
+                            {`Send Money to: `}
+                            <span className="text-[#E2136E] font-semibold">{`01877-722345`}</span>
+                          </li>
+                          <li>
+                            {`Account Type: `}
+                            <span className="text-[#E2136E] font-semibold">{`Personal`}</span>
+                          </li>
+                          <li>
+                            {`Payable amount: `}
+                            <span className="text-[#E2136E] font-semibold">{`${currencyFormatBDT(
+                              totalPayableAmount
+                            )} BDT`}</span>
+                          </li>
+                          <li>
+                            {`After completing the payment, enter your `}
+                            <span className="text-[#E2136E] font-semibold">{`Transaction ID (TrxID)`}</span>
+                            {` below.`}
+                          </li>
+                          <li>{`Once your order is placed, payment status will be updated in a while.`}</li>
+                          <li>{`Orders will be processed and shipped only after the payment has been successfully received.`}</li>
+                        </ul>
+                      </div>
                     </div>
-                    <div className="text-[11px] sm:text-[12px] font-[500] leading-5 text-stone-600">
-                      <ul className="list-disc list-inside space-y-1">
-                        <li>
-                          {`You will be redirected to bKash payment portal after placing your order.`}
-                        </li>
-                        <li>
-                          {`Complete the payment securely on bKash's official website.`}
-                        </li>
-                        <li>
-                          {`Payment amount: `}
-                          <span className="text-[#E2136E] font-semibold">{`${currencyFormatBDT(
-                            totalPayableAmount
-                          )} BDT`}</span>
-                          {` (all charges inclusive)`}
-                        </li>
-                        <li>
-                          {`After successful payment, you'll be redirected back to your order confirmation page.`}
-                        </li>
-                        <li>
-                          {`Your order will be processed automatically once payment is confirmed.`}
-                        </li>
-                      </ul>
+
+                    <div className="relative w-full h-fit pt-1.5">
+                      <input
+                        type="text"
+                        id="bkashTranId"
+                        {...register("transactionId")}
+                        placeholder="Enter TrxID"
+                        autoCorrect="off"
+                        spellCheck="false"
+                        className="peer w-full h-[40px] custom-input-style1"
+                      />
+                      <label
+                        htmlFor="bkashTranId"
+                        className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#E2136E] after:border-stone-400 peer-focus:after:border-[#E2136E] peer-focus:text-[#E2136E] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                      >
+                        {`Transaction ID`}
+                      </label>
+                      {errors.transactionId && (
+                        <EvoFormInputError>
+                          {errors.transactionId.message}
+                        </EvoFormInputError>
+                      )}
                     </div>
                   </div>
                 )}
 
                 {/* Bank Transfer Manual Payment */}
                 {paymentMethod === "bank_transfer" && (
-                  <div className="flex flex-col w-full h-fit mt-2 p-2 rounded-[4px] border border-stone-300 gap-2">
+                  <div className="flex flex-col w-full h-fit mt-2 p-3 rounded-[4px] border border-[#1e40af] bg-gradient-to-br from-[#1e40af]/5 to-transparent gap-2">
                     <div className="flex flex-col w-full h-fit py-2 gap-1">
-                      <p className="text-[11px] sm:text-[12px] font-[600] leading-4 text-evoAdminAccent">
+                      <p className="text-[11px] sm:text-[12px] font-[600] leading-4 text-[#1e40af]">
                         {`Payment Instruction:`}
                       </p>
 
-                      <div className="text-[11px] sm:text-[12px] font-[500] leading-4 text-stone-600">
-                        <ul className="list-disc list-inside">
+                      <div className="text-[11px] sm:text-[12px] font-[500] leading-4 text-stone-700">
+                        <ul className="list-disc list-inside space-y-1">
                           <li>
                             {`Bank Name: `}
-                            <span className="text-evoAdminPrimary font-semibold">{`Islami Bank Bangladesh PLC.`}</span>
+                            <span className="text-[#1e40af] font-semibold">{`Islami Bank Bangladesh PLC.`}</span>
                           </li>
                           <li>
                             {`Branch: `}
-                            <span className="text-evoAdminPrimary font-semibold">{`Cantonment Branch, Dhaka`}</span>
+                            <span className="text-[#1e40af] font-semibold">{`Cantonment Branch, Dhaka`}</span>
                           </li>
                           <li>
                             {`Name: `}
-                            <span className="text-evoAdminPrimary font-semibold">{`MD. MAHFUZ HASAN`}</span>
+                            <span className="text-[#1e40af] font-semibold">{`MD. MAHFUZ HASAN`}</span>
                           </li>
                           <li>
                             {`Account No: `}
-                            <span className="text-evoAdminPrimary font-semibold">{`20502036700154115`}</span>
+                            <span className="text-[#1e40af] font-semibold">{`20502036700154115`}</span>
                           </li>
                           <li>
                             {`Routing No: `}
-                            <span className="text-evoAdminPrimary font-semibold">{`125260738`}</span>
+                            <span className="text-[#1e40af] font-semibold">{`125260738`}</span>
                           </li>
                           <li>
-                            {`Payable amount- `}
-                            <span className="text-evoAdminPrimary font-semibold">{`${currencyFormatBDT(
+                            {`Payable amount: `}
+                            <span className="text-[#1e40af] font-semibold">{`${currencyFormatBDT(
                               totalPayableAmount
                             )} BDT`}</span>
                           </li>
                           <li>
                             {`After completing the payment, enter your `}
-                            <span className="text-evoAdminAccent font-semibold">{`Transaction ID`}</span>
+                            <span className="text-[#1e40af] font-semibold">{`Transaction ID`}</span>
                             {` below.`}
                           </li>
                           <li>{`Once your order is placed, payment status will be updated in a while.`}</li>
@@ -1150,7 +1126,7 @@ const CheckoutParts = () => {
                       />
                       <label
                         htmlFor="tranId"
-                        className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                        className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#1e40af] after:border-stone-400 peer-focus:after:border-[#1e40af] peer-focus:text-[#1e40af] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
                       >
                         {`Transaction ID`}
                       </label>

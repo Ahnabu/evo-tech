@@ -6,7 +6,7 @@ const parseBody = (req, res, next) => {
         req.body = JSON.parse(req.body.data);
     }
     // Convert array fields from features[] to features
-    const arrayFields = ["features", "colors"];
+    const arrayFields = ["features", "colors", "removeImages"];
     arrayFields.forEach((field) => {
         const arrayKey = `${field}[]`;
         if (req.body[arrayKey]) {

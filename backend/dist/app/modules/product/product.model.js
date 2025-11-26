@@ -16,6 +16,9 @@ const productSchema = new mongoose_1.Schema({
         type: Number,
         required: true,
     },
+    buyingPrice: {
+        type: Number,
+    },
     previousPrice: {
         type: Number,
     },

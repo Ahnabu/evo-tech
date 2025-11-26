@@ -4,6 +4,7 @@ export interface TProduct {
     name: string;
     slug: string;
     price: number;
+    buyingPrice?: number;
     previousPrice?: number;
     inStock: boolean;
     features?: string[];

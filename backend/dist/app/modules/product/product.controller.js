@@ -72,6 +72,16 @@ const deleteProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
     });
 });
 // Product Images
+const getProductImages = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const { productId } = req.params;
+    const result = await product_service_1.ProductServices.getProductImagesFromDB(productId);
+    (0, sendResponse_1.default)(res, {
+        success: true,
+        statusCode: http_status_1.default.OK,
+        message: "Product images retrieved successfully",
+        data: result,
+    });
+});
 const addProductImage = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const { productId } = req.params;
     const imageBuffer = req.file?.buffer;
@@ -198,6 +208,7 @@ exports.ProductControllers = {
     createProduct,
     updateProduct,
     deleteProduct,
+    getProductImages,
     addProductImage,
     deleteProductImage,
     addFeatureHeader,

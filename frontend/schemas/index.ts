@@ -2,19 +2,13 @@ import { z } from "zod";
 
 export const checkoutSchema = z
   .object({
-    firstName: z
+    fullName: z
       .string()
-      .nonempty("First name is required")
+      .nonempty("Name is required")
       .regex(
         /^[A-Za-z\s._]+$/,
-        "First name cannot contain numbers or special characters"
+        "Name cannot contain numbers or special characters"
       ),
-    lastName: z
-      .string()
-      .regex(
-        /^[A-Za-z\s._]*$/,
-        "Last name cannot contain numbers or special characters"
-      ), // lastName is optional
     phone: z
       .string()
       .nonempty("Phone no is required")
@@ -40,13 +34,12 @@ export const checkoutSchema = z
       z.string().email("Provide a valid email address"),
       z.literal(""),
     ]), // email is optional
-    housestreet: z
+    address: z
       .string()
-      .nonempty("House & Street is required")
+      .nonempty("Address is required")
       .max(150, "Too long, keep it under 150 characters"),
     city: z.string().nonempty("City/District is required"),
     subdistrict: z.string().nonempty("Thana/Subdistrict is required"),
-    postcode: z.string().max(10, "Postcode is too long"), // postcode is optional
     country: z.enum(["Bangladesh"], {
       errorMap: () => ({ message: "Select an available country" }),
     }),
@@ -133,8 +126,11 @@ export const checkoutSchema = z
       }
     }
 
-    // Conditional validation for transaction ID (only for bank transfer - bKash is automatic now)
-    if (data.paymentMethod === "bank_transfer") {
+    // Conditional validation for transaction ID (bKash and bank transfer require manual transaction ID)
+    if (
+      data.paymentMethod === "bkash" ||
+      data.paymentMethod === "bank_transfer"
+    ) {
       if (
         !data.transactionId ||
         data.transactionId === "" ||
@@ -142,7 +138,10 @@ export const checkoutSchema = z
       ) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Transaction ID is required for bank transfer",
+          message:
+            data.paymentMethod === "bkash"
+              ? "Transaction ID is required for bKash payment"
+              : "Transaction ID is required for bank transfer",
           path: ["transactionId"],
         });
       }

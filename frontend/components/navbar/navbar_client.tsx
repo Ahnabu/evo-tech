@@ -426,7 +426,7 @@ const NavbarClient = ({
                 } ${isScrolled ? "backdrop-blur-sm" : ""}`}
               >
                 <Link
-                  href="/products-and-accessories/all"
+                  href="/products-and-accessories"
                   className="px-3 py-2 text-stone-800 font-[600] whitespace-nowrap hover:text-stone-900"
                 >
                   All Categories

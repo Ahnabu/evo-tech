@@ -7,13 +7,13 @@ export interface TOrder {
   guestEmail?: string; // Email for guest checkout - used to link orders when user registers
   isGuest?: boolean; // Flag to identify guest orders
   firstname: string;
-  lastname: string;
+  lastname?: string; // Optional - no longer collected
   phone: string;
   email: string;
   houseStreet: string;
   city: string;
   subdistrict?: string;
-  postcode: string;
+  postcode?: string; // Optional - no longer collected
   country: string;
   shippingType: string;
   pickupPointId?: string;

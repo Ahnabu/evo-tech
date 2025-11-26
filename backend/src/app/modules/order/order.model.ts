@@ -28,7 +28,8 @@ const orderSchema = new Schema<TOrder>(
     },
     lastname: {
       type: String,
-      required: true,
+      required: false,
+      default: "",
     },
     phone: {
       type: String,
@@ -51,7 +52,8 @@ const orderSchema = new Schema<TOrder>(
     },
     postcode: {
       type: String,
-      required: true,
+      required: false,
+      default: "",
     },
     country: {
       type: String,

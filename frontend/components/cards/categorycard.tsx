@@ -22,13 +22,13 @@ const CategoryCard = ({
   const [imageError, setImageError] = useState(false);
 
   const defaultImage = "/assets/placeholder-category.svg";
-  
+
   // Use category image for background, fallback to default placeholder
   const displayImage = image && !imageError ? image : defaultImage;
 
   return (
     <Link
-      href={`/products-and-accessories/${slug}`}
+      href={`/products-and-accessories?category=${slug}`}
       className="group relative flex flex-col items-center w-full h-[200px] sm:h-[240px] bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 ease-out transform hover:scale-105"
     >
       {/* Image Container */}

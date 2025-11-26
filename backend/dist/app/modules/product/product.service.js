@@ -303,9 +303,29 @@ const updateProductIntoDB = async (id, payload, mainImageBuffer, additionalImage
     if (payload.name && payload.name !== product.name) {
         payload.slug = await (0, slugify_1.generateUniqueSlug)(payload.name, product_model_1.Product);
     }
+    // Handle setting an existing image as the new main image
+    if (payload.newMainFromExisting) {
+        const imageId = payload.newMainFromExisting;
+        const existingImage = await product_model_1.ProductImage.findById(imageId);
+        if (existingImage && existingImage.product.toString() === id) {
+            payload.mainImage = existingImage.imageUrl;
+            // Remove this image from ProductImage collection since it's now the main image
+            await product_model_1.ProductImage.findByIdAndDelete(imageId);
+        }
+        delete payload.newMainFromExisting;
+    }
+    // Handle new main image upload
     if (mainImageBuffer) {
         const imageUrl = await (0, cloudinaryUpload_1.uploadToCloudinary)(mainImageBuffer, "products");
         payload.mainImage = imageUrl;
+    }
+    // Handle removing images
+    if (payload.removeImages && Array.isArray(payload.removeImages)) {
+        const imagesToRemove = payload.removeImages;
+        for (const imageId of imagesToRemove) {
+            await product_model_1.ProductImage.findByIdAndDelete(imageId);
+        }
+        delete payload.removeImages;
     }
     const result = await product_model_1.Product.findByIdAndUpdate(id, payload, { new: true })
         .populate("category")
@@ -344,6 +364,16 @@ const deleteProductFromDB = async (id) => {
     return result;
 };
 // Product Images
+const getProductImagesFromDB = async (productId) => {
+    const product = await product_model_1.Product.findById(productId);
+    if (!product) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Product not found");
+    }
+    const images = await product_model_1.ProductImage.find({ product: productId }).sort({
+        sortOrder: 1,
+    });
+    return images;
+};
 const addProductImageIntoDB = async (productId, imageBuffer, sortOrder = 0) => {
     const product = await product_model_1.Product.findById(productId);
     if (!product) {
@@ -459,6 +489,7 @@ exports.ProductServices = {
     createProductIntoDB,
     updateProductIntoDB,
     deleteProductFromDB,
+    getProductImagesFromDB,
     addProductImageIntoDB,
     deleteProductImageFromDB,
     addFeatureHeaderIntoDB,

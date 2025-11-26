@@ -6,13 +6,13 @@ export interface TOrder {
     guestEmail?: string;
     isGuest?: boolean;
     firstname: string;
-    lastname: string;
+    lastname?: string;
     phone: string;
     email: string;
     houseStreet: string;
     city: string;
     subdistrict?: string;
-    postcode: string;
+    postcode?: string;
     country: string;
     shippingType: string;
     pickupPointId?: string;

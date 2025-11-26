@@ -24,13 +24,13 @@ import { HiMiniExclamationTriangle } from "react-icons/hi2";
 
 const CartListing = () => {
   const cartItems = useSelector(
-    (state: RootState) => state.shoppingcart.cartdata
+    (state) => (state as RootState).shoppingcart.cartdata
   );
   const pendingUpdates = useSelector(
-    (state: RootState) => state.shoppingcart.pendingUpdates
+    (state) => (state as RootState).shoppingcart.pendingUpdates
   );
   const isUpdating = useSelector(
-    (state: RootState) => state.shoppingcart.isUpdating
+    (state) => (state as RootState).shoppingcart.isUpdating
   );
   const dispatch = useDispatch<AppDispatch>();
 
@@ -401,7 +401,7 @@ const CartListing = () => {
             <PiSmileySadLight className="inline w-8 h-8 sm:w-10 sm:h-10 text-stone-400 animate-in zoom-in duration-500" />
             <p className="text-[13px] sm:text-[14px] leading-6 text-stone-800">{`Cart is empty!`}</p>
             <Link
-              href="/products-and-accessories/all"
+              href="/products-and-accessories"
               className="w-fit h-fit mt-6 px-4 py-1 rounded-[6px] border border-stone-800 hover:border-stone-600 text-[13px] sm:text-[14px] leading-6 text-stone-100 bg-stone-800 hover:bg-stone-600 hover:scale-105 active:scale-95 transition-all duration-200 ease-out"
             >
               Continue Shopping

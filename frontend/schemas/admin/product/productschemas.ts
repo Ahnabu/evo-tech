@@ -29,6 +29,18 @@ export const AddProductSchema = z.object({
       { message: "Price must be at least 0" }
     ),
 
+  item_buyingprice: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val === "") return true; // Allow empty
+        const n = Number(val);
+        return !Number.isNaN(n) && n >= 0;
+      },
+      { message: "Buying price must be at least 0" }
+    ),
+
   item_prevprice: z
     .string()
     .min(1, { message: "Previous price must be at least 0" })

@@ -58,7 +58,7 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
         {slides.map((slide, index) => (
           <SwiperSlide
             key={`slide${index}`}
-            className="flex w-full justify-center px-3 md:px-16 lg:px-20"
+            className="flex w-full justify-center px-3"
           >
             <div className="relative w-full my-4 max-w-[1200px] min-h-[140px] sm:min-h-[220px] max-h-[360px] lg:min-h-[260px] lg:max-h-[420px] overflow-hidden rounded-[24px] bg-white border border-stone-100 px-4 py-4 sm:px-8 sm:py-8 lg:px-12 lg:py-12">
               <div className="relative">
@@ -103,7 +103,7 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
                   </div>
 
                   <div className="relative flex w-full justify-center sm:w-full lg:w-[48%]">
-                    <div className="relative aspect-[16/9] sm:aspect-[3/4] w-full max-w-[90%] sm:max-w-[350px] lg:max-w-[300px]">
+                    <div className="relative aspect-[16/9] sm:aspect-[3/4] w-full max-w-[95%] sm:max-w-[350px] lg:max-w-[300px]">
                       <div className="absolute inset-0 rounded-[20px] " />
                       <div className="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[20px] border border-white/60 shadow-sm">
                         <Image

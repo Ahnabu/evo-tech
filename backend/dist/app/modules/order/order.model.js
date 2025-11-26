@@ -27,7 +27,8 @@ const orderSchema = new mongoose_1.Schema({
     },
     lastname: {
         type: String,
-        required: true,
+        required: false,
+        default: "",
     },
     phone: {
         type: String,
@@ -50,7 +51,8 @@ const orderSchema = new mongoose_1.Schema({
     },
     postcode: {
         type: String,
-        required: true,
+        required: false,
+        default: "",
     },
     country: {
         type: String,

@@ -105,7 +105,7 @@ export default function Featured3DPrintersMaterials() {
   }
 
   return (
-    <section className="w-full py-6 bg-gradient-to-b from-gray-50 to-white">
+    <section className="w-full py-6 ">
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
         {sections.map((section, sectionIndex) => (
           <div
@@ -114,12 +114,12 @@ export default function Featured3DPrintersMaterials() {
           >
             {/* Section Header */}
             <div className="flex items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5">
-              <h3 className="text-lg sm:text-2xl font-semibold text-stone-800">
+              <h3 className="text-2xl font-bold text-stone-800 ">
                 {section.categoryName}
               </h3>
               <div className="flex items-center gap-3">
                 <Link
-                  href={`/products-and-accessories/${section.categorySlug}`}
+                  href={`/products-and-accessories?category=${section.categorySlug}`}
                   className="text-sm text-stone-500 p-2 px-4 hover:bg-brand-600 rounded-xl font-semibold hover:text-white transition-colors"
                 >
                   More
@@ -134,12 +134,13 @@ export default function Featured3DPrintersMaterials() {
             {/* Products Grid */}
             <Swiper
               modules={[Autoplay]}
-              spaceBetween={16}
-              slidesPerView={2}
+              spaceBetween={20}
+              slidesPerView={1.5}
               breakpoints={{
-                640: { slidesPerView: 3, spaceBetween: 16 },
-                1024: { slidesPerView: 4, spaceBetween: 18 },
-                1280: { slidesPerView: 5, spaceBetween: 18 },
+                480: { slidesPerView: 2, spaceBetween: 20 },
+                768: { slidesPerView: 2.5, spaceBetween: 24 },
+                1024: { slidesPerView: 3, spaceBetween: 24 },
+                1280: { slidesPerView: 4, spaceBetween: 24 },
               }}
               autoplay={{
                 delay: 3500,
@@ -153,61 +154,47 @@ export default function Featured3DPrintersMaterials() {
                 <SwiperSlide key={product._id}>
                   <Link
                     href={`/items/${product.slug}`}
-                    className="group block w-full my-1 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition transform hover:-translate-y-1"
+                    className="group block w-full bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
                   >
-                    {/* Product Image Container */}
-                    <div className="relative w-full aspect-[4/3] bg-gradient-to-br from-gray-200 to-gray-300 overflow-hidden">
+                    {/* Product Image Container - Fixed aspect ratio */}
+                    <div className="relative w-full aspect-[4/3] bg-stone-100 overflow-hidden">
                       <Image
                         src={product.mainImage || "/placeholder.png"}
                         alt={product.name}
                         fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-                        sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, (max-width: 1024px) 25vw, (max-width: 1280px) 20vw, 16vw"
+                        className="object-contain p-2 group-hover:scale-105 transition-transform duration-500 ease-out"
+                        sizes="(max-width: 640px) 80vw, (max-width: 768px) 45vw, (max-width: 1024px) 35vw, 28vw"
                         priority={sectionIndex === 0}
                       />
 
                       {/* Out of Stock Overlay */}
                       {!product.inStock && (
-                        <div className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-10">
+                        <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10">
                           <span className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
                             Out of Stock
                           </span>
                         </div>
                       )}
-
-                      {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     </div>
 
-                    {/* Product Info */}
-                    <div className="p-2 sm:p-2.5 flex flex-col gap-0.5 flex-1">
-                      <h3 className="text-[11px] sm:text-xs font-semibold text-gray-900 line-clamp-2 min-h-[1.75rem] group-hover:text-blue-600 transition-colors leading-tight">
+                    {/* Product Info - Clean white background */}
+                    <div className="p-3 bg-stone-50 border-t border-stone-100">
+                      <h3 className="text-sm sm:text-base font-semibold text-stone-800 line-clamp-2  group-hover:text-brand-600 transition-colors leading-snug">
                         {product.name}
                       </h3>
 
-                      {product.shortDescription && (
-                        <p className="text-[9px] sm:text-[10px] text-gray-500 line-clamp-1 leading-tight">
-                          {product.shortDescription}
-                        </p>
-                      )}
-
-                      <div className="mt-auto pt-0.5">
-                        <div className="flex items-baseline gap-1.5 flex-wrap">
-                          <span className="text-xs sm:text-sm lg:text-base font-bold text-gray-900">
-                            BDT {product.price.toLocaleString()}
-                          </span>
-                          {product.previousPrice &&
-                            product.previousPrice > product.price && (
-                              <span className="text-[10px] sm:text-xs text-gray-400 line-through">
-                                BDT {product.previousPrice.toLocaleString()}
-                              </span>
-                            )}
-                        </div>
+                      <div className=" flex items-baseline gap-2 flex-wrap">
+                        <span className="text-[13px] font-medium text-stone-800">
+                          BDT {product.price.toLocaleString()}
+                        </span>
+                        {product.previousPrice &&
+                          product.previousPrice > product.price && (
+                            <span className="text-xs sm:text-sm text-stone-400 line-through">
+                              ৳{product.previousPrice.toLocaleString()}
+                            </span>
+                          )}
                       </div>
                     </div>
-
-                    {/* Bottom accent line */}
-                    <div className="h-1 bg-gradient-to-r from-blue-400 via-blue-600 to-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-center" />
                   </Link>
                 </SwiperSlide>
               ))}

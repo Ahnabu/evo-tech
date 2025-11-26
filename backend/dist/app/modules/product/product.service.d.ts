@@ -39,6 +39,7 @@ export declare const ProductServices: {
         name: string;
         slug: string;
         price: number;
+        buyingPrice?: number;
         previousPrice?: number;
         inStock: boolean;
         features?: string[];
@@ -93,6 +94,7 @@ export declare const ProductServices: {
         name: string;
         slug: string;
         price: number;
+        buyingPrice?: number;
         previousPrice?: number;
         inStock: boolean;
         features?: string[];
@@ -137,6 +139,11 @@ export declare const ProductServices: {
     }> & {
         __v: number;
     }) | null>;
+    getProductImagesFromDB: (productId: string) => Promise<(import("mongoose").Document<unknown, {}, import("./product.interface").TProductImage, {}, {}> & import("./product.interface").TProductImage & Required<{
+        _id: string;
+    }> & {
+        __v: number;
+    })[]>;
     addProductImageIntoDB: (productId: string, imageBuffer: Buffer, sortOrder?: number) => Promise<import("mongoose").Document<unknown, {}, import("./product.interface").TProductImage, {}, {}> & import("./product.interface").TProductImage & Required<{
         _id: string;
     }> & {

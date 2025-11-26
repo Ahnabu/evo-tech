@@ -513,7 +513,7 @@ const OrderConfirmationPage = async ({
               </p>
             </div>
             <Link
-              href="/products-and-accessories/all"
+              href="/products-and-accessories"
               className="px-6 py-2 text-sm font-medium text-white bg-stone-800 rounded-md hover:bg-stone-700 hover:scale-105 active:scale-95 transition-all duration-200 ease-out"
             >
               {`Continue Shopping`}
