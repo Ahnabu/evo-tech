@@ -23,6 +23,15 @@ const nextConfig = {
   reactStrictMode: true,
   // For Hostinger deployment, use standalone output
   output: process.env.BUILD_STANDALONE === "true" ? "standalone" : undefined,
+  // Suppress build errors when backend is not available during build
+  typescript: {
+    // Don't fail build on type errors in production
+    ignoreBuildErrors: false,
+  },
+  eslint: {
+    // Don't fail build on lint errors (warnings only)
+    ignoreDuringBuilds: false,
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",

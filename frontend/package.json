@@ -8,12 +8,18 @@
     "build:hostinger": "BUILD_STANDALONE=true next build",
     "start": "next start",
     "start:prod": "NODE_ENV=production next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "deploy:hostinger": "npm run build:hostinger && pm2 restart ecosystem.config.js",
+    "pm2:start": "pm2 start ecosystem.config.js",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "pm2:restart": "pm2 restart ecosystem.config.js",
+    "pm2:logs": "pm2 logs evo-tech-frontend"
   },
   "dependencies": {
     "@dnd-kit/core": "6.3.1",
     "@dnd-kit/sortable": "10.0.0",
     "@dnd-kit/utilities": "3.2.2",
+    "sharp": "^0.33.5",
     "@hookform/resolvers": "3.9.1",
     "@nextui-org/react": "2.4.8",
     "@radix-ui/react-alert-dialog": "1.1.15",
@@ -86,6 +92,7 @@
     "autoprefixer": "10.4.19",
     "eslint": "8",
     "eslint-config-next": "15.5.5",
+    "pm2": "^5.4.3",
     "postcss": "8",
     "tailwindcss": "3.4.4",
     "typescript": "5"
