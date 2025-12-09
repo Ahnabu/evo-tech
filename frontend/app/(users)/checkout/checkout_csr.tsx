@@ -367,10 +367,20 @@ const CheckoutParts = () => {
       */
 
       // MANUAL TRANSACTION ID FLOW (Current Implementation)
-      // For all payment methods including bKash, redirect to order confirmation page
-      setTimeout(() => {
-        router.push(`/order/${order._id}`);
-      }, 1500);
+      // Redirect to track order page with tracking code
+      const trackingCode = order.trackingCode || order.trackingId || '';
+      
+      if (trackingCode) {
+        toast.success("Redirecting to order tracking...");
+        setTimeout(() => {
+          router.push(`/track-order?code=${encodeURIComponent(trackingCode)}`);
+        }, 1500);
+      } else {
+        // Fallback to order page if no tracking code
+        setTimeout(() => {
+          router.push(`/order/${order._id}`);
+        }, 1500);
+      }
     } else {
       const backendMessage =
         lastOrderErrorMessage ||

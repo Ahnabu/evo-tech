@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -8,6 +8,7 @@ import axios from "@/utils/axios/axios";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useSearchParams } from "next/navigation";
 import {
   Card,
   CardContent,
@@ -191,21 +192,23 @@ const OrderTimeline = ({ status }: { status: string }) => {
 export default function TrackOrderClient() {
   const [trackingData, setTrackingData] = useState<TrackingData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const searchParams = useSearchParams();
 
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<TrackingFormValues>({
     resolver: zodResolver(trackingSchema),
   });
 
-  const onSubmit = async (data: TrackingFormValues) => {
+  const fetchOrderByTrackingCode = async (trackingCode: string) => {
     setIsLoading(true);
     setTrackingData(null);
 
     try {
-      const response = await axios.get(`/orders/track/${data.trackingCode}`);
+      const response = await axios.get(`/orders/track/${trackingCode}`);
 
       if (response.data.success) {
         setTrackingData(response.data.data);
@@ -223,9 +226,40 @@ export default function TrackOrderClient() {
     }
   };
 
+  // Auto-fetch order if tracking code is in URL
+  useEffect(() => {
+    const trackingCode = searchParams.get('code');
+    if (trackingCode) {
+      setValue('trackingCode', trackingCode);
+      fetchOrderByTrackingCode(trackingCode);
+    }
+  }, [searchParams, setValue]);
+
+  const onSubmit = async (data: TrackingFormValues) => {
+    await fetchOrderByTrackingCode(data.trackingCode);
+  };
+
   return (
     <div className="min-h-screen bg-stone-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
+        {/* Success Banner (shown when redirected from checkout) */}
+        {searchParams.get('code') && !isLoading && trackingData && (
+          <div className="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-r-lg shadow-sm animate-in fade-in duration-500">
+            <div className="flex items-start">
+              <CheckCircle2 className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" />
+              <div className="ml-3">
+                <h3 className="text-sm font-semibold text-green-900">
+                  Order Placed Successfully! 🎉
+                </h3>
+                <p className="text-sm text-green-700 mt-1">
+                  Your order has been confirmed. A confirmation email has been sent to your email address.
+                  You can track your order status below.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Header Section */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
