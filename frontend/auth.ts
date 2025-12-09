@@ -76,6 +76,7 @@ export const {
     signIn,
     signOut,
 } = NextAuth({
+    trustHost: true, // Trust the host in production (required for NextAuth v5)
     ...authConfig,
     session: {
         strategy: "jwt",

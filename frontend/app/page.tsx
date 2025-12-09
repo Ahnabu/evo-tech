@@ -26,10 +26,39 @@ import Industry3DModel from "@/public/assets/application_fields/industrial-robot
 import FeaturedCategories from "@/components/cards/featuredcategories";
 import PopularProductsSlider from "@/components/cards/popularproductsslider";
 import Featured3DPrintersMaterials from "@/components/cards/featured-3d-printers-materials";
+import { generateOrganizationSchema, generateWebSiteSchema, StructuredData } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
-  title: {
-    absolute: "Home | Evo-TechBD",
+  title: "Home | Evo-TechBD - Bangladesh's Premier Tech Store",
+  description: "Shop premium 3D printers (Ender, Creality), filaments (PLA, ABS, PETG), electronics, Arduino, Raspberry Pi & more. Professional 3D printing, laser engraving services in Bangladesh.",
+  keywords: [
+    '3D printer Bangladesh',
+    'Ender 3 V2 Bangladesh',
+    'Creality 3D printer',
+    'PLA filament Bangladesh',
+    'ABS filament price',
+    'Arduino Bangladesh',
+    'Raspberry Pi Bangladesh',
+    '3D printing service Dhaka',
+    'laser engraving Bangladesh',
+    'electronics store Bangladesh',
+    'tech products online Bangladesh',
+  ],
+  openGraph: {
+    title: 'Evo-Tech Bangladesh - 3D Printers, Electronics & Tech Services',
+    description: 'Shop premium 3D printers, filaments, electronics. Professional 3D printing & laser engraving services in Bangladesh.',
+    url: process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com',
+    siteName: 'Evo-Tech Bangladesh',
+    type: 'website',
+    locale: 'en_US',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Evo-Tech Bangladesh - 3D Printers, Electronics & Tech Services',
+    description: 'Shop premium 3D printers, filaments, electronics. Professional 3D printing & laser engraving services.',
+  },
+  alternates: {
+    canonical: process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com',
   },
 };
 
@@ -233,8 +262,33 @@ const WhyShopWithUs = () => {
 // home page components end here ----------------------------
 
 const Home = () => {
+  const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com';
+  
+  // Generate structured data for homepage
+  const organizationSchema = generateOrganizationSchema({
+    name: 'Evo-Tech Bangladesh',
+    url: baseUrl,
+    logo: `${baseUrl}/assets/logo.png`,
+    contactPoint: {
+      telephone: '+880-1234-567890', // Replace with actual
+      contactType: 'customer service',
+      email: 'info@evo-techbd.com', // Replace with actual
+    },
+    sameAs: [
+      // Add your social media profiles
+      // 'https://www.facebook.com/evotechbd',
+      // 'https://www.instagram.com/evotechbd',
+    ],
+  });
+
+  const websiteSchema = generateWebSiteSchema(baseUrl, 'Evo-Tech Bangladesh');
+
   return (
     <>
+      {/* Structured Data for SEO */}
+      <StructuredData data={organizationSchema} />
+      <StructuredData data={websiteSchema} />
+      
       <div className="flex w-full justify-center">
         <div className="w-full max-w-[1400px] px-3 sm:px-6">
           <div id="carousel1" className="w-full">

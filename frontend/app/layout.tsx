@@ -10,11 +10,63 @@ import type { TaxonomyCategory } from "@/store/slices/taxonomySlice";
 import { ConditionalLayout } from "@/components/layout/conditional-layout";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com'),
   title: {
     template: "%s | Evo-Tech Bangladesh",
-    default: "Evo-Tech Bangladesh",
+    default: "Evo-Tech Bangladesh - Premium Tech Products & 3D Printing Services",
   },
-  description: "An e-commerce website for shopping tech products",
+  description: "Leading tech e-commerce in Bangladesh offering 3D printers, filaments, electronics, and professional 3D printing services. Quality products with warranty and expert support.",
+  keywords: [
+    '3D printer Bangladesh',
+    '3D printing service',
+    'Ender 3D printer',
+    'PLA filament Bangladesh',
+    'tech products Bangladesh',
+    'electronics Bangladesh',
+    'Arduino Bangladesh',
+    'Raspberry Pi Bangladesh',
+    'laser engraving service',
+    'thesis writing help',
+    'project development Bangladesh',
+  ],
+  authors: [{ name: 'Evo-Tech Bangladesh' }],
+  creator: 'Evo-Tech Bangladesh',
+  publisher: 'Evo-Tech Bangladesh',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com',
+    title: 'Evo-Tech Bangladesh - Premium Tech Products & 3D Printing Services',
+    description: 'Leading tech e-commerce in Bangladesh offering 3D printers, filaments, electronics, and professional 3D printing services.',
+    siteName: 'Evo-Tech Bangladesh',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Evo-Tech Bangladesh - Premium Tech Products & 3D Printing Services',
+    description: 'Leading tech e-commerce in Bangladesh offering 3D printers, filaments, electronics, and professional 3D printing services.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    // Add your verification codes here when you get them
+    // google: 'your-google-verification-code',
+    // yandex: 'your-yandex-verification-code',
+    // bing: 'your-bing-verification-code',
+  },
 };
 
 // fetch taxonomy data from the API

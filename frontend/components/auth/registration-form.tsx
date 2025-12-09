@@ -63,7 +63,6 @@ const RegistrationForm = () => {
             });
           } catch (error) {
             // Silently fail - linking is not critical
-            console.log("Failed to link guest orders:", error);
           }
 
           // Redirect to user dashboard

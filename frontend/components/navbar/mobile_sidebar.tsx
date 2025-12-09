@@ -95,15 +95,22 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
 
   const handleSignOut = async () => {
     try {
-      // logout() does not return a useful value (likely void) so just await it
+      // Clear all session/local storage data
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear();
+        localStorage.removeItem('user-cart');
+        localStorage.removeItem('user-wishlist');
+      }
+
       await logout();
 
-      // signOut may return void or an object with a url; cast to any for runtime checks
       const response: any = await signOut({ redirect: false, callbackUrl: "/" });
 
       if (!response?.url) {
-        console.error("NextAuth signOut error:", response);
         toast.error("Something went wrong while signing out.");
+        onClose();
+        router.push("/");
+        router.refresh();
         return;
       }
 
@@ -112,8 +119,13 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
       router.push(response.url ?? "/");
       router.refresh();
     } catch (err) {
-      console.error("Sign out error:", err);
       toast.error("Something went wrong while signing out.");
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear();
+      }
+      onClose();
+      router.push("/");
+      router.refresh();
     }
   };
 

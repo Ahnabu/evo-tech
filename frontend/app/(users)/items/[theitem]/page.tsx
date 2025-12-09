@@ -10,21 +10,78 @@ import { currentRouteProps } from "@/utils/types_interfaces/shared_types";
 import axiosErrorLogger from "@/components/error/axios_error";
 import axios from "@/utils/axios/axios";
 import { Suspense } from "react";
+import { generateProductSchema, generateBreadcrumbSchema, StructuredData } from "@/lib/structured-data";
 
 export const generateMetadata = async (
   props: currentRouteProps
 ): Promise<Metadata> => {
   const params = await props.params;
   const itemslug = params.theitem;
+  const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com';
 
+  // Fetch product data for accurate metadata
+  try {
+    const productResponse = await axios
+      .get(`/products/slug/${itemslug}`)
+      .then((res) => res.data)
+      .catch(() => null);
+
+    if (productResponse?.data) {
+      const product = productResponse.data;
+      const productUrl = `${baseUrl}/items/${itemslug}`;
+      const imageUrl = product.mainImage || `${baseUrl}/assets/default-product.png`;
+      
+      return {
+        title: `${product.name} | Buy Online in Bangladesh`,
+        description: product.shortDescription || product.description || `Buy ${product.name} online in Bangladesh. ${product.inStock ? 'In stock' : 'Available'} at Evo-Tech Bangladesh with warranty and fast delivery.`,
+        keywords: [
+          product.name,
+          product.brand?.name || 'tech product',
+          product.category?.name || 'electronics',
+          'Bangladesh',
+          'online shopping',
+          'buy online',
+        ],
+        openGraph: {
+          title: product.name,
+          description: product.shortDescription || product.description || `Buy ${product.name} at Evo-Tech Bangladesh`,
+          url: productUrl,
+          siteName: 'Evo-Tech Bangladesh',
+          images: [
+            {
+              url: imageUrl,
+              width: 800,
+              height: 800,
+              alt: product.name,
+            },
+          ],
+          type: 'website',
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title: product.name,
+          description: product.shortDescription || `Buy ${product.name} at Evo-Tech Bangladesh`,
+          images: [imageUrl],
+        },
+        alternates: {
+          canonical: productUrl,
+        },
+      };
+    }
+  } catch (error) {
+    console.error('Error fetching product metadata:', error);
+  }
+
+  // Fallback metadata
   const itemname =
     itemslug
       .replace(/-/g, " ")
       .replace(/\b\w/g, (char: string) => char.toUpperCase())
-      .slice(0, 40) + (itemslug.replace(/-/g, " ").length > 40 ? "..." : ""); // later can change this to fetch item name from database using itemslug if needed
+      .slice(0, 40) + (itemslug.replace(/-/g, " ").length > 40 ? "..." : "");
 
   return {
-    title: itemname,
+    title: `${itemname} | Evo-Tech Bangladesh`,
+    description: `Buy ${itemname} online in Bangladesh at Evo-Tech. Quality products with warranty.`,
   };
 };
 
@@ -167,6 +224,7 @@ const fetchItemData = async (itemSlugHere: string) => {
 const IndividualItem = async ({ params }: currentRouteProps) => {
   const paramsObj = await params;
   const [itemInfo] = await Promise.all([fetchItemData(paramsObj.theitem)]);
+  const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com';
 
   if (!itemInfo) {
     return (
@@ -192,8 +250,32 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
     },
   ];
 
+  // Generate structured data for SEO
+  const productSchema = generateProductSchema({
+    name: itemInfo.i_name,
+    description: itemInfo.i_description || `Buy ${itemInfo.i_name} at Evo-Tech Bangladesh`,
+    price: itemInfo.i_price,
+    previousPrice: itemInfo.i_prevprice,
+    images: itemInfo.i_images.map((img) => img.imgsrc),
+    sku: itemInfo.itemid,
+    brand: itemInfo.i_brand || 'Evo-Tech Bangladesh',
+    inStock: itemInfo.i_instock,
+    url: `${baseUrl}/items/${itemInfo.i_slug}`,
+    rating: itemInfo.i_rating,
+    reviewCount: itemInfo.i_reviews,
+  });
+
+  const breadcrumbSchema = generateBreadcrumbSchema([
+    { name: 'Home', url: baseUrl },
+    { name: itemInfo.i_name, url: `${baseUrl}/items/${itemInfo.i_slug}` },
+  ]);
+
   return (
     <>
+      {/* Structured Data for SEO */}
+      <StructuredData data={productSchema} />
+      <StructuredData data={breadcrumbSchema} />
+      
       <div className="w-full max-w-[1440px] h-fit pb-12 flex flex-col items-center font-inter">
         <div
           id="item-page-header"

@@ -1,0 +1,74 @@
+# Node modules
+node_modules/
+
+# Environment variables
+.env
+.env.local
+.env*.local
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+
+# Build artifacts and archives
+*.tar.gz
+*.zip
+backend-build.tar.gz
+backend-deploy.zip
+frontend_deploy.tar.gz
+next-build.zip
+next-complete.tar.gz
+.next.zip
+deploy_stage/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+
+# PM2 logs (generated on server)
+pm2-*.log
+
+# Temporary files
+*.tmp
+*.temp
+crontab.txt
+
+# Deployment and monitoring scripts (archived - already deployed)
+deploy-pm2-monitoring.sh
+deploy-pm2-monitoring.bat
+pm2-503-prevention.sh
+pm2-keepalive.sh
+pm2-health-monitor.sh
+check_files.sh
+check_logs.sh
+check_server_env.sh
+check_status.sh
+debug_backend.sh
+deploy_all.sh
+deploy_to_hostinger.bat
+deploy_to_hostinger.sh
+fix_backend.sh
+fix_frontend.sh
+prepare_upload.sh
+resume_deploy.sh
+start_apps.sh
+test_websites.sh
+DEPLOYMENT_STATUS.md
+PM2_QUICK_REFERENCE.md

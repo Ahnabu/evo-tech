@@ -2,17 +2,16 @@
 const path = require('path');
 const fs = require('fs');
 
-// Check if standalone build exists
-const standaloneServer = path.join(__dirname, '.next/standalone/server.js');
-const hasStandalone = fs.existsSync(standaloneServer);
-
 module.exports = {
   apps: [
     {
       name: 'evo-tech-frontend',
-      // Use standalone server if available, otherwise use next start
-      script: hasStandalone ? '.next/standalone/server.js' : 'node_modules/next/dist/bin/next',
-      args: hasStandalone ? '' : 'start',
+      // We are deploying standalone build to root, so server.js is directly in root/server.js
+      // But wait, the standalone output structure is usually .next/standalone/server.js
+      // However, in our deploy script we copied .next/standalone/* to root.
+      // So server.js should be in the root.
+      script: 'server.js',
+      args: '',
       cwd: './',
       instances: 1,
       exec_mode: 'cluster',

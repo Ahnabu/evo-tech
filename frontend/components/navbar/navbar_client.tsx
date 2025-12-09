@@ -79,6 +79,13 @@ const NavbarClient = ({
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
+      // Clear all session/local storage data
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear();
+        localStorage.removeItem('user-cart');
+        localStorage.removeItem('user-wishlist');
+      }
+
       const result = await logout();
 
       if (!result?.success) {
@@ -88,8 +95,9 @@ const NavbarClient = ({
       const response = await signOut({ redirect: false, callbackUrl: "/" });
 
       if (!response?.url) {
-        console.error("NextAuth signOut error:", response);
         toast.error("Something went wrong while signing out.");
+        router.push("/");
+        router.refresh();
         return;
       }
 
@@ -97,8 +105,12 @@ const NavbarClient = ({
       router.push(response.url ?? "/");
       router.refresh();
     } catch (err) {
-      console.error("Sign out error:", err);
       toast.error("Something went wrong while signing out.");
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear();
+      }
+      router.push("/");
+      router.refresh();
     }
   }, 200);
 
@@ -123,7 +135,7 @@ const NavbarClient = ({
         setSuggestions([]);
       }
     } catch (err) {
-      console.error("Search error", err);
+      // Silent fail for search
       setSuggestions([]);
     } finally {
       setIsSearching(false);

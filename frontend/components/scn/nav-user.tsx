@@ -36,6 +36,13 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
+      // Clear all session/local storage data
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear();
+        localStorage.removeItem('user-cart');
+        localStorage.removeItem('user-wishlist');
+      }
+
       const logoutResponse = await logout();
       const result = (logoutResponse as unknown) as { success?: boolean } | null;
       
@@ -44,8 +51,9 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
 
         // signOut does not include an 'error' property in its type; ensure we have a valid URL
         if (!response || !("url" in response) || !response.url) {
-          console.error("NextAuth signOut failed, response:", response);
           toast.error("Something went wrong while signing out.");
+          router.push("/");
+          router.refresh();
           return;
         }
 
@@ -56,8 +64,12 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
         toast.error("Something went wrong while signing out.");
       }
     } catch (err) {
-      console.error("Sign out error:", err);
       toast.error("Something went wrong while signing out.");
+      if (typeof window !== 'undefined') {
+        sessionStorage.clear();
+      }
+      router.push("/");
+      router.refresh();
     }
   }, 200);
 

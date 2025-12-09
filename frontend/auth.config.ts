@@ -31,25 +31,16 @@ export default {
                     const user = await authUsingApi({ email, password, role });
 
                     if (user) {
-                        console.log('🔐 Login API Response:', {
-                            userType: user.userType,
-                            hasAccessToken: !!user.accessToken,
-                            uuid: user.uuid || user._id
-                        });
-                        
                         if (user.apiErrMsg && typeof user.apiErrMsg === "string") {
                             throw new CustomCredSignin(`${user.apiErrMsg}`); // auth flow is broken & end-user will see the message
                         }
 
                         // Fetch permitted routes for EMPLOYEE users
                         let permittedRoutes: string[] = [];
-                        console.log('🔐 Auth - User type:', user.userType, 'Will fetch permissions:', user.userType?.toUpperCase() === 'EMPLOYEE');
-                        console.log('🔗 Backend URL:', backendUrl);
                         
                         if (user.userType?.toUpperCase() === 'EMPLOYEE' && user.accessToken) {
                             try {
                                 const permissionUrl = `${backendUrl}/permissions/my-routes`;
-                                console.log('📡 Fetching permissions for employee from:', permissionUrl);
                                 
                                 const permissionsResponse = await axios.get(
                                     permissionUrl,
@@ -60,20 +51,10 @@ export default {
                                     }
                                 );
                                 
-                                console.log('📥 Permission API Response:', permissionsResponse.data);
                                 permittedRoutes = permissionsResponse.data?.data?.routes || [];
-                                console.log('✅ Fetched permitted routes:', permittedRoutes);
-                                console.log('📊 Total routes fetched:', permittedRoutes.length);
                             } catch (error: any) {
-                                console.error('❌ Failed to fetch permitted routes:', {
-                                    message: error.message,
-                                    response: error.response?.data,
-                                    status: error.response?.status
-                                });
                                 // Continue without permissions - user can still login
                             }
-                        } else {
-                            console.log('⏭️ Skipping permission fetch - Not an employee or missing access token');
                         }
 
                         return {
