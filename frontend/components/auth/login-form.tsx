@@ -14,12 +14,14 @@ import { login } from "@/actions/login";
 import { useRouter } from "next/navigation";
 import axios from "@/utils/axios/axios";
 import { useSession } from "next-auth/react";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 
 const LoginForm = () => {
   const router = useRouter();
   const { update } = useSession();
   const [formerror, setFormError] = useState<string>("");
   const [formsuccess, setFormSuccess] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
@@ -99,15 +101,27 @@ const LoginForm = () => {
         </div>
         <div className="flex flex-col relative w-full h-fit pt-1.5">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             {...register("password")}
             autoCorrect="off"
             autoComplete="off"
             spellCheck="false"
             placeholder="********"
-            className="custom-input-style1 peer w-full h-[40px]"
+            className="custom-input-style1 peer w-full h-[40px] pr-10"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-[50%] translate-y-[-20%] text-stone-500 hover:text-stone-700 transition-colors"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? (
+              <IoEyeOff className="w-5 h-5" />
+            ) : (
+              <IoEye className="w-5 h-5" />
+            )}
+          </button>
           <label
             htmlFor="password"
             className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"

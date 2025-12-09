@@ -39,8 +39,6 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
       // Clear all session/local storage data
       if (typeof window !== 'undefined') {
         sessionStorage.clear();
-        localStorage.removeItem('user-cart');
-        localStorage.removeItem('user-wishlist');
       }
 
       const logoutResponse = await logout();

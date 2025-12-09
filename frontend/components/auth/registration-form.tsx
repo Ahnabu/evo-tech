@@ -14,11 +14,14 @@ import { login } from "@/actions/login";
 import axios from "@/utils/axios/axios";
 import { useRouter } from "next/navigation";
 import { DEFAULT_SIGNIN_REDIRECT_USER } from "@/routeslist";
+import { IoEye, IoEyeOff } from "react-icons/io5";
 
 const RegistrationForm = () => {
   const router = useRouter();
   const [formerror, setFormError] = useState<string>("");
   const [formsuccess, setFormSuccess] = useState<string>("");
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
   const {
     register,
     handleSubmit,
@@ -157,15 +160,27 @@ const RegistrationForm = () => {
 
         <div className="flex flex-col relative w-full h-fit pt-1.5">
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             id="password"
             {...register("password")}
             autoCorrect="off"
             autoComplete="off"
             spellCheck="false"
             placeholder="********"
-            className="custom-input-style1 peer w-full h-[40px]"
+            className="custom-input-style1 peer w-full h-[40px] pr-10"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-[50%] translate-y-[-20%] text-stone-500 hover:text-stone-700 transition-colors"
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? (
+              <IoEyeOff className="w-5 h-5" />
+            ) : (
+              <IoEye className="w-5 h-5" />
+            )}
+          </button>
           <label
             htmlFor="password"
             className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
@@ -179,15 +194,27 @@ const RegistrationForm = () => {
 
         <div className="flex flex-col relative w-full h-fit pt-1.5">
           <input
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             id="confirmPassword"
             {...register("confirmPassword")}
             autoCorrect="off"
             autoComplete="off"
             spellCheck="false"
             placeholder="********"
-            className="custom-input-style1 peer w-full h-[40px]"
+            className="custom-input-style1 peer w-full h-[40px] pr-10"
           />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute right-3 top-[50%] translate-y-[-20%] text-stone-500 hover:text-stone-700 transition-colors"
+            aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+          >
+            {showConfirmPassword ? (
+              <IoEyeOff className="w-5 h-5" />
+            ) : (
+              <IoEye className="w-5 h-5" />
+            )}
+          </button>
           <label
             htmlFor="confirmPassword"
             className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"

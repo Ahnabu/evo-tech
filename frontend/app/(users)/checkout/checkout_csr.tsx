@@ -577,11 +577,11 @@ const CheckoutParts = () => {
               placeholder="Enter your name"
               autoCorrect="off"
               spellCheck="false"
-              className="peer w-full h-[42px] px-3 py-2 bg-stone-50 border-2 border-stone-300 rounded-lg text-[13px] font-[500] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-600 focus:ring-2 focus:ring-stone-200 transition-all duration-200"
+              className="peer w-full h-[40px] custom-input-style1"
             />
             <label
               htmlFor="fullName"
-              className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-stone-700  rounded-md transition-all peer-focus:text-stone-800"
+              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
             >
               {`Name*`}
             </label>
@@ -600,11 +600,11 @@ const CheckoutParts = () => {
                 autoCorrect="off"
                 inputMode="tel"
                 autoComplete="tel"
-                className="peer w-full h-[42px] px-3 py-2 bg-stone-50 border-2 border-stone-300 rounded-lg text-[13px] font-[500] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-600 focus:ring-2 focus:ring-stone-200 transition-all duration-200"
+                className="peer w-full h-[40px] custom-input-style1"
               />
               <label
                 htmlFor="phone"
-                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-stone-700 rounded-md transition-all peer-focus:text-stone-800"
+                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
               >
                 {`Phone*`}
               </label>
@@ -623,11 +623,11 @@ const CheckoutParts = () => {
                 spellCheck="false"
                 inputMode="email"
                 autoComplete="email"
-                className="peer w-full h-[42px] px-3 py-2 bg-stone-50 border-2 border-stone-300 rounded-lg text-[13px] font-[500] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-600 focus:ring-2 focus:ring-stone-200 transition-all duration-200"
+                className="peer w-full h-[40px] custom-input-style1"
               />
               <label
                 htmlFor="email"
-                className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-stone-700  rounded-md transition-all peer-focus:text-stone-800"
+                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
               >
                 {`Email`}
               </label>
@@ -645,11 +645,11 @@ const CheckoutParts = () => {
               placeholder="Enter your address"
               autoCorrect="off"
               spellCheck="false"
-              className="peer w-full h-[42px] px-3 py-2 bg-stone-50 border-2 border-stone-300 rounded-lg text-[13px] font-[500] text-stone-800 placeholder:text-stone-400 focus:outline-none focus:border-stone-600 focus:ring-2 focus:ring-stone-200 transition-all duration-200"
+              className="peer w-full h-[40px] custom-input-style1"
             />
             <label
               htmlFor="address"
-              className="absolute left-2 -top-2 px-2 text-[11px] sm:text-[12px] font-[700] leading-3 text-stone-700  rounded-md transition-all peer-focus:text-stone-800"
+              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
             >
               {`Address*`}
             </label>

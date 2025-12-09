@@ -9,5 +9,11 @@ coverage
 *.swp
 *.swo
 .cache
-database
-scripts
+# Only ignore test/development specific files
+database/diagnosePermissions.ts
+database/testPermissionAPI.ts
+database/testPermissionLookup.ts
+# Ignore development scripts that aren't needed in production
+scripts/create-orders-for-user.js
+scripts/seed-*.js
+scripts/seed-*.ts

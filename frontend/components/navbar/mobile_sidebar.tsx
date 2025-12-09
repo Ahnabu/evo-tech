@@ -98,8 +98,6 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
       // Clear all session/local storage data
       if (typeof window !== 'undefined') {
         sessionStorage.clear();
-        localStorage.removeItem('user-cart');
-        localStorage.removeItem('user-wishlist');
       }
 
       await logout();

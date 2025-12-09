@@ -39,28 +39,37 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
 
   return (
     <>
-      <Swiper
-        modules={[Navigation, Pagination, Autoplay]}
-        slidesPerView={1}
-        spaceBetween={0}
-        autoplay={{
-          delay: 6000,
-          disableOnInteraction: false,
-        }}
-        speed={1000}
-        loop={slides.length >= 2}
-        grabCursor
-        navigation={navigation}
-        pagination={pagination}
-        id={uniqueid}
-        className="group/banner h-full w-full"
-      >
-        {slides.map((slide, index) => (
-          <SwiperSlide
-            key={`slide${index}`}
-            className="flex w-full justify-center px-3"
-          >
-            <div className="relative w-full my-4 max-w-[1200px] min-h-[140px] sm:min-h-[220px] max-h-[360px] lg:min-h-[260px] lg:max-h-[420px] overflow-hidden rounded-[24px] bg-white border border-stone-100 px-4 py-4 sm:px-8 sm:py-8 lg:px-12 lg:py-12">
+      <div className="relative flex items-center justify-center w-full" id={uniqueid}>
+        {/* Navigation Buttons - Outside banner */}
+        <button
+          type="button"
+          aria-label="previous button for banner carousel"
+          className="sw-custom-prev-bttn hidden h-12 w-12 items-center justify-center rounded-full bg-white text-stone-800 shadow-lg transition-all duration-300 hover:-translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl md:flex lg:mx-4"
+        >
+          <IoChevronBackOutline className="h-6 w-6" />
+        </button>
+
+        <Swiper
+          modules={[Navigation, Pagination, Autoplay]}
+          slidesPerView={1}
+          spaceBetween={0}
+          autoplay={{
+            delay: 6000,
+            disableOnInteraction: false,
+          }}
+          speed={1000}
+          loop={slides.length >= 2}
+          grabCursor
+          navigation={navigation}
+          pagination={pagination}
+          className="group/banner h-full w-full max-w-[1200px]"
+        >
+          {slides.map((slide, index) => (
+            <SwiperSlide
+              key={`slide${index}`}
+              className="flex w-full justify-center px-3"
+            >
+              <div className="relative w-full my-4 min-h-[140px] sm:min-h-[220px] max-h-[360px] lg:min-h-[260px] lg:max-h-[420px] overflow-hidden rounded-[24px] bg-white border border-stone-100 px-4 py-4 sm:px-8 sm:py-8 lg:px-12 lg:py-12">
               <div className="relative">
                 {/* Decorative accents - hide on small screens for simpler mobile layout */}
                 <div className="pointer-events-none hidden md:block absolute left-[-40px] bottom-[-40px] h-[160px] w-[160px] rounded-full blur-2xl" />
@@ -124,25 +133,17 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
           </SwiperSlide>
         ))}
 
-        {/* Navigation Buttons - Modern Style */}
-        <button
-          type="button"
-          aria-label="previous button for banner carousel"
-          className="sw-custom-prev-bttn absolute left-2 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-stone-800 opacity-0 shadow-lg transition-all duration-300 hover:-translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl group-hover/banner:opacity-100 md:flex lg:left-4"
-        >
-          <IoChevronBackOutline className="h-6 w-6" />
-        </button>
-
-        <button
-          type="button"
-          aria-label="next button for banner carousel"
-          className="sw-custom-next-bttn absolute right-2 top-1/2 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-white text-stone-800 opacity-0 shadow-lg transition-all duration-300 hover:translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl group-hover/banner:opacity-100 md:flex lg:right-4"
-        >
-          <IoChevronForwardOutline className="h-6 w-6" />
-        </button>
-
         <div className="sw-custom-pagination pointer-events-none absolute bottom-6 left-0 right-0 flex justify-center gap-2"></div>
       </Swiper>
+
+      <button
+        type="button"
+        aria-label="next button for banner carousel"
+        className="sw-custom-next-bttn hidden h-12 w-12 items-center justify-center rounded-full bg-white text-stone-800 shadow-lg transition-all duration-300 hover:translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl md:flex lg:mx-4"
+      >
+        <IoChevronForwardOutline className="h-6 w-6" />
+      </button>
+    </div>
     </>
   );
 };

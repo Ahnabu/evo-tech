@@ -82,8 +82,6 @@ const NavbarClient = ({
       // Clear all session/local storage data
       if (typeof window !== 'undefined') {
         sessionStorage.clear();
-        localStorage.removeItem('user-cart');
-        localStorage.removeItem('user-wishlist');
       }
 
       const result = await logout();
