@@ -10,6 +10,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const product_model_1 = require("../product/product.model");
 const mongoose_1 = require("mongoose");
 const notification_service_1 = require("../notification/notification.service");
+const emailService_1 = require("../../utils/emailService");
 const generateOrderNumber = () => {
     const timestamp = Date.now().toString();
     const random = Math.floor(Math.random() * 10000)
@@ -162,6 +163,44 @@ const placeOrderIntoDB = async (payload, userUuid) => {
     // Get full order with items
     const fullOrder = await order_model_1.Order.findById(order._id);
     const orderItems = await order_model_1.OrderItem.find({ order: order._id }).populate("product");
+    // Send order confirmation email
+    try {
+        await emailService_1.emailService.sendOrderConfirmation({
+            customerEmail: orderData.email,
+            customerName: `${orderData.firstname} ${orderData.lastname || ''}`.trim(),
+            orderNumber: orderData.orderNumber,
+            trackingCode: orderData.trackingCode || '',
+            orderDate: new Date(fullOrder?.createdAt || Date.now()).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+            }),
+            items: orderItems.map((item) => ({
+                productName: item.productName,
+                quantity: item.quantity,
+                price: item.productPrice,
+                subtotal: item.subtotal,
+                selectedColor: item.selectedColor,
+            })),
+            subtotal: orderData.subtotal || 0,
+            deliveryCharge: orderData.deliveryCharge || 0,
+            totalPayable: orderData.totalPayable || 0,
+            shippingAddress: {
+                fullName: `${orderData.firstname} ${orderData.lastname || ''}`.trim(),
+                phone: orderData.phone,
+                address: orderData.houseStreet,
+                city: orderData.city,
+                subdistrict: orderData.subdistrict || '',
+            },
+            isPreOrderOrder: depositInfo.isPreOrderOrder,
+            depositDue: depositInfo.depositDue,
+            balanceDue: depositInfo.balanceDue,
+        });
+    }
+    catch (emailError) {
+        console.error('Failed to send order confirmation email:', emailError);
+        // Don't throw - we don't want to fail the order if email fails
+    }
     return {
         order: (0, exports.normalizeOrderObject)(fullOrder),
         items: orderItems,

@@ -234,6 +234,15 @@ export const AddProductSchema = z.object({
   ),
   seoTitle: z.string().optional().nullable(),
   seoDescription: z.string().optional().nullable(),
+  item_faq: z
+    .array(
+      z.object({
+        question: z.string().min(1, "Question is required"),
+        answer: z.string().min(1, "Answer is required"),
+      })
+    )
+    .optional()
+    .nullable(),
 });
 
 export const UpdateProductSchema = z.object({
@@ -254,6 +263,18 @@ export const UpdateProductSchema = z.object({
         return !Number.isNaN(n) && n >= 0;
       },
       { message: "Price must be at least 0" }
+    ),
+
+  item_buyingprice: z
+    .string()
+    .optional()
+    .refine(
+      (val) => {
+        if (!val || val === "") return true; // Allow empty
+        const n = Number(val);
+        return !Number.isNaN(n) && n >= 0;
+      },
+      { message: "Buying price must be at least 0" }
     ),
 
   item_prevprice: z
@@ -436,6 +457,15 @@ export const UpdateProductSchema = z.object({
   ),
   seoTitle: z.string().optional().nullable(),
   seoDescription: z.string().optional().nullable(),
+  item_faq: z
+    .array(
+      z.object({
+        question: z.string().min(1, "Question is required"),
+        answer: z.string().min(1, "Answer is required"),
+      })
+    )
+    .optional()
+    .nullable(),
 });
 
 export type AddProductFormValues = z.infer<typeof AddProductSchema>;
@@ -454,4 +484,5 @@ export type ProductDisplayType = {
   i_subcategory?: string;
   i_brand: string;
   i_published: boolean;
+  i_faq?: { question: string; answer: string }[];
 };

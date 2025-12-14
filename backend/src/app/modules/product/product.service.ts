@@ -238,7 +238,30 @@ const createProductIntoDB = async (
     }
   }
 
+  // Handle colors - if it's an array of objects, separate them for ProductColorVariation
+  let colorsToCreate: any[] = [];
+  if (payload.colors && Array.isArray(payload.colors) && payload.colors.length > 0) {
+    // Check if the first item is an object (not string)
+    if (typeof payload.colors[0] === 'object') {
+      colorsToCreate = payload.colors;
+      delete payload.colors; // Remove from product payload so it doesn't try to save to string[] field
+    }
+  }
+
   const result = await Product.create(payload);
+
+  // create ProductColorVariation documents
+  if (colorsToCreate.length > 0) {
+    for (let i = 0; i < colorsToCreate.length; i++) {
+        await ProductColorVariation.create({
+            product: result._id,
+            colorName: colorsToCreate[i].colorName,
+            colorCode: colorsToCreate[i].colorCode,
+            stock: Number(colorsToCreate[i].stock) || 0,
+            sortOrder: i + 1,
+        });
+    }
+  }
 
   // Upload additional images and create ProductImage documents
   if (additionalImagesBuffers && additionalImagesBuffers.length > 0) {
@@ -281,6 +304,8 @@ const updateProductIntoDB = async (
     payload.lowStockThreshold = Number(payload.lowStockThreshold);
   if (payload.preOrderPrice)
     payload.preOrderPrice = Number(payload.preOrderPrice);
+  if (payload.buyingPrice)
+    payload.buyingPrice = Number(payload.buyingPrice);
 
   // Convert boolean strings to actual booleans
   if (typeof payload.inStock === "string") {

@@ -210,6 +210,7 @@ const fetchItemData = async (itemSlugHere: string) => {
     i_features: product.features || [],
     i_colors: product.colors || [],
     i_colorVariations: colorVariations,
+    i_faq: product.faqs || [],
     i_description: product.description || "",
     i_sectionsdata: {
       featureHeaders,
@@ -375,7 +376,8 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
         {itemInfo.i_sectionsdata &&
           (itemInfo.i_sectionsdata.featureHeaders.length > 0 ||
             itemInfo.i_sectionsdata.featureSubsections.length > 0 ||
-            itemInfo.i_sectionsdata.specifications.length > 0) && (
+            itemInfo.i_sectionsdata.specifications.length > 0 || 
+            (itemInfo.i_faq && itemInfo.i_faq.length > 0)) && (
             <ItemSections
               itemId={itemInfo.itemid}
               featuresdata={{
@@ -383,6 +385,7 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
                 subsections: itemInfo.i_sectionsdata.featureSubsections,
               }}
               specsdata={itemInfo.i_sectionsdata.specifications}
+              faqsdata={itemInfo.i_faq}
             />
           )}
       </div>

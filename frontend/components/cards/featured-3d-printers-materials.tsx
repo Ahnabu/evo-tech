@@ -117,7 +117,7 @@ export default function Featured3DPrintersMaterials() {
               <h3 className="text-2xl font-bold text-stone-800 ">
                 {section.categoryName}
               </h3>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 border-[1px] border-stone-400 rounded-xl">
                 <Link
                   href={`/products-and-accessories?category=${section.categorySlug}`}
                   className="text-sm text-stone-500 p-2 px-4 hover:bg-brand-600 rounded-xl font-semibold hover:text-white transition-colors"

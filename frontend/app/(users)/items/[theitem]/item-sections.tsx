@@ -14,7 +14,7 @@ const LoadMotionFeatures = () => import("@/utils/framer/features").then((res) =>
 
 
 
-const ItemSections = ({ itemId, featuresdata, specsdata }: { itemId: string; featuresdata: any; specsdata: any[]; }) => {
+    const ItemSections = ({ itemId, featuresdata, specsdata, faqsdata }: { itemId: string; featuresdata: any; specsdata: any[]; faqsdata: any[]; }) => {
     const [activeSection, setActiveSection] = useState<string>("features");
     const setActiveSectionDebounced = useDebounce(setActiveSection, 100);
     const sectionRefs = useRef<HTMLElement[]>([]);
@@ -105,12 +105,12 @@ const ItemSections = ({ itemId, featuresdata, specsdata }: { itemId: string; fea
                             <ItemReviewsSection reviewsItemId={itemId} framerSectionVariants={sectionVariants} />
                         </section>
 
-                        {/* <section id="faqs"
+                        <section id="faqs"
                             ref={(el) => { if (el) sectionRefs.current[3] = el; }}
-                            className="flex flex-col items-center w-full h-fit scroll-mt-[124px] sm:scroll-mt-[132px]"
+                            className="flex flex-col items-center w-full h-fit scroll-mt-[124px] sm:scroll-mt-[132px] border-t border-dashed border-stone-400"
                         >
                             <ItemFAQsSection ifaqsdata={faqsdata} framerSectionVariants={sectionVariants} />
-                        </section> */}
+                        </section>
                     </LazyMotion>
                 </div>
             </div>

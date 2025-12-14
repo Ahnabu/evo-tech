@@ -115,6 +115,12 @@ const productSchema = new mongoose_1.Schema({
     seoDescription: {
         type: String,
     },
+    faqs: [
+        {
+            question: { type: String, required: true },
+            answer: { type: String, required: true },
+        },
+    ],
 }, {
     timestamps: true,
 });

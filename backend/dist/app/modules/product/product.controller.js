@@ -40,6 +40,22 @@ const createProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const files = req.files;
     const mainImageBuffer = files?.mainImage?.[0]?.buffer;
     const additionalImagesBuffers = files?.additionalImages?.map((file) => file.buffer) || [];
+    if (req.body.colors && typeof req.body.colors === "string") {
+        try {
+            req.body.colors = JSON.parse(req.body.colors);
+        }
+        catch (error) {
+            // console.error("Error parsing colors JSON:", error);
+        }
+    }
+    if (req.body.faqs && typeof req.body.faqs === "string") {
+        try {
+            req.body.faqs = JSON.parse(req.body.faqs);
+        }
+        catch (error) {
+            // console.error("Error parsing faqs JSON:", error);
+        }
+    }
     const result = await product_service_1.ProductServices.createProductIntoDB(req.body, mainImageBuffer, additionalImagesBuffers);
     (0, sendResponse_1.default)(res, {
         success: true,
@@ -53,6 +69,22 @@ const updateProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const files = req.files;
     const mainImageBuffer = files?.mainImage?.[0]?.buffer;
     const additionalImagesBuffers = files?.additionalImages?.map((file) => file.buffer) || [];
+    if (req.body.colors && typeof req.body.colors === "string") {
+        try {
+            req.body.colors = JSON.parse(req.body.colors);
+        }
+        catch (error) {
+            // console.error("Error parsing colors JSON:", error);
+        }
+    }
+    if (req.body.faqs && typeof req.body.faqs === "string") {
+        try {
+            req.body.faqs = JSON.parse(req.body.faqs);
+        }
+        catch (error) {
+            // console.error("Error parsing faqs JSON:", error);
+        }
+    }
     const result = await product_service_1.ProductServices.updateProductIntoDB(id, req.body, mainImageBuffer, additionalImagesBuffers);
     (0, sendResponse_1.default)(res, {
         success: true,

@@ -30,8 +30,13 @@ export interface TProduct {
     preOrderPrice?: number;
     seoTitle?: string;
     seoDescription?: string;
+    faqs?: TProductFAQ[];
     createdAt?: Date;
     updatedAt?: Date;
+}
+export interface TProductFAQ {
+    question: string;
+    answer: string;
 }
 export interface TProductImage {
     _id?: string;

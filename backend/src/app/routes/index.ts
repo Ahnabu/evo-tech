@@ -17,6 +17,7 @@ import { CouponRoutes } from "../modules/coupon/coupon.route";
 import { NotificationRoutes } from "../modules/notification/notification.route";
 import { TermsRoutes } from "../modules/terms/terms.route";
 import { ReviewRoutes } from "../modules/review/review.route";
+import { FinanceRoutes } from "../modules/finance/finance.route";
 
 const router = express.Router();
 
@@ -92,6 +93,10 @@ const moduleRoutes = [
   {
     path: "/",
     route: ReviewRoutes,
+  },
+  {
+    path: "/finance",
+    route: FinanceRoutes,
   },
 ];
 

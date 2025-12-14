@@ -11,8 +11,10 @@ import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/lib/all_utils";
+import { useEffect, useState } from "react";
 
 import { IoIosAddCircle } from "react-icons/io";
+import { Trash2, PlusCircle, Palette } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -78,8 +80,32 @@ const AddProductForm = () => {
       preOrderPrice: "",
       seoTitle: "",
       seoDescription: "",
+      item_faq: [],
     },
   });
+
+  const [uniqueColors, setUniqueColors] = useState<any[]>([]);
+  const [showColorDropdown, setShowColorDropdown] = useState(false);
+  const [newColor, setNewColor] = useState({
+    colorName: "",
+    colorCode: "#000000",
+    stock: "0"
+  });
+
+  // Fetch unique colors for suggestions
+  useEffect(() => {
+    const fetchUniqueColors = async () => {
+      try {
+        const response = await axios.get("/api/products/colors/unique");
+        if (response.data.success) {
+          setUniqueColors(response.data.data || []);
+        }
+      } catch (error) {
+        // console.error("Error fetching unique colors:", error);
+      }
+    };
+    fetchUniqueColors();
+  }, []);
 
   // Dynamic fields for item features
   const {
@@ -98,7 +124,17 @@ const AddProductForm = () => {
     remove: removeColor,
   } = useFieldArray({
     control,
-    name: "item_colors",
+    name: "item_colors", // Now manages objects {colorName, colorCode, stock}
+  });
+
+  // Dynamic fields for item faq
+  const {
+    fields: faqFields,
+    append: appendFaq,
+    remove: removeFaq,
+  } = useFieldArray({
+    control,
+    name: "item_faq",
   });
 
   const generateSlug = () => {
@@ -146,12 +182,16 @@ const AddProductForm = () => {
     }
 
     // Colors array
+    // Colors array (send as JSON string)
     if (data.item_colors && data.item_colors.length > 0) {
-      data.item_colors.forEach((color: string) => {
-        if (color && color.trim()) {
-          formdata.append("colors[]", color);
-        }
-      });
+       formdata.append("colors", JSON.stringify(data.item_colors));
+    }
+
+    // FAQ array (send as JSON string)
+    if (data.item_faq && data.item_faq.length > 0) {
+      // Map item_faq to backend expected structure if needed, but schema uses 'question', 'answer' which matches.
+      // Backend controller parses 'faqs' from body.
+      formdata.append("faqs", JSON.stringify(data.item_faq));
     }
 
     formdata.append("category", data.item_category);
@@ -686,46 +726,188 @@ const AddProductForm = () => {
       </div>
 
       {/* Item Colors (Dynamic Array of Text Inputs) */}
-      <div>
-        <label className="block text-sm font-medium text-stone-700 mb-1.5">
-          Available Colors{" "}
-          <span className="text-stone-500 text-xs font-normal">(Optional)</span>
-        </label>
-        <div className="space-y-2">
-          {colorFields.map((field, index) => (
-            <div key={field.id} className="flex items-center gap-2">
-              <input
-                type="text"
-                {...register(`item_colors.${index}` as const)}
-                placeholder='{"name": "Red", "hex": "#FF0000"}'
-                disabled={isSubmitting}
-                className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent disabled:bg-stone-50"
-              />
-              <button
-                type="button"
-                onClick={() => removeColor(index)}
-                disabled={isSubmitting}
-                className="px-3 py-2 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-md transition-colors whitespace-nowrap"
-              >
-                Remove
-              </button>
+      {/* Item Colors (Structured with Stock) */}
+      <div className="p-4 bg-purple-50/50 rounded-lg border border-purple-200 space-y-4">
+        <div className="flex items-center justify-between">
+            <div>
+                <h3 className="text-sm font-semibold text-stone-800 flex items-center gap-2">
+                    <Palette className="h-4 w-4" />
+                    Product Colors
+                </h3>
+                <p className="text-xs text-stone-500 mt-0.5">
+                    Manage color variations and stock
+                </p>
             </div>
-          ))}
+            {uniqueColors.length > 0 && (
+                <div className="relative">
+                    <button
+                        type="button"
+                        onClick={() => setShowColorDropdown(!showColorDropdown)}
+                        className="text-xs flex items-center gap-1 text-purple-700 hover:text-purple-800 font-medium"
+                    >
+                        <Palette className="h-3 w-3" /> Select from existing
+                    </button>
+                    {showColorDropdown && (
+                        <div className="absolute right-0 top-full mt-1 w-56 max-h-48 overflow-y-auto bg-white border border-stone-200 shadow-lg rounded-md z-10">
+                             {uniqueColors.map((color, idx) => (
+                                <button
+                                    key={idx}
+                                    type="button"
+                                    onClick={() => {
+                                        setNewColor({ ...newColor, colorName: color.colorName, colorCode: color.colorCode });
+                                        setShowColorDropdown(false);
+                                    }}
+                                    className="w-full flex items-center gap-2 px-3 py-2 hover:bg-stone-50 text-left border-b last:border-0"
+                                >
+                                    <div
+                                        className="w-4 h-4 rounded-full border border-stone-300"
+                                        style={{ backgroundColor: color.colorCode }}
+                                    />
+                                    <span className="text-xs truncate flex-1">{color.colorName}</span>
+                                </button>
+                             ))}
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
+
+        {/* List of Added Colors */}
+        <div className="space-y-3">
+             {colorFields.map((field, index) => (
+                <div key={field.id} className="flex items-center gap-3 p-3 bg-white border border-stone-200 rounded-md shadow-sm">
+                    <div
+                        className="w-8 h-8 rounded border border-stone-300 shadow-sm"
+                        style={{ backgroundColor: (field as any).colorCode }} // Cast because form generic type might be strictly string[] in old schema but we updated schema
+                    />
+                    <div className="flex-1 min-w-0">
+                         <p className="text-sm font-medium text-stone-900">{(field as any).colorName}</p>
+                         <p className="text-xs text-stone-500">{(field as any).colorCode} • Stock: {(field as any).stock}</p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => removeColor(index)}
+                        className="p-1.5 text-stone-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </button>
+                    {/* Hidden inputs to ensure data is submitted via register/watch if needed, though we use field array which updates form state */}
+                    <input type="hidden" {...register(`item_colors.${index}.colorName` as const)} />
+                    <input type="hidden" {...register(`item_colors.${index}.colorCode` as const)} />
+                    <input type="hidden" {...register(`item_colors.${index}.stock` as const)} />
+                </div>
+             ))}
+        </div>
+
+        {/* Add New Color Inputs */}
+        <div className="flex flex-col md:flex-row gap-3 items-end bg-white p-3 rounded-md border border-purple-100">
+             <div className="flex-1 w-full">
+                <label className="block text-xs font-medium text-stone-600 mb-1">Color Name</label>
+                <input
+                    type="text"
+                    value={newColor.colorName}
+                    onChange={(e) => setNewColor({...newColor, colorName: e.target.value})}
+                    placeholder="e.g. Midnight Blue"
+                    className="block w-full border border-stone-300 rounded-md px-3 py-1.5 text-sm focus:ring-purple-500 focus:border-purple-500"
+                />
+             </div>
+             <div className="w-full md:w-32">
+                <label className="block text-xs font-medium text-stone-600 mb-1">Stock</label>
+                <input
+                    type="number"
+                    value={newColor.stock}
+                    onChange={(e) => setNewColor({...newColor, stock: e.target.value})}
+                    min="0"
+                    className="block w-full border border-stone-300 rounded-md px-3 py-1.5 text-sm focus:ring-purple-500 focus:border-purple-500"
+                />
+             </div>
+             <div className="flex items-center gap-2">
+                 <div className="shrink-0">
+                     <label className="block text-xs font-medium text-stone-600 mb-1">Code</label>
+                     <div className="flex gap-1.5">
+                        <input
+                             type="color"
+                             value={newColor.colorCode}
+                             onChange={(e) => setNewColor({...newColor, colorCode: e.target.value})}
+                             className="h-9 w-9 p-0.5 border border-stone-300 rounded cursor-pointer"
+                        />
+                         <input
+                             type="text"
+                             value={newColor.colorCode}
+                             onChange={(e) => setNewColor({...newColor, colorCode: e.target.value})}
+                             className="w-20 text-xs border border-stone-300 rounded px-1.5"
+                        />
+                     </div>
+                 </div>
+                 <button
+                    type="button"
+                    onClick={() => {
+                        if(!newColor.colorName) return toast.error("Color name required");
+                        appendColor({
+                            colorName: newColor.colorName,
+                            colorCode: newColor.colorCode,
+                            stock: parseInt(newColor.stock)
+                        });
+                        setNewColor({ colorName: "", colorCode: "#000000", stock: "0" });
+                    }}
+                    className="h-9 px-4 bg-stone-900 text-white text-sm font-medium rounded-md hover:bg-stone-800 transition-colors flex items-center justify-center gap-2 mt-5 md:mt-0"
+                 >
+                    <PlusCircle className="h-4 w-4" /> Add
+                 </button>
+             </div>
+        </div>
+      </div>
+
+      {/* Item FAQs */}
+      <div className="p-4 bg-stone-50 rounded-lg border border-stone-200 space-y-4">
+        <h3 className="text-sm font-semibold text-stone-800">
+           Product FAQs
+        </h3>
+        
+        <div className="space-y-4">
+            {faqFields.map((field, index) => (
+                <div key={field.id} className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm space-y-3 relative group">
+                    <button
+                        type="button"
+                        onClick={() => removeFaq(index)}
+                        className="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </button>
+                    <div>
+                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Question</label>
+                        <input
+                            {...register(`item_faq.${index}.question` as const)}
+                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500"
+                            placeholder="e.g. Is this waterproof?"
+                        />
+                        {errors.item_faq?.[index]?.question && (
+                            <span className="text-xs text-red-500">{errors.item_faq[index]?.question?.message}</span>
+                        )}
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Answer</label>
+                        <textarea
+                            {...register(`item_faq.${index}.answer` as const)}
+                            rows={2}
+                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500 resize-y"
+                            placeholder="e.g. Yes, it is IP68 rated."
+                        />
+                        {errors.item_faq?.[index]?.answer && (
+                            <span className="text-xs text-red-500">{errors.item_faq[index]?.answer?.message}</span>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+
         <button
-          type="button"
-          onClick={() => appendColor("")}
-          disabled={isSubmitting}
-          className="mt-3 px-3 py-1.5 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md flex items-center gap-1 transition-colors"
+            type="button"
+            onClick={() => appendFaq({ question: "", answer: "" })}
+            className="w-full py-3 border-2 border-dashed border-stone-300 rounded-lg text-stone-500 text-sm font-medium hover:border-stone-400 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
         >
-          <IoIosAddCircle className="size-5" />
-          Add Color
+             <PlusCircle className="h-4 w-4" /> Add FAQ Item
         </button>
-        {errors.item_colors && (
-          <EvoFormInputError>
-            {(errors.item_colors as any).message}
-          </EvoFormInputError>
-        )}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">

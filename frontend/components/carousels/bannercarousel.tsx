@@ -39,16 +39,7 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
 
   return (
     <>
-      <div className="relative flex items-center justify-center w-full" id={uniqueid}>
-        {/* Navigation Buttons - Outside banner */}
-        <button
-          type="button"
-          aria-label="previous button for banner carousel"
-          className="sw-custom-prev-bttn hidden h-12 w-12 items-center justify-center rounded-full bg-white text-stone-800 shadow-lg transition-all duration-300 hover:-translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl md:flex lg:mx-4"
-        >
-          <IoChevronBackOutline className="h-6 w-6" />
-        </button>
-
+      <div className="relative w-full group" id={uniqueid}>
         <Swiper
           modules={[Navigation, Pagination, Autoplay]}
           slidesPerView={1}
@@ -62,12 +53,12 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
           grabCursor
           navigation={navigation}
           pagination={pagination}
-          className="group/banner h-full w-full max-w-[1200px]"
+          className="group/banner h-full w-full"
         >
           {slides.map((slide, index) => (
             <SwiperSlide
               key={`slide${index}`}
-              className="flex w-full justify-center px-3"
+              className="flex w-full justify-center"
             >
               <div className="relative w-full my-4 min-h-[140px] sm:min-h-[220px] max-h-[360px] lg:min-h-[260px] lg:max-h-[420px] overflow-hidden rounded-[24px] bg-white border border-stone-100 px-4 py-4 sm:px-8 sm:py-8 lg:px-12 lg:py-12">
               <div className="relative">
@@ -130,20 +121,31 @@ const BannerCarousel = ({ uniqueid, slides }: BannerCarouselProps) => {
                 </div>
               </div>
             </div>
-          </SwiperSlide>
-        ))}
+            </SwiperSlide>
+          ))}
 
-        <div className="sw-custom-pagination pointer-events-none absolute bottom-6 left-0 right-0 flex justify-center gap-2"></div>
-      </Swiper>
+          {slides.length > 1 && (
+            <div className="sw-custom-pagination pointer-events-none absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-10"></div>
+          )}
+        </Swiper>
 
-      <button
-        type="button"
-        aria-label="next button for banner carousel"
-        className="sw-custom-next-bttn hidden h-12 w-12 items-center justify-center rounded-full bg-white text-stone-800 shadow-lg transition-all duration-300 hover:translate-x-1 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl md:flex lg:mx-4"
-      >
-        <IoChevronForwardOutline className="h-6 w-6" />
-      </button>
-    </div>
+        {/* Navigation Buttons - Absolute inside wrapper */}
+        <button
+          type="button"
+          aria-label="previous button for banner carousel"
+          className="sw-custom-prev-bttn absolute left-2 md:left-8 top-1/2 -translate-y-1/2 z-20 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-stone-800 shadow-lg transition-all duration-300 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl opacity-0 group-hover:opacity-100"
+        >
+          <IoChevronBackOutline className="h-6 w-6" />
+        </button>
+
+        <button
+          type="button"
+          aria-label="next button for banner carousel"
+          className="sw-custom-next-bttn absolute right-2 md:right-8 top-1/2 -translate-y-1/2 z-20 hidden md:flex h-12 w-12 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm text-stone-800 shadow-lg transition-all duration-300 hover:bg-emerald-50 hover:text-emerald-700 hover:shadow-xl opacity-0 group-hover:opacity-100"
+        >
+          <IoChevronForwardOutline className="h-6 w-6" />
+        </button>
+      </div>
     </>
   );
 };

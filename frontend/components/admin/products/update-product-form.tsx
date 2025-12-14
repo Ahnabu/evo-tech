@@ -26,7 +26,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { IoIosAddCircle } from "react-icons/io";
-import { Trash2, Undo2 } from "lucide-react";
+import { Trash2, Undo2, PlusCircle } from "lucide-react";
 import Image from "next/image";
 
 interface UpdateProductFormProps {
@@ -35,6 +35,7 @@ interface UpdateProductFormProps {
     i_name: string;
     i_slug: string;
     i_price: number;
+    i_buyingprice: number;
     i_prevprice: number;
     i_rating: number;
     i_reviews: number;
@@ -94,6 +95,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       item_name: itemInfo.i_name,
       item_slug: itemInfo.i_slug,
       item_price: itemInfo.i_price.toString(),
+      item_buyingprice: itemInfo.i_buyingprice?.toString() || "",
       item_prevprice: itemInfo.i_prevprice.toString(),
       item_instock: itemInfo.i_instock,
       item_features: itemInfo.i_features || [],
@@ -123,6 +125,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       preOrderPrice: (itemInfo as any).i_preorderprice?.toString() || "",
       seoTitle: (itemInfo as any).i_seotitle || "",
       seoDescription: (itemInfo as any).i_seodescription || "",
+      item_faq: (itemInfo as any).i_faq || [],
     },
   });
 
@@ -141,13 +144,14 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
   });
 
   // Dynamic fields for item colors
+  // Dynamic fields for item faq
   const {
-    fields: colorFields,
-    append: appendColor,
-    remove: removeColor,
+    fields: faqFields,
+    append: appendFaq,
+    remove: removeFaq,
   } = useFieldArray({
     control,
-    name: "item_colors",
+    name: "item_faq",
   });
 
   const generateSlug = () => {
@@ -202,6 +206,9 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     formdata.append("name", data.item_name);
     formdata.append("slug", data.item_slug);
     formdata.append("price", data.item_price);
+    if (data.item_buyingprice) {
+      formdata.append("buyingPrice", data.item_buyingprice);
+    }
     formdata.append("previousPrice", data.item_prevprice);
     formdata.append("inStock", String(Boolean(data.item_instock)));
     
@@ -225,12 +232,9 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     }
     
     // Colors array
-    if (data.item_colors && data.item_colors.length > 0) {
-      data.item_colors.forEach((color: string) => {
-        if (color && color.trim()) {
-          formdata.append("colors[]", color);
-        }
-      });
+    // FAQ array (send as JSON string)
+    if (data.item_faq && data.item_faq.length > 0) {
+      formdata.append("faqs", JSON.stringify(data.item_faq));
     }
     
     formdata.append("category", data.item_category);
@@ -562,7 +566,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       </div>
 
       {/* Prices */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium">Price*</label>
           <input
@@ -573,6 +577,18 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
           />
           {errors.item_price && (
             <EvoFormInputError>{errors.item_price.message}</EvoFormInputError>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Buying Price <span className="text-stone-500 text-xs font-normal">(Admin Only)</span></label>
+          <input
+            type="text"
+            {...register("item_buyingprice")}
+            disabled={isSubmitting}
+            className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none focus:ring-1 ring-stone-300 focus:ring-stone-600"
+          />
+          {errors.item_buyingprice && (
+            <EvoFormInputError>{errors.item_buyingprice.message}</EvoFormInputError>
           )}
         </div>
         <div>
@@ -920,43 +936,56 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       </div>
 
       {/* Item Colors (Dynamic Array of Text Inputs) */}
-      <div>
-        <label className="block text-sm font-medium">
-          Colors <span className="text-gray-500 text-xs">(If applicable)</span>
-        </label>
-        {colorFields.map((field, index) => (
-          <div key={field.id} className="flex items-center space-x-2 mt-1">
-            <input
-              type="text"
-              {...register(`item_colors.${index}` as const)}
-              placeholder="{ name: colorname, hex: #XXXXXX }"
-              disabled={isSubmitting}
-              className="block w-full border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none focus:ring-1 ring-stone-300 focus:ring-stone-600 placeholder:text-sm"
-            />
-            <button
-              type="button"
-              onClick={() => removeColor(index)}
-              disabled={isSubmitting}
-              className="text-red-600 text-xs font-[500]"
-            >
-              Remove
-            </button>
-          </div>
-        ))}
+      {/* Item FAQs */}
+      <div className="p-4 bg-stone-50 rounded-lg border border-stone-200 space-y-4">
+        <h3 className="text-sm font-semibold text-stone-800">
+           Product FAQs
+        </h3>
+        
+        <div className="space-y-4">
+            {faqFields.map((field, index) => (
+                <div key={field.id} className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm space-y-3 relative group">
+                    <button
+                        type="button"
+                        onClick={() => removeFaq(index)}
+                        className="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </button>
+                    <div>
+                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Question</label>
+                        <input
+                            {...register(`item_faq.${index}.question` as const)}
+                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500"
+                            placeholder="e.g. Is this waterproof?"
+                        />
+                        {errors.item_faq?.[index]?.question && (
+                            <span className="text-xs text-red-500">{errors.item_faq[index]?.question?.message}</span>
+                        )}
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Answer</label>
+                        <textarea
+                            {...register(`item_faq.${index}.answer` as const)}
+                            rows={2}
+                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500 resize-y"
+                            placeholder="e.g. Yes, it is IP68 rated."
+                        />
+                        {errors.item_faq?.[index]?.answer && (
+                            <span className="text-xs text-red-500">{errors.item_faq[index]?.answer?.message}</span>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+
         <button
-          type="button"
-          onClick={() => appendColor("")}
-          disabled={isSubmitting}
-          className="mt-2 text-[#0866FF] text-xs font-[500] flex items-center"
+            type="button"
+            onClick={() => appendFaq({ question: "", answer: "" })}
+            className="w-full py-3 border-2 border-dashed border-stone-300 rounded-lg text-stone-500 text-sm font-medium hover:border-stone-400 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
         >
-          <IoIosAddCircle className="inline size-5 mr-1" />
-          Add Color
+             <PlusCircle className="h-4 w-4" /> Add FAQ Item
         </button>
-        {errors.item_colors && (
-          <EvoFormInputError>
-            {(errors.item_colors as any).message}
-          </EvoFormInputError>
-        )}
       </div>
 
       {/* Category and Subcategory */}

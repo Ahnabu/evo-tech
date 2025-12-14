@@ -23,6 +23,7 @@ const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
           i_name: product.name,
           i_slug: product.slug,
           i_price: product.price,
+          i_buyingprice: product.buyingPrice || 0,
           i_prevprice: product.previousPrice || 0,
           i_rating: product.rating || 0,
           i_reviews: product.reviewCount || 0,
@@ -55,6 +56,7 @@ const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
             product.published !== undefined ? product.published : true,
           i_seotitle: product.seoTitle || "",
           i_seodescription: product.seoDescription || "",
+          i_faq: product.faqs || [],
           i_sectionsdata: {
             features_section: {
               header: product.featureHeaders || [],

@@ -70,6 +70,7 @@ export declare const ProductServices: {
         preOrderPrice?: number;
         seoTitle?: string;
         seoDescription?: string;
+        faqs?: import("./product.interface").TProductFAQ[];
         createdAt?: Date;
         updatedAt?: Date;
         __v: number;
@@ -130,6 +131,7 @@ export declare const ProductServices: {
         preOrderPrice?: number;
         seoTitle?: string;
         seoDescription?: string;
+        faqs?: import("./product.interface").TProductFAQ[];
         createdAt?: Date;
         updatedAt?: Date;
         __v: number;

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react";
+import Link from "next/link";
 import Image from "next/image";
 import { adminSidebarMenus, adminSecondarySidebarMenus } from "@/dal/staticdata/admin_sidebar_menus";
 import { staffSidebarMenus, staffSecondarySidebarMenus } from "@/dal/staticdata/staff_sidebar_menus";
@@ -52,7 +53,7 @@ export const AppSidebar = ({
   return (
     <Sidebar collapsible="offcanvas" {...props} className="bg-stone-900 text-white">
       <SidebarHeader>
-        <div className="w-full flex items-center py-3 bg-stone-800 rounded-md">
+        <Link href="/" className="w-full flex items-center py-3 bg-stone-800 rounded-md hover:bg-stone-700 transition-colors">
           <div className="flex aspect-square size-8 items-center justify-center rounded-lg">
             <Image
               src={BrandIcon}
@@ -70,7 +71,7 @@ export const AppSidebar = ({
               {isUser ? "My Dashboard" : (isStaffMode ? "Staff Portal" : "Evo-TechBD")}
             </span>
           </div>
-        </div>
+        </Link>
       </SidebarHeader>
       <SidebarContent className="scrollbar-custom gap-0.5">
         {

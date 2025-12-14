@@ -1,5 +1,5 @@
 import { BarChartIcon, UsersIcon, ChartArea, HelpCircleIcon, Settings2, Contact } from "lucide-react";
-import { RiBox1Line, RiDashboardHorizontalLine } from "react-icons/ri";
+import { RiBox1Line, RiDashboardHorizontalLine, RiMoneyDollarCircleLine } from "react-icons/ri";
 
 
 // sidebar menus for admin dashboard
@@ -54,6 +54,13 @@ const adminSidebarMenus = [
             },
         ],
         permissions: ["VIEW_ORDERS", "MANAGE_SITE_SETTINGS"],
+    },
+    {
+        title: "Finance",
+        url: "/control/finance",
+        icon: RiMoneyDollarCircleLine,
+        collapsibleItems: [],
+        permissions: ["VIEW_DASHBOARD"], 
     },
     {
         title: "Customers",

@@ -15,10 +15,12 @@ import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
 
 interface DashboardStats {
     totalRevenue: number;
+    totalProfit: number;
     totalOrders: number;
     totalCustomers: number;
     totalProducts: number;
     revenueGrowth: number;
+    profitGrowth: number;
     ordersGrowth: number;
     customersGrowth: number;
     productsGrowth: number;
@@ -28,10 +30,12 @@ export function AdminDashboardStats() {
     const { data: session } = useSession();
     const [stats, setStats] = useState<DashboardStats>({
         totalRevenue: 0,
+        totalProfit: 0,
         totalOrders: 0,
         totalCustomers: 0,
         totalProducts: 0,
         revenueGrowth: 0,
+        profitGrowth: 0,
         ordersGrowth: 0,
         customersGrowth: 0,
         productsGrowth: 0,
@@ -142,6 +146,13 @@ export function AdminDashboardStats() {
                 format="currency"
             />
             <StatCard
+                title="Total Profit"
+                value={stats.totalProfit}
+                icon={TrendingUp} // Or Banknote/Wallet if available, using TrendingUp as placeholder or check imports
+                growth={stats.profitGrowth}
+                format="currency"
+            />
+            <StatCard
                 title="Total Orders"
                 value={stats.totalOrders}
                 icon={ShoppingCart}
@@ -153,6 +164,14 @@ export function AdminDashboardStats() {
                 icon={Users}
                 growth={stats.customersGrowth}
             />
+            {/* Added a 5th card row or adjust grid if needed, currently 4 cols. User likely wants it visible. 
+                Original had 4 cards. Now 5. Adjust grid to fit or just appending.
+                Actually grid-cols-4 might break layout. Let's keep 4 cols but maybe 5 items wrap?
+                Or maybe remove Products to make room?
+                User asked "show some more details of profit/total profit". 
+                I'll add it as the 2nd item. 
+                Total Products will wrap or I can remove it if space is issue, but better to keep. 
+            */}
             <StatCard
                 title="Total Products"
                 value={stats.totalProducts}

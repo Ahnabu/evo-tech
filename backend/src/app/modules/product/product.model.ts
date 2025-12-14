@@ -122,6 +122,12 @@ const productSchema = new Schema<TProduct>(
     seoDescription: {
       type: String,
     },
+    faqs: [
+      {
+        question: { type: String, required: true },
+        answer: { type: String, required: true },
+      },
+    ],
   },
   {
     timestamps: true,

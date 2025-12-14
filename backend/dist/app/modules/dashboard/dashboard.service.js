@@ -25,6 +25,30 @@ const getDashboardStats = async () => {
     // Calculate revenue
     const currentMonthRevenue = currentMonthOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
     const lastMonthRevenue = lastMonthOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
+    // Calculate Profit (Revenue - Cost)
+    // Fetch order items for current month orders
+    const currentMonthOrderIds = currentMonthOrders.map(order => order._id);
+    const currentMonthOrderItems = await order_model_1.OrderItem.find({ order: { $in: currentMonthOrderIds } }).populate("product");
+    let totalProfit = 0;
+    for (const item of currentMonthOrderItems) {
+        const product = item.product;
+        // Profit = (Selling Price - Buying Price) * Quantity
+        // Use current buying price as approximation if not stored in historical data
+        const individualProfit = (item.productPrice - (product?.buyingPrice || 0)) * item.quantity;
+        totalProfit += individualProfit;
+    }
+    // Calculate Last Month Profit for growth comparison
+    const lastMonthOrderIds = lastMonthOrders.map(order => order._id);
+    const lastMonthOrderItems = await order_model_1.OrderItem.find({ order: { $in: lastMonthOrderIds } }).populate("product");
+    let lastMonthProfit = 0;
+    for (const item of lastMonthOrderItems) {
+        const product = item.product;
+        const individualProfit = (item.productPrice - (product?.buyingPrice || 0)) * item.quantity;
+        lastMonthProfit += individualProfit;
+    }
+    const profitGrowth = lastMonthProfit > 0
+        ? ((totalProfit - lastMonthProfit) / lastMonthProfit) * 100
+        : 0;
     // Calculate growth percentages
     const revenueGrowth = lastMonthRevenue > 0
         ? ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue) * 100
@@ -58,6 +82,8 @@ const getDashboardStats = async () => {
         : 0;
     return {
         totalRevenue: currentMonthRevenue,
+        totalProfit: totalProfit,
+        profitGrowth: Math.round(profitGrowth * 100) / 100,
         totalOrders: currentMonthOrders.length,
         totalCustomers: totalUsers,
         totalProducts: totalProducts,

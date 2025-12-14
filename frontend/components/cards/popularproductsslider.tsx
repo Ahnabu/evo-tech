@@ -106,10 +106,7 @@ const PopularProductsSlider = ({
         <h3 className="text-lg sm:text-2xl font-semibold text-stone-800">
           {title}
         </h3>
-
-        <div className="flex items-center gap-3">
-          <div className=" items-center gap-3">
-            
+          <div className="flex items-center gap-3 border-[1px] border-stone-400 rounded-xl">
             <Link
               href="/products-and-accessories"
               className="text-sm text-stone-500 p-2 px-4 hover:bg-brand-600 rounded-xl font-semibold hover:text-white transition-colors"
@@ -119,7 +116,6 @@ const PopularProductsSlider = ({
             </Link>
             
           </div>
-        </div>
       </div>
 
       <Swiper

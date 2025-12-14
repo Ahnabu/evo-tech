@@ -1,6 +1,8 @@
 export declare const DashboardServices: {
     getDashboardStats: () => Promise<{
         totalRevenue: number;
+        totalProfit: number;
+        profitGrowth: number;
         totalOrders: number;
         totalCustomers: number;
         totalProducts: number;
