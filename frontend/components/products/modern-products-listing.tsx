@@ -6,7 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import EvoPagination from "@/components/ui/evo_pagination";
 import EvoDropdown from "@/components/ui/evo_dropdown";
-import { DropdownItem } from "@nextui-org/dropdown";
+import { DropdownItem } from "@heroui/react";
 import { FiShoppingCart, FiHeart, FiStar } from "react-icons/fi";
 import { BsLightning } from "react-icons/bs";
 

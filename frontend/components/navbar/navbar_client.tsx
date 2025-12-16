@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Avatar } from "@nextui-org/avatar";
+import { Avatar } from "@heroui/react";
 import useDebounce from "@rooks/use-debounce";
 import { logout } from "@/actions/logout";
 import { signOut } from "next-auth/react";
@@ -80,7 +80,7 @@ const NavbarClient = ({
   const handleSignOutDebounced = useDebounce(async () => {
     try {
       // Clear all session/local storage data
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         sessionStorage.clear();
       }
 
@@ -104,7 +104,7 @@ const NavbarClient = ({
       router.refresh();
     } catch (err) {
       toast.error("Something went wrong while signing out.");
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         sessionStorage.clear();
       }
       router.push("/");
@@ -187,7 +187,6 @@ const NavbarClient = ({
         isOpen={isMobileSidebarOpen}
         onClose={() => setIsMobileSidebarOpen(false)}
       />
-
       {/* <div className="w-full bg-white text-stone-700 text-[13px]">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between h-8">
           <div className="flex items-center gap-3">
@@ -214,7 +213,6 @@ const NavbarClient = ({
           </div>
         </div>
       </div> */}
-
       <div className="sticky top-0 z-50 bg-white shadow-sm border-b border-stone-100 w-full mx-auto">
         <div className="max-w-[1400px] mx-auto flex justify-center">
           <div className="w-full">
@@ -470,7 +468,6 @@ const NavbarClient = ({
           </div>
         </div>
       </div>
-
       <div aria-hidden className="h-1 "></div>
     </>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Breadcrumbs, BreadcrumbItem } from "@nextui-org/breadcrumbs";
+import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
 
 const HorizontalMenu = ({ menuitems, segmentLevelBelowLayout, routePrefix }: {
     menuitems: { name: string; href: string; }[];

@@ -22,10 +22,13 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "@/components/*": ["components/*"],
+      "@/hooks/*": ["hooks/*"],
+      "@/utils/*": ["utils/*"],
+      "@/lib/*": ["lib/*"]
     },
+    "baseUrl": ".",
     "target": "ES2017"
   },
   "include": [

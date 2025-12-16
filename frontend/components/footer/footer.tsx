@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
-import { Accordion, AccordionItem } from "@nextui-org/accordion";
+import { Accordion, AccordionItem } from "@heroui/react";
 import { IoChevronDown, IoMailOutline, IoCallOutline, IoLocationOutline } from "react-icons/io5";
 import { BsFacebook, BsInstagram, BsWhatsapp, BsYoutube } from "react-icons/bs";
 import { BiLogoLinkedin } from "react-icons/bi";

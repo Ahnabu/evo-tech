@@ -1,6 +1,6 @@
 "use client";
 
-import { Breadcrumbs, BreadcrumbItem } from "@nextui-org/breadcrumbs";
+import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
 import { BreadCrumbItems } from "@/utils/types_interfaces/shared_interfaces";
 
 

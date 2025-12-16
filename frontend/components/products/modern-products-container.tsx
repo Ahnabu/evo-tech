@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useState, useCallback } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { ModernProductsListing } from "@/components/products/modern-products-listing";
 import { ModernProductFilters } from "@/components/product_filters/modern-product-filters";

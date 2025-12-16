@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Checkbox } from "@nextui-org/checkbox";
+import { Checkbox } from "@heroui/react";
 
 
 const AvailabilityFilter = () => {

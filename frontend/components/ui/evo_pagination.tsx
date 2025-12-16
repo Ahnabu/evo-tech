@@ -1,6 +1,6 @@
 "use client";
 
-import { Pagination } from "@nextui-org/pagination";
+import { Pagination } from "@heroui/react";
 
 interface PaginationProps {
     currentPage: number;

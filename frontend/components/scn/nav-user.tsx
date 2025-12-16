@@ -2,7 +2,7 @@
 
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { BsPerson, BsGear } from "react-icons/bs";
-import { Avatar } from "@nextui-org/avatar";
+import { Avatar } from "@heroui/react";
 import { getNameInitials } from "@/utils/essential_functions";
 import { Button } from "../ui/button";
 import useDebounce from "@rooks/use-debounce";
@@ -27,9 +27,6 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-
-
-
 export const NavUser = ({ currentUser }: { currentUser: any }) => {
   const { isMobile } = useSidebar();
   const router = useRouter();
@@ -37,13 +34,13 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
   const handleSignOutDebounced = useDebounce(async () => {
     try {
       // Clear all session/local storage data
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         sessionStorage.clear();
       }
 
       const logoutResponse = await logout();
-      const result = (logoutResponse as unknown) as { success?: boolean } | null;
-      
+      const result = logoutResponse as unknown as { success?: boolean } | null;
+
       if (result?.success) {
         const response = await signOut({ redirect: false, callbackUrl: "/" });
 
@@ -63,7 +60,7 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
       }
     } catch (err) {
       toast.error("Something went wrong while signing out.");
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         sessionStorage.clear();
       }
       router.push("/");
@@ -80,14 +77,17 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton size="custom"
+            <SidebarMenuButton
+              size="custom"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground focus-within:ring-0 bg-gray-600"
             >
               <div className="w-full flex justify-center items-center gap-1.5">
                 <Avatar
                   aria-label="user avatar"
                   showFallback
-                  name={getNameInitials(`${currentUser.firstName} ${currentUser.lastName ?? ""}`)}
+                  name={getNameInitials(
+                    `${currentUser.firstName} ${currentUser.lastName ?? ""}`
+                  )}
                   radius="full"
                   classNames={{
                     base: "w-6 h-6 bg-[#f5f5f4] box-border border-0 outline-0 ring-1 ring-[#a8a8a8] group-hover:ring-[#0866ff] cursor-pointer transition duration-200",
@@ -96,7 +96,9 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
                   }}
                 />
                 <div className="grid flex-1 font-inter text-left text-sm leading-tight">
-                  <span className="truncate font-semibold">{`${currentUser.firstName} ${currentUser.lastName ?? ""}`}</span>
+                  <span className="truncate font-semibold">{`${
+                    currentUser.firstName
+                  } ${currentUser.lastName ?? ""}`}</span>
                   <span className="truncate text-xs">{currentUser.email}</span>
                 </div>
               </div>
@@ -123,7 +125,9 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
             <DropdownMenuItem asChild>
               <Button
                 variant="secondary"
-                onClick={handleSignOutDebounced as React.MouseEventHandler<HTMLButtonElement>}
+                onClick={
+                  handleSignOutDebounced as React.MouseEventHandler<HTMLButtonElement>
+                }
                 className="w-full flex justify-start py-2 hover:!bg-stone-200 transition-colors duration-100 ease-in"
               >
                 <LogOut />
@@ -135,4 +139,4 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
       </SidebarMenuItem>
     </SidebarMenu>
   );
-}
+};
