@@ -5,7 +5,7 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Proxy API requests to backend (port 5000)
 RewriteCond %{REQUEST_URI} ^/api/
-RewriteRule ^(.*)$ http://127.0.0.1:5000/$1 [P,L]
+RewriteRule ^api/(.*)$ http://127.0.0.1:5000/api/$1 [P,L]
 
 # Proxy all other requests to frontend (port 3000)
 RewriteCond %{REQUEST_URI} !^/api/

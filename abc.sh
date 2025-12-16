@@ -21,11 +21,17 @@ echo -e "${GREEN}✓ Cleaned${NC}"
 echo -e "${YELLOW}📦 Step 2: Building Frontend (Next.js)...${NC}"
 cd frontend
 export BUILD_STANDALONE=true
-# Make sure all dependencies are installed (including dev deps needed for build)
-npm install
-npm run build
+export NODE_ENV=production
+
+# Build the frontend (dependencies should already be installed)
+if ! npm run build; then
+    echo -e "${RED}✗ Frontend build failed!${NC}"
+    cd ..
+    exit 1
+fi
+
 cd ..
-echo -e "${GREEN}✓ Frontend built${NC}"
+echo -e "${GREEN}✓ Frontend built successfully${NC}"
 
 # Step 3: Create upload directory structure
 echo -e "${YELLOW}📦 Step 3: Creating upload directory structure...${NC}"
@@ -35,36 +41,50 @@ mkdir -p hostinger_upload/public_html/logs
 mkdir -p hostinger_upload/public_html/evobackend/logs
 echo -e "${GREEN}✓ Directory structure created${NC}"
 
-# Step 4: Install Frontend Production Dependencies for upload
-echo -e "${YELLOW}📦 Step 4: Installing Frontend production dependencies for upload...${NC}"
-cd frontend
-# Clean node_modules and install only production dependencies
-rm -rf node_modules
-npm install --production --omit=dev
-cd ..
-echo -e "${GREEN}✓ Frontend production dependencies installed${NC}"
+# Step 4: Verify Frontend Build
+echo -e "${YELLOW}📦 Step 4: Verifying Frontend build...${NC}"
+if [ ! -d "frontend/.next/standalone" ]; then
+    echo -e "${RED}❌ Frontend standalone build not found! Build may have failed.${NC}"
+    exit 1
+fi
+
+# Check for server.js in nested frontend folder (monorepo structure)
+if [ -f "frontend/.next/standalone/frontend/server.js" ]; then
+    echo -e "${GREEN}✓ Frontend server.js found (monorepo structure)${NC}"
+    STANDALONE_PATH="frontend/.next/standalone/frontend"
+elif [ -f "frontend/.next/standalone/server.js" ]; then
+    echo -e "${GREEN}✓ Frontend server.js found (flat structure)${NC}"
+    STANDALONE_PATH="frontend/.next/standalone"
+else
+    echo -e "${RED}✗ Frontend server.js not found in standalone build!${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}✓ Frontend build verified${NC}"
 
 # Step 5: Copy Frontend files
 echo -e "${YELLOW}📦 Step 5: Copying Frontend to upload directory...${NC}"
 
-# Copy standalone build (this includes server.js and .next folder structure)
-cp -r frontend/.next/standalone/* hostinger_upload/public_html/
+# Copy standalone build contents to root
+echo -e "${YELLOW}   Copying standalone server files...${NC}"
+cp -r $STANDALONE_PATH/* hostinger_upload/public_html/
 
-# Copy static files into the standalone's .next directory
+# Copy the ENTIRE .next folder with all build artifacts
+# This includes: cache, diagnostics, server, standalone, static, types, manifests, etc.
+echo -e "${YELLOW}   Copying complete .next directory...${NC}"
 mkdir -p hostinger_upload/public_html/.next
-cp -r frontend/.next/static hostinger_upload/public_html/.next/
+cp -r frontend/.next/* hostinger_upload/public_html/.next/
 
-# Copy public directory to standalone's public
+# Copy public directory (Next.js public assets)
+echo -e "${YELLOW}   Copying public assets...${NC}"
 cp -r frontend/public hostinger_upload/public_html/
 
 # Copy frontend package files
 cp frontend/package.json hostinger_upload/public_html/
 cp frontend/package-lock.json hostinger_upload/public_html/ 2>/dev/null || true
 
-# Copy frontend node_modules
-echo -e "${YELLOW}   Copying frontend node_modules (this may take a while)...${NC}"
-cp -r frontend/node_modules hostinger_upload/public_html/
-echo -e "${GREEN}✓ Frontend node_modules copied${NC}"
+# Note: Standalone build already includes necessary node_modules
+echo -e "${GREEN}✓ Frontend standalone build includes required dependencies${NC}"
 
 # Copy frontend .env
 if [ -f "frontend/.env.production" ]; then
@@ -82,10 +102,13 @@ echo -e "${GREEN}✓ Frontend files copied${NC}"
 # Step 6: Build and Copy Backend
 echo -e "${YELLOW}📦 Step 6: Building and copying Backend...${NC}"
 
-# Make sure all dependencies are installed for build
+# Build backend
 cd backend
-npm install
-npm run build
+if ! npm run build; then
+    echo -e "${RED}✗ Backend build failed!${NC}"
+    cd ..
+    exit 1
+fi
 cd ..
 
 # Install Backend Production Dependencies for upload
@@ -93,7 +116,11 @@ echo -e "${YELLOW}   Installing Backend production dependencies for upload...${N
 cd backend
 # Clean node_modules and install only production dependencies
 rm -rf node_modules
-npm install --production --omit=dev
+if ! npm install --production --omit=dev; then
+    echo -e "${RED}✗ Backend production dependencies installation failed!${NC}"
+    cd ..
+    exit 1
+fi
 cd ..
 echo -e "${GREEN}✓ Backend production dependencies installed${NC}"
 
@@ -212,7 +239,7 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # Proxy API requests to backend (port 5000)
 RewriteCond %{REQUEST_URI} ^/api/
-RewriteRule ^(.*)$ http://127.0.0.1:5000/$1 [P,L]
+RewriteRule ^api/(.*)$ http://127.0.0.1:5000/api/$1 [P,L]
 
 # Proxy all other requests to frontend (port 3000)
 RewriteCond %{REQUEST_URI} !^/api/
@@ -445,6 +472,105 @@ For issues, check:
 EOF
 echo -e "${GREEN}✓ Deployment README created${NC}"
 
+# Step 11: Create PM2 Keep-Alive Script
+echo -e "${YELLOW}📦 Step 11: Creating PM2 keep-alive script...${NC}"
+cat > hostinger_upload/pm2-keepalive.sh << 'EOF'
+#!/bin/bash
+
+# PM2 Keep-Alive Script for Hostinger
+# This script ensures PM2 and your apps stay running
+
+# Load NVM if available
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Log file
+LOG_FILE="$HOME/pm2-keepalive.log"
+echo "[$(date)] Starting PM2 Keep-Alive Check" >> "$LOG_FILE"
+
+# Check if PM2 is installed
+if ! command -v pm2 &> /dev/null; then
+    echo "[$(date)] ERROR: PM2 not found. Please install PM2 first." >> "$LOG_FILE"
+    exit 1
+fi
+
+# Resurrect PM2 processes (start from saved config)
+pm2 resurrect >> "$LOG_FILE" 2>&1
+
+# Check if apps are running
+BACKEND_STATUS=$(pm2 jlist | jq -r '.[] | select(.name=="evo-tech-backend") | .pm2_env.status' 2>/dev/null)
+FRONTEND_STATUS=$(pm2 jlist | jq -r '.[] | select(.name=="evo-tech-frontend") | .pm2_env.status' 2>/dev/null)
+
+# Restart backend if not online
+if [ "$BACKEND_STATUS" != "online" ]; then
+    echo "[$(date)] Backend not running. Starting..." >> "$LOG_FILE"
+    cd ~/domains/evo-techbd.com/public_html/evobackend
+    pm2 start ecosystem.config.js --update-env >> "$LOG_FILE" 2>&1
+fi
+
+# Restart frontend if not online
+if [ "$FRONTEND_STATUS" != "online" ]; then
+    echo "[$(date)] Frontend not running. Starting..." >> "$LOG_FILE"
+    cd ~/domains/evo-techbd.com/public_html
+    pm2 start ecosystem.config.js >> "$LOG_FILE" 2>&1
+fi
+
+# Save PM2 state
+pm2 save >> "$LOG_FILE" 2>&1
+
+echo "[$(date)] Keep-Alive Check Complete" >> "$LOG_FILE"
+EOF
+
+chmod +x hostinger_upload/pm2-keepalive.sh
+echo -e "${GREEN}✓ PM2 keep-alive script created${NC}"
+
+# Step 12: Create quick deployment script for Hostinger
+echo -e "${YELLOW}📦 Step 12: Creating quick deployment script...${NC}"
+cat > hostinger_upload/deploy-to-hostinger.sh << 'EOF'
+#!/bin/bash
+
+# Quick Deployment Script for Hostinger
+# Run this script AFTER uploading files to Hostinger
+
+echo "🚀 Starting Evo-Tech Deployment..."
+
+# Navigate to backend
+cd ~/domains/evo-techbd.com/public_html/evobackend || exit 1
+
+# Stop existing processes
+pm2 delete evo-tech-backend 2>/dev/null || true
+pm2 delete evo-tech-frontend 2>/dev/null || true
+
+# Start backend
+echo "Starting backend..."
+pm2 start ecosystem.config.js --update-env
+
+# Navigate to frontend
+cd ~/domains/evo-techbd.com/public_html || exit 1
+
+# Start frontend
+echo "Starting frontend..."
+pm2 start ecosystem.config.js
+
+# Save PM2 configuration
+pm2 save
+
+# Show status
+echo ""
+echo "✅ Deployment complete!"
+echo ""
+pm2 status
+
+echo ""
+echo "📝 Next steps:"
+echo "1. Visit https://evo-techbd.com to verify"
+echo "2. Check logs: pm2 logs"
+echo "3. Set up keep-alive cron job (see DEPLOY_README.md)"
+EOF
+
+chmod +x hostinger_upload/deploy-to-hostinger.sh
+echo -e "${GREEN}✓ Quick deployment script created${NC}"
+
 # Final summary
 echo ""
 echo "=================================================="
@@ -474,9 +600,18 @@ echo "   Visit: https://evo-techbd.com"
 echo ""
 echo "=================================================="
 echo -e "${GREEN}✨ Package includes:${NC}"
-echo "  ✅ Frontend node_modules (pre-installed)"
+echo "  ✅ Frontend standalone build (optimized)"
 echo "  ✅ Backend node_modules (pre-installed)"
 echo "  ✅ Production-ready builds"
 echo "  ✅ All configuration files"
 echo "  ✅ PM2 configs with environment variables"
+echo "  ✅ Apache .htaccess with proxy rules"
+echo "  ✅ Detailed deployment guide (DEPLOY_README.md)"
+echo "=================================================="
+echo ""
+echo -e "${YELLOW}⚠️  IMPORTANT NOTES:${NC}"
+echo "  • Frontend uses Next.js standalone output (self-contained)"
+echo "  • Backend requires node_modules (already included)"
+echo "  • Use 'pm2 restart --update-env' for backend to reload env vars"
+echo "  • Check DEPLOY_README.md for complete deployment instructions"
 echo "=================================================="

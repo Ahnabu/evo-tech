@@ -1,12 +1,12 @@
 'use client';
 
-import { useCurrentUser } from '@/hooks/use-current-user';
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import axios from '@/utils/axios/axios';
 import { toast } from 'sonner';
+import { useCurrentUser } from '@/hooks/use-current-user';
+import axios from '@/utils/axios/axios';
 
 export default function AdminProfilePage() {
     const router = useRouter();
