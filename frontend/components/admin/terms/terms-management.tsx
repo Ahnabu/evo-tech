@@ -67,7 +67,7 @@ export function TermsManagement() {
             throw new Error('No auth token');
         }
 
-        const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+        const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
         return axios({
             method,

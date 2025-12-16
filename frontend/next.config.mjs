@@ -32,6 +32,11 @@ const nextConfig = {
     // Don't fail build on lint errors (warnings only)
     ignoreDuringBuilds: false,
   },
+  // Ensure webpack resolves TypeScript paths correctly
+  webpack: (config, { isServer }) => {
+    config.resolve.extensions = ['.ts', '.tsx', '.js', '.jsx', ...config.resolve.extensions];
+    return config;
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "2mb",

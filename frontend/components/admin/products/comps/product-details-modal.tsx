@@ -107,7 +107,7 @@ export function ProductDetailsModal({ productSlug, open, onOpenChange }: Product
       const productInfo = productData.data;
 
       // Fetch additional images from backend API
-      const baseURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api/v1';
+      const baseURL = process.env.NEXT_PUBLIC_API_URL;
       const imagesResponse = await fetch(
         `${baseURL}/products/${productInfo._id}/images`
       );
