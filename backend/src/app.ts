@@ -61,6 +61,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // API routes
 app.use("/api/v1", routes);
+app.use("/api", routes); // Additional mount point for legacy/shorthand requests
 
 // Health check route for monitoring
 app.get("/health", (req: Request, res: Response) => {

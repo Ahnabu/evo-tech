@@ -1,5 +1,4 @@
 import type { Config } from "tailwindcss";
-import { nextui } from "@nextui-org/react";
 import defaultTheme from "tailwindcss/defaultTheme";
 const plugin = require("tailwindcss/plugin");
 
@@ -172,8 +171,6 @@ const config: Config = {
   darkMode: ["class", "class"],
 
   plugins: [
-    nextui(),
-
     plugin(function ({
       matchUtilities,
       theme,
