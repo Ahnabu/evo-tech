@@ -5,8 +5,6 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { currencyFormatBDT } from "@/lib/all_utils";
-import axiosLocal from "@/utils/axios/axiosLocal";
-import axiosErrorLogger from "@/components/error/axios_error";
 import { IoCart, IoClose } from "react-icons/io5";
 import { PiSmileySadLight } from "react-icons/pi";
 import { createPortal } from "react-dom";
@@ -40,51 +38,14 @@ const ManageCart = () => {
 
   useEffect(() => {
     const fetchCartDB = async () => {
+      // Load cart from localStorage only (using Redux, not backend)
       const localevoFrontCart = localStorage.getItem("evoFrontCart");
       const parsedCart = localevoFrontCart
         ? JSON.parse(localevoFrontCart)
         : null;
 
-      let cartReqBody = {};
-      if (parsedCart && parsedCart.ctoken) {
-        cartReqBody = {
-          cart_t: parsedCart.ctoken,
-        };
-      }
-
-      const cartResponse = await axiosLocal
-        .get(`/api/shopping/cart`, {
-          params: {
-            ...cartReqBody,
-          },
-        })
-        .then((res) => res.data)
-        .catch((error: any) => {
-          axiosErrorLogger({ error });
-          return null;
-        });
-
-      if (cartResponse && cartResponse.cartdata) {
-        dispatch(setCartData(cartResponse.cartdata));
-
-        localStorage.setItem(
-          "evoFrontCart",
-          JSON.stringify({
-            items: cartResponse.cartdata,
-            ctoken: cartResponse.ctoken,
-          })
-        );
-        // Dispatch a custom event when updating the cart
-        const event = new CustomEvent("localStorageChange", {
-          detail: {
-            key: "evoFrontCart",
-            newValue: {
-              items: cartResponse.cartdata,
-              ctoken: cartResponse.ctoken,
-            },
-          },
-        });
-        window.dispatchEvent(event);
+      if (parsedCart && parsedCart.items) {
+        dispatch(setCartData(parsedCart.items));
       } else {
         dispatch(setCartData([]));
       }

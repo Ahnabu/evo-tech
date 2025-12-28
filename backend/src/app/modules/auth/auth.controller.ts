@@ -2,12 +2,13 @@ import httpStatus from "http-status";
 import sendResponse from "../../utils/sendResponse";
 import { AuthServices } from "./auth.service";
 import { catchAsync } from "../../utils/catchAsync";
+import AppError from "../../errors/AppError";
 
 const registerUser = catchAsync(async (req, res) => {
   console.log("=== REGISTER CONTROLLER DEBUG ===");
   console.log("Request body received:", JSON.stringify(req.body, null, 2));
   console.log("================================");
-  
+
   const result = await AuthServices.registerUser(req.body);
 
   sendResponse(res, {
@@ -26,8 +27,9 @@ const loginUser = catchAsync(async (req, res) => {
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    path: "/",
   });
 
   sendResponse(res, {
@@ -49,8 +51,9 @@ const handleOAuthLogin = catchAsync(async (req, res) => {
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    path: "/",
   });
 
   sendResponse(res, {
@@ -65,13 +68,36 @@ const handleOAuthLogin = catchAsync(async (req, res) => {
 });
 
 const logout = catchAsync(async (req, res) => {
-  res.clearCookie("refreshToken");
+  // Clear refresh token cookie with matching options
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    path: "/",
+  });
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
     message: "User logged out successfully!",
     data: null,
+  });
+});
+
+const refreshToken = catchAsync(async (req, res) => {
+  const { refreshToken: token } = req.cookies;
+
+  if (!token) {
+    throw new AppError(httpStatus.UNAUTHORIZED, "Refresh token not found!");
+  }
+
+  const result = await AuthServices.refreshToken(token);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Access token refreshed successfully!",
+    data: result,
   });
 });
 
@@ -114,6 +140,7 @@ export const AuthControllers = {
   loginUser,
   handleOAuthLogin,
   logout,
+  refreshToken,
   forgotPassword,
   resetPassword,
   getCurrentUser,

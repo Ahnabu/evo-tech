@@ -12,7 +12,7 @@ router.get("/slug/:slug", CategoryControllers.getCategoryBySlug);
 router.get("/:id", CategoryControllers.getSingleCategory);
 router.post(
   "/",
-  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE,),
+  auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,
   CategoryControllers.createCategory

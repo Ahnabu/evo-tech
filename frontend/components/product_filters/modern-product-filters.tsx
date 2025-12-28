@@ -192,25 +192,6 @@ const ModernProductFilters = ({
         </div>
       )}
 
-      {/* Brand Filter */}
-      {availableBrands.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-semibold text-stone-900 text-sm uppercase tracking-wide">
-            Brand
-          </h4>
-          <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2">
-            {availableBrands.map((brand) => (
-              <FilterCheckbox
-                key={brand._id}
-                label={brand.name}
-                checked={currentBrand === brand._id}
-                onChange={() => toggleFilter("brand", brand._id)}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-
       {/* Subcategory Filter */}
       {availableSubcategories.length > 0 && (
         <div className="space-y-3">
@@ -224,6 +205,25 @@ const ModernProductFilters = ({
                 label={sub.name}
                 checked={currentSubcategory === sub._id}
                 onChange={() => toggleFilter("subcategory", sub._id)}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Brand Filter */}
+      {availableBrands.length > 0 && (
+        <div className="space-y-3">
+          <h4 className="font-semibold text-stone-900 text-sm uppercase tracking-wide">
+            Brand
+          </h4>
+          <div className="space-y-2 max-h-[200px] overflow-y-auto pr-2">
+            {availableBrands.map((brand) => (
+              <FilterCheckbox
+                key={brand._id}
+                label={brand.name}
+                checked={currentBrand === brand._id}
+                onChange={() => toggleFilter("brand", brand._id)}
               />
             ))}
           </div>

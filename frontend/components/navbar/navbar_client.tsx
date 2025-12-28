@@ -79,36 +79,38 @@ const NavbarClient = ({
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
-      // Clear all session/local storage data
-      if (typeof window !== 'undefined') {
+      // Clear all session/local storage data first
+      if (typeof window !== "undefined") {
         sessionStorage.clear();
+        localStorage.clear();
       }
 
-      const result = await logout();
+      // Sign out from NextAuth first (this triggers the signOut event)
+      await signOut({ redirect: false });
 
-      if (!result?.success) {
-        toast.error(result?.error ?? "Unable to clear session");
-      }
-
-      const response = await signOut({ redirect: false, callbackUrl: "/" });
-
-      if (!response?.url) {
-        toast.error("Something went wrong while signing out.");
-        router.push("/");
-        router.refresh();
-        return;
-      }
-
+      // Show success message
       toast.success("You signed out of your account.");
-      router.push(response.url ?? "/");
-      router.refresh();
-    } catch (err) {
-      toast.error("Something went wrong while signing out.");
-      if (typeof window !== 'undefined') {
-        sessionStorage.clear();
-      }
+
+      // Force redirect and clear all caches
       router.push("/");
       router.refresh();
+
+      // Additional cleanup - force reload after a short delay
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 100);
+    } catch (err) {
+      console.error("Logout error:", err);
+      toast.error("Something went wrong while signing out.");
+
+      // Cleanup and force redirect
+      if (typeof window !== "undefined") {
+        sessionStorage.clear();
+        localStorage.clear();
+      }
+
+      // Force hard redirect to clear everything
+      window.location.href = "/";
     }
   }, 200);
 

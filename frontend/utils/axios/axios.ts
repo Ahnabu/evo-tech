@@ -60,18 +60,105 @@ const axios = Axios.create({
 
 // Add auth interceptor for client-side requests
 if (typeof window !== "undefined") {
+  // Request interceptor: Add access token to requests
   axios.interceptors.request.use(
     async (config) => {
       const { getSession } = await import("next-auth/react");
       const session = await getSession();
-      
+
       if (session?.accessToken) {
         config.headers.Authorization = `Bearer ${session.accessToken}`;
       }
-      
+
       return config;
     },
     (error) => Promise.reject(error)
+  );
+
+  // Response interceptor: Handle 401 errors and refresh token
+  let isRefreshing = false;
+  let failedQueue: any[] = [];
+
+  const processQueue = (error: any, token: string | null = null) => {
+    failedQueue.forEach((prom) => {
+      if (error) {
+        prom.reject(error);
+      } else {
+        prom.resolve(token);
+      }
+    });
+    failedQueue = [];
+  };
+
+  axios.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config;
+
+      // If error is 401 and we haven't tried to refresh yet
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        if (isRefreshing) {
+          // If already refreshing, queue this request
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then(() => {
+              return axios(originalRequest);
+            })
+            .catch((err) => {
+              return Promise.reject(err);
+            });
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          // Try to refresh the token
+          const response = await Axios.post(
+            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
+            {},
+            { withCredentials: true }
+          );
+
+          if (response.data?.data?.accessToken) {
+            const newAccessToken = response.data.data.accessToken;
+
+            // Update session with new token
+            const { getSession } = await import("next-auth/react");
+            const session = await getSession();
+
+            if (session) {
+              // Update the session token (this is a workaround since NextAuth doesn't expose session update)
+              session.accessToken = newAccessToken;
+            }
+
+            // Update the original request with new token
+            originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
+            processQueue(null, newAccessToken);
+            isRefreshing = false;
+
+            // Retry the original request
+            return axios(originalRequest);
+          }
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          isRefreshing = false;
+
+          // If refresh fails, redirect to login
+          if (typeof window !== "undefined") {
+            const { signOut } = await import("next-auth/react");
+            await signOut({ redirect: false });
+            window.location.href = "/login";
+          }
+
+          return Promise.reject(refreshError);
+        }
+      }
+
+      return Promise.reject(error);
+    }
   );
 }
 
@@ -93,20 +180,22 @@ export const createAuthAxios = async () => {
     // Server-side, return the base axios instance
     return axios;
   }
-  
+
   // Client-side, attach auth token
   const { getSession } = await import("next-auth/react");
   const session = await getSession();
-  
+
   const authAxios = Axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
       "Content-Type": "application/json",
-      ...(session?.accessToken && { Authorization: `Bearer ${session.accessToken}` }),
+      ...(session?.accessToken && {
+        Authorization: `Bearer ${session.accessToken}`,
+      }),
     },
     withCredentials: true,
   });
-  
+
   attachApiPrefix(authAxios);
   return authAxios;
 };

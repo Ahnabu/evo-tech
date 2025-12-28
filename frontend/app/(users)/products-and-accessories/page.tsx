@@ -130,46 +130,20 @@ const ProductsAndAccessories = async ({ searchParams }: currentRouteProps) => {
   let availableSubcategories: any[] = [];
   let availableCategories: any[] = [];
 
-  if (categoryId) {
-    // Derive brands used in the fetched products
-    try {
-      const derivedBrandsMap: Record<string, any> = {};
-      rawProducts.forEach((p: any) => {
-        const b = p.brand;
-        if (b && typeof b === "object") {
-          const id = b._id || b.id || b.slug || JSON.stringify(b);
-          if (!derivedBrandsMap[id]) {
-            derivedBrandsMap[id] = {
-              _id: b._id || id,
-              name: b.name || "",
-              slug: b.slug || "",
-            };
-          }
-        }
-      });
-      availableBrands = Object.values(derivedBrandsMap);
-    } catch (e) {
-      // fallback: fetch all brands if derivation failed
-      const brandsResponse = await axios
-        .get(`/brands`)
-        .then((res) => res.data)
-        .catch(() => null);
-      availableBrands = brandsResponse?.data || [];
-    }
+  // Fetch all active brands (always show all brands in filter)
+  const brandsResponse = await axios
+    .get(`/brands?isActive=true&limit=1000`)
+    .then((res) => res.data)
+    .catch(() => null);
+  availableBrands = brandsResponse?.data || [];
 
+  if (categoryId) {
     // Get subcategories for this category
     const subcategoriesResponse = await axios
       .get(`/subcategories?category=${categoryId}`)
       .then((res) => res.data)
       .catch(() => null);
     availableSubcategories = subcategoriesResponse?.data || [];
-  } else {
-    // No category context — fetch all active brands
-    const brandsResponse = await axios
-      .get(`/brands?isActive=true&limit=1000`)
-      .then((res) => res.data)
-      .catch(() => null);
-    availableBrands = brandsResponse?.data || [];
   }
 
   // Fetch all active categories for the filter sidebar
