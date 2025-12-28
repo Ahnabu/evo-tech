@@ -11,8 +11,15 @@ export const logout = async (): Promise<LogoutResult> => {
   try {
     const cookieStore = await cookies();
 
-    // Clear any custom cookies we control; NextAuth cookies are handled client-side
+    // Clear any custom cookies we control
     cookieStore.delete("last_pg");
+
+    // Try to clear refresh token cookie if it exists
+    try {
+      cookieStore.delete("refreshToken");
+    } catch (e) {
+      // Cookie might not exist
+    }
 
     return { success: true };
   } catch (err) {

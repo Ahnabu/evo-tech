@@ -7,24 +7,25 @@ import auth from "../../middlewares/auth";
 const router = express.Router();
 
 router.post(
-  "/register", 
+  "/register",
   validateRequest(AuthValidation.registerValidation),
   AuthControllers.registerUser
 );
 router.post(
-  "/login", 
+  "/login",
   validateRequest(AuthValidation.loginValidation),
   AuthControllers.loginUser
 );
 router.post("/oauth", AuthControllers.handleOAuthLogin);
+router.post("/refresh-token", AuthControllers.refreshToken);
 router.post("/logout", AuthControllers.logout);
 router.post(
-  "/forgot-password", 
+  "/forgot-password",
   validateRequest(AuthValidation.forgotPasswordValidation),
   AuthControllers.forgotPassword
 );
 router.post(
-  "/reset-password", 
+  "/reset-password",
   validateRequest(AuthValidation.resetPasswordValidation),
   AuthControllers.resetPassword
 );

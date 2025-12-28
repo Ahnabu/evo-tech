@@ -4,7 +4,13 @@ import AppError from "../../errors/AppError";
 import { createToken } from "../../utils/verifyJWT";
 import { USER_ROLE } from "../user/user.constant";
 import { User } from "../user/user.model";
-import { TLoginUser, TOAuthUser, TRegisterUser, TForgotPassword, TResetPassword } from "./auth.interface";
+import {
+  TLoginUser,
+  TOAuthUser,
+  TRegisterUser,
+  TForgotPassword,
+  TResetPassword,
+} from "./auth.interface";
 import { PasswordResetToken } from "./passwordResetToken.model";
 import crypto from "crypto";
 
@@ -196,10 +202,10 @@ const forgotPassword = async (payload: TForgotPassword) => {
   // TODO: Send email with reset link
   // For now, just return the token (in production, this should be sent via email)
   const resetLink = `${config.cors_origin}/reset-password?token=${resetToken}`;
-  
+
   return {
     resetToken, // Remove this in production
-    resetLink,  // Remove this in production
+    resetLink, // Remove this in production
     message: "Password reset link has been sent to your email",
   };
 };
@@ -212,7 +218,10 @@ const resetPassword = async (payload: TResetPassword) => {
   });
 
   if (!resetTokenDoc) {
-    throw new AppError(httpStatus.BAD_REQUEST, "Invalid or expired reset token!");
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Invalid or expired reset token!"
+    );
   }
 
   // Find the user
@@ -234,9 +243,60 @@ const resetPassword = async (payload: TResetPassword) => {
   };
 };
 
-const getCurrentUser = async (userPayload: { _id: string; email: string; role: string }) => {
+const refreshToken = async (token: string) => {
+  // Verify refresh token
+  const { verifyToken } = await import("../../utils/verifyJWT");
+
+  let decoded;
+  try {
+    decoded = verifyToken(token, config.jwt_refresh_secret as string);
+  } catch (error) {
+    throw new AppError(
+      httpStatus.UNAUTHORIZED,
+      "Invalid or expired refresh token!"
+    );
+  }
+
+  const { email, role } = decoded;
+
+  // Check if user still exists
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!");
+  }
+
+  // Check if user is active
+  if (!user.isActive) {
+    throw new AppError(httpStatus.FORBIDDEN, "User is not active!");
+  }
+
+  // Create new access token
+  const jwtPayload = {
+    _id: user._id as string,
+    email: user.email,
+    role: user.userType,
+    uuid: user.uuid,
+  };
+
+  const accessToken = createToken(
+    jwtPayload,
+    config.jwt_access_secret as string,
+    config.jwt_access_expires_in as string
+  );
+
+  return {
+    accessToken,
+  };
+};
+
+const getCurrentUser = async (userPayload: {
+  _id: string;
+  email: string;
+  role: string;
+}) => {
   const user = await User.findById(userPayload._id);
-  
+
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found!");
   }
@@ -248,6 +308,7 @@ export const AuthServices = {
   registerUser,
   loginUser,
   handleOAuthUser,
+  refreshToken,
   forgotPassword,
   resetPassword,
   getCurrentUser,

@@ -18,8 +18,23 @@ import { NotificationRoutes } from "../modules/notification/notification.route";
 import { TermsRoutes } from "../modules/terms/terms.route";
 import { ReviewRoutes } from "../modules/review/review.route";
 import { FinanceRoutes } from "../modules/finance/finance.route";
+import { TaxonomyRoutes } from "../modules/taxonomy/taxonomy.route";
 
 const router = express.Router();
+const adminRouter = express.Router();
+
+// Admin prefix aliases to match frontend expectations
+adminRouter.use("/taxonomy", TaxonomyRoutes);
+adminRouter.use("/taxonomy/categories", CategoryRoutes);
+adminRouter.use("/taxonomy/subcategories", SubcategoryRoutes);
+adminRouter.use("/taxonomy/brands", BrandRoutes);
+adminRouter.use("/products", ProductRoutes);
+adminRouter.use("/orders", OrderRoutes);
+adminRouter.use("/users", UserRoutes);
+adminRouter.use("/banners", BannerRoutes);
+adminRouter.use("/coupons", CouponRoutes);
+adminRouter.use("/dashboard", DashboardRoutes);
+adminRouter.use("/finance", FinanceRoutes);
 
 const moduleRoutes = [
   {
@@ -95,8 +110,12 @@ const moduleRoutes = [
     route: ReviewRoutes,
   },
   {
-    path: "/finance",
-    route: FinanceRoutes,
+    path: "/taxonomy",
+    route: TaxonomyRoutes,
+  },
+  {
+    path: "/admin",
+    route: adminRouter,
   },
 ];
 
