@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "sonner";
-import axios from "axios";
+import axios from "@/utils/axios/axios";
 import {
   createCategorySchema,
   updateCategorySchema,
@@ -28,9 +28,8 @@ import { EditingDialog } from "@/components/dialogs/editing-dialog";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";
 import { addACategory, updateACategory } from "@/store/slices/categorySlice";
-import React, { useState } from "react";
+import React from "react";
 import { FileUploader } from "@/components/file_upload/file-uploader";
-import Image from "next/image";
 
 interface CategoryDataType {
   id: string;
@@ -194,7 +193,8 @@ const CategoryForm = ({
             Category Background Image
           </FormLabel>
           <FormDescription className="text-xs text-stone-500">
-            Upload a background image for the category card (recommended: wide format 1920x600px, max 4MB)
+            Upload a background image for the category card (recommended: wide
+            format 1920x600px, max 4MB)
           </FormDescription>
           <Controller
             control={form.control}

@@ -3,12 +3,10 @@ module.exports = {
     {
       name: "evo-tech-backend",
       script: "./dist/server.js",
-      cwd: "/home/u379849097/domains/evo-techbd.com/public_html/evobackendabc",
       instances: 1,
-      exec_mode: "fork",
       autorestart: true,
       watch: false,
-      max_memory_restart: "500M",
+      max_memory_restart: "1G",
       min_uptime: "10s",
       max_restarts: 10,
       restart_delay: 4000,
@@ -21,7 +19,7 @@ module.exports = {
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
       env: {
         NODE_ENV: "production",
-        PORT: 5000,
+        PORT: 5000 // Adjust port if needed
       },
     },
   ],

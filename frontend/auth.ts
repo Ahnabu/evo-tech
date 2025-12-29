@@ -70,7 +70,7 @@ declare module "@auth/core/jwt" {
 
 export const runtime = "nodejs";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   trustHost: true, // Trust the host in production (required for NextAuth v5)
   ...authConfig,
   session: {

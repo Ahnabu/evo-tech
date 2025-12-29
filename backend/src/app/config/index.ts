@@ -23,9 +23,7 @@ export default {
   cors_origin:
     process.env.NODE_ENV === "production"
       ? (
-          process.env.FRONTEND_URL ||
-          process.env.CORS_ORIGIN ||
-          "http://localhost:3000"
+          process.env.CORS_ORIGIN as string
         )
           .split(",")
           .map((url) => url.trim())
