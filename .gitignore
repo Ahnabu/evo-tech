@@ -11,7 +11,7 @@ dist/
 build/
 .next/
 out/
-
+hostinger_upload
 # Build artifacts and archives
 *.tar.gz
 *.zip

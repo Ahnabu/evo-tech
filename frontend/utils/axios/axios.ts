@@ -124,14 +124,9 @@ if (typeof window !== "undefined") {
           if (response.data?.data?.accessToken) {
             const newAccessToken = response.data.data.accessToken;
 
-            // Update session with new token
+            // Trigger session refresh by calling getSession again
             const { getSession } = await import("next-auth/react");
-            const session = await getSession();
-
-            if (session) {
-              // Update the session token (this is a workaround since NextAuth doesn't expose session update)
-              session.accessToken = newAccessToken;
-            }
+            await getSession();
 
             // Update the original request with new token
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -141,16 +136,19 @@ if (typeof window !== "undefined") {
 
             // Retry the original request
             return axios(originalRequest);
+          } else {
+            throw new Error("No access token in refresh response");
           }
-        } catch (refreshError) {
+        } catch (refreshError: any) {
           processQueue(refreshError, null);
           isRefreshing = false;
 
-          // If refresh fails, redirect to login
+          // If refresh fails, sign out and redirect to login
           if (typeof window !== "undefined") {
             const { signOut } = await import("next-auth/react");
             await signOut({ redirect: false });
-            window.location.href = "/login";
+            // Use replace to prevent back button loop
+            window.location.replace("/login");
           }
 
           return Promise.reject(refreshError);

@@ -68,11 +68,13 @@ const CategoryForm = ({
         ? {
             name: categoryData.name,
             active: categoryData.active,
+            sortOrder: categoryData.sortorder || 0,
             image: undefined,
           }
         : {
             name: "",
             active: true,
+            sortOrder: 0,
             image: undefined,
           },
   });
@@ -97,7 +99,7 @@ const CategoryForm = ({
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("slug", slug);
-    formData.append("sortOrder", "0");
+    formData.append("sortOrder", values.sortOrder.toString());
     formData.append("isActive", values.active.toString());
 
     // Append image file if selected - backend expects field name 'image'
@@ -193,8 +195,8 @@ const CategoryForm = ({
             Category Background Image
           </FormLabel>
           <FormDescription className="text-xs text-stone-500">
-            Upload a background image for the category card (recommended: wide
-            format 1920x600px, max 4MB)
+            Upload a background image for the category card (recommended:
+            400x400px square, max 4MB)
           </FormDescription>
           <Controller
             control={form.control}
@@ -219,6 +221,36 @@ const CategoryForm = ({
             )}
           />
         </div>
+
+        <FormField
+          control={form.control}
+          name="sortOrder"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel className="text-sm font-medium text-stone-700">
+                Sort Order
+              </FormLabel>
+              <FormDescription className="text-xs text-stone-500">
+                Lower numbers appear first in popular categories
+              </FormDescription>
+              <FormControl>
+                <Input
+                  type="number"
+                  min="0"
+                  step="1"
+                  placeholder="0"
+                  {...field}
+                  onChange={(e) =>
+                    field.onChange(parseInt(e.target.value) || 0)
+                  }
+                  disabled={form.formState.isSubmitting}
+                  className="mt-1 border-stone-300 text-sm focus:ring-2 focus:ring-stone-500 focus:border-transparent disabled:bg-stone-50 disabled:text-stone-500"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
         <FormField
           control={form.control}

@@ -642,10 +642,23 @@ const BrandForm = ({
     return subcategory.name;
   };
 
+  // Auto-generate slug from name
+  const generateSlug = (name: string): string => {
+    return name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "") // Remove special characters
+      .replace(/\s+/g, "-") // Replace spaces with hyphens
+      .replace(/-+/g, "-") // Replace multiple hyphens with single hyphen
+      .replace(/^-+|-+$/g, ""); // Remove leading/trailing hyphens
+  };
+
   // Form submission
   const onSubmit = async (
     values: ExtendedCreateBrandInput | ExtendedUpdateBrandInput
   ) => {
+    const slug = generateSlug(values.name);
+
     // Transform field arrays back to the expected format
     const transformedCategories = values.categories.map(
       (cat: any, index: number) => ({
@@ -663,7 +676,7 @@ const BrandForm = ({
 
     const payload = {
       name: values.name,
-      slug: values.slug,
+      slug: slug,
       isActive: values.active, // backend expects 'isActive' as boolean
     };
 
@@ -671,7 +684,7 @@ const BrandForm = ({
       ? `/api/admin/taxonomy/brands/${brandData!.id}`
       : `/api/admin/taxonomy/brands`;
 
-    const method = isUpdate ? "POST" : "POST";
+    const method = isUpdate ? "PUT" : "POST";
 
     try {
       const response = await axios({
