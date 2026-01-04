@@ -1,154 +1,183 @@
-'use client';
+"use client";
 
-import { useSelector } from 'react-redux';
-import type { RootState } from '@/store/store';
-import { 
-    selectTaxonomyCategories, 
-    selectTaxonomyLoading, 
-    selectTaxonomyError, 
-    selectTaxonomyInitialized,
-    selectCategoryBySlug,
-    selectSubcategoryBySlug,
-    type TaxonomyCategory,
-    type TaxonomySubcategory,
-    type TaxonomyBrand
-} from '@/store/slices/taxonomySlice';
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
+import {
+  selectTaxonomyCategories,
+  selectTaxonomyLoading,
+  selectTaxonomyError,
+  selectTaxonomyInitialized,
+  selectCategoryBySlug,
+  selectSubcategoryBySlug,
+  type TaxonomyCategory,
+  type TaxonomySubcategory,
+  type TaxonomyBrand,
+} from "@/store/slices/taxonomySlice";
 
 /**
  * Custom hook for accessing taxonomy data from Redux store
  * Provides categories, loading state, error state, and utility functions
  */
 export const useTaxonomy = () => {
-    const categories = useSelector((state: RootState) => selectTaxonomyCategories(state));
-    const isLoading = useSelector((state: RootState) => selectTaxonomyLoading(state));
-    const error = useSelector((state: RootState) => selectTaxonomyError(state));
-    const isInitialized = useSelector((state: RootState) => selectTaxonomyInitialized(state));
+  const categories = useSelector((state: RootState) =>
+    selectTaxonomyCategories(state)
+  );
+  const isLoading = useSelector((state: RootState) =>
+    selectTaxonomyLoading(state)
+  );
+  const error = useSelector((state: RootState) => selectTaxonomyError(state));
+  const isInitialized = useSelector((state: RootState) =>
+    selectTaxonomyInitialized(state)
+  );
 
-    // Utility functions for easy data access
-    const getCategoryBySlug = (slug: string): TaxonomyCategory | undefined => {
-        return categories.find(category => category.slug === slug);
-    };
+  // Utility functions for easy data access
+  const getCategoryBySlug = (slug: string): TaxonomyCategory | undefined => {
+    return categories.find((category) => category.slug === slug);
+  };
 
-    const getSubcategoryBySlug = (categorySlug: string, subcategorySlug: string): TaxonomySubcategory | undefined => {
-        const category = getCategoryBySlug(categorySlug);
-        return category?.subcategories.find(subcat => subcat.slug === subcategorySlug);
-    };
+  const getSubcategoryBySlug = (
+    categorySlug: string,
+    subcategorySlug: string
+  ): TaxonomySubcategory | undefined => {
+    const category = getCategoryBySlug(categorySlug);
+    return category?.subcategories.find(
+      (subcat) => subcat.slug === subcategorySlug
+    );
+  };
 
-    const getAllBrands = (): TaxonomyBrand[] => {
-        const allBrands: TaxonomyBrand[] = [];
-        
-        categories.forEach(category => {
-            // Add direct brands from category
-            allBrands.push(...category.direct_brands);
-            
-            // Add brands from subcategories
-            category.subcategories.forEach(subcategory => {
-                allBrands.push(...subcategory.brands);
-            });
-        });
+  const getAllBrands = (): TaxonomyBrand[] => {
+    const allBrands: TaxonomyBrand[] = [];
 
-        // Remove duplicates based on ID
-        const uniqueBrands = allBrands.filter((brand, index, self) => 
-            index === self.findIndex(b => b.id === brand.id)
+    categories.forEach((category) => {
+      // Add direct brands from category
+      allBrands.push(...category.direct_brands);
+
+      // Add brands from subcategories
+      category.subcategories.forEach((subcategory) => {
+        allBrands.push(...subcategory.brands);
+      });
+    });
+
+    // Remove duplicates based on ID
+    const uniqueBrands = allBrands.filter(
+      (brand, index, self) => index === self.findIndex((b) => b.id === brand.id)
+    );
+
+    return uniqueBrands;
+  };
+
+  const getCategoriesForSelect = () => {
+    return categories.map((category) => ({
+      // value should be the slug for URL purposes in view_more_url
+      value: category.slug,
+      label: category.name,
+      id: category.id,
+    }));
+  };
+
+  const getSubcategoriesForSelect = (categorySlug?: string) => {
+    if (!categorySlug) return [];
+
+    // categorySlug here can be an id or slug depending on usage; try to resolve by id first
+    let category = categories.find((cat) => cat.id === categorySlug);
+    if (!category) category = getCategoryBySlug(categorySlug);
+    if (!category) return [];
+
+    return category.subcategories.map((subcategory) => ({
+      // use id so selects return IDs that backend accepts
+      value: subcategory.id,
+      label: subcategory.name,
+      id: subcategory.id,
+    }));
+  };
+
+  const getBrandsForSelect = (
+    categorySlug?: string,
+    subcategorySlug?: string
+  ) => {
+    if (!categorySlug) {
+      // Return all brands if no category specified
+      return getAllBrands().map((brand) => ({
+        value: brand.id,
+        label: brand.name,
+        id: brand.id,
+      }));
+    }
+
+    const category = getCategoryBySlug(categorySlug);
+    if (!category) return [];
+
+    if (subcategorySlug) {
+      // subcategorySlug may be id or slug; try both
+      let subcategory = category.subcategories.find(
+        (sub) => sub.id === subcategorySlug
+      );
+      if (!subcategory)
+        subcategory = category.subcategories.find(
+          (sub) => sub.slug === subcategorySlug
         );
+      return (
+        subcategory?.brands.map((brand) => ({
+          value: brand.id,
+          label: brand.name,
+          id: brand.id,
+        })) || []
+      );
+    } else {
+      // Return direct brands for category
+      return category.direct_brands.map((brand) => ({
+        value: brand.id,
+        label: brand.name,
+        id: brand.id,
+      }));
+    }
+  };
 
-        return uniqueBrands;
-    };
+  return {
+    // Data
+    categories,
+    isLoading,
+    error,
+    isInitialized,
 
-    const getCategoriesForSelect = () => {
-        return categories.map(category => ({
-            // value should be the database id so the backend receives ObjectId strings
-            value: category.id,
-            label: category.name,
-            id: category.id
-        }));
-    };
+    // Utility functions
+    getCategoryBySlug,
+    getSubcategoryBySlug,
+    getAllBrands,
+    getCategoriesForSelect,
+    getSubcategoriesForSelect,
+    getBrandsForSelect,
 
-    const getSubcategoriesForSelect = (categorySlug?: string) => {
-        if (!categorySlug) return [];
-        
-        // categorySlug here can be an id or slug depending on usage; try to resolve by id first
-        let category = categories.find(cat => cat.id === categorySlug);
-        if (!category) category = getCategoryBySlug(categorySlug);
-        if (!category) return [];
-
-        return category.subcategories.map(subcategory => ({
-            // use id so selects return IDs that backend accepts
-            value: subcategory.id,
-            label: subcategory.name,
-            id: subcategory.id
-        }));
-    };
-
-    const getBrandsForSelect = (categorySlug?: string, subcategorySlug?: string) => {
-        if (!categorySlug) {
-            // Return all brands if no category specified
-            return getAllBrands().map(brand => ({
-                value: brand.id,
-                label: brand.name,
-                id: brand.id
-            }));
-        }
-
-        const category = getCategoryBySlug(categorySlug);
-        if (!category) return [];
-
-        if (subcategorySlug) {
-            // subcategorySlug may be id or slug; try both
-            let subcategory = category.subcategories.find(sub => sub.id === subcategorySlug);
-            if (!subcategory) subcategory = category.subcategories.find(sub => sub.slug === subcategorySlug);
-            return subcategory?.brands.map(brand => ({
-                value: brand.id,
-                label: brand.name,
-                id: brand.id
-            })) || [];
-        } else {
-            // Return direct brands for category
-            return category.direct_brands.map(brand => ({
-                value: brand.id,
-                label: brand.name,
-                id: brand.id
-            }));
-        }
-    };
-
-    return {
-        // Data
-        categories,
-        isLoading,
-        error,
-        isInitialized,
-        
-        // Utility functions
-        getCategoryBySlug,
-        getSubcategoryBySlug,
-        getAllBrands,
-        getCategoriesForSelect,
-        getSubcategoriesForSelect,
-        getBrandsForSelect,
-        
-        // Computed values
-        hasCategories: categories.length > 0,
-        totalCategories: categories.length,
-        totalSubcategories: categories.reduce((total, cat) => total + cat.subcategories.length, 0),
-        totalBrands: getAllBrands().length,
-    };
+    // Computed values
+    hasCategories: categories.length > 0,
+    totalCategories: categories.length,
+    totalSubcategories: categories.reduce(
+      (total, cat) => total + cat.subcategories.length,
+      0
+    ),
+    totalBrands: getAllBrands().length,
+  };
 };
 
 /**
  * Hook specifically for accessing category data by slug
  */
 export const useCategory = (slug: string) => {
-    const category = useSelector((state: RootState) => selectCategoryBySlug(slug)(state));
-    return category;
+  const category = useSelector((state: RootState) =>
+    selectCategoryBySlug(slug)(state)
+  );
+  return category;
 };
 
 /**
  * Hook specifically for accessing subcategory data by slugs
  */
-export const useSubcategory = (categorySlug: string, subcategorySlug: string) => {
-    const subcategory = useSelector((state: RootState) => 
-        selectSubcategoryBySlug(categorySlug, subcategorySlug)(state)
-    );
-    return subcategory;
+export const useSubcategory = (
+  categorySlug: string,
+  subcategorySlug: string
+) => {
+  const subcategory = useSelector((state: RootState) =>
+    selectSubcategoryBySlug(categorySlug, subcategorySlug)(state)
+  );
+  return subcategory;
 };

@@ -1,4 +1,5 @@
 import Axios, { AxiosInstance } from "axios";
+import { getSession } from "next-auth/react";
 
 const ensureApiV1Path = (instance: AxiosInstance, url?: string) => {
   if (!url) return url;
@@ -124,9 +125,19 @@ if (typeof window !== "undefined") {
           if (response.data?.data?.accessToken) {
             const newAccessToken = response.data.data.accessToken;
 
-            // Trigger session refresh by calling getSession again
+            // Store new token temporarily in localStorage for session update
+            if (typeof window !== "undefined") {
+              localStorage.setItem("temp_access_token", newAccessToken);
+            }
+
+            // Force session update by calling getSession which will trigger JWT callback
             const { getSession } = await import("next-auth/react");
             await getSession();
+
+            // Clear temporary token
+            if (typeof window !== "undefined") {
+              localStorage.removeItem("temp_access_token");
+            }
 
             // Update the original request with new token
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;

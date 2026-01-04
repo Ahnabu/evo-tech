@@ -63,7 +63,7 @@ const productSchema = new Schema<TProduct>(
     },
     landingpageSectionId: {
       type: Schema.Types.ObjectId,
-      ref: "LandingPageSection",
+      ref: "LandingSection",
     },
     landingpageSortorder: {
       type: Number,

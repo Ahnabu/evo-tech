@@ -2,15 +2,21 @@ import express from "express";
 import { PaymentControllers } from "./payment.controller";
 import auth from "../../middlewares/auth";
 import { USER_ROLE } from "../user/user.constant";
+import { paymentLimiter } from "../../middlewares/rateLimiter";
 
 const router = express.Router();
 
 // Guest bKash payment (no auth required)
-router.post("/bkash/create/guest", PaymentControllers.createBkashPayment);
+router.post(
+  "/bkash/create/guest",
+  paymentLimiter,
+  PaymentControllers.createBkashPayment
+);
 
 // Create payment (requires authentication for user orders)
 router.post(
   "/bkash/create",
+  paymentLimiter,
   auth(USER_ROLE.USER, USER_ROLE.ADMIN),
   PaymentControllers.createBkashPayment
 );
@@ -18,6 +24,7 @@ router.post(
 // Execute payment (requires authentication)
 router.post(
   "/bkash/execute",
+  paymentLimiter,
   auth(USER_ROLE.USER, USER_ROLE.ADMIN),
   PaymentControllers.executeBkashPayment
 );

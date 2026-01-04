@@ -406,6 +406,56 @@ const getAllUniqueColors = catchAsync(async (req, res) => {
   });
 });
 
+// Featured Sections (Homepage Sections)
+const getAllFeaturedSections = catchAsync(async (req, res) => {
+  const result = await ProductServices.getAllFeaturedSectionsFromDB();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Featured sections retrieved successfully",
+    data: result,
+  });
+});
+
+const createFeaturedSection = catchAsync(async (req, res) => {
+  const result = await ProductServices.createFeaturedSectionIntoDB(req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Featured section created successfully",
+    data: result,
+  });
+});
+
+const updateFeaturedSection = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await ProductServices.updateFeaturedSectionIntoDB(
+    id,
+    req.body
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Featured section updated successfully",
+    data: result,
+  });
+});
+
+const deleteFeaturedSection = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  await ProductServices.deleteFeaturedSectionFromDB(id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Featured section deleted successfully",
+    data: null,
+  });
+});
+
 export const ProductControllers = {
   getAllProducts,
   getSingleProduct,
@@ -433,4 +483,8 @@ export const ProductControllers = {
   updateColorVariation,
   deleteColorVariation,
   getAllUniqueColors,
+  getAllFeaturedSections,
+  createFeaturedSection,
+  updateFeaturedSection,
+  deleteFeaturedSection,
 };

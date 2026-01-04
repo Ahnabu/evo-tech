@@ -248,8 +248,8 @@ const NavbarClient = ({
                 </div>
               </div>
 
-              <div className="flex-1 px-1 sm:px-6 max-w-[760px]">
-                <div className="w-full">
+              <div className="flex-1 px-1 sm:px-6">
+                <div className="w-full max-w-[500px] mx-auto">
                   <div className="relative" ref={searchRef}>
                     <input
                       type="search"

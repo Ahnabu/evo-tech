@@ -6,54 +6,63 @@ import routes from "./app/routes";
 import cookieParser from "cookie-parser";
 import notFound from "./app/middlewares/notFound";
 import config from "./app/config";
+import { globalLimiter } from "./app/middlewares/rateLimiter";
 
 const app: Application = express();
 
 // CORS configuration - Allow multiple origins
-const allowedOrigins = Array.isArray(config.cors_origin) 
-  ? config.cors_origin 
+const allowedOrigins = Array.isArray(config.cors_origin)
+  ? config.cors_origin
   : [config.cors_origin];
 
 // Log allowed origins for debugging
-console.log('Allowed CORS Origins:', allowedOrigins);
+console.log("Allowed CORS Origins:", allowedOrigins);
 
 app.use(
   cors({
     origin: function (origin, callback) {
       // Allow requests with no origin (like mobile apps or Postman)
       if (!origin) return callback(null, true);
-      
+
       // Check if origin is allowed
-      const isAllowed = allowedOrigins.some(allowed => {
-        if (allowed === '*') return true;
+      const isAllowed = allowedOrigins.some((allowed) => {
+        if (allowed === "*") return true;
         if (allowed === origin) return true;
         // Handle wildcards like *.vercel.app
-        if (allowed.includes('*')) {
-          const pattern = allowed.replace(/\*/g, '.*');
+        if (allowed.includes("*")) {
+          const pattern = allowed.replace(/\*/g, ".*");
           const regex = new RegExp(`^${pattern}$`);
           return regex.test(origin);
         }
         return false;
       });
-      
+
       if (isAllowed) {
         callback(null, true);
       } else {
         console.warn(`CORS blocked origin: ${origin}`);
-        callback(new Error('Not allowed by CORS'));
+        callback(new Error("Not allowed by CORS"));
       }
     },
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
-    exposedHeaders: ['Content-Length', 'X-Requested-With'],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Authorization",
+      "X-Requested-With",
+      "Accept",
+    ],
+    exposedHeaders: ["Content-Length", "X-Requested-With"],
     maxAge: 86400, // 24 hours
   })
 );
 
 // Handle preflight requests explicitly
-app.options('*', cors());
+app.options("*", cors());
 app.use(cookieParser());
+
+// Apply global rate limiter to all requests
+app.use(globalLimiter);
 
 // Parser
 app.use(express.json());

@@ -4,8 +4,27 @@ import auth from "../../middlewares/auth";
 import { USER_ROLE } from "../user/user.constant";
 import { multerUpload } from "../../config/multer.config";
 import { parseBody } from "../../middlewares/bodyParser";
+import { uploadLimiter } from "../../middlewares/rateLimiter";
 
 const router = express.Router();
+
+// Featured Sections (Homepage Sections) - MUST be before /:id routes
+router.get("/featured-sections", ProductControllers.getAllFeaturedSections);
+router.post(
+  "/featured-sections",
+  auth(USER_ROLE.ADMIN),
+  ProductControllers.createFeaturedSection
+);
+router.patch(
+  "/featured-sections/:id",
+  auth(USER_ROLE.ADMIN),
+  ProductControllers.updateFeaturedSection
+);
+router.delete(
+  "/featured-sections/:id",
+  auth(USER_ROLE.ADMIN),
+  ProductControllers.deleteFeaturedSection
+);
 
 // Product CRUD
 router.get("/", ProductControllers.getAllProducts);
@@ -14,6 +33,7 @@ router.get("/slug/:slug", ProductControllers.getProductBySlug);
 router.get("/:id", ProductControllers.getSingleProduct);
 router.post(
   "/",
+  uploadLimiter,
   auth(USER_ROLE.ADMIN),
   multerUpload.fields([
     { name: "mainImage", maxCount: 1 },
@@ -24,6 +44,7 @@ router.post(
 );
 router.put(
   "/:id",
+  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.fields([
     { name: "mainImage", maxCount: 1 },
@@ -38,6 +59,7 @@ router.delete("/:id", auth(USER_ROLE.ADMIN), ProductControllers.deleteProduct);
 router.get("/:productId/images", ProductControllers.getProductImages);
 router.post(
   "/:productId/images",
+  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,
@@ -74,6 +96,7 @@ router.get(
 );
 router.post(
   "/:productId/feature-subsections",
+  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,
@@ -81,6 +104,7 @@ router.post(
 );
 router.put(
   "/feature-subsections/:subsectionId",
+  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,

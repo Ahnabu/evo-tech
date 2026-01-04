@@ -29,7 +29,7 @@ const CategoryCard = ({
   return (
     <Link
       href={`/products-and-accessories?category=${slug}`}
-      className="group relative flex flex-col items-center w-full h-[200px] sm:h-[240px] bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 ease-out transform hover:scale-105"
+      className="group relative flex flex-col items-center w-full min-h-[180px] bg-white rounded-xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 ease-out transform hover:scale-105"
     >
       {/* Image Container */}
       <div className="relative w-full h-full overflow-hidden">
@@ -37,9 +37,9 @@ const CategoryCard = ({
           src={displayImage}
           alt={name}
           fill
-          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          //sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           quality={75}
-          className="object-cover object-center group-hover:scale-110 transition-transform duration-500 ease-out"
+          className="object-contain h-full object-center group-hover:scale-110 transition-transform duration-500 ease-out"
           onError={() => setImageError(true)}
         />
         {/* Gradient Overlay */}
