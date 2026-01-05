@@ -3,17 +3,20 @@
 ## Quick Start Commands
 
 ### 1️⃣ SSH into Hostinger
+
 ```bash
 ssh u123456789@your-domain.com
 # Replace with your actual SSH credentials
 ```
 
 ### 2️⃣ Navigate to Project Directory
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html
 ```
 
 ### 3️⃣ Start Both Servers
+
 ```bash
 bash start-servers.sh
 ```
@@ -25,7 +28,9 @@ bash start-servers.sh
 ### Initial Setup (First Time Only)
 
 #### 1. Upload Code to Hostinger
+
 Your directory structure should be:
+
 ```
 ~/domains/evo-techbd.com/public_html/
 ├── evobackend/           # Backend code
@@ -42,12 +47,14 @@ Your directory structure should be:
 #### 2. Install Dependencies
 
 **Backend:**
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html/evobackend
 npm install --production
 ```
 
 **Frontend:**
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html
 npm install --production
@@ -56,12 +63,14 @@ npm install --production
 #### 3. Set Environment Variables
 
 **Backend (.env):**
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html/evobackend
 nano .env
 ```
 
 Add your environment variables:
+
 ```env
 NODE_ENV=production
 PORT=5000
@@ -71,12 +80,14 @@ JWT_ACCESS_SECRET=your_jwt_secret
 ```
 
 **Frontend (.env.local):**
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html
 nano .env.local
 ```
 
 Add:
+
 ```env
 NEXT_PUBLIC_API_URL=https://evo-techbd.com/api/backend
 NEXTAUTH_URL=https://evo-techbd.com
@@ -89,6 +100,7 @@ NEXTAUTH_SECRET=your_nextauth_secret
 ## 🎯 Starting the Servers
 
 ### Option 1: Use the Startup Script (Recommended)
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html
 bash start-servers.sh
@@ -97,18 +109,21 @@ bash start-servers.sh
 ### Option 2: Manual Start
 
 **Start Backend:**
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html/evobackend
 pm2 start ecosystem.config.js
 ```
 
 **Start Frontend:**
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html
 pm2 start ecosystem.config.js
 ```
 
 **Save PM2 Configuration:**
+
 ```bash
 pm2 save
 pm2 startup
@@ -119,11 +134,13 @@ pm2 startup
 ## 🔍 Monitoring & Management
 
 ### Check Server Status
+
 ```bash
 pm2 list
 ```
 
 ### View Logs
+
 ```bash
 # All logs
 pm2 logs
@@ -142,6 +159,7 @@ pm2 monit
 ```
 
 ### Restart Servers
+
 ```bash
 # Restart all
 pm2 restart all
@@ -154,6 +172,7 @@ pm2 restart evo-tech-frontend
 ```
 
 ### Stop Servers
+
 ```bash
 # Stop all
 pm2 stop all
@@ -164,6 +183,7 @@ pm2 stop evo-tech-frontend
 ```
 
 ### Delete Processes
+
 ```bash
 # Delete all processes
 pm2 delete all
@@ -177,6 +197,7 @@ pm2 delete evo-tech-backend
 ## 🔄 Updating Code
 
 ### Update Backend
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html/evobackend
 
@@ -189,6 +210,7 @@ pm2 restart evo-tech-backend
 ```
 
 ### Update Frontend
+
 ```bash
 cd ~/domains/evo-techbd.com/public_html
 
@@ -206,6 +228,7 @@ pm2 restart evo-tech-frontend
 ### Servers Not Starting
 
 1. **Check if build exists:**
+
 ```bash
 # Backend
 ls ~/domains/evo-techbd.com/public_html/evobackend/dist/server.js
@@ -215,6 +238,7 @@ ls ~/domains/evo-techbd.com/public_html/server.js
 ```
 
 2. **Check environment variables:**
+
 ```bash
 # Backend
 cat ~/domains/evo-techbd.com/public_html/evobackend/.env
@@ -224,16 +248,19 @@ cat ~/domains/evo-techbd.com/public_html/.env.local
 ```
 
 3. **Check PM2 logs:**
+
 ```bash
 pm2 logs --err
 ```
 
 4. **Check Node.js version:**
+
 ```bash
 node -v  # Should be v18 or higher
 ```
 
 ### Port Already in Use
+
 ```bash
 # Find process using port
 lsof -i :5000  # Backend
@@ -244,6 +271,7 @@ kill -9 <PID>
 ```
 
 ### Database Connection Issues
+
 ```bash
 # Test MongoDB connection
 cd ~/domains/evo-techbd.com/public_html/evobackend
@@ -251,6 +279,7 @@ node -e "const mongoose = require('mongoose'); mongoose.connect(process.env.DATA
 ```
 
 ### Memory Issues
+
 ```bash
 # Check PM2 memory usage
 pm2 list
@@ -264,17 +293,20 @@ pm2 restart all
 ## 📊 Performance Monitoring
 
 ### Real-time Monitoring
+
 ```bash
 pm2 monit
 ```
 
 ### Process Information
+
 ```bash
 pm2 show evo-tech-backend
 pm2 show evo-tech-frontend
 ```
 
 ### System Resource Usage
+
 ```bash
 top
 htop  # If available
@@ -297,13 +329,16 @@ htop  # If available
 ## 🌐 DNS & Domain Configuration
 
 Make sure your DNS points to:
+
 - **Frontend**: Your main domain (evo-techbd.com)
 - **Backend**: Subdomain or path (/api/backend)
 
 ### Nginx/Apache Configuration
+
 You may need to configure reverse proxy:
 
 **For Backend API:**
+
 ```nginx
 location /api/backend {
     proxy_pass http://localhost:5000;
@@ -316,6 +351,7 @@ location /api/backend {
 ```
 
 **For Frontend:**
+
 ```nginx
 location / {
     proxy_pass http://localhost:3000;
@@ -332,11 +368,13 @@ location / {
 ## 📱 Health Checks
 
 ### Backend Health
+
 ```bash
 curl http://localhost:5000/health
 ```
 
 Expected response:
+
 ```json
 {
   "success": true,
@@ -348,6 +386,7 @@ Expected response:
 ```
 
 ### Frontend Health
+
 ```bash
 curl http://localhost:3000
 ```
@@ -369,22 +408,23 @@ pm2 save
 
 ## 📞 Quick Reference
 
-| Command | Description |
-|---------|-------------|
-| `pm2 list` | Show all processes |
-| `pm2 logs` | View logs |
-| `pm2 restart all` | Restart all servers |
-| `pm2 stop all` | Stop all servers |
-| `pm2 delete all` | Remove all processes |
-| `pm2 monit` | Real-time monitoring |
-| `pm2 save` | Save process list |
-| `pm2 flush` | Clear logs |
+| Command           | Description          |
+| ----------------- | -------------------- |
+| `pm2 list`        | Show all processes   |
+| `pm2 logs`        | View logs            |
+| `pm2 restart all` | Restart all servers  |
+| `pm2 stop all`    | Stop all servers     |
+| `pm2 delete all`  | Remove all processes |
+| `pm2 monit`       | Real-time monitoring |
+| `pm2 save`        | Save process list    |
+| `pm2 flush`       | Clear logs           |
 
 ---
 
 ## 🆘 Emergency Commands
 
 ### Complete Reset
+
 ```bash
 pm2 kill
 pm2 flush
@@ -393,6 +433,7 @@ bash start-servers.sh
 ```
 
 ### View Error Logs
+
 ```bash
 tail -f ~/domains/evo-techbd.com/public_html/evobackend/logs/pm2-error.log
 tail -f ~/domains/evo-techbd.com/public_html/logs/pm2-error.log
