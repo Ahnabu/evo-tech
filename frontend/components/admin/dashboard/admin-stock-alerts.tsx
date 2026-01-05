@@ -60,14 +60,12 @@ export const AdminStockAlerts = () => {
     } finally {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Remove currentUser from dependencies to prevent infinite loop
 
   useEffect(() => {
     fetchNotifications();
-
-    // Reduce polling frequency - only refresh every 2 minutes
-    const interval = setInterval(fetchNotifications, 120000);
-    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchNotifications]);
 
   const handleMarkRead = useCallback(
@@ -80,7 +78,8 @@ export const AdminStockAlerts = () => {
         axiosErrorLogger({ error });
       }
     },
-    [currentUser]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
   );
 
   const renderBody = () => {

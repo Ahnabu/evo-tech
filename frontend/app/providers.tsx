@@ -17,7 +17,7 @@ const Providers = ({ children }: NextUIProviderProps) => {
       <ReduxProvider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <ReactErrorBoundary FallbackComponent={ErrorBoundaryFallback}>
-            <SessionProvider>{children}</SessionProvider>
+            {children}
           </ReactErrorBoundary>
         </PersistGate>
       </ReduxProvider>

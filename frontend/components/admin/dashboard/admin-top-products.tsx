@@ -42,26 +42,12 @@ export function AdminTopProducts() {
     } finally {
       setLoading(false);
     }
-  }, [currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id]);
 
-  useEffect(() => {
+    useEffect(() => {
     fetchTopProducts();
-
-    // Auto-refresh every 60 seconds
-    const interval = setInterval(fetchTopProducts, 60000);
-
-    // Refresh when page becomes visible
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchTopProducts();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchTopProducts]);
 
   const formatCurrency = (amount: number) => {

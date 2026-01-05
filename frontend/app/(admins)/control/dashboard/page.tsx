@@ -13,7 +13,7 @@ const A_DashBoardPage = () => {
   const user = useCurrentUser();
 
   return (
-    <DashboardAutoRefresh delay={2000}>
+    <DashboardAutoRefresh delay={1800000}>
       <div className="p-6 space-y-6">
         {/* Welcome Header */}
         <div className="mb-6">

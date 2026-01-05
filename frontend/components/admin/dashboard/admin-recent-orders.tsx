@@ -67,25 +67,12 @@ export function AdminRecentOrders() {
     } finally {
       setLoading(false);
     }
-  }, [currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id]);
 
-  useEffect(() => {
+    useEffect(() => {
     fetchRecentOrders();
-
-    // Auto-refresh every 2 minutes
-    const interval = setInterval(fetchRecentOrders, 120000);
-    
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchRecentOrders();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchRecentOrders]);
 
   const getStatusColor = (status: string) => {

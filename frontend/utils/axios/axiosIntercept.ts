@@ -1,21 +1,19 @@
 import { cookies } from "next/headers";
 import { axiosPrivate } from "@/utils/axios/axios";
 import axiosErrorLogger from "@/components/error/axios_error";
-import { auth } from "@/auth";
 
 const axiosIntercept = async () => {
     const cookieStore = await cookies();
     const cookieString = cookieStore.toString();
 
-    const session = await auth();
-    const token = session?.accessToken;
+    const token = cookieStore.get("auth-token")?.value;
 
-    console.log('🔐 axiosIntercept - Session:', {
-        hasSession: !!session,
-        hasToken: !!token,
-        userRole: session?.user?.role,
-        userEmail: session?.user?.email
-    });
+    // console.log('🔐 axiosIntercept - Session:', {
+    //     hasSession: !!session,
+    //     hasToken: !!token,
+    //     userRole: session?.user?.role,
+    //     userEmail: session?.user?.email
+    // });
 
     if (!token) {
         console.error('❌ No authentication token available');

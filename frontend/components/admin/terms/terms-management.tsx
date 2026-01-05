@@ -23,7 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { toast } from "sonner";
-import axios from "axios";
+import axios from "@/utils/axios/axios";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Plus, Edit, Trash2, Check } from "lucide-react";
@@ -68,22 +68,14 @@ export function TermsManagement() {
   // Helper function to make authenticated requests
   const makeAuthRequest = React.useCallback(
     async (method: string, url: string, data?: any) => {
-
-      if (!token) {
-        toast.error("Authentication required");
-        throw new Error("No auth token");
-      }
-
-      const baseURL = process.env.NEXT_PUBLIC_API_URL;
-
+      // Configured axios already has baseURL and interceptors for token
       return axios({
         method,
-        url: `${baseURL}${url}`,
+        url, // relative path, e.g. "/terms"
         data,
-        withCredentials: true,
       });
     },
-    [token]
+    []
   );
 
   // Fetch terms data on component mount

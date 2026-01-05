@@ -310,7 +310,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     }
 
     const response = await axios
-      .post(`/api/admin/products/update/${itemInfo.itemid}`, formdata, {
+      .put(`/api/admin/products/${itemInfo.itemid}`, formdata, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
         },
@@ -332,8 +332,8 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         return null;
       });
 
-    if (response && response.message && response.item_name) {
-      toast.success(`Item '${response.item_name}' updated`);
+    if (response) {
+      toast.success(response.message || `Item '${response.item_name || itemInfo.i_name}' updated`);
       // router.replace(`/control/products/update/${response.item_slug}`, { scroll: false }); // because slug can also be changed
       router.push(`/control/products`, {
         scroll: true,

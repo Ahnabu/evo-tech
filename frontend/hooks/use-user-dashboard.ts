@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { getAuthCookie, getCurrentUser } from "@/utils/cookies";
 import axios from "@/utils/axios/axios";
 import { User, Order, UserDashboardStats } from "@/types";
@@ -48,7 +48,7 @@ export const useUserDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [token]);
 
   useEffect(() => {
     fetchDashboardData();
@@ -74,7 +74,7 @@ export const useUserDashboard = () => {
 };
 
 export const useUserProfile = () => {
-  const currentUser = getCurrentUser();
+  const currentUser = useMemo(() => getCurrentUser(), []);
   const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -127,7 +127,7 @@ export const useUserProfile = () => {
 };
 
 export const useUserOrders = () => {
-  const currentUser = getCurrentUser();
+  const currentUser = useMemo(() => getCurrentUser(), []);
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

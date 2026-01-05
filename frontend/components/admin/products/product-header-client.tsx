@@ -53,7 +53,7 @@ interface Brand {
 }
 
 const ProductHeaderClient = () => {
-  const currentUser = getCurrentUser();
+  const currentUser = useMemo(() => getCurrentUser(), []);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [brands, setBrands] = useState<Brand[]>([...ItemBrandOptions]);

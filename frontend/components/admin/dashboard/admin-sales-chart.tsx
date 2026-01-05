@@ -55,7 +55,8 @@ export function AdminSalesChart() {
     } finally {
       setLoading(false);
     }
-  }, []); // Removed currentUser from dependencies
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [timeRange]); // Add timeRange, rely on stable currentUser check from closure
 
   useEffect(() => {
     if (!currentUser) return;
@@ -76,7 +77,8 @@ export function AdminSalesChart() {
       clearInterval(interval);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [currentUser, fetchSalesData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id, fetchSalesData]);
 
   const totalSales = salesData.reduce(
     (sum: number, data: SalesData) => sum + data.sales,

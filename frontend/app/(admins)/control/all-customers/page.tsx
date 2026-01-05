@@ -2,6 +2,7 @@ import axiosIntercept from "@/utils/axios/axiosIntercept";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, UserPlus, Search, Filter, Mail, Phone, Calendar } from "lucide-react";
+import Link from "next/link";
 import { format } from "date-fns";
 import axiosErrorLogger from "@/components/error/axios_error";
 
@@ -164,9 +165,6 @@ const AllCustomersPage = async ({ searchParams }: CustomersPageProps) => {
                                                 Joined
                                             </th>
                                             <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                                Points
-                                            </th>
-                                            <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                                 Actions
                                             </th>
                                         </tr>
@@ -220,13 +218,12 @@ const AllCustomersPage = async ({ searchParams }: CustomersPageProps) => {
                                                         {format(new Date(customer.createdAt), 'MMM dd, yyyy')}
                                                     </div>
                                                 </td>
-                                                <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    {customer.rewardPoints || 0} pts
-                                                </td>
                                                 <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <Button variant="outline" size="sm">
-                                                        View Details
-                                                    </Button>
+                                                    <Link href={`/control/all-customers/${customer._id}`}>
+                                                        <Button variant="outline" size="sm">
+                                                            View Details
+                                                        </Button>
+                                                    </Link>
                                                 </td>
                                             </tr>
                                         ))}

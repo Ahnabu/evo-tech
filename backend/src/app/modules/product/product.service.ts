@@ -772,7 +772,7 @@ const getAllFeaturedSectionsFromDB = async () => {
     .populate("subcategory", "name slug")
     .populate({
       path: "products",
-      select: "name slug price mainImage",
+      select: "name slug price previousPrice mainImage",
     });
 
   return result;

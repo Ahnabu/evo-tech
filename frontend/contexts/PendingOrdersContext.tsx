@@ -45,7 +45,8 @@ export function PendingOrdersProvider({ children }: { children: React.ReactNode 
         } finally {
             setIsLoading(false);
         }
-    }, [currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentUser?.id]);
 
     // Fetch pending count on mount and when session changes
     useEffect(() => {
@@ -55,13 +56,9 @@ export function PendingOrdersProvider({ children }: { children: React.ReactNode 
     // Poll for updates every 2 minutes
     useEffect(() => {
         if (!currentUser) return;
-
-        const interval = setInterval(() => {
-            refreshPendingCount();
-        }, 120000); // 2 minutes
-
-        return () => clearInterval(interval);
-    }, [currentUser, refreshPendingCount]);
+        refreshPendingCount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentUser?.id, refreshPendingCount]);
 
     return (
         <PendingOrdersContext.Provider value={{ pendingCount, refreshPendingCount, isLoading }}>

@@ -270,8 +270,8 @@ const AddProductForm = () => {
         return null;
       });
 
-    if (response && response.message && response.item_name) {
-      toast.success(`Item '${response.item_name}' created`);
+    if (response && response.success) {
+      toast.success(response.message || `Item '${response.item_name || "New Product"}' created`);
       reset();
       router.push(`/control/products`);
     }

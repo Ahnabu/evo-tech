@@ -65,7 +65,7 @@ export const AddTransactionModal = ({ onSuccess }: AddTransactionModalProps) => 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setLoading(true);
-      await axios.post("/finance/transaction", values);
+      await axios.post("/admin/finance/transaction", values);
       toast.success("Transaction added successfully");
       form.reset();
       setOpen(false);

@@ -26,7 +26,11 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
-export const NavUser = ({ currentUser }: { currentUser: any }) => {
+import { useCurrentUser } from "@/hooks/use-current-user";
+
+export const NavUser = ({ currentUser: initialUser }: { currentUser: any }) => {
+  const userFromHook = useCurrentUser();
+  const currentUser = userFromHook || initialUser;
   const { isMobile } = useSidebar();
   const router = useRouter();
 

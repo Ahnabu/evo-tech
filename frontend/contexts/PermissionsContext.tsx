@@ -81,7 +81,8 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
         }
 
         setIsLoading(false);
-    }, [currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentUser?.id]);
 
     useEffect(() => {
         refreshPermissions();

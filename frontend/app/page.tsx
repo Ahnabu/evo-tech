@@ -26,6 +26,7 @@ import Industry3DModel from "@/public/assets/application_fields/industrial-robot
 import FeaturedCategories from "@/components/cards/featuredcategories";
 import PopularProductsSlider from "@/components/cards/popularproductsslider";
 import Featured3DPrintersMaterials from "@/components/cards/featured-3d-printers-materials";
+import FeaturedSectionsRenderer from "@/components/sections/featured-sections-renderer";
 import { generateOrganizationSchema, generateWebSiteSchema, StructuredData } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
@@ -299,6 +300,7 @@ const Home = () => {
         </div>
       </div>
       <FeaturedCategories />
+      <FeaturedSectionsRenderer />
       <Featured3DPrintersMaterials />
       <PopularProductsSlider title="Popular Products" />
 

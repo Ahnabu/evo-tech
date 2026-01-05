@@ -57,26 +57,12 @@ export function AdminDashboardStats() {
     } finally {
       setLoading(false);
     }
-  }, [currentUser]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentUser?.id]);
 
   useEffect(() => {
     fetchStats();
-
-    // Auto-refresh every 2 minutes instead of 30 seconds
-    const interval = setInterval(fetchStats, 120000);
-
-    // Refresh when page becomes visible
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchStats();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fetchStats]);
 
   const formatCurrency = (amount: number) => {
