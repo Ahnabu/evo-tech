@@ -1,18 +1,19 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useCallback } from 'react';
-import { useSession } from 'next-auth/react';
-import { createAxiosClientWithSession } from '@/utils/axios/axiosClient';
-import { User, Order, UserDashboardStats } from '@/types';
+import { useState, useEffect, useCallback } from "react";
+import { getAuthCookie, getCurrentUser } from "@/utils/cookies";
+import axios from "@/utils/axios/axios";
+import { User, Order, UserDashboardStats } from "@/types";
 
 export const useUserDashboard = () => {
-  const { data: session } = useSession();
-  const [dashboardData, setDashboardData] = useState<UserDashboardStats | null>(null);
+  const [dashboardData, setDashboardData] = useState<UserDashboardStats | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const token = getAuthCookie();
   const fetchDashboardData = useCallback(async () => {
-    if (!session?.accessToken) {
+    if (!token) {
       setLoading(false);
       setDashboardData(null);
       return;
@@ -22,30 +23,32 @@ export const useUserDashboard = () => {
       setLoading(true);
       setError(null);
 
-      const axiosInstance = createAxiosClientWithSession(session);
-      const response = await axiosInstance.get('/users/dashboard/stats');
+      const response = await axios.get("/users/dashboard/stats");
 
       if (response.data?.success) {
         setDashboardData(response.data.data as UserDashboardStats);
       } else {
-        throw new Error(response.data?.message || 'Failed to load dashboard data');
+        throw new Error(
+          response.data?.message || "Failed to load dashboard data"
+        );
       }
     } catch (err) {
-      console.error('Error fetching dashboard data:', err);
+      console.error("Error fetching dashboard data:", err);
 
       const fallback: UserDashboardStats = {
         totalOrders: 0,
         totalSpent: 0,
         recentOrders: [],
-        rewardPoints: session?.user?.reward_points || 0,
         memberSince: undefined,
       };
       setDashboardData(fallback);
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard data');
+      setError(
+        err instanceof Error ? err.message : "Failed to load dashboard data"
+      );
     } finally {
       setLoading(false);
     }
-  }, [session]);
+  }, []);
 
   useEffect(() => {
     fetchDashboardData();
@@ -59,11 +62,11 @@ export const useUserDashboard = () => {
         fetchDashboardData();
       }
     };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [fetchDashboardData]);
 
@@ -71,7 +74,7 @@ export const useUserDashboard = () => {
 };
 
 export const useUserProfile = () => {
-  const { data: session } = useSession();
+  const currentUser = getCurrentUser();
   const [profile, setProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -79,8 +82,8 @@ export const useUserProfile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!session?.user) {
-        setLoading(false);  
+      if (!currentUser) {
+        setLoading(false);
         return;
       }
 
@@ -88,38 +91,43 @@ export const useUserProfile = () => {
         setLoading(true);
         setError(null);
 
-        // Create profile from session data
-        const profileData: User = {
-          uuid: session.user.id || '',
-          userType: (session.user.role === 'admin' ? 'admin' : 'user') as 'admin' | 'user',
-          firstName: session.user.firstName || '',
-          lastName: session.user.lastName || '',
-          email: session.user.email || '',
-          phone: session.user.phone || undefined,
-          rewardPoints: session.user.reward_points || 0,
-          newsletterOptIn: session.user.newsletter_opt_in || false,
-          isActive: true,
-        };
-
-        setProfile(profileData);
+        // Fetch full profile from API
+        const response = await axios.get("/auth/me");
+        if (response.data?.success) {
+          const userData = response.data.data.user;
+          const profileData: User = {
+            uuid: userData._id || currentUser.id,
+            userType: (userData.role === "admin" ? "admin" : "user") as
+              | "admin"
+              | "user",
+            firstName: userData.firstName || "",
+            lastName: userData.lastName || "",
+            email: userData.email || currentUser.email,
+            phone: userData.phone || undefined,
+            rewardPoints: userData.reward_points || 0,
+            newsletterOptIn: userData.newsletter_opt_in || false,
+            isActive: true,
+          };
+          setProfile(profileData);
+        }
       } catch (err) {
-        console.error('Error fetching profile:', err);
-        setError(err instanceof Error ? err.message : 'Failed to load profile');
+        console.error("Error fetching profile:", err);
+        setError(err instanceof Error ? err.message : "Failed to load profile");
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [session, refreshKey]);
+  }, [currentUser, refreshKey]);
 
-  const refreshProfile = () => setRefreshKey(prev => prev + 1);
+  const refreshProfile = () => setRefreshKey((prev) => prev + 1);
 
   return { profile, loading, error, refreshProfile };
 };
 
 export const useUserOrders = () => {
-  const { data: session } = useSession();
+  const currentUser = getCurrentUser();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -132,7 +140,7 @@ export const useUserOrders = () => {
   } | null>(null);
 
   const fetchOrders = useCallback(async () => {
-    if (!session?.accessToken) {
+    if (!currentUser) {
       setLoading(false);
       setOrders([]);
       setMeta(null);
@@ -143,43 +151,26 @@ export const useUserOrders = () => {
       setLoading(true);
       setError(null);
 
-      const axiosInstance = createAxiosClientWithSession(session);
-      const response = await axiosInstance.get('/users/dashboard/orders');
+      const response = await axios.get("/users/dashboard/orders");
 
       if (response.data?.success) {
         setOrders(response.data.data || []);
         setMeta(response.data.meta || null);
       } else {
-        throw new Error(response.data?.message || 'Failed to load orders');
+        throw new Error(response.data?.message || "Failed to load orders");
       }
     } catch (err) {
-      console.error('Error fetching orders:', err);
+      console.error("Error fetching orders:", err);
       setOrders([]);
       setMeta(null);
-      setError(err instanceof Error ? err.message : 'Failed to load orders');
+      setError(err instanceof Error ? err.message : "Failed to load orders");
     } finally {
       setLoading(false);
     }
-  }, [session]);
+  }, [currentUser]);
 
   useEffect(() => {
     fetchOrders();
-
-    // Auto-refresh every 30 seconds
-    const interval = setInterval(fetchOrders, 30000);
-
-    // Refresh when page becomes visible
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        fetchOrders();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      clearInterval(interval);
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-    };
   }, [fetchOrders]);
 
   return { orders, meta, loading, error, refresh: fetchOrders };

@@ -62,7 +62,7 @@ app.options("*", cors());
 app.use(cookieParser());
 
 // Apply global rate limiter to all requests
-app.use(globalLimiter);
+//app.use(globalLimiter);
 
 // Parser
 app.use(express.json());

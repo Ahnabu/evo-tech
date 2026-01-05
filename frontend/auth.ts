@@ -1,8 +1,6 @@
 import NextAuth from "next-auth";
 import authConfig from "@/auth.config";
-import axios from "@/utils/axios/axios";
-import { isAxiosError } from "axios";
-import jwt from "jsonwebtoken";
+
 
 interface addressType {
   house_and_street: string;

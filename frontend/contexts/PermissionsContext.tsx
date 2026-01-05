@@ -1,8 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
-import { useSession } from "next-auth/react";
-import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
+import { getCurrentUser } from "@/utils/cookies";
+import axios from "@/utils/axios/axios";
 import { Permission } from "@/schemas/admin/permissionSchema";
 
 interface PermissionsContextType {
@@ -20,14 +20,14 @@ interface PermissionsContextType {
 const PermissionsContext = createContext<PermissionsContextType | undefined>(undefined);
 
 export function PermissionsProvider({ children }: { children: React.ReactNode }) {
-    const { data: session } = useSession();
+    const currentUser = getCurrentUser();
     const [permissions, setPermissions] = useState<string[]>([]);
     const [permittedRoutes, setPermittedRoutes] = useState<string[]>([]);
     const [allPermissions, setAllPermissions] = useState<Permission[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     const refreshPermissions = useCallback(async () => {
-        if (!session) {
+        if (!currentUser) {
             setPermissions([]);
             setPermittedRoutes([]);
             setAllPermissions([]);
@@ -35,17 +35,10 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
             return;
         }
 
-        console.log('👤 Current session user:', {
-            role: session.user?.role,
-            permittedRoutes: session.user?.permittedRoutes,
-            hasPermittedRoutes: !!session.user?.permittedRoutes && session.user.permittedRoutes.length > 0
-        });
-
         // Admins have all permissions
-        if (session.user?.role?.toUpperCase() === 'ADMIN') {
+        if (currentUser?.role?.toUpperCase() === 'ADMIN') {
             try {
-                const axiosInstance = createAxiosClientWithSession(session);
-                const response = await axiosInstance.get("/permissions");
+                const response = await axios.get("/permissions");
                 
                 if (response.data.success) {
                     const allPerms = response.data.data;
@@ -62,56 +55,33 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
         }
 
         // For staff/employees, always fetch latest permissions from API
-        if (session.user?.role?.toUpperCase() === 'EMPLOYEE') {
-            const sessionRoutes = session.user?.permittedRoutes ?? [];
-            if (sessionRoutes.length > 0) {
-                console.log('� Staff permitted routes from session:', sessionRoutes);
-                setPermittedRoutes(sessionRoutes);
-            }
-
+        if (currentUser?.role?.toUpperCase() === 'EMPLOYEE') {
             try {
                 setIsLoading(true);
-                const axiosInstance = createAxiosClientWithSession(session);
-                console.log('📡 Fetching staff permissions from API at /permissions/my-permissions...');
-                const response = await axiosInstance.get("/permissions/my-permissions");
+                const response = await axios.get("/permissions/my-permissions");
 
-                console.log('📥 Staff permission API response:', response.data);
                 if (response.data.success) {
                     const perms = response.data.data.permissionCodes || [];
                     const fullPerms = response.data.data.permissions || [];
-                    const routes = response.data.data.permittedRoutes || sessionRoutes;
-
-                    console.log('👷 Staff permissions (database):', {
-                        permissionCodes: perms,
-                        permittedRoutes: routes,
-                        totalPermissions: fullPerms.length,
-                        permissions: fullPerms
-                    });
+                    const routes = response.data.data.permittedRoutes || [];
 
                     setPermissions(perms);
                     setAllPermissions(fullPerms);
                     setPermittedRoutes(routes);
-                } else {
-                    console.warn('⚠️ Staff permission API returned unsuccessful response:', response.data);
                 }
             } catch (error: any) {
-                console.error("❌ Error fetching staff permissions from API:", {
-                    message: error.message,
-                    response: error.response?.data,
-                    status: error.response?.status
-                });
+                console.error("Error fetching staff permissions:", error);
                 setPermissions([]);
                 setAllPermissions([]);
-                setPermittedRoutes(sessionRoutes);
+                setPermittedRoutes([]);
             } finally {
                 setIsLoading(false);
             }
             return;
         }
 
-        console.log('⚠️ Session user role is not admin or employee; skipping permission fetch.');
         setIsLoading(false);
-    }, [session]);
+    }, [currentUser]);
 
     useEffect(() => {
         refreshPermissions();
@@ -119,25 +89,25 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
 
     const hasPermission = useCallback((permissionCode: string): boolean => {
         // Admins always have all permissions
-        if (session?.user?.role?.toUpperCase() === 'ADMIN') return true;
+        if (currentUser?.role?.toUpperCase() === 'ADMIN') return true;
         return permissions.includes(permissionCode);
-    }, [permissions, session]);
+    }, [permissions, currentUser]);
 
     const hasAnyPermission = useCallback((permissionCodes: string[]): boolean => {
         // Admins always have all permissions
-        if (session?.user?.role?.toUpperCase() === 'ADMIN') return true;
+        if (currentUser?.role?.toUpperCase() === 'ADMIN') return true;
         return permissionCodes.some(code => permissions.includes(code));
-    }, [permissions, session]);
+    }, [permissions, currentUser]);
 
     const hasAllPermissions = useCallback((permissionCodes: string[]): boolean => {
         // Admins always have all permissions
-        if (session?.user?.role?.toUpperCase() === 'ADMIN') return true;
+        if (currentUser?.role?.toUpperCase() === 'ADMIN') return true;
         return permissionCodes.every(code => permissions.includes(code));
-    }, [permissions, session]);
+    }, [permissions, currentUser]);
 
     const hasRouteAccess = useCallback((route: string): boolean => {
         // Admins always have access
-        if (session?.user?.role?.toUpperCase() === 'ADMIN') return true;
+        if (currentUser?.role?.toUpperCase() === 'ADMIN') return true;
         
         // Check if the route or a parent route is in permitted routes
         return permittedRoutes.some(permittedRoute => {
@@ -147,7 +117,7 @@ export function PermissionsProvider({ children }: { children: React.ReactNode })
             if (route.startsWith(permittedRoute + '/')) return true;
             return false;
         });
-    }, [permittedRoutes, session]);
+    }, [permittedRoutes, currentUser]);
 
     return (
         <PermissionsContext.Provider 

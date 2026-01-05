@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import {
   authRoutes,
   protectedRoutePrefix,
@@ -9,13 +10,39 @@ import {
   DEFAULT_SIGNIN_REDIRECT_ADMIN,
   DEFAULT_SIGNIN_REDIRECT_EMPLOYEE,
 } from "@/routeslist";
-import { auth } from "@/auth";
+import { jwtDecode } from "jwt-decode";
 
-export default auth(async (request) => {
+interface JWTPayload {
+  _id: string;
+  email: string;
+  role: string;
+  uuid: string;
+  iat: number;
+  exp: number;
+}
+
+export default async function middleware(request: NextRequest) {
   const { nextUrl, headers, cookies } = request;
-  const isLoggedIn = !!request.auth; //convert to boolean
-  const userSession = await auth();
-  const userRole = userSession?.user?.role;
+
+  // Get auth token from cookies
+  const token = cookies.get("auth-token")?.value;
+  let isLoggedIn = false;
+  let userRole: string | undefined;
+
+  if (token) {
+    try {
+      const decoded = jwtDecode<JWTPayload>(token);
+      // Check if token is not expired
+      if (decoded.exp * 1000 > Date.now()) {
+        isLoggedIn = true;
+        userRole = decoded.role?.toUpperCase();
+      }
+    } catch (error) {
+      // Invalid token, treat as not logged in
+      isLoggedIn = false;
+    }
+  }
+
   const referer = headers.get("referer");
   const fetchDest = headers.get("sec-fetch-dest");
 
@@ -34,7 +61,7 @@ export default auth(async (request) => {
   if (!isAuthRoute) {
     if (isAdminOnlyRoute) {
       // redirect if admin route and the user is not even authenticated
-      if (!isLoggedIn || !userSession) {
+      if (!isLoggedIn) {
         // Clear cookies and redirect to login
         const response = NextResponse.redirect(new URL("/login", nextUrl));
         response.cookies.delete("last_pg");
@@ -57,7 +84,7 @@ export default auth(async (request) => {
 
     if (isEmployeeOnlyRoute) {
       // Employee-only routes (like /employee/dashboard landing page)
-      if (!isLoggedIn || !userSession) {
+      if (!isLoggedIn) {
         const response = NextResponse.redirect(new URL("/login", nextUrl));
         response.cookies.delete("last_pg");
         return response;
@@ -82,7 +109,7 @@ export default auth(async (request) => {
     }
 
     if (isProtectedRoute) {
-      if (!isLoggedIn || !userSession) {
+      if (!isLoggedIn) {
         const response = NextResponse.redirect(new URL("/login", nextUrl));
         response.cookies.delete("last_pg");
         return response;
@@ -105,7 +132,7 @@ export default auth(async (request) => {
       return response;
     }
 
-    if (isLoggedIn && userSession) {
+    if (isLoggedIn) {
       const response = NextResponse.next();
       response.cookies.set("last_pg", nextUrl.pathname, { path: "/" });
       return response;
@@ -139,7 +166,7 @@ export default auth(async (request) => {
 
     return NextResponse.next();
   }
-});
+}
 
 export const config = {
   matcher: [

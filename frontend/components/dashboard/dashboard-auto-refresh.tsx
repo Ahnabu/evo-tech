@@ -8,7 +8,7 @@ interface DashboardAutoRefreshProps {
   delay?: number;
 }
 
-export function DashboardAutoRefresh({ children, delay = 2000 }: DashboardAutoRefreshProps) {
+export function DashboardAutoRefresh({ children, delay = 30000 }: DashboardAutoRefreshProps) {
   const [hasRefreshed, setHasRefreshed] = useState(false);
   const router = useRouter();
 

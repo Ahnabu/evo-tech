@@ -73,6 +73,6 @@ export interface UserDashboardStats {
   totalOrders: number;
   totalSpent: number;
   recentOrders: UserDashboardRecentOrder[];
-  rewardPoints: number;
+  rewardPoints?: number;
   memberSince?: Date | string;
 }

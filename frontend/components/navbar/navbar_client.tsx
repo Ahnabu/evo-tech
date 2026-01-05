@@ -6,8 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Avatar } from "@nextui-org/avatar";
 import useDebounce from "@rooks/use-debounce";
-import { logout } from "@/actions/logout";
-import { signOut } from "next-auth/react";
+import { logoutUser } from "@/lib/auth";
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 
 import EvoTechBDLogoGray from "@/public/assets/EvoTechBD-logo-gray.png";
@@ -79,26 +78,18 @@ const NavbarClient = ({
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
-      // Clear all session/local storage data first
-      if (typeof window !== "undefined") {
-        sessionStorage.clear();
-        localStorage.clear();
-      }
+      // Call the logout function
+      await logoutUser();
 
-      // Sign out from NextAuth first (this triggers the signOut event)
-      await signOut({ redirect: false });
+      // Dispatch custom event for auth change
+      window.dispatchEvent(new Event('authChange'));
 
       // Show success message
       toast.success("You signed out of your account.");
 
-      // Force redirect and clear all caches
+      // Redirect to home page
       router.push("/");
       router.refresh();
-
-      // Additional cleanup - force reload after a short delay
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 100);
     } catch (err) {
       console.error("Logout error:", err);
       toast.error("Something went wrong while signing out.");
@@ -142,10 +133,10 @@ const NavbarClient = ({
     }
   }, 250);
 
-  const isCurrentURL = (word: string) => {
-    const pathSegments = pathname.split("/").filter(Boolean);
-    return pathSegments[0] === word;
-  };
+  // const isCurrentURL = (word: string) => {
+  //   const pathSegments = pathname.split("/").filter(Boolean);
+  //   return pathSegments[0] === word;
+  // };
 
   const getDashboardUrl = (userRole: string) => {
     switch (userRole?.toLowerCase()) {
@@ -168,18 +159,6 @@ const NavbarClient = ({
       case "user":
       default:
         return "/user/dashboard/profile";
-    }
-  };
-
-  const getOrderHistoryUrl = (userRole: string) => {
-    switch (userRole?.toLowerCase()) {
-      case "admin":
-        return "/control/orders";
-      case "employee":
-        return "/employee/orders";
-      case "user":
-      default:
-        return "/user/dashboard/order-history";
     }
   };
 

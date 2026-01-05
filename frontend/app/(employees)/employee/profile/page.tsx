@@ -2,7 +2,6 @@
 
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from '@/utils/axios/axios';
@@ -11,7 +10,6 @@ import { toast } from 'sonner';
 export default function EmployeeProfilePage() {
     const router = useRouter();
     const currentUser = useCurrentUser();
-    const { data: session, update: updateSession } = useSession();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 

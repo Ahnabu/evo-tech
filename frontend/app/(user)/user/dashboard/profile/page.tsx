@@ -3,7 +3,6 @@
 import { useUserProfile } from '@/hooks/use-user-dashboard';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from '@/utils/axios/axios';
@@ -11,7 +10,6 @@ import axios from '@/utils/axios/axios';
 export default function ProfilePage() {
     const router = useRouter();
     const currentUser = useCurrentUser();
-    const { data: session, update: updateSession } = useSession();
     const { profile, loading, error, refreshProfile } = useUserProfile();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);

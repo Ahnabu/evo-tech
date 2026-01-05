@@ -6,8 +6,7 @@ import { Avatar } from "@nextui-org/avatar";
 import { getNameInitials } from "@/utils/essential_functions";
 import { Button } from "../ui/button";
 import useDebounce from "@rooks/use-debounce";
-import { logout } from "@/actions/logout";
-import { signOut } from "next-auth/react";
+import { logoutUser } from "@/lib/auth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -33,31 +32,13 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
 
   const handleSignOutDebounced = useDebounce(async () => {
     try {
-      // Clear all session/local storage data first
-      if (typeof window !== "undefined") {
-        sessionStorage.clear();
-        localStorage.clear();
-      }
-
-      // Sign out from NextAuth first (this triggers the signOut event)
-      await signOut({ redirect: false });
+      // Call the logout function
+      await logoutUser();
 
       // Show success message
       toast.success("You signed out of your account.");
 
-      // Force redirect and clear all caches
-      router.push("/");
-      router.refresh();
-
-      // Additional cleanup - force reload after a short delay
-      setTimeout(() => {
-        window.location.href = "/";
-      }, 100);
-    } catch (err) {
-      console.error("Logout error:", err);
-      toast.error("Something went wrong while signing out.");
-
-      // Cleanup and force redirect
+      // Clear storage
       if (typeof window !== "undefined") {
         sessionStorage.clear();
         localStorage.clear();
@@ -65,8 +46,15 @@ export const NavUser = ({ currentUser }: { currentUser: any }) => {
 
       // Force hard redirect to clear everything
       window.location.href = "/";
+    } catch (err) {
+      console.error("Logout error:", err);
+      toast.error("Something went wrong while signing out.");
+
+      // Force redirect anyway
+      router.push("/");
+      router.refresh();
     }
-  }, 200);
+  }, 300);
 
   if (!currentUser) {
     return null;

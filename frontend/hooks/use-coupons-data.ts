@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { useSession } from "next-auth/react";
-import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
+import { getCurrentUser } from "@/utils/cookies";
+import axios from "@/utils/axios/axios";
 import { ServerSidePaginationProps } from "@/utils/types_interfaces/data-table-props";
 
 export interface ICoupon {
@@ -39,7 +39,7 @@ interface UseCouponsDataReturn {
 }
 
 export function useCouponsData(): UseCouponsDataReturn {
-  const { data: session } = useSession();
+  const currentUser = getCurrentUser();
   const [coupons, setCoupons] = useState<ICoupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +50,7 @@ export function useCouponsData(): UseCouponsDataReturn {
   const pathname = usePathname();
 
   const fetchCoupons = useCallback(async () => {
-    if (!session) return;
+    if (!currentUser) return;
 
     try {
       setIsLoading(true);
@@ -66,8 +66,7 @@ export function useCouponsData(): UseCouponsDataReturn {
       if (search) queryParams.set("search", search);
 
       const queryString = queryParams.toString();
-      const axiosClient = createAxiosClientWithSession(session);
-      const response = await axiosClient.get(`/coupons${queryString ? `?${queryString}` : ""}`);
+      const response = await axios.get(`/coupons${queryString ? `?${queryString}` : ""}`);
 
       const rawData = response.data.data || response.data.coupons || [];
       setCoupons(rawData);
@@ -87,7 +86,7 @@ export function useCouponsData(): UseCouponsDataReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [searchParams, session]);
+  }, [searchParams, currentUser]);
 
   const handlePageChange = useCallback(
     (page: number) => {

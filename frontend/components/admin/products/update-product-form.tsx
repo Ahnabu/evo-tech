@@ -8,7 +8,6 @@ import { UpdateProductSchema } from "@/schemas/admin/product/productschemas";
 import { FileUploader } from "@/components/file_upload/file-uploader";
 import { EvoFormInputError } from "@/components/error/form-input-error";
 
-import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/lib/all_utils";
@@ -28,6 +27,7 @@ import {
 import { IoIosAddCircle } from "react-icons/io";
 import { Trash2, Undo2, PlusCircle } from "lucide-react";
 import Image from "next/image";
+import axios from "@/utils/axios/axios";
 
 interface UpdateProductFormProps {
   itemInfo: {
@@ -945,7 +945,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         <div className="space-y-4">
             {faqFields.map((field, index) => (
                 <div key={field.id} className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm space-y-3 relative group">
-                    <button
+                    <button aria-label="remove"
                         type="button"
                         onClick={() => removeFaq(index)}
                         className="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"

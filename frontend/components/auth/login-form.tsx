@@ -10,15 +10,12 @@ import { AuthCardWrapper } from "@/components/auth/auth-card-wrapper";
 import { EvoFormInputError } from "@/components/error/form-input-error";
 import { ShowFormError } from "@/components/ui/form-error";
 import { ShowFormSuccess } from "@/components/ui/form-success";
-import { login } from "@/actions/login";
+import { loginUser } from "@/lib/auth";
 import { useRouter } from "next/navigation";
-import axios from "@/utils/axios/axios";
-import { useSession } from "next-auth/react";
 import { IoEye, IoEyeOff } from "react-icons/io5";
 
 const LoginForm = () => {
   const router = useRouter();
-  const { update } = useSession();
   const [formerror, setFormError] = useState<string>("");
   const [formsuccess, setFormSuccess] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -38,28 +35,21 @@ const LoginForm = () => {
     setFormError(""); // Reset error message
     setFormSuccess(""); // Reset success message
 
-    const res = await login(data);
+    const res = await loginUser(data);
 
     if (res && typeof res === "object") {
       if (res.error) {
         setFormError(res.error);
+        return;
       }
       if (res.success) {
-        setFormSuccess(res.success);
+        setFormSuccess(res.message); // Set the message, not the boolean
 
-        // Link any guest orders to this user account
-        try {
-          await axios.post("/api/order/link-guest-orders", {
-            email: data.email,
-          });
-        } catch (error) {
-          // Silently fail - linking is not critical for login success
-          console.log("Failed to link guest orders:", error);
-        }
-
-        await update();
-        router.push("/");
-        router.refresh();
+        // Give time to show success message and update UI
+        setTimeout(() => {
+          router.push("/");
+          router.refresh();
+        }, 500);
       }
     }
   };

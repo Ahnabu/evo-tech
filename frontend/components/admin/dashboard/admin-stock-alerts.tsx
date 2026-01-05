@@ -2,12 +2,12 @@
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSession } from "next-auth/react";
+import { getCurrentUser } from "@/utils/cookies";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, PackageSearch } from "lucide-react";
 import axiosErrorLogger from "@/components/error/axios_error";
-import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
+import axios from "@/utils/axios/axios";
 
 export type StockNotification = {
   _id: string;
@@ -32,17 +32,19 @@ const severityStyles: Record<StockNotification["severity"], string> = {
 };
 
 export const AdminStockAlerts = () => {
-  const { data: session } = useSession();
+  const currentUser = getCurrentUser();
   const [notifications, setNotifications] = useState<StockNotification[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchNotifications = useCallback(async () => {
-    if (!session) return;
+    if (!currentUser) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
-      const axiosInstance = createAxiosClientWithSession(session);
-      const response = await axiosInstance.get("/notifications/stock", {
+      const response = await axios.get("/notifications/stock", {
         params: {
           status: "open",
           limit: 5,
@@ -54,30 +56,31 @@ export const AdminStockAlerts = () => {
       }
     } catch (error) {
       axiosErrorLogger({ error });
+      setNotifications([]);
     } finally {
       setLoading(false);
     }
-  }, [session]);
+  }, []); // Remove currentUser from dependencies to prevent infinite loop
 
   useEffect(() => {
     fetchNotifications();
 
-    const interval = setInterval(fetchNotifications, 60000);
+    // Reduce polling frequency - only refresh every 2 minutes
+    const interval = setInterval(fetchNotifications, 120000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
 
   const handleMarkRead = useCallback(
     async (id: string) => {
-      if (!session) return;
+      if (!currentUser) return;
       try {
-        const axiosInstance = createAxiosClientWithSession(session);
-        await axiosInstance.patch(`/notifications/${id}/read`);
+        await axios.patch(`/notifications/${id}/read`);
         setNotifications((prev) => prev.filter((notif) => notif._id !== id));
       } catch (error) {
         axiosErrorLogger({ error });
       }
     },
-    [session]
+    [currentUser]
   );
 
   const renderBody = () => {
