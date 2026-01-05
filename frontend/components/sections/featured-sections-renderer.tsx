@@ -1,19 +1,15 @@
 
-import axiosIntercept from "@/utils/axios/axiosIntercept";
+
+import axios from "@/utils/axios/axios";
 import DynamicProductSlider from "@/components/carousels/dynamic-product-slider";
 import axiosErrorLogger from "@/components/error/axios_error";
-import { stableUrl } from "@/utils/common/constants";
 
 const getFeaturedSections = async () => {
-    // We are on the server receiving requests from the user browser.
-    // We can use the server-side axios interceptor (which just sets up cookies if needed)
-    // or just a direct axios call if the endpoint is public.
-    // The endpoint `/products/featured-sections` is public (check product.route.ts: `router.get("/featured-sections", ...)` has no auth middleware).
-    
-  const axiosClient = await axiosIntercept();
+    // This endpoint is public (no authentication required)
+    // Use regular axios instance instead of axiosIntercept to avoid auth token issues
   
   try {
-     const response = await axiosClient.get("/products/featured-sections");
+     const response = await axios.get("/products/featured-sections");
      return response.data.data;
   } catch (error) {
      axiosErrorLogger({ error });

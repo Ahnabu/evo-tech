@@ -112,6 +112,7 @@ const ItemReviewsSection = ({
             >
               <div className="flex items-start gap-3">
                 {review.userImage ? (
+                  // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={review.userImage}
                     alt={review.userName}

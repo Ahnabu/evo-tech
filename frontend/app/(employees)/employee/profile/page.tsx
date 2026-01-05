@@ -28,7 +28,7 @@ export default function EmployeeProfilePage() {
     }, [currentUser]);
 
     const handleSaveProfile = async () => {
-        if (!currentUser || !session?.user?.id) return;
+        if (!currentUser || !currentUser.id) return;
 
         setIsSaving(true);
 
@@ -54,21 +54,14 @@ export default function EmployeeProfilePage() {
             };
 
             // Call the backend API to update user profile
-            const response = await axios.put(`/api/users/${session.user.id}`, updatedData);
+            const response = await axios.put(`/users/${currentUser.id}`, updatedData);
 
             if (!response.data.success) {
                 throw new Error(response.data.message || 'Failed to update profile');
             }
 
-            // Update the session with new data
-            await updateSession({
-                user: {
-                    ...session.user,
-                    firstName: updatedData.firstName,
-                    lastName: updatedData.lastName,
-                    phone: updatedData.phone,
-                }
-            });
+            // Dispatch auth change event to update useCurrentUser hook
+            window.dispatchEvent(new Event('authChange'));
 
             toast.success('Profile updated successfully!');
             setIsEditing(false);

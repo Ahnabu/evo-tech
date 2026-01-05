@@ -218,7 +218,7 @@ const NavbarClient = ({
                     height={44}
                     priority
                     className="object-contain w-[70px] md:w-[140px]"
-                    style={{ width: "auto" }}
+                    // style={{ width: "auto" }}
                   />
                 </Link>
 

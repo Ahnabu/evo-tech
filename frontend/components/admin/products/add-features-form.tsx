@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle, Trash2, ImageIcon, Loader2 } from "lucide-react";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -448,9 +449,12 @@ export function AddProductFeaturesForm({
                   />
                   {imagePreview && (
                     <div className="relative">
-                      <img
+                      <Image
                         src={imagePreview}
                         alt="Preview"
+                        width={80}
+                        height={80}
+                        unoptimized
                         className="h-20 w-20 object-cover rounded-lg"
                       />
                       <Button
@@ -499,9 +503,12 @@ export function AddProductFeaturesForm({
                     >
                       <div className="flex gap-4 flex-1">
                         {subsection.imageUrl && (
-                          <img
+                          <Image
                             src={subsection.imageUrl}
                             alt={subsection.title}
+                            width={64}
+                            height={64}
+                            unoptimized
                             className="h-16 w-16 object-cover rounded-lg"
                           />
                         )}
