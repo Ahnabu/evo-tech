@@ -300,8 +300,10 @@ const Home = () => {
         </div>
       </div>
       <FeaturedCategories />
-      <FeaturedSectionsRenderer />
-      <Featured3DPrintersMaterials />
+      <Suspense fallback={<div className="w-full py-8 text-center text-stone-400">Loading featured sections...</div>}>
+        <FeaturedSectionsRenderer />
+      </Suspense>
+      {/* <Featured3DPrintersMaterials /> */}
       <PopularProductsSlider title="Popular Products" />
 
       <div className="w-full max-w-[1440px] h-fit pb-8 flex flex-col items-center font-inter">

@@ -31,8 +31,20 @@ const FeaturedCategories = () => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get("/categories");
-        console.log(response);
+        console.log("[FeaturedCategories] API Response:", response);
         const data = response?.data?.data || [];
+        
+        // Log each category to check for invalid slugs
+        console.log("[FeaturedCategories] Fetched categories:");
+        data.forEach((cat: Category, index: number) => {
+          console.log(`  ${index + 1}. Name: "${cat.name}", Slug: "${cat.slug || 'MISSING SLUG!'}", Active: ${cat.isActive}`);
+          
+          // Warn about problematic categories
+          if (!cat.slug || cat.slug.trim() === '') {
+            console.warn(`  ⚠️ WARNING: Category "${cat.name}" has no slug!`);
+          }
+        });
+        
         // Sort by sortOrder
         const sortedCategories = data.sort(
           (a: Category, b: Category) => (a.sortOrder || 0) - (b.sortOrder || 0)

@@ -37,16 +37,27 @@ const ProductsAndAccessories = async ({ searchParams }: currentRouteProps) => {
   let categoryId = null;
 
   if (categorySlug) {
+    console.log(`[ProductsAndAccessories] Fetching category with slug: "${categorySlug}"`);
+    
     const categoryResponse = await axios
       .get(`/categories/slug/${categorySlug}`)
-      .then((res) => res.data)
+      .then((res) => {
+        console.log(`[ProductsAndAccessories] ✅ Category found for slug: "${categorySlug}"`);
+        return res.data;
+      })
       .catch((error: any) => {
+        console.error(`[ProductsAndAccessories] ❌ Failed to fetch category with slug: "${categorySlug}"`);
+        console.error(`[ProductsAndAccessories] Error details:`, error.response?.data || error.message);
         axiosErrorLogger({ error });
         return null;
       });
 
     categoryData = categoryResponse?.data;
     categoryId = categoryData?._id;
+    
+    if (!categoryData) {
+      console.warn(`[ProductsAndAccessories] Category data is null for slug: "${categorySlug}"`);
+    }
   }
 
   // Build query parameters for products

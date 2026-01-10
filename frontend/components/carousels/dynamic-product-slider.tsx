@@ -18,6 +18,7 @@ interface Product {
   prevPrice?: number;
   image: string;
   rating?: number;
+  inStock?: boolean;
 }
 
 interface DynamicProductSliderProps {
@@ -36,78 +37,93 @@ const DynamicProductSlider = ({
   if (!products || products.length === 0) return null;
 
   return (
-    <section className="w-full max-w-[1440px] mx-auto px-4 sm:px-8 md:px-12 py-8">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg sm:text-2xl font-semibold text-stone-800">
-          {title}
-        </h3>
-        <div className="flex items-center gap-3 border-[1px] border-stone-400 rounded-xl">
-          <Link
-            href={viewMoreUrl}
-            className="text-sm text-stone-500 p-2 px-4 hover:bg-brand-600 rounded-xl font-semibold hover:text-white transition-colors"
-          >
-            More
-            <ExternalLink size={14} className="inline-block ml-1 mb-0.5" />
-          </Link>
-        </div>
-      </div>
-
-      <Swiper
-        modules={[Navigation, Autoplay]}
-        spaceBetween={20}
-        slidesPerView={2}
-        breakpoints={{
-          640: { slidesPerView: 3, spaceBetween: 18 },
-          1024: { slidesPerView: 4, spaceBetween: 20 },
-          1280: { slidesPerView: 4, spaceBetween: 20 },
-        }}
-        onSwiper={(s) => (swiperRef.current = s)}
-        autoplay={{ delay: 4000, disableOnInteraction: true }}
-        navigation={true}
-        loop={products.length > 4}
-        className="products-swiper"
-      >
-        {products.map((p) => (
-          <SwiperSlide key={p.id}>
+    <section className="w-full py-6">
+      <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Section Header */}
+        <div className="flex items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-5">
+          <h3 className="text-2xl font-bold text-stone-800">
+            {title}
+          </h3>
+          <div className="flex items-center gap-3 border-[1px] border-stone-400 rounded-xl">
             <Link
-              href={`/items/${p.slug}`}
-              className="group block w-full rounded-lg overflow-hidden shadow-sm hover:shadow-md transition transform hover:-translate-y-1"
+              href={viewMoreUrl}
+              className="text-sm text-stone-500 p-2 px-4 hover:bg-brand-600 rounded-xl font-semibold hover:text-white transition-colors"
             >
-              <div className="relative w-full h-[140px] sm:h-[160px] lg:h-[180px] bg-[#fafafa]">
-                <Image
-                  src={p.image}
-                  alt={p.name}
-                  fill
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                  className="object-contain p-4"
-                />
-              </div>
+              More
+              <ExternalLink size={14} className="inline-block ml-1 mb-0.5" />
+            </Link>
+          </div>
+        </div>
 
-              <div className="p-3">
-                <h4 className="text-sm font-medium text-stone-800 line-clamp-2 min-h-[2rem]">
-                  {p.name}
-                </h4>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm font-semibold text-stone-900">
-                      BDT {p.price?.toLocaleString()}
+        {/* Products Slider */}
+        <Swiper
+          modules={[Navigation, Autoplay]}
+          spaceBetween={20}
+          slidesPerView={1.5}
+          breakpoints={{
+            480: { slidesPerView: 2, spaceBetween: 20 },
+            768: { slidesPerView: 2.5, spaceBetween: 24 },
+            1024: { slidesPerView: 3, spaceBetween: 24 },
+            1280: { slidesPerView: 4, spaceBetween: 24 },
+          }}
+          onSwiper={(s) => (swiperRef.current = s)}
+          autoplay={{
+            delay: 3500,
+            disableOnInteraction: true,
+            pauseOnMouseEnter: true,
+          }}
+          navigation={true}
+          loop={products.length > 4}
+          className="products-swiper"
+        >
+          {products.map((product) => (
+            <SwiperSlide key={product.id}>
+              <Link
+                href={`/items/${product.slug}`}
+                className="group block w-full bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+              >
+                {/* Product Image Container - Fixed aspect ratio */}
+                <div className="relative w-full aspect-[4/3] bg-stone-100 overflow-hidden">
+                  <Image
+                    src={product.image || "/placeholder.png"}
+                    alt={product.name}
+                    fill
+                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-500 ease-out"
+                    sizes="(max-width: 640px) 80vw, (max-width: 768px) 45vw, (max-width: 1024px) 35vw, 28vw"
+                  />
+
+                  {/* Out of Stock Overlay */}
+                  {product.inStock === false && (
+                    <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-10">
+                      <span className="bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-semibold shadow-lg">
+                        Out of Stock
+                      </span>
                     </div>
-                     {p.prevPrice && p.prevPrice > p.price && (
-                      <div className="text-xs text-stone-400 line-through">
-                        BDT {p.prevPrice?.toLocaleString()}
-                      </div>
-                    )}
-                  </div>
-                 
-                  {p.rating !== undefined && p.rating > 0 && (
-                     <div className="text-xs text-stone-400">★ {p.rating}</div>
                   )}
                 </div>
-              </div>
-            </Link>
-          </SwiperSlide>
-        ))}
-      </Swiper>
+
+                {/* Product Info - Clean white background */}
+                <div className="p-3 bg-stone-50 border-t border-stone-100">
+                  <h3 className="text-sm sm:text-base font-semibold text-stone-800 line-clamp-2 group-hover:text-brand-600 transition-colors leading-snug">
+                    {product.name}
+                  </h3>
+
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <span className="text-[13px] font-medium text-stone-800">
+                      BDT {product.price.toLocaleString()}
+                    </span>
+                    {product.prevPrice && product.prevPrice > product.price && (
+                      <span className="text-xs sm:text-sm text-stone-400 line-through">
+                        ৳{product.prevPrice.toLocaleString()}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            </SwiperSlide>
+          ))}
+        </Swiper>
+      </div>
     </section>
   );
 };

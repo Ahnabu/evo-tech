@@ -1,4 +1,8 @@
 {
   "extends": "next/core-web-vitals",
-  "ignorePatterns": ["next.config.mjs"]
+  "ignorePatterns": [
+    "next.config.mjs",
+    "public/**/*.js",
+    "public/**/*.ts"
+  ]
 }

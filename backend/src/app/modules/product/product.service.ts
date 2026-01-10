@@ -313,6 +313,13 @@ const createProductIntoDB = async (
     }
   }
 
+  // If product is assigned to a landing section, add it to the section's products array
+  if (result.landingpageSectionId) {
+    await LandingSection.findByIdAndUpdate(result.landingpageSectionId, {
+      $addToSet: { products: result._id },
+    });
+  }
+
   await NotificationServices.evaluateStockForProduct(result._id);
 
   return result;
@@ -457,6 +464,27 @@ const updateProductIntoDB = async (
     delete (payload as any).removeImages;
   }
 
+  // Handle landingpageSectionId changes - maintain two-way relationship
+  const oldSectionId = product.landingpageSectionId?.toString();
+  const newSectionId = payload.landingpageSectionId?.toString();
+
+  // If the section assignment changed
+  if (oldSectionId !== newSectionId) {
+    // Remove product from old section
+    if (oldSectionId) {
+      await LandingSection.findByIdAndUpdate(oldSectionId, {
+        $pull: { products: id },
+      });
+    }
+
+    // Add product to new section
+    if (newSectionId && newSectionId !== "") {
+      await LandingSection.findByIdAndUpdate(newSectionId, {
+        $addToSet: { products: id }, // $addToSet prevents duplicates
+      });
+    }
+  }
+
   const result = await Product.findByIdAndUpdate(id, payload, { new: true })
     .populate("category")
     .populate("subcategory")
@@ -491,6 +519,14 @@ const deleteProductFromDB = async (id: string) => {
   const product = await Product.findById(id);
   if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  // Remove product from its landing section if assigned
+  if (product.landingpageSectionId) {
+    await LandingSection.findByIdAndUpdate(product.landingpageSectionId, {
+      $pull: { products: id },
+    });
+    console.log(`Removed deleted product ${id} from section ${product.landingpageSectionId}`);
   }
 
   // Delete related data
@@ -766,6 +802,8 @@ const getAllUniqueColorsFromDB = async () => {
 
 // Featured Sections (Homepage Sections)
 const getAllFeaturedSectionsFromDB = async () => {
+  console.log("=== Backend: getAllFeaturedSectionsFromDB ===");
+  
   const result = await LandingSection.find()
     .sort({ sortOrder: 1 })
     .populate("category", "name slug")
@@ -773,7 +811,17 @@ const getAllFeaturedSectionsFromDB = async () => {
     .populate({
       path: "products",
       select: "name slug price previousPrice mainImage",
-    });
+    })
+    .lean(); // Add lean() to get plain JavaScript objects
+
+  console.log("Total sections found:", result.length);
+  result.forEach((section: any, index: number) => {
+    console.log(`\nSection ${index + 1}:`, section.title);
+    console.log("  - ID:", section._id);
+    console.log("  - isActive:", section.isActive);
+    console.log("  - Products array length:", section.products?.length || 0);
+    console.log("  - Products:", JSON.stringify(section.products, null, 2));
+  });
 
   return result;
 };

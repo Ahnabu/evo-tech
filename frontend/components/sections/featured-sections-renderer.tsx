@@ -10,6 +10,7 @@ const getFeaturedSections = async () => {
   
   try {
      const response = await axios.get("/products/featured-sections");
+     console.log(response);
      return response.data.data;
   } catch (error) {
      axiosErrorLogger({ error });
@@ -19,13 +20,23 @@ const getFeaturedSections = async () => {
 
 const FeaturedSectionsRenderer = async () => {
   const sections = await getFeaturedSections();
+  
 
-  if (!sections || sections.length === 0) return null;
+  if (!sections || sections.length === 0) {
+    return null;
+  }
 
   return (
     <>
       {sections.map((section: any) => {
-        if (!section.isActive || !section.products || section.products.length === 0) return null;
+        
+        if (!section.isActive) {
+          return null;
+        }
+
+        if (!section.products || section.products.length === 0) {
+          return null;
+        }
         
         // Use category or subcategory slug for view more, or fallback to general products page
         let viewMoreUrl = "/products-and-accessories";
