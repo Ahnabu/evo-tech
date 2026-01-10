@@ -810,7 +810,7 @@ const getAllFeaturedSectionsFromDB = async () => {
     .populate("subcategory", "name slug")
     .populate({
       path: "products",
-      select: "name slug price previousPrice mainImage",
+      select: "name slug price previousPrice preOrderPrice  mainImage",
     })
     .lean(); // Add lean() to get plain JavaScript objects
 

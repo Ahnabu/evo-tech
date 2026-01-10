@@ -52,8 +52,9 @@ const FeaturedSectionsRenderer = async () => {
              slug: p.slug,
              price: p.price,
              prevPrice: p.previousPrice,
+             preOrderPrice: p.preOrderPrice || null,
              image: p.mainImage,
-             rating: 0 // Backend doesn't return rating in this optimized query, default to 0
+             rating: 0 
         }));
 
         return (

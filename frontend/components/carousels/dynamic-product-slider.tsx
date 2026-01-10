@@ -16,6 +16,7 @@ interface Product {
   slug: string;
   price: number;
   prevPrice?: number;
+  preOrderPrice?: number;
   image: string;
   rating?: number;
   inStock?: boolean;
@@ -109,13 +110,26 @@ const DynamicProductSlider = ({
                   </h3>
 
                   <div className="flex items-baseline gap-2 flex-wrap">
-                    <span className="text-[13px] font-medium text-stone-800">
-                      BDT {product.price.toLocaleString()}
-                    </span>
-                    {product.prevPrice && product.prevPrice > product.price && (
-                      <span className="text-xs sm:text-sm text-stone-400 line-through">
-                        ৳{product.prevPrice.toLocaleString()}
-                      </span>
+                    {product.preOrderPrice && product.preOrderPrice < product.price ? (
+                      <>
+                        <span className="text-[13px] font-semibold text-cyan-600">
+                          Pre-Order: BDT {product.preOrderPrice.toLocaleString()}
+                        </span>
+                        <span className="text-xs sm:text-sm text-red-500 line-through">
+                          ৳{product.price.toLocaleString()}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="text-[13px] font-medium text-stone-800">
+                          BDT {product.price.toLocaleString()}
+                        </span>
+                        {product.prevPrice && product.prevPrice > product.price && (
+                          <span className="text-xs sm:text-sm text-stone-400 line-through">
+                            ৳{product.prevPrice.toLocaleString()}
+                          </span>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

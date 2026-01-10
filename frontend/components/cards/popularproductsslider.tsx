@@ -44,6 +44,7 @@ const PopularProductsSlider = ({
           slug: p.slug,
           price: p.price,
           prevPrice: p.previousPrice || p.previous_price || 0,
+          preOrderPrice: p.preOrderPrice || p.pre_order_price || null,
           image:
             p.mainImage || p.main_image || "/assets/placeholder-product.svg",
           rating: p.rating || 0,
@@ -149,17 +150,28 @@ const PopularProductsSlider = ({
                 />
               </div>
 
-              <div className="p-3">
-                <h4 className="text-sm font-medium text-stone-800 line-clamp-2 min-h-[2rem]">
-                  {p.name}
-                </h4>
-                <div className="flex items-center justify-between">
-                  <div className="text-sm font-semibold text-stone-900">
-                    BDT {p.price?.toLocaleString()}
+                <div className="p-3">
+                  <h4 className="text-sm font-medium text-stone-800 line-clamp-2 min-h-[2rem]">
+                    {p.name}
+                  </h4>
+                  <div className="flex items-center justify-between">
+                    {p.preOrderPrice && p.preOrderPrice < p.price ? (
+                      <div className="flex items-center gap-2">
+                        <div className="text-sm font-semibold text-cyan-600">
+                          BDT {p.preOrderPrice?.toLocaleString()}
+                        </div>
+                        <div className="text-sm text-red-500 line-through">
+                          BDT {p.price?.toLocaleString()}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-sm font-semibold text-stone-900">
+                        BDT {p.price?.toLocaleString()}
+                      </div>
+                    )}
+                    <div className="text-xs text-stone-400">★ {p.rating}</div>
                   </div>
-                  <div className="text-xs text-stone-400">★ {p.rating}</div>
                 </div>
-              </div>
             </Link>
           </SwiperSlide>
         ))}

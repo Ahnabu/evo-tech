@@ -8,6 +8,7 @@ import {
   TrendingDown,
   Calendar,
   ArrowLeft,
+  Download,
 } from "lucide-react";
 import { getCurrentUser } from "@/utils/cookies";
 import axios from "@/utils/axios/axios";
@@ -25,6 +26,8 @@ import {
   LineChart,
   Line,
 } from "recharts";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 interface EarningsData {
   total: {
@@ -105,6 +108,125 @@ export default function EarningsReportPage() {
     return new Intl.NumberFormat("en-US").format(num);
   };
 
+  const exportToExcel = () => {
+    if (!earnings) return;
+
+    // Create a new workbook
+    const wb = XLSX.utils.book_new();
+
+    // Sheet 1: Summary with better organization
+    const summaryData = [
+      ["EARNINGS REPORT SUMMARY"],
+      [""],
+      ["OVERALL PERFORMANCE"],
+      ["Total Earnings", formatCurrency(earnings.total.earnings)],
+      ["Total Orders", formatNumber(earnings.total.orders)],
+      ["Average Order Value", formatCurrency(earnings.avgOrderValue)],
+      [""],
+      ["CURRENT MONTH PERFORMANCE"],
+      ["Monthly Earnings", formatCurrency(earnings.monthly.earnings)],
+      ["Monthly Orders", formatNumber(earnings.monthly.orders)],
+      ["Monthly Growth", `${earnings.monthly.growth.toFixed(1)}%`],
+      [""],
+      ["CURRENT YEAR PERFORMANCE"],
+      ["Yearly Earnings", formatCurrency(earnings.yearly.earnings)],
+      ["Yearly Orders", formatNumber(earnings.yearly.orders)],
+      ["Yearly Growth", `${earnings.yearly.growth.toFixed(1)}%`],
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+    // Set column widths
+    ws1['!cols'] = [{ wch: 25 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws1, "Summary");
+
+    // Sheet 2: Monthly Breakdown with additional metrics
+    const monthlyData = [
+      ["MONTHLY BREAKDOWN - CURRENT YEAR"],
+      [""],
+      ["Month", "Orders", "Earnings (BDT)", "Avg Order Value"],
+      ...earnings.monthly.breakdown.map((item) => [
+        MONTH_NAMES[item.month - 1],
+        item.orders,
+        formatCurrency(item.earnings),
+        item.orders > 0 ? formatCurrency(item.earnings / item.orders) : "৳0",
+      ]),
+      [""],
+      ["TOTAL", 
+       earnings.monthly.breakdown.reduce((sum, item) => sum + item.orders, 0),
+       formatCurrency(earnings.monthly.breakdown.reduce((sum, item) => sum + item.earnings, 0)),
+       ""
+      ],
+    ];
+    const ws2 = XLSX.utils.aoa_to_sheet(monthlyData);
+    // Set column widths
+    ws2['!cols'] = [{ wch: 15 }, { wch: 12 }, { wch: 18 }, { wch: 18 }];
+    XLSX.utils.book_append_sheet(wb, ws2, "Monthly Breakdown");
+
+    // Sheet 3: Yearly Breakdown with growth calculation
+    const yearlyData = [
+      ["YEARLY BREAKDOWN - ALL TIME"],
+      [""],
+      ["Year", "Orders", "Earnings (BDT)", "Avg Order Value", "Growth %"],
+      ...earnings.yearly.breakdown.map((item, index) => {
+        const prevYear = index > 0 ? earnings.yearly.breakdown[index - 1] : null;
+        const growth = prevYear && prevYear.earnings > 0
+          ? ((item.earnings - prevYear.earnings) / prevYear.earnings * 100).toFixed(1)
+          : "N/A";
+        return [
+          item.year,
+          item.orders,
+          formatCurrency(item.earnings),
+          item.orders > 0 ? formatCurrency(item.earnings / item.orders) : "৳0",
+          growth === "N/A" ? growth : `${growth}%`,
+        ];
+      }),
+      [""],
+      ["TOTAL", 
+       earnings.yearly.breakdown.reduce((sum, item) => sum + item.orders, 0),
+       formatCurrency(earnings.yearly.breakdown.reduce((sum, item) => sum + item.earnings, 0)),
+       "",
+       ""
+      ],
+    ];
+    const ws3 = XLSX.utils.aoa_to_sheet(yearlyData);
+    // Set column widths
+    ws3['!cols'] = [{ wch: 10 }, { wch: 12 }, { wch: 18 }, { wch: 18 }, { wch: 12 }];
+    XLSX.utils.book_append_sheet(wb, ws3, "Yearly Breakdown");
+
+    // Sheet 4: Chart Data for easy visualization
+    const chartData = [
+      ["CHART DATA - Monthly Earnings Trend"],
+      [""],
+      ["Month", "Earnings"],
+      ...earnings.monthly.breakdown.map((item) => [
+        MONTH_NAMES[item.month - 1],
+        item.earnings,
+      ]),
+      [""],
+      [""],
+      ["CHART DATA - Yearly Earnings Trend"],
+      [""],
+      ["Year", "Earnings"],
+      ...earnings.yearly.breakdown.map((item) => [
+        item.year.toString(),
+        item.earnings,
+      ]),
+      [""],
+      [""],
+      ["NOTE: Select the data above and Insert > Chart in Excel for visualization"],
+    ];
+    const ws4 = XLSX.utils.aoa_to_sheet(chartData);
+    ws4['!cols'] = [{ wch: 15 }, { wch: 20 }];
+    XLSX.utils.book_append_sheet(wb, ws4, "Chart Data");
+
+    // Generate Excel file
+    const excelBuffer = XLSX.write(wb, { bookType: "xlsx", type: "array" });
+    const data = new Blob([excelBuffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+    const fileName = `earnings-report-${new Date().toISOString().split("T")[0]}.xlsx`;
+    saveAs(data, fileName);
+  };
+
   const monthlyChartData =
     earnings?.monthly.breakdown.map((item) => ({
       name: MONTH_NAMES[item.month - 1],
@@ -148,13 +270,23 @@ export default function EarningsReportPage() {
             </p>
           </div>
         </div>
-        <Button variant="outline" className="flex items-center gap-2">
-          <Calendar className="w-4 h-4" />
-          {new Date().toLocaleDateString("en-US", {
-            month: "long",
-            year: "numeric",
-          })}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            onClick={exportToExcel}
+            variant="default"
+            className="flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" />
+            Export to Excel
+          </Button>
+          <Button variant="outline" className="flex items-center gap-2">
+            <Calendar className="w-4 h-4" />
+            {new Date().toLocaleDateString("en-US", {
+              month: "long",
+              year: "numeric",
+            })}
+          </Button>
+        </div>
       </div>
 
       {/* Summary Cards */}

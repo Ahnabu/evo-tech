@@ -668,114 +668,90 @@ const CheckoutParts = () => {
             )}
           </div>
 
-          <div className="flex max-[410px]:flex-col w-full h-fit gap-x-2 gap-y-4">
-            <div className="relative w-full h-fit pt-1.5">
-              <Controller
-                name="city"
-                control={control}
-                render={({ field }) => (
-                  <Popover
-                    open={isCityPopoverOpen}
-                    onOpenChange={setIsCityPopoverOpen}
-                  >
-                    <PopoverTrigger asChild>
-                      <button
-                        type="button"
-                        aria-label={`city or district`}
-                        className={`peer/city relative z-[0] flex items-center w-full h-[40px] text-[12px] leading-4 font-[500] ${
-                          field.value ? `text-stone-900` : `text-stone-400`
-                        } px-2 py-1 bg-stone-100 border rounded-[4px] border-stone-400 border-t-transparent overflow-hidden focus-visible:outline-none focus-visible:border-x-evoAdminAccent focus-visible:border-t-transparent`}
-                      >
-                        <p className="w-full h-fit text-left truncate capitalize">
-                          {field.value
-                            ? districtsOfBD.find(
-                                (district) => district.key === field.value
-                              )?.itemvalue
-                            : `Select city/district`}
-                        </p>
-                        <div className="absolute z-0 inset-y-0 right-0 flex items-center w-fit px-1 py-1 bg-stone-100">
-                          <IoChevronDown className="inline w-[14px] h-[14px] text-stone-700" />
-                        </div>
-                      </button>
-                    </PopoverTrigger>
-
-                    <PopoverContent
-                      sideOffset={10}
-                      className="w-[150px] sm:w-[250px] h-fit p-1 bg-stone-50 border-stone-300 shadow-md"
+          <div className="relative w-full h-fit pt-1.5">
+            <Controller
+              name="city"
+              control={control}
+              render={({ field }) => (
+                <Popover
+                  open={isCityPopoverOpen}
+                  onOpenChange={setIsCityPopoverOpen}
+                >
+                  <PopoverTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label={`city or district`}
+                      className={`peer/city relative z-[0] flex items-center w-full h-[40px] text-[12px] leading-4 font-[500] ${
+                        field.value ? `text-stone-900` : `text-stone-400`
+                      } px-2 py-1 bg-stone-100 border rounded-[4px] border-stone-400 border-t-transparent overflow-hidden focus-visible:outline-none focus-visible:border-x-evoAdminAccent focus-visible:border-t-transparent`}
                     >
-                      <Command>
-                        <CommandInput
-                          placeholder="Find city..."
-                          className="h-9"
-                        />
-                        <CommandList className="max-h-[180px] scrollbar-custom">
-                          <CommandEmpty>{`City not found.`}</CommandEmpty>
-                          <CommandGroup>
-                            {districtsOfBD
-                              .sort((a, b) => a.key.localeCompare(b.key))
-                              .map((districtItem) => (
-                                <CommandItem
-                                  key={districtItem.key}
-                                  value={districtItem.key}
-                                  onSelect={() => {
-                                    field.onChange(districtItem.key);
-                                    handleCitySelection(districtItem.key);
-                                  }}
-                                  className={`font-[500] tracking-tight ${
-                                    districtItem.key === field.value
-                                      ? "text-[#0866FF]"
-                                      : "text-stone-600"
-                                  }`}
-                                >
-                                  {districtItem.itemvalue}
-                                  <IoCheckmark
-                                    className={`inline w-4 h-4 ml-auto ${
-                                      districtItem.key === field.value
-                                        ? "text-[#0866FF] opacity-100"
-                                        : "text-transparent opacity-0"
-                                    }`}
-                                  />
-                                </CommandItem>
-                              ))}
-                          </CommandGroup>
-                        </CommandList>
-                      </Command>
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-              <p
-                id="citylabel"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-700 before:border-stone-400 after:border-stone-400 peer-disabled/city:before:border-stone-300 peer-disabled/city:after:border-stone-300"
-              >
-                {`City/District*`}
-              </p>
-              {errors.city && (
-                <EvoFormInputError>{errors.city.message}</EvoFormInputError>
-              )}
-            </div>
+                      <p className="w-full h-fit text-left truncate capitalize">
+                        {field.value
+                          ? districtsOfBD.find(
+                              (district) => district.key === field.value
+                            )?.itemvalue
+                          : `Select city/district`}
+                      </p>
+                      <div className="absolute z-0 inset-y-0 right-0 flex items-center w-fit px-1 py-1 bg-stone-100">
+                        <IoChevronDown className="inline w-[14px] h-[14px] text-stone-700" />
+                      </div>
+                    </button>
+                  </PopoverTrigger>
 
-            <div className="relative w-full h-fit pt-1.5">
-              <input
-                type="text"
-                id="subdistrict"
-                {...register("subdistrict")}
-                placeholder="Enter thana/subdistrict"
-                autoCorrect="off"
-                className="peer w-full h-[40px] custom-input-style1"
-              />
-              <label
-                htmlFor="subdistrict"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
-              >
-                {`Thana/Subdistrict*`}
-              </label>
-              {errors.subdistrict && (
-                <EvoFormInputError>
-                  {errors.subdistrict.message}
-                </EvoFormInputError>
+                  <PopoverContent
+                    sideOffset={10}
+                    className="w-[150px] sm:w-[250px] h-fit p-1 bg-stone-50 border-stone-300 shadow-md"
+                  >
+                    <Command>
+                      <CommandInput
+                        placeholder="Find city..."
+                        className="h-9"
+                      />
+                      <CommandList className="max-h-[180px] scrollbar-custom">
+                        <CommandEmpty>{`City not found.`}</CommandEmpty>
+                        <CommandGroup>
+                          {districtsOfBD
+                            .sort((a, b) => a.key.localeCompare(b.key))
+                            .map((districtItem) => (
+                              <CommandItem
+                                key={districtItem.key}
+                                value={districtItem.key}
+                                onSelect={() => {
+                                  field.onChange(districtItem.key);
+                                  handleCitySelection(districtItem.key);
+                                }}
+                                className={`font-[500] tracking-tight ${
+                                  districtItem.key === field.value
+                                    ? "text-[#0866FF]"
+                                    : "text-stone-600"
+                                }`}
+                              >
+                                {districtItem.itemvalue}
+                                <IoCheckmark
+                                  className={`inline w-4 h-4 ml-auto ${
+                                    districtItem.key === field.value
+                                      ? "text-[#0866FF] opacity-100"
+                                      : "text-transparent opacity-0"
+                                  }`}
+                                />
+                              </CommandItem>
+                            ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               )}
-            </div>
+            />
+            <p
+              id="citylabel"
+              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-700 before:border-stone-400 after:border-stone-400 peer-disabled/city:before:border-stone-300 peer-disabled/city:after:border-stone-300"
+            >
+              {`City/District*`}
+            </p>
+            {errors.city && (
+              <EvoFormInputError>{errors.city.message}</EvoFormInputError>
+            )}
           </div>
 
           <div className="relative w-full h-fit pt-1.5">
