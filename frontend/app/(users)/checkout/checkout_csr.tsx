@@ -87,7 +87,7 @@ const CheckoutParts = () => {
   // Log validation errors when they change
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
-      console.log("❌ Form validation errors:", errors);
+      // console.log("❌ Form validation errors:", errors);
     }
   }, [errors]);
 
@@ -162,19 +162,19 @@ const CheckoutParts = () => {
   }, [shippingType, setValue]);
 
   const onSubmit: SubmitHandler<CheckoutFormValuesType> = async (data) => {
-    console.log("🚀 Place Order button clicked! Form data:", data);
-    console.log("💰 Cart calculations:", {
-      cartSubTotal,
-      deliveryCharge,
-      bKashCharge,
-      discountAmount,
-      totalPayableAmount,
-      dueNowTotal,
-      preOrderSubtotal,
-      preOrderDepositDue,
-      preOrderBalanceDue,
-      cartItems: cartItems?.length || 0,
-    });
+    // console.log("🚀 Place Order button clicked! Form data:", data);
+    // console.log("💰 Cart calculations:", {
+    //   cartSubTotal,
+    //   deliveryCharge,
+    //   bKashCharge,
+    //   discountAmount,
+    //   totalPayableAmount,
+    //   dueNowTotal,
+    //   preOrderSubtotal,
+    //   preOrderDepositDue,
+    //   preOrderBalanceDue,
+    //   cartItems: cartItems?.length || 0,
+    // });
 
     const localevoFrontCart = localStorage.getItem("evoFrontCart");
     const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : null;
@@ -220,42 +220,37 @@ const CheckoutParts = () => {
 
     // Determine endpoint based on authentication status
     const orderEndpoint = isAuthenticated ? "/orders" : "/orders/guest";
-    console.log(
-      "📡 Sending order to:",
-      orderEndpoint,
-      "| Authenticated:",
-      isAuthenticated
-    );
-    console.log("📦 Order details:", checkoutDetails);
+    // console.log(
+    //   "📡 Sending order to:",
+    //   orderEndpoint,
+    //   "| Authenticated:",
+    //   isAuthenticated
+    // );
+    // console.log("📦 Order details:", checkoutDetails);
 
     // Log the exact request body being sent
     const requestBody = {
       ...checkoutDetails,
       ...cartReqBody,
     };
-    console.log("📤 Final request body:", requestBody);
-    console.log("🔢 Payment fields in request:", {
-      subtotal: requestBody.subtotal,
-      subtotalType: typeof requestBody.subtotal,
-      totalPayable: requestBody.totalPayable,
-      totalPayableType: typeof requestBody.totalPayable,
-      deliveryCharge: requestBody.deliveryCharge,
-      additionalCharge: requestBody.additionalCharge,
-    });
+    // console.log("📤 Final request body:", requestBody);
+    // console.log("🔢 Payment fields in request:", {
+    //   subtotal: requestBody.subtotal,
+    //   subtotalType: typeof requestBody.subtotal,
+    //   totalPayable: requestBody.totalPayable,
+    //   totalPayableType: typeof requestBody.totalPayable,
+    //   deliveryCharge: requestBody.deliveryCharge,
+    //   additionalCharge: requestBody.additionalCharge,
+    // });
 
     // Use authenticated axios instance if user is logged in, otherwise use guest axios
     const axiosInstance = isAuthenticated ? await createAxiosClient() : axios;
-    console.log(
-      "🔐 Using axios instance:",
-      isAuthenticated ? "Authenticated (with JWT token)" : "Guest (no auth)"
-    );
 
     let lastOrderErrorMessage = "";
 
     const orderResponse = await axiosInstance
       .post(orderEndpoint, requestBody)
       .then((res) => {
-        console.log("✅ Order response received:", res.data);
         return res.data;
       })
       .catch((error: any) => {
@@ -296,19 +291,12 @@ const CheckoutParts = () => {
       // If bKash payment is selected, initiate payment gateway
       if (data.paymentMethod === "bkash") {
         try {
-          console.log("💳 Initiating bKash payment for order:", order._id);
 
           // Use guest endpoint if not authenticated, otherwise use authenticated endpoint
           const bkashEndpoint = isAuthenticated
             ? "/payment/bkash/create"
             : "/payment/bkash/create/guest";
 
-          console.log(
-            "🔐 Using bKash endpoint:",
-            bkashEndpoint,
-            "| Authenticated:",
-            isAuthenticated
-          );
 
           // Create bKash payment - use authenticated axios if user is logged in
           const paymentResponse = await axiosInstance
@@ -317,7 +305,6 @@ const CheckoutParts = () => {
               orderId: order._id,
             })
             .then((res) => {
-              console.log("✅ bKash payment response:", res.data);
               return res.data;
             })
             .catch((error: any) => {
@@ -331,10 +318,6 @@ const CheckoutParts = () => {
             paymentResponse.success &&
             paymentResponse.data?.bkashURL
           ) {
-            console.log(
-              "🔗 Redirecting to bKash URL:",
-              paymentResponse.data.bkashURL
-            );
             toast.success("Redirecting to bKash payment...");
 
             // Small delay to show toast before redirect
@@ -516,7 +499,7 @@ const CheckoutParts = () => {
   }
 
   const onInvalidSubmit = (errors: any) => {
-    console.log("❌ Form submission blocked due to validation errors:", errors);
+    // console.log("❌ Form submission blocked due to validation errors:", errors);
     toast.error("Please fill in all required fields correctly");
   };
 
@@ -587,11 +570,11 @@ const CheckoutParts = () => {
               placeholder="Enter your name"
               autoCorrect="off"
               spellCheck="false"
-              className="peer w-full h-[40px] custom-input-style1"
+              className="peer w-full h-[40px] custom-input-style1 hover:border-[#0866FF] hover:border-t-transparent"
             />
             <label
               htmlFor="fullName"
-              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-hover:before:border-[#0866FF] peer-hover:after:border-[#0866FF] peer-hover:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
             >
               {`Name*`}
             </label>
@@ -610,11 +593,11 @@ const CheckoutParts = () => {
                 autoCorrect="off"
                 inputMode="tel"
                 autoComplete="tel"
-                className="peer w-full h-[40px] custom-input-style1"
+                className="peer w-full h-[40px] custom-input-style1 hover:border-[#0866FF] hover:border-t-transparent"
               />
               <label
                 htmlFor="phone"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-hover:before:border-[#0866FF] peer-hover:after:border-[#0866FF] peer-hover:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
               >
                 {`Phone*`}
               </label>
@@ -633,11 +616,11 @@ const CheckoutParts = () => {
                 spellCheck="false"
                 inputMode="email"
                 autoComplete="email"
-                className="peer w-full h-[40px] custom-input-style1"
+                className="peer w-full h-[40px] custom-input-style1 hover:border-[#0866FF] hover:border-t-transparent"
               />
               <label
                 htmlFor="email"
-                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-hover:before:border-[#0866FF] peer-hover:after:border-[#0866FF] peer-hover:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
               >
                 {`Email`}
               </label>
@@ -655,11 +638,11 @@ const CheckoutParts = () => {
               placeholder="Enter your address"
               autoCorrect="off"
               spellCheck="false"
-              className="peer w-full h-[40px] custom-input-style1"
+              className="peer w-full h-[40px] custom-input-style1 hover:border-[#0866FF] hover:border-t-transparent"
             />
             <label
               htmlFor="address"
-              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-hover:before:border-[#0866FF] peer-hover:after:border-[#0866FF] peer-hover:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
             >
               {`Address*`}
             </label>
@@ -668,112 +651,114 @@ const CheckoutParts = () => {
             )}
           </div>
 
-          <div className="relative w-full h-fit pt-1.5">
-            <Controller
-              name="city"
-              control={control}
-              render={({ field }) => (
-                <Popover
-                  open={isCityPopoverOpen}
-                  onOpenChange={setIsCityPopoverOpen}
-                >
-                  <PopoverTrigger asChild>
-                    <button
-                      type="button"
-                      aria-label={`city or district`}
-                      className={`peer/city relative z-[0] flex items-center w-full h-[40px] text-[12px] leading-4 font-[500] ${
-                        field.value ? `text-stone-900` : `text-stone-400`
-                      } px-2 py-1 bg-stone-100 border rounded-[4px] border-stone-400 border-t-transparent overflow-hidden focus-visible:outline-none focus-visible:border-x-evoAdminAccent focus-visible:border-t-transparent`}
-                    >
-                      <p className="w-full h-fit text-left truncate capitalize">
-                        {field.value
-                          ? districtsOfBD.find(
-                              (district) => district.key === field.value
-                            )?.itemvalue
-                          : `Select city/district`}
-                      </p>
-                      <div className="absolute z-0 inset-y-0 right-0 flex items-center w-fit px-1 py-1 bg-stone-100">
-                        <IoChevronDown className="inline w-[14px] h-[14px] text-stone-700" />
-                      </div>
-                    </button>
-                  </PopoverTrigger>
-
-                  <PopoverContent
-                    sideOffset={10}
-                    className="w-[150px] sm:w-[250px] h-fit p-1 bg-stone-50 border-stone-300 shadow-md"
+          <div className="flex max-[410px]:flex-col w-full h-fit gap-x-2 gap-y-4">
+            <div className="relative w-full h-fit pt-1.5">
+              <Controller
+                name="city"
+                control={control}
+                render={({ field }) => (
+                  <Popover
+                    open={isCityPopoverOpen}
+                    onOpenChange={setIsCityPopoverOpen}
                   >
-                    <Command>
-                      <CommandInput
-                        placeholder="Find city..."
-                        className="h-9"
-                      />
-                      <CommandList className="max-h-[180px] scrollbar-custom">
-                        <CommandEmpty>{`City not found.`}</CommandEmpty>
-                        <CommandGroup>
-                          {districtsOfBD
-                            .sort((a, b) => a.key.localeCompare(b.key))
-                            .map((districtItem) => (
-                              <CommandItem
-                                key={districtItem.key}
-                                value={districtItem.key}
-                                onSelect={() => {
-                                  field.onChange(districtItem.key);
-                                  handleCitySelection(districtItem.key);
-                                }}
-                                className={`font-[500] tracking-tight ${
-                                  districtItem.key === field.value
-                                    ? "text-[#0866FF]"
-                                    : "text-stone-600"
-                                }`}
-                              >
-                                {districtItem.itemvalue}
-                                <IoCheckmark
-                                  className={`inline w-4 h-4 ml-auto ${
-                                    districtItem.key === field.value
-                                      ? "text-[#0866FF] opacity-100"
-                                      : "text-transparent opacity-0"
-                                  }`}
-                                />
-                              </CommandItem>
-                            ))}
-                        </CommandGroup>
-                      </CommandList>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-              )}
-            />
-            <p
-              id="citylabel"
-              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-700 before:border-stone-400 after:border-stone-400 peer-disabled/city:before:border-stone-300 peer-disabled/city:after:border-stone-300"
-            >
-              {`City/District*`}
-            </p>
-            {errors.city && (
-              <EvoFormInputError>{errors.city.message}</EvoFormInputError>
-            )}
-          </div>
+                    <PopoverTrigger asChild>
+                      <button
+                        type="button"
+                        aria-label={`city or district`}
+                        className={`peer/city relative z-[0] flex items-center w-full h-[40px] text-[12px] leading-4 font-[500] ${
+                          field.value ? `text-stone-900` : `text-stone-400`
+                        } px-2 py-1 bg-stone-100 border rounded-[4px] border-stone-400 border-t-transparent overflow-hidden focus-visible:outline-none focus-visible:border-x-[#0866FF] focus-visible:border-t-transparent focus-visible:border-b-[#0866FF] hover:border-x-[#0866FF] hover:border-t-transparent hover:border-b-[#0866FF]`}
+                      >
+                        <p className="w-full h-fit text-left truncate capitalize">
+                          {field.value
+                            ? districtsOfBD.find(
+                                (district) => district.key === field.value
+                              )?.itemvalue
+                            : `Select city/district`}
+                        </p>
+                        <div className="absolute z-0 inset-y-0 right-0 flex items-center w-fit px-1 py-1 bg-stone-100">
+                          <IoChevronDown className="inline w-[14px] h-[14px] text-stone-700" />
+                        </div>
+                      </button>
+                    </PopoverTrigger>
 
-          <div className="relative w-full h-fit pt-1.5">
-            <input
-              type="text"
-              id="country"
-              {...register("country")}
-              placeholder="Enter country"
-              autoCorrect="off"
-              disabled
-              autoComplete="off"
-              className="peer w-full h-[40px] custom-input-style1 disabled:cursor-default"
-            />
-            <label
-              htmlFor="country"
-              className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-stone-600 after:border-stone-400 peer-focus:after:border-stone-600 peer-focus:text-stone-700 peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
-            >
-              {`Country*`}
-            </label>
-            {errors.country && (
-              <EvoFormInputError>{errors.country.message}</EvoFormInputError>
-            )}
+                    <PopoverContent
+                      sideOffset={10}
+                      className="w-[150px] sm:w-[250px] h-fit p-1 bg-stone-50 border-stone-300 shadow-md"
+                    >
+                      <Command>
+                        <CommandInput
+                          placeholder="Find city..."
+                          className="h-9"
+                        />
+                        <CommandList className="max-h-[180px] scrollbar-custom">
+                          <CommandEmpty>{`City not found.`}</CommandEmpty>
+                          <CommandGroup>
+                            {districtsOfBD
+                              .sort((a, b) => a.key.localeCompare(b.key))
+                              .map((districtItem) => (
+                                <CommandItem
+                                  key={districtItem.key}
+                                  value={districtItem.key}
+                                  onSelect={() => {
+                                    field.onChange(districtItem.key);
+                                    handleCitySelection(districtItem.key);
+                                  }}
+                                  className={`font-[500] tracking-tight ${
+                                    districtItem.key === field.value
+                                      ? "text-[#0866FF]"
+                                      : "text-stone-600"
+                                  }`}
+                                >
+                                  {districtItem.itemvalue}
+                                  <IoCheckmark
+                                    className={`inline w-4 h-4 ml-auto ${
+                                      districtItem.key === field.value
+                                        ? "text-[#0866FF] opacity-100"
+                                        : "text-transparent opacity-0"
+                                    }`}
+                                  />
+                                </CommandItem>
+                              ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                )}
+              />
+              <p
+                id="citylabel"
+                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-700 before:border-stone-400 after:border-stone-400 peer-focus-visible/city:before:border-[#0866FF] peer-focus-visible/city:after:border-[#0866FF] peer-focus-visible/city:text-[#0866FF] peer-hover/city:before:border-[#0866FF] peer-hover/city:after:border-[#0866FF] peer-hover/city:text-[#0866FF] peer-disabled/city:before:border-stone-300 peer-disabled/city:after:border-stone-300"
+              >
+                {`City/District*`}
+              </p>
+              {errors.city && (
+                <EvoFormInputError>{errors.city.message}</EvoFormInputError>
+              )}
+            </div>
+
+            <div className="relative w-full h-fit pt-1.5">
+              <input
+                type="text"
+                id="country"
+                {...register("country")}
+                placeholder="Enter country"
+                autoCorrect="off"
+                disabled
+                autoComplete="off"
+                className="peer w-full h-[40px] custom-input-style1 disabled:cursor-default"
+              />
+              <label
+                htmlFor="country"
+                className="custom-floating-label1 text-[11px] sm:text-[12px] font-[600] leading-3 text-stone-500 before:border-stone-400 peer-focus:before:border-[#0866FF] after:border-stone-400 peer-focus:after:border-[#0866FF] peer-focus:text-[#0866FF] peer-disabled:before:border-stone-300 peer-disabled:after:border-stone-300"
+              >
+                {`Country*`}
+              </label>
+              {errors.country && (
+                <EvoFormInputError>{errors.country.message}</EvoFormInputError>
+              )}
+            </div>
           </div>
 
           <div className="relative w-full h-fit pt-4">
@@ -1212,7 +1197,7 @@ const CheckoutParts = () => {
                       aria-label={`${eachCartItem.item_name}`}
                     >
                       <Image
-                        src={eachCartItem.item_imgurl}
+                        src={eachCartItem.item_mainimg}
                         alt={`item image`}
                         fill
                         quality={100}

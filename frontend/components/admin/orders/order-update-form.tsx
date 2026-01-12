@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import axios from "axios";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +26,7 @@ import {
   OrderStatusesUpdateType,
   OrderWithItemsType,
 } from "@/schemas/admin/sales/orderSchema";
+import axios from "@/utils/axios/axios";
 
 interface OrderUpdateFormProps {
   orderData: OrderWithItemsType;
@@ -97,7 +97,6 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
       }
 
       const orderId = orderData._id || orderData.orderNumber;
-      console.log("📤 Updating order:", orderId, "with data:", updateData);
 
       // Use relative URL for API route (works in both dev and production)
       const response = await axios.put(
@@ -110,7 +109,6 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
         }
       );
 
-      console.log("✅ Update response:", response.data);
 
       if (response.data.success) {
         toast.success(response.data.message || "Order updated successfully");

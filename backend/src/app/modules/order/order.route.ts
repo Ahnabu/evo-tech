@@ -25,17 +25,16 @@ router.get(
   auth(USER_ROLE.USER, USER_ROLE.ADMIN),
   OrderControllers.getUserOrders
 );
-router.get(
-  "/:id",
-  auth(USER_ROLE.USER, USER_ROLE.ADMIN),
-  OrderControllers.getSingleOrder
-);
 
-// Admin routes
 router.get(
   "/",
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   OrderControllers.getAllOrders
+);
+router.get(
+  "/:id",
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN),
+  OrderControllers.getSingleOrder
 );
 router.put(
   "/:id",

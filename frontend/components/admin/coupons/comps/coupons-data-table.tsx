@@ -5,7 +5,8 @@ import { DataTable } from "@/components/ui/data-table";
 import { getCouponsColumns } from "@/app/(admins)/control/coupons/coupon-columns";
 import { toast } from "sonner";
 import { BsArrowCounterclockwise } from "react-icons/bs";
-import { useCouponsData } from "@/hooks/use-coupons-data";
+import { ICoupon } from "@/hooks/use-coupons-data";
+import { ServerSidePaginationProps } from "@/utils/types_interfaces/data-table-props";
 
 const LoadingSpinner: React.FC = () => (
     <div className="h-full flex justify-center items-center">
@@ -13,8 +14,15 @@ const LoadingSpinner: React.FC = () => (
     </div>
 );
 
-const CouponsDataTable = () => {
-    const { coupons, isLoading, error, refetch, serverSidePagination } = useCouponsData();
+interface CouponsDataTableProps {
+    coupons: ICoupon[];
+    isLoading: boolean;
+    error: string | null;
+    refetch: () => Promise<void>;
+    serverSidePagination: ServerSidePaginationProps | null;
+}
+
+const CouponsDataTable = ({ coupons, isLoading, error, refetch, serverSidePagination }: CouponsDataTableProps) => {
     const couponsColumns = React.useMemo(() => getCouponsColumns(refetch), [refetch]);
 
     // Show error toast when error occurs

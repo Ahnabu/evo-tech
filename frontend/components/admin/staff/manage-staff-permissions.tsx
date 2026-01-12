@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Card,
   CardContent,
@@ -27,7 +27,7 @@ export function ManageStaffPermissions({
   staffUuid,
   staffName,
 }: ManageStaffPermissionsProps) {
-  const currentUser = getCurrentUser();
+  const currentUser = useMemo(() => getCurrentUser(), []);
   const [allPermissions, setAllPermissions] = useState<Permission[]>([]);
   const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);

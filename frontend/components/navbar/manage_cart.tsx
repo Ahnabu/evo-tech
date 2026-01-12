@@ -176,7 +176,7 @@ const ManageCart = () => {
                               aria-label={`${eachCartItem.item_name}`}
                             >
                               <Image
-                                src={eachCartItem.item_imgurl}
+                                src={eachCartItem.item_mainimg}
                                 alt={`item image`}
                                 fill
                                 quality={100}

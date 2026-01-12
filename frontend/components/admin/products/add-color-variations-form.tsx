@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle, Trash2, Loader2, Palette } from "lucide-react";
-import axios from "axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +33,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/evo_dialog";
+import axios from "@/utils/axios/axios";
 
 // Types
 interface ColorVariation {

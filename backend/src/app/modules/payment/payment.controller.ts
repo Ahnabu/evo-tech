@@ -226,7 +226,6 @@ const handleBkashWebhook = catchAsync(async (req: Request, res: Response) => {
   const webhookData = req.body;
 
   // Log webhook data for debugging
-  console.log("bKash Webhook Received:", webhookData);
 
   // Process webhook based on event type
   if (webhookData.paymentID) {

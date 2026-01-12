@@ -16,10 +16,6 @@ export async function GET(request: NextRequest) {
         const page = searchParams.get('page');
         const limit = searchParams.get('limit');
 
-        console.log('📦 GET /api/admin/orders - Query params:', {
-            search, order_status, payment_status, page, limit
-        });
-
         // Build query string for backend - convert to camelCase
         const backendParams = new URLSearchParams();
 
@@ -45,7 +41,6 @@ export async function GET(request: NextRequest) {
 
         const backendQueryString = backendParams.toString();
 
-        console.log('📤 Calling backend: /orders' + (backendQueryString ? `?${backendQueryString}` : ''));
 
         // Backend API call for getting all orders
         const backendRes = await axioswithIntercept.get(
@@ -60,18 +55,6 @@ export async function GET(request: NextRequest) {
         );
 
         const data = backendRes.data;
-        
-        console.log('✅ Backend response:', {
-            success: data.success,
-            dataType: Array.isArray(data.data) ? 'array' : typeof data.data,
-            dataCount: Array.isArray(data.data) ? data.data.length : 'N/A',
-            hasResult: !!data.data?.result,
-            resultCount: data.data?.result?.length || 'N/A',
-            hasMeta: !!data.meta,
-            status: backendRes.status,
-            dataKeys: data.data ? Object.keys(data.data) : 'null',
-            metaKeys: data.meta ? Object.keys(data.meta) : 'null'
-        });
 
         // Transform to match frontend expectations
         // Backend returns: { success: true, data: { result: [...], meta: {...} }, meta: {...} }
@@ -82,11 +65,6 @@ export async function GET(request: NextRequest) {
             meta: data.meta || data.data?.meta,
             message: data.message
         };
-
-        console.log('🔄 Transformed data:', {
-            dataCount: Array.isArray(transformedData.data) ? transformedData.data.length : 'N/A',
-            hasMeta: !!transformedData.meta
-        });
 
         return NextResponse.json(transformedData, { status: backendRes.status });
 

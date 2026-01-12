@@ -25,7 +25,7 @@ const axiosIntercept = async () => {
             config.headers['Authorization'] = `Bearer ${token}`;
             config.headers['Cookie'] = cookieString;
             
-            console.log('📤 Request:', config.method?.toUpperCase(), config.url);
+            // console.log('📤 Request:', config.method?.toUpperCase(), config.url);
 
             return config;
         },

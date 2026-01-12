@@ -14,7 +14,7 @@ export const calculatePayment = (
   const breakdown = calculateCartBreakdown(cartItems);
 
   if (cartItems && cartItems.length > 0) {
-    console.log("🛒 Cart items for calculation:", cartItems);
+    // console.log("🛒 Cart items for calculation:", cartItems);
 
     totalWeight = cartItems.reduce((acc, item) => {
       const weight = Number(item.item_weight) || 0;
@@ -32,17 +32,17 @@ export const calculatePayment = (
       bKashCharge = 0;
     }
 
-    console.log("💳 Payment calculation result:", {
-      cartSubTotal: breakdown.cartSubTotal,
-      totalWeight,
-      chargeforWeight,
-      bKashCharge,
-      preOrderSubtotal: breakdown.preOrderSubtotal,
-      preOrderDepositDue: breakdown.preOrderDepositDue,
-      preOrderBalanceDue: breakdown.preOrderBalanceDue,
-    });
+    // console.log("💳 Payment calculation result:", {
+    //   cartSubTotal: breakdown.cartSubTotal,
+    //   totalWeight,
+    //   chargeforWeight,
+    //   bKashCharge,
+    //   preOrderSubtotal: breakdown.preOrderSubtotal,
+    //   preOrderDepositDue: breakdown.preOrderDepositDue,
+    //   preOrderBalanceDue: breakdown.preOrderBalanceDue,
+    // });
   } else {
-    console.log("⚠️ No cart items found for calculation");
+    // console.log("⚠️ No cart items found for calculation");
   }
 
   return {
