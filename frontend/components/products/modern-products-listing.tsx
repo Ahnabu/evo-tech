@@ -219,6 +219,69 @@ const ProductGridCard = ({ product }: { product: any }) => {
         )
       : 0;
 
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const { toast } = await import("sonner");
+    const axiosLocal = (await import("@/utils/axios/axiosLocal")).default;
+    
+    const localevoFrontCart = localStorage.getItem('evoFrontCart');
+    const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : null;
+
+    // Check if item already in cart and validate against stock
+    if (parsedCart && parsedCart.items) {
+      const existingItem = parsedCart.items.find((item: any) => 
+        item.item_id === product.i_itemid && item.item_color === ""
+      );
+      
+      if (existingItem && !product.i_isPreOrder) {
+        const availableStock = product.i_stock || 0;
+        const currentQuantity = existingItem.item_quantity || 0;
+        
+        if (availableStock > 0 && currentQuantity >= availableStock) {
+          toast.error(`Only ${availableStock} units available. Cannot add more.`);
+          return;
+        }
+      }
+    }
+
+    let cartreqbody = {};
+    if (parsedCart && parsedCart.ctoken) {
+      cartreqbody = { cart_t: parsedCart.ctoken };
+    }
+
+    try {
+      const response = await axiosLocal.post(`/api/cart`, {
+        item_id: product.i_itemid,
+        item_quantity: 1,
+        item_price: product.i_price,
+        item_color: "",
+        ...cartreqbody,
+      });
+
+      if (response.data && response.data.message === "Item added to cart") {
+        const cartlocal = { items: response.data.cartdata, ctoken: response.data.ctoken };
+        localStorage.setItem('evoFrontCart', JSON.stringify(cartlocal));
+        window.dispatchEvent(new CustomEvent('localStorageChange', {
+          detail: { key: 'evoFrontCart', newValue: cartlocal }
+        }));
+        toast.success("Item added to cart");
+      } else if (response.data && response.data.message === "Item already in cart, quantity updated") {
+        const cartlocal = { items: response.data.cartdata, ctoken: response.data.ctoken };
+        localStorage.setItem('evoFrontCart', JSON.stringify(cartlocal));
+        window.dispatchEvent(new CustomEvent('localStorageChange', {
+          detail: { key: 'evoFrontCart', newValue: cartlocal }
+        }));
+        toast.success("Quantity updated");
+      } else if (response.data && response.data.message === "Quantity limit reached") {
+        toast.error("Stock limit reached, cannot add more");
+      }
+    } catch (error) {
+      toast.error("Failed to add item to cart");
+    }
+  };
+
   return (
     <Link
       href={`/items/${product.i_slug}`}
@@ -296,18 +359,35 @@ const ProductGridCard = ({ product }: { product: any }) => {
 
         {/* Price */}
         <div className="flex items-baseline gap-2 mt-auto">
-          <span className="text-lg font-bold text-stone-900">
-            ৳{product.i_price.toLocaleString()}
-          </span>
-          {product.i_prevprice > product.i_price && (
-            <span className="text-sm text-stone-400 line-through">
-              ৳{product.i_prevprice.toLocaleString()}
-            </span>
+          {product.i_isPreOrder && product.i_preOrderPrice ? (
+            <>
+              <span className="text-lg font-bold text-brand-600">
+                BDT {product.i_preOrderPrice.toLocaleString()}
+              </span>
+              <span className="text-sm text-red-600 line-through">
+                BDT {product.i_price.toLocaleString()}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-lg font-bold text-stone-900">
+                BDT {product.i_price.toLocaleString()}
+              </span>
+              {product.i_prevprice > product.i_price && (
+                <span className="text-sm text-red-600 line-through">
+                  BDT {product.i_prevprice.toLocaleString()}
+                </span>
+              )}
+            </>
           )}
         </div>
 
         {/* Add to Cart Button */}
-        <button className="mt-3 w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
+        <button 
+          onClick={handleAddToCart}
+          disabled={!product.i_instock && !product.i_isPreOrder}
+          className="mt-3 w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+        >
           <FiShoppingCart className="w-4 h-4" />
           <span className="text-sm font-medium">Add to Cart</span>
         </button>
@@ -324,6 +404,69 @@ const ProductListCard = ({ product }: { product: any }) => {
           ((product.i_prevprice - product.i_price) / product.i_prevprice) * 100
         )
       : 0;
+
+  const handleAddToCart = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const { toast } = await import("sonner");
+    const axiosLocal = (await import("@/utils/axios/axiosLocal")).default;
+    
+    const localevoFrontCart = localStorage.getItem('evoFrontCart');
+    const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : null;
+
+    // Check if item already in cart and validate against stock
+    if (parsedCart && parsedCart.items) {
+      const existingItem = parsedCart.items.find((item: any) => 
+        item.item_id === product.i_itemid && item.item_color === ""
+      );
+      
+      if (existingItem && !product.i_isPreOrder) {
+        const availableStock = product.i_stock || 0;
+        const currentQuantity = existingItem.item_quantity || 0;
+        
+        if (availableStock > 0 && currentQuantity >= availableStock) {
+          toast.error(`Only ${availableStock} units available. Cannot add more.`);
+          return;
+        }
+      }
+    }
+
+    let cartreqbody = {};
+    if (parsedCart && parsedCart.ctoken) {
+      cartreqbody = { cart_t: parsedCart.ctoken };
+    }
+
+    try {
+      const response = await axiosLocal.post(`/api/cart`, {
+        item_id: product.i_itemid,
+        item_quantity: 1,
+        item_price: product.i_price,
+        item_color: "",
+        ...cartreqbody,
+      });
+
+      if (response.data && response.data.message === "Item added to cart") {
+        const cartlocal = { items: response.data.cartdata, ctoken: response.data.ctoken };
+        localStorage.setItem('evoFrontCart', JSON.stringify(cartlocal));
+        window.dispatchEvent(new CustomEvent('localStorageChange', {
+          detail: { key: 'evoFrontCart', newValue: cartlocal }
+        }));
+        toast.success("Item added to cart");
+      } else if (response.data && response.data.message === "Item already in cart, quantity updated") {
+        const cartlocal = { items: response.data.cartdata, ctoken: response.data.ctoken };
+        localStorage.setItem('evoFrontCart', JSON.stringify(cartlocal));
+        window.dispatchEvent(new CustomEvent('localStorageChange', {
+          detail: { key: 'evoFrontCart', newValue: cartlocal }
+        }));
+        toast.success("Quantity updated");
+      } else if (response.data && response.data.message === "Quantity limit reached") {
+        toast.error("Stock limit reached, cannot add more");
+      }
+    } catch (error) {
+      toast.error("Failed to add item to cart");
+    }
+  };
 
   return (
     <Link
@@ -417,17 +560,34 @@ const ProductListCard = ({ product }: { product: any }) => {
         {/* Price and Action */}
         <div className="flex items-center justify-between mt-auto">
           <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-stone-900">
-              ৳{product.i_price.toLocaleString()}
-            </span>
-            {product.i_prevprice > product.i_price && (
-              <span className="text-base text-stone-400 line-through">
-                ৳{product.i_prevprice.toLocaleString()}
-              </span>
+            {product.i_isPreOrder && product.i_preOrderPrice ? (
+              <>
+                <span className="text-2xl font-bold text-brand-600">
+                  BDT {product.i_preOrderPrice.toLocaleString()}
+                </span>
+                <span className="text-base text-red-600 line-through">
+                  BDT {product.i_price.toLocaleString()}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-2xl font-bold text-stone-900">
+                  BDT {product.i_price.toLocaleString()}
+                </span>
+                {product.i_prevprice > product.i_price && (
+                  <span className="text-base text-stone-400 line-through">
+                    BDT {product.i_prevprice.toLocaleString()}
+                  </span>
+                )}
+              </>
             )}
           </div>
 
-          <button className="px-6 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center gap-2">
+          <button 
+            onClick={handleAddToCart}
+            disabled={!product.i_instock && !product.i_isPreOrder}
+            className="px-6 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+          >
             <FiShoppingCart className="w-4 h-4" />
             <span className="text-sm font-medium">Add to Cart</span>
           </button>
