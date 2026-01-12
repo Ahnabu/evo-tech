@@ -9,8 +9,7 @@ import { IoClose, IoChevronDown, IoChevronForward } from "react-icons/io5";
 import { TbUser, TbDashboard, TbLogout } from "react-icons/tb";
 import { BiPackage } from "react-icons/bi";
 import { useCurrentUser } from "@/hooks/use-current-user";
-import { logout } from "@/actions/logout";
-import { signOut } from "next-auth/react";
+import { logoutUser } from "@/lib/auth";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 
@@ -39,7 +38,9 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
   const router = useRouter();
   const currentUser = useCurrentUser();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [subcategories, setSubcategories] = useState<Record<string, Subcategory[]>>({});
+  const [subcategories, setSubcategories] = useState<
+    Record<string, Subcategory[]>
+  >({});
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -69,17 +70,19 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
     if (subcategories[categoryId]) return;
 
     try {
-      const response = await axios.get(`/subcategories?category=${categoryId}&isActive=true`);
+      const response = await axios.get(
+        `/subcategories?category=${categoryId}&isActive=true`
+      );
       const data = response?.data?.data || [];
-      setSubcategories(prev => ({
+      setSubcategories((prev) => ({
         ...prev,
-        [categoryId]: data
+        [categoryId]: data,
       }));
     } catch (error) {
       axiosErrorLogger({ error });
-      setSubcategories(prev => ({
+      setSubcategories((prev) => ({
         ...prev,
-        [categoryId]: []
+        [categoryId]: [],
       }));
     }
   };
@@ -95,30 +98,19 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
 
   const handleSignOut = async () => {
     try {
-      // Clear all session/local storage data
-      if (typeof window !== 'undefined') {
-        sessionStorage.clear();
-      }
+      // Call the logout function
+      await logoutUser();
 
-      await logout();
-
-      const response: any = await signOut({ redirect: false, callbackUrl: "/" });
-
-      if (!response?.url) {
-        toast.error("Something went wrong while signing out.");
-        onClose();
-        router.push("/");
-        router.refresh();
-        return;
-      }
+      // Dispatch custom event for auth change
+      window.dispatchEvent(new Event("authChange"));
 
       toast.success("You signed out of your account.");
       onClose();
-      router.push(response.url ?? "/");
+      router.push("/");
       router.refresh();
     } catch (err) {
       toast.error("Something went wrong while signing out.");
-      if (typeof window !== 'undefined') {
+      if (typeof window !== "undefined") {
         sessionStorage.clear();
       }
       onClose();
@@ -216,7 +208,9 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
                     <p className="font-semibold text-stone-800">
                       {currentUser.firstName} {currentUser.lastName}
                     </p>
-                    <p className="text-xs text-stone-500">{currentUser.email}</p>
+                    <p className="text-xs text-stone-500">
+                      {currentUser.email}
+                    </p>
                   </div>
                 </div>
                 <div className="flex flex-col gap-2">
@@ -296,7 +290,8 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
               ) : (
                 <div className="flex flex-col gap-1">
                   {categories.map((category) => {
-                    const categorySubcategories = subcategories[category._id] || [];
+                    const categorySubcategories =
+                      subcategories[category._id] || [];
                     const hasSubcategories = categorySubcategories.length > 0;
                     const isExpanded = expandedCategory === category._id;
 
@@ -308,13 +303,12 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
                             className="flex-1 flex items-center justify-between px-3 py-2 text-sm text-stone-700 hover:bg-stone-100 rounded-md capitalize"
                           >
                             <span>{category.name}</span>
-                            {hasSubcategories && (
-                              isExpanded ? (
+                            {hasSubcategories &&
+                              (isExpanded ? (
                                 <IoChevronDown className="w-4 h-4 text-stone-600 transition-transform" />
                               ) : (
                                 <IoChevronForward className="w-4 h-4 text-stone-600 transition-transform" />
-                              )
-                            )}
+                              ))}
                           </button>
                         </div>
 

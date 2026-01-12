@@ -26,6 +26,7 @@ import Industry3DModel from "@/public/assets/application_fields/industrial-robot
 import FeaturedCategories from "@/components/cards/featuredcategories";
 import PopularProductsSlider from "@/components/cards/popularproductsslider";
 import Featured3DPrintersMaterials from "@/components/cards/featured-3d-printers-materials";
+import FeaturedSectionsRenderer from "@/components/sections/featured-sections-renderer";
 import { generateOrganizationSchema, generateWebSiteSchema, StructuredData } from "@/lib/structured-data";
 
 export const metadata: Metadata = {
@@ -299,7 +300,10 @@ const Home = () => {
         </div>
       </div>
       <FeaturedCategories />
-      <Featured3DPrintersMaterials />
+      <Suspense fallback={<div className="w-full py-8 text-center text-stone-400">Loading featured sections...</div>}>
+        <FeaturedSectionsRenderer />
+      </Suspense>
+      {/* <Featured3DPrintersMaterials /> */}
       <PopularProductsSlider title="Popular Products" />
 
       <div className="w-full max-w-[1440px] h-fit pb-8 flex flex-col items-center font-inter">

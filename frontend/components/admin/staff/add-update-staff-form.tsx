@@ -21,7 +21,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import { toast } from 'sonner'
-import axios from 'axios'
+import axios from '@/utils/axios/axios'
 import { createStaffSchema, updateStaffSchema, CreateStaffInput, UpdateStaffInput } from '@/schemas/admin/staffSchemas'
 import { AddingDialog } from '@/components/dialogs/adding-dialog'
 import { EditingDialog } from '@/components/dialogs/editing-dialog'
@@ -73,8 +73,8 @@ const StaffForm = ({ mode = 'create', staffData, onSuccess }: StaffFormProps) =>
 
         try {
             const url = isUpdate
-                ? `/api/admin/staff/${staffData!.id}`
-                : `/api/admin/staff`
+                ? `/users/${staffData!.id}`
+                : `/users/staff`
 
             const method = isUpdate ? 'PUT' : 'POST'
 

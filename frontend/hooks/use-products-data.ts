@@ -1,14 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { setProductsList } from "@/store/slices/productSlice";
 import { ProductDisplayType } from "@/schemas/admin/product/productschemas";
 import { ServerSidePaginationProps } from "@/utils/types_interfaces/data-table-props";
-import { useSession } from "next-auth/react";
-import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
+import { getCurrentUser } from "@/utils/cookies";
+import axios from "@/utils/axios/axios";
 
 interface PaginationData {
   current_page: number;
@@ -27,7 +27,7 @@ interface UseProductsDataReturn {
 }
 
 export function useProductsData(): UseProductsDataReturn {
-  const { data: session } = useSession();
+  const currentUser = useMemo(() => getCurrentUser(), []);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [paginationData, setPaginationData] = useState<PaginationData | null>(
@@ -43,7 +43,7 @@ export function useProductsData(): UseProductsDataReturn {
   const dispatch = useDispatch<AppDispatch>();
 
   const fetchProducts = useCallback(async () => {
-    if (!session) return;
+    if (!currentUser) return;
 
     try {
       setIsLoading(true);
@@ -68,8 +68,7 @@ export function useProductsData(): UseProductsDataReturn {
 
       const queryString = queryParams.toString();
 
-      const axiosClient = createAxiosClientWithSession(session);
-      const response = await axiosClient.get(
+      const response = await axios.get(
         `/products${queryString ? `?${queryString}` : ""}`
       );
 
@@ -125,7 +124,7 @@ export function useProductsData(): UseProductsDataReturn {
     } finally {
       setIsLoading(false);
     }
-  }, [searchParams, dispatch, session]);
+  }, [searchParams, dispatch, currentUser]);
 
   // Handle page change
   const handlePageChange = useCallback(

@@ -11,19 +11,12 @@ export async function GET(
     const { orderId } = await params;
 
     try {
-        console.log('📦 GET /api/admin/orders/[orderId] - orderId:', orderId);
 
         // Backend API call for getting single order
         const backendRes = await axioswithIntercept.get(`/orders/${orderId}`);
 
         const data = backendRes.data;
         
-        console.log('✅ Backend response:', {
-            success: data.success,
-            hasData: !!data.data,
-            dataKeys: data.data ? Object.keys(data.data) : 'null'
-        });
-
         return NextResponse.json(data, { status: backendRes.status });
 
     } catch (error: any) {
@@ -45,17 +38,10 @@ export async function PUT(
 
     try {
         const reqBody = await request.json();
-        console.log('📦 PUT /api/admin/orders/[orderId] - orderId:', orderId, 'body:', reqBody);
-
         // backend API call for updating order statuses
         const backendRes = await axioswithIntercept.put(`/orders/${orderId}`, reqBody);
 
         const data = backendRes.data;
-        
-        console.log('✅ Order updated:', {
-            success: data.success,
-            message: data.message
-        });
 
         return NextResponse.json(data, { status: backendRes.status });
 
@@ -77,18 +63,11 @@ export async function DELETE(
     const { orderId } = await params;
 
     try {
-        console.log('📦 DELETE /api/admin/orders/[orderId] - orderId:', orderId);
 
         // Backend API call for deleting order
         const backendRes = await axioswithIntercept.delete(`/orders/${orderId}`);
 
         const data = backendRes.data;
-        
-        console.log('✅ Order deleted:', {
-            success: data.success,
-            message: data.message
-        });
-
         return NextResponse.json(data, { status: backendRes.status });
 
     } catch (error: any) {

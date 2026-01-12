@@ -6,6 +6,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle, Trash2, ImageIcon, Loader2 } from "lucide-react";
+import Image from "next/image";
+import createAxiosClient from "@/utils/axios/axiosClient";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -144,25 +146,21 @@ export function AddProductFeaturesForm({
   const handleAddHeader = async (values: HeaderFormValues) => {
     setIsHeaderLoading(true);
     try {
-      const response = await fetch(
+      const axios = await createAxiosClient();
+      const response = await axios.post(
         `/api/products/${itemInfo.itemid}/feature-headers`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        }
+        values
       );
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to add header");
+      if (response.data.success) {
+        toast.success("Feature header added successfully");
+        headerForm.reset({ title: "", sortOrder: headers.length + 1 });
+        onRefresh?.();
+      } else {
+        throw new Error(response.data.message || "Failed to add header");
       }
-
-      toast.success("Feature header added successfully");
-      headerForm.reset({ title: "", sortOrder: headers.length + 1 });
-      onRefresh?.();
     } catch (error: any) {
-      toast.error(error.message || "Failed to add header");
+      toast.error(error?.response?.data?.message || error.message || "Failed to add header");
     } finally {
       setIsHeaderLoading(false);
     }
@@ -172,22 +170,19 @@ export function AddProductFeaturesForm({
   const handleDeleteHeader = async (headerId: string) => {
     setDeletingHeaderId(headerId);
     try {
-      const response = await fetch(
-        `/api/products/feature-headers/${headerId}`,
-        {
-          method: "DELETE",
-        }
+      const axios = await createAxiosClient();
+      const response = await axios.delete(
+        `/api/products/feature-headers/${headerId}`
       );
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to delete header");
+      if (response.data.success) {
+        toast.success("Feature header deleted successfully");
+        onRefresh?.();
+      } else {
+        throw new Error(response.data.message || "Failed to delete header");
       }
-
-      toast.success("Feature header deleted successfully");
-      onRefresh?.();
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete header");
+      toast.error(error?.response?.data?.message || error.message || "Failed to delete header");
     } finally {
       setDeletingHeaderId(null);
     }
@@ -206,29 +201,31 @@ export function AddProductFeaturesForm({
         formData.append("image", selectedImage);
       }
 
-      const response = await fetch(
+      const axios = await createAxiosClient();
+      const response = await axios.post(
         `/api/products/${itemInfo.itemid}/feature-subsections`,
+        formData,
         {
-          method: "POST",
-          body: formData,
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
         }
       );
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to add subsection");
+      if (response.data.success) {
+        toast.success("Feature subsection added successfully");
+        subsectionForm.reset({
+          title: "",
+          description: "",
+          sortOrder: subsections.length + 1,
+        });
+        clearImage();
+        onRefresh?.();
+      } else {
+        throw new Error(response.data.message || "Failed to add subsection");
       }
-
-      toast.success("Feature subsection added successfully");
-      subsectionForm.reset({
-        title: "",
-        description: "",
-        sortOrder: subsections.length + 1,
-      });
-      clearImage();
-      onRefresh?.();
     } catch (error: any) {
-      toast.error(error.message || "Failed to add subsection");
+      toast.error(error?.response?.data?.message || error.message || "Failed to add subsection");
     } finally {
       setIsSubsectionLoading(false);
     }
@@ -238,22 +235,19 @@ export function AddProductFeaturesForm({
   const handleDeleteSubsection = async (subsectionId: string) => {
     setDeletingSubsectionId(subsectionId);
     try {
-      const response = await fetch(
-        `/api/products/feature-subsections/${subsectionId}`,
-        {
-          method: "DELETE",
-        }
+      const axios = await createAxiosClient();
+      const response = await axios.delete(
+        `/api/products/feature-subsections/${subsectionId}`
       );
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to delete subsection");
+      if (response.data.success) {
+        toast.success("Feature subsection deleted successfully");
+        onRefresh?.();
+      } else {
+        throw new Error(response.data.message || "Failed to delete subsection");
       }
-
-      toast.success("Feature subsection deleted successfully");
-      onRefresh?.();
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete subsection");
+      toast.error(error?.response?.data?.message || error.message || "Failed to delete subsection");
     } finally {
       setDeletingSubsectionId(null);
     }
@@ -448,9 +442,12 @@ export function AddProductFeaturesForm({
                   />
                   {imagePreview && (
                     <div className="relative">
-                      <img
+                      <Image
                         src={imagePreview}
                         alt="Preview"
+                        width={80}
+                        height={80}
+                        unoptimized
                         className="h-20 w-20 object-cover rounded-lg"
                       />
                       <Button
@@ -499,9 +496,12 @@ export function AddProductFeaturesForm({
                     >
                       <div className="flex gap-4 flex-1">
                         {subsection.imageUrl && (
-                          <img
+                          <Image
                             src={subsection.imageUrl}
                             alt={subsection.title}
+                            width={64}
+                            height={64}
+                            unoptimized
                             className="h-16 w-16 object-cover rounded-lg"
                           />
                         )}

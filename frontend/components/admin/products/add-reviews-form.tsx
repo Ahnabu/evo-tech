@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle, Trash2, Loader2, Star, Edit2, Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 import createAxiosClient from "@/utils/axios/axiosClient";
 
 import { Button } from "@/components/ui/button";
@@ -305,9 +306,12 @@ export function AddReviewsForm({
                       />
                       {(imagePreview || editingImageUrl) && (
                         <div className="relative">
-                          <img
+                          <Image
                             src={imagePreview || editingImageUrl || ""}
                             alt="Preview"
+                            width={64}
+                            height={64}
+                            unoptimized
                             className="w-16 h-16 object-cover rounded-full border"
                           />
                           <Button
@@ -433,9 +437,12 @@ export function AddReviewsForm({
                 <CardContent className="pt-6">
                   <div className="flex gap-4">
                     {review.userImage && (
-                      <img
+                      <Image
                         src={review.userImage}
                         alt={review.userName}
+                        width={48}
+                        height={48}
+                        unoptimized
                         className="w-12 h-12 rounded-full object-cover border"
                       />
                     )}

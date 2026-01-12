@@ -34,7 +34,7 @@ export const useFinanceData = () => {
 
   const fetchStats = useCallback(async () => {
     try {
-      const res = await axios.get("/finance/stats");
+      const res = await axios.get("/admin/finance/stats");
       setStats(res.data.data);
     } catch (err) {
       console.error(err);
@@ -44,7 +44,7 @@ export const useFinanceData = () => {
   const fetchTransactions = useCallback(async () => {
     try {
       // setLoading(true); // Don't trigger global loading for background refresh
-      const res = await axios.get("/finance/transactions", {
+      const res = await axios.get("/admin/finance/transactions", {
         params: {
           page: pageIndex + 1,
           limit: pageSize,
@@ -60,7 +60,7 @@ export const useFinanceData = () => {
 
   const fetchSalesProfit = useCallback(async () => {
     try {
-      const res = await axios.get("/finance/sales-profit", {
+      const res = await axios.get("/admin/finance/sales-profit", {
         params: {
           page: spPageIndex + 1,
           limit: spPageSize,

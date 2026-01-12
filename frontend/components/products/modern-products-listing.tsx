@@ -9,6 +9,10 @@ import EvoDropdown from "@/components/ui/evo_dropdown";
 import { DropdownItem } from "@nextui-org/dropdown";
 import { FiShoppingCart, FiHeart, FiStar } from "react-icons/fi";
 import { BsLightning } from "react-icons/bs";
+import { toast } from "sonner";
+import { useDispatch, useSelector } from "react-redux";
+import { setCartData } from "@/store/slices/cartslice";
+import { RootState, AppDispatch } from "@/store/store";
 
 interface ModernProductsListingProps {
   fetchedProdData: any[];
@@ -212,12 +216,72 @@ const ModernProductsListing = ({
 
 // Grid Card Component
 const ProductGridCard = ({ product }: { product: any }) => {
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const cartdata = useSelector((state: RootState) => state.shoppingcart.cartdata);
+  
   const discount =
     product.i_prevprice > product.i_price
       ? Math.round(
           ((product.i_prevprice - product.i_price) / product.i_prevprice) * 100
         )
       : 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const localevoFrontCart = localStorage.getItem('evoFrontCart');
+    const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : { items: [], ctoken: '' };
+    
+    const existingItemIndex = parsedCart.items.findIndex(
+      (item: any) => item.item_id === product.itemid && item.item_color === ""
+    );
+
+    let updatedCart;
+    if (existingItemIndex >= 0) {
+      // Item exists, increase quantity
+      updatedCart = parsedCart.items.map((item: any, index: number) =>
+        index === existingItemIndex
+          ? { ...item, item_quantity: item.item_quantity + 1 }
+          : item
+      );
+      toast.success("Item quantity increased");
+    } else {
+      // Add new item
+      const newItem = {
+        item_id: product.itemid,
+        item_name: product.i_name,
+        item_slug: product.i_slug,
+        item_price: product.i_price,
+        item_quantity: 1,
+        item_color: "",
+        item_mainimg: product.i_mainimg,
+        item_instock: product.i_instock,
+      };
+      updatedCart = [...parsedCart.items, newItem];
+      toast.success("Item added to cart");
+    }
+
+    // Update localStorage
+    localStorage.setItem('evoFrontCart', JSON.stringify({ ...parsedCart, items: updatedCart }));
+    
+    // Update Redux
+    dispatch(setCartData(updatedCart));
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Add to cart first
+    handleAddToCart(e);
+    
+    // Navigate to cart page
+    setTimeout(() => {
+      router.push('/cart');
+    }, 500);
+  };
 
   return (
     <Link
@@ -295,22 +359,47 @@ const ProductGridCard = ({ product }: { product: any }) => {
         )}
 
         {/* Price */}
-        <div className="flex items-baseline gap-2 mt-auto">
-          <span className="text-lg font-bold text-stone-900">
-            ৳{product.i_price.toLocaleString()}
-          </span>
-          {product.i_prevprice > product.i_price && (
-            <span className="text-sm text-stone-400 line-through">
-              ৳{product.i_prevprice.toLocaleString()}
-            </span>
+        <div className="flex items-center gap-1 mt-auto">
+          {product.i_preorderprice && product.i_ispreorder && product.i_preorderprice < product.i_price ? (
+            <>
+              <span className="text-lg font-bold text-cyan-600">
+                BDT {product.i_preorderprice.toLocaleString()}
+              </span>
+              <span className="text-sm font-bold text-red-500 line-through">
+                BDT {product.i_price.toLocaleString()}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="text-lg font-bold text-stone-900">
+                BDT {product.i_price.toLocaleString()}
+              </span>
+              {product.i_prevprice > product.i_price && (
+                <span className="text-sm font-bold text-stone-400 line-through">
+                  BDT {product.i_prevprice.toLocaleString()}
+                </span>
+              )}
+            </>
           )}
         </div>
 
-        {/* Add to Cart Button */}
-        <button className="mt-3 w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100">
-          <FiShoppingCart className="w-4 h-4" />
-          <span className="text-sm font-medium">Add to Cart</span>
-        </button>
+        {/* Action Buttons */}
+        <div className="mt-3 flex flex-col gap-2">
+          <button 
+            onClick={handleAddToCart}
+            className="w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
+          >
+            <FiShoppingCart className="w-4 h-4" />
+            <span className="text-sm font-medium">Add to Cart</span>
+          </button>
+          <button 
+            onClick={handleBuyNow}
+            className="w-full py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-900 transition-colors flex items-center justify-center gap-2"
+          >
+            <BsLightning className="w-4 h-4" />
+            <span className="text-sm font-medium">Buy Now</span>
+          </button>
+        </div>
       </div>
     </Link>
   );
@@ -318,12 +407,72 @@ const ProductGridCard = ({ product }: { product: any }) => {
 
 // List Card Component
 const ProductListCard = ({ product }: { product: any }) => {
+  const router = useRouter();
+  const dispatch = useDispatch<AppDispatch>();
+  const cartdata = useSelector((state: RootState) => state.shoppingcart.cartdata);
+  
   const discount =
     product.i_prevprice > product.i_price
       ? Math.round(
           ((product.i_prevprice - product.i_price) / product.i_prevprice) * 100
         )
       : 0;
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const localevoFrontCart = localStorage.getItem('evoFrontCart');
+    const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : { items: [], ctoken: '' };
+    
+    const existingItemIndex = parsedCart.items.findIndex(
+      (item: any) => item.item_id === product.itemid && item.item_color === ""
+    );
+
+    let updatedCart;
+    if (existingItemIndex >= 0) {
+      // Item exists, increase quantity
+      updatedCart = parsedCart.items.map((item: any, index: number) =>
+        index === existingItemIndex
+          ? { ...item, item_quantity: item.item_quantity + 1 }
+          : item
+      );
+      toast.success("Item quantity increased");
+    } else {
+      // Add new item
+      const newItem = {
+        item_id: product.itemid,
+        item_name: product.i_name,
+        item_slug: product.i_slug,
+        item_price: product.i_price,
+        item_quantity: 1,
+        item_color: "",
+        item_mainimg: product.i_mainimg,
+        item_instock: product.i_instock,
+      };
+      updatedCart = [...parsedCart.items, newItem];
+      toast.success("Item added to cart");
+    }
+
+    // Update localStorage
+    localStorage.setItem('evoFrontCart', JSON.stringify({ ...parsedCart, items: updatedCart }));
+    
+    // Update Redux
+    dispatch(setCartData(updatedCart));
+  };
+
+  const handleBuyNow = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Add to cart first
+    handleAddToCart(e);
+    
+    // Navigate to cart page
+    setTimeout(() => {
+      router.push('/cart');
+    }, 500);
+  };
 
   return (
     <Link
@@ -415,22 +564,47 @@ const ProductListCard = ({ product }: { product: any }) => {
         )}
 
         {/* Price and Action */}
-        <div className="flex items-center justify-between mt-auto">
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-stone-900">
-              ৳{product.i_price.toLocaleString()}
-            </span>
-            {product.i_prevprice > product.i_price && (
-              <span className="text-base text-stone-400 line-through">
-                ৳{product.i_prevprice.toLocaleString()}
-              </span>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mt-auto">
+          <div className="flex flex-col gap-1">
+            {product.i_preorderprice && product.i_ispreorder && product.i_preorderprice < product.i_price ? (
+              <>
+                <span className="text-2xl font-bold text-cyan-600">
+                  ৳{product.i_preorderprice.toLocaleString()}
+                </span>
+                <span className="text-base text-red-500 line-through">
+                  ৳{product.i_price.toLocaleString()}
+                </span>
+              </>
+            ) : (
+              <>
+                <span className="text-2xl font-bold text-stone-900">
+                  ৳{product.i_price.toLocaleString()}
+                </span>
+                {product.i_prevprice > product.i_price && (
+                  <span className="text-base text-stone-400 line-through">
+                    ৳{product.i_prevprice.toLocaleString()}
+                  </span>
+                )}
+              </>
             )}
           </div>
 
-          <button className="px-6 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center gap-2">
-            <FiShoppingCart className="w-4 h-4" />
-            <span className="text-sm font-medium">Add to Cart</span>
-          </button>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <button 
+              onClick={handleAddToCart}
+              className="px-6 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
+            >
+              <FiShoppingCart className="w-4 h-4" />
+              <span className="text-sm font-medium">Add to Cart</span>
+            </button>
+            <button 
+              onClick={handleBuyNow}
+              className="px-6 py-2.5 bg-stone-800 text-white rounded-lg hover:bg-stone-900 transition-colors flex items-center justify-center gap-2"
+            >
+              <BsLightning className="w-4 h-4" />
+              <span className="text-sm font-medium">Buy Now</span>
+            </button>
+          </div>
         </div>
       </div>
     </Link>

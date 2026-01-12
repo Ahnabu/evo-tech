@@ -2,7 +2,7 @@ export interface CartItem {
   item_id: string;
   item_name: string;
   item_slug: string;
-  item_imgurl: string;
+  item_mainimg: string;
   item_category: string;
   item_subcategory: string;
   item_brand: string;

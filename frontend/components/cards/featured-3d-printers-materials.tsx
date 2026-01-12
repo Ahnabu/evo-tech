@@ -16,6 +16,8 @@ interface Product {
   slug: string;
   price: number;
   previousPrice?: number;
+  preOrderPrice?: number;
+  isPreOrder?: boolean;
   mainImage: string;
   inStock: boolean;
   shortDescription?: string;
@@ -154,15 +156,15 @@ export default function Featured3DPrintersMaterials() {
                 <SwiperSlide key={product._id}>
                   <Link
                     href={`/items/${product.slug}`}
-                    className="group block w-full bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+                    className="group block w-full bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-stone-100 hover:border-brand-200"
                   >
-                    {/* Product Image Container - Fixed aspect ratio */}
-                    <div className="relative w-full aspect-[4/3] bg-stone-100 overflow-hidden">
+                    {/* Product Image Container - Match ProductGridCard aspect ratio */}
+                    <div className="relative w-full aspect-square bg-stone-50 overflow-hidden">
                       <Image
                         src={product.mainImage || "/placeholder.png"}
                         alt={product.name}
                         fill
-                        className="object-contain p-2 group-hover:scale-105 transition-transform duration-500 ease-out"
+                        className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                         sizes="(max-width: 640px) 80vw, (max-width: 768px) 45vw, (max-width: 1024px) 35vw, 28vw"
                         priority={sectionIndex === 0}
                       />
@@ -177,22 +179,35 @@ export default function Featured3DPrintersMaterials() {
                       )}
                     </div>
 
-                    {/* Product Info - Clean white background */}
-                    <div className="p-3 bg-stone-50 border-t border-stone-100">
-                      <h3 className="text-sm sm:text-base font-semibold text-stone-800 line-clamp-2  group-hover:text-brand-600 transition-colors leading-snug">
+                    {/* Product Info */}
+                    <div className="p-4 bg-stone-50 border-t border-stone-100">
+                      <h3 className="text-sm font-semibold text-stone-800 line-clamp-2 mb-2 group-hover:text-brand-600 transition-colors leading-snug min-h-[2.5rem]">
                         {product.name}
                       </h3>
 
-                      <div className=" flex items-baseline gap-2 flex-wrap">
-                        <span className="text-[13px] font-medium text-stone-800">
-                          BDT {product.price.toLocaleString()}
-                        </span>
-                        {product.previousPrice &&
-                          product.previousPrice > product.price && (
-                            <span className="text-xs sm:text-sm text-stone-400 line-through">
-                              ৳{product.previousPrice.toLocaleString()}
+                      <div className="flex flex-col gap-1">
+                        {(product as any).preOrderPrice && (product as any).isPreOrder && (product as any).preOrderPrice < product.price ? (
+                          <>
+                            <span className="text-sm font-semibold text-cyan-600">
+                              BDT {(product as any).preOrderPrice.toLocaleString()}
                             </span>
-                          )}
+                            <span className="text-sm text-red-500 line-through">
+                              BDT {product.price.toLocaleString()}
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-sm font-semibold text-stone-800">
+                              BDT {product.price.toLocaleString()}
+                            </span>
+                            {product.previousPrice &&
+                              product.previousPrice > product.price && (
+                                <span className="text-xs text-stone-400 line-through">
+                                  ৳{product.previousPrice.toLocaleString()}
+                                </span>
+                              )}
+                          </>
+                        )}
                       </div>
                     </div>
                   </Link>

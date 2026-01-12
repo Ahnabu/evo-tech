@@ -39,7 +39,7 @@ export const checkoutSchema = z
       .nonempty("Address is required")
       .max(150, "Too long, keep it under 150 characters"),
     city: z.string().nonempty("City/District is required"),
-    subdistrict: z.string().nonempty("Thana/Subdistrict is required"),
+    subdistrict: z.string().optional(),
     country: z.enum(["Bangladesh"], {
       errorMap: () => ({ message: "Select an available country" }),
     }),

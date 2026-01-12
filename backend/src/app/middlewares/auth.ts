@@ -10,13 +10,13 @@ const auth = (...requiredRoles: string[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const authorizationHeader = req.headers.authorization;
 
-    console.log("🔐 Auth middleware - Headers:", {
-      hasAuth: !!authorizationHeader,
-      authHeader: authorizationHeader
-        ? authorizationHeader.substring(0, 20) + "..."
-        : "none",
-      requiredRoles,
-    });
+    // console.log("🔐 Auth middleware - Headers:", {
+    //   hasAuth: !!authorizationHeader,
+    //   authHeader: authorizationHeader
+    //     ? authorizationHeader.substring(0, 20) + "..."
+    //     : "none",
+    //   requiredRoles,
+    // });
 
     // Checking if the token is missing
     if (!authorizationHeader) {

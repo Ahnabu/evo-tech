@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useSession } from "next-auth/react";
-import { createAxiosClientWithSession } from "@/utils/axios/axiosClient";
+import { getCurrentUser } from "@/utils/cookies";
+import axios from "@/utils/axios/axios";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -18,12 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-} from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { ItemBrandOptions } from "@/dal/product-inputs";
 import { useSearchParamsState } from "@/hooks/use-search-params-state";
 
@@ -58,23 +53,27 @@ interface Brand {
 }
 
 const ProductHeaderClient = () => {
-  const { data: session } = useSession();
+  const currentUser = useMemo(() => getCurrentUser(), []);
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [brands, setBrands] = useState<Brand[]>([...ItemBrandOptions]);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
-  const { updateSearchParams, resetSearchParams, getParam } = useSearchParamsState({
-    basePath: "/control/products",
-  });
+  const { updateSearchParams, resetSearchParams, getParam } =
+    useSearchParamsState({
+      basePath: "/control/products",
+    });
 
   // Memoize default values to prevent unnecessary re-renders
-  const defaultValues = useMemo(() => ({
-    search: getParam("search"),
-    category: getParam("category"),
-    subcategory: getParam("subcategory"),
-    brand: getParam("brand"),
-  }), [getParam]);
+  const defaultValues = useMemo(
+    () => ({
+      search: getParam("search"),
+      category: getParam("category"),
+      subcategory: getParam("subcategory"),
+      brand: getParam("brand"),
+    }),
+    [getParam]
+  );
 
   const form = useForm<ProductFilterValues>({
     resolver: zodResolver(productFilterSchema),
@@ -90,48 +89,54 @@ const ProductHeaderClient = () => {
   // Fetch filter options (categories, brands) on mount
   useEffect(() => {
     const fetchFilterOptions = async () => {
-      if (!session) return;
-      
+      if (!currentUser) return;
+
       try {
-        const axiosClient = createAxiosClientWithSession(session);
-        
         // Fetch categories
-        const categoriesResponse = await axiosClient.get('/categories');
-        const categoriesData = (categoriesResponse.data.data || []).map((cat: any) => ({
-          id: cat._id,
-          name: cat.name,
-          slug: cat.slug,
-          value: cat._id, // Use ID for select value
-        }));
+        const categoriesResponse = await axios.get("/categories");
+        const categoriesData = (categoriesResponse.data.data || []).map(
+          (cat: any) => ({
+            id: cat._id,
+            name: cat.name,
+            slug: cat.slug,
+            value: cat._id, // Use ID for select value
+          })
+        );
         setCategories(categoriesData);
 
-        // Fetch subcategories  
-        const subcategoriesResponse = await axiosClient.get('/subcategories');
-        const subcategoriesData = (subcategoriesResponse.data.data || []).map((sub: any) => ({
-          id: sub._id,
-          name: sub.name,
-          slug: sub.slug,
-          value: sub._id, // Use ID for select value
-          category: sub.category,
-        }));
+        // Fetch subcategories
+        const subcategoriesResponse = await axios.get("/subcategories");
+        const subcategoriesData = (subcategoriesResponse.data.data || []).map(
+          (sub: any) => ({
+            id: sub._id,
+            name: sub.name,
+            slug: sub.slug,
+            value: sub._id, // Use ID for select value
+            category: sub.category,
+          })
+        );
         setSubcategories(subcategoriesData);
 
         // // Fetch brands
         // const brandsResponse = await axios.get('/api/admin/taxonomy/brands');
         // setBrands(brandsResponse.data.brands_data || []);
       } catch (error) {
-        toast.error('Failed to fetch filter options.');
+        toast.error("Failed to fetch filter options.");
       }
     };
 
     fetchFilterOptions();
-  }, [session]);
+  }, [currentUser]);
 
   // Filter subcategories based on selected category
   const filteredSubcategories = useMemo(() => {
     if (!selectedCategory) return subcategories;
     // Filter by category ID (selectedCategory is now an ID, not a slug)
-    return subcategories.filter(sub => sub.category?._id === selectedCategory || sub.category?.id === selectedCategory);
+    return subcategories.filter(
+      (sub) =>
+        sub.category?._id === selectedCategory ||
+        sub.category?.id === selectedCategory
+    );
   }, [subcategories, selectedCategory]);
 
   const handleCategoryChange = (value: string) => {
@@ -159,7 +164,6 @@ const ProductHeaderClient = () => {
       brand: data.brand || null,
     });
   };
-
 
   return (
     <div className="w-full flex flex-col xl:flex-row gap-4 items-end">
@@ -202,7 +206,13 @@ const ProductHeaderClient = () => {
                       value={field.value}
                     >
                       <SelectTrigger className="text-xs">
-                        <SelectValue placeholder={<span className="text-stone-400 text-xs">Select category</span>} />
+                        <SelectValue
+                          placeholder={
+                            <span className="text-stone-400 text-xs">
+                              Select category
+                            </span>
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <Button
@@ -240,7 +250,13 @@ const ProductHeaderClient = () => {
                       disabled={!selectedCategory || selectedCategory === "all"}
                     >
                       <SelectTrigger className="disabled:cursor-default text-xs">
-                        <SelectValue placeholder={<span className="text-stone-400 text-xs">Select subcategory</span>} />
+                        <SelectValue
+                          placeholder={
+                            <span className="text-stone-400 text-xs">
+                              Select subcategory
+                            </span>
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <Button
@@ -254,7 +270,10 @@ const ProductHeaderClient = () => {
                           Clear
                         </Button>
                         {filteredSubcategories.map((subcategory) => (
-                          <SelectItem key={subcategory.id} value={subcategory.value}>
+                          <SelectItem
+                            key={subcategory.id}
+                            value={subcategory.value}
+                          >
                             {subcategory.name}
                           </SelectItem>
                         ))}
@@ -271,12 +290,15 @@ const ProductHeaderClient = () => {
               render={({ field }) => (
                 <FormItem className="w-full">
                   <FormControl>
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger className="text-xs">
-                        <SelectValue placeholder={<span className="text-stone-400 text-xs">Select brand</span>} />
+                        <SelectValue
+                          placeholder={
+                            <span className="text-stone-400 text-xs">
+                              Select brand
+                            </span>
+                          }
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <Button
@@ -290,7 +312,10 @@ const ProductHeaderClient = () => {
                           Clear
                         </Button>
                         {brands.map((brand, index) => (
-                          <SelectItem key={brand.value || `brand-${index}`} value={brand.value}>
+                          <SelectItem
+                            key={brand.value || `brand-${index}`}
+                            value={brand.value}
+                          >
                             {brand.label}
                           </SelectItem>
                         ))}
@@ -303,7 +328,12 @@ const ProductHeaderClient = () => {
           </div>
 
           <div className="flex gap-2 items-center">
-            <Button type="submit" className="bg-brand-600 hover:bg-brand-400" size="default" aria-label="filter products">
+            <Button
+              type="submit"
+              className="bg-brand-600 hover:bg-brand-400"
+              size="default"
+              aria-label="filter products"
+            >
               Filter
             </Button>
             <Button

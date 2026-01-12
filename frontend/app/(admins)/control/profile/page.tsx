@@ -2,7 +2,6 @@
 
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { useState, useEffect } from 'react';
-import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import axios from '@/utils/axios/axios';
@@ -11,7 +10,6 @@ import { toast } from 'sonner';
 export default function AdminProfilePage() {
     const router = useRouter();
     const currentUser = useCurrentUser();
-    const { data: session, update: updateSession } = useSession();
     const [isEditing, setIsEditing] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
@@ -30,7 +28,7 @@ export default function AdminProfilePage() {
     }, [currentUser]);
 
     const handleSaveProfile = async () => {
-        if (!currentUser || !session?.user?.id) return;
+        if (!currentUser || !currentUser.id) return;
 
         setIsSaving(true);
 
@@ -56,21 +54,14 @@ export default function AdminProfilePage() {
             };
 
             // Call the backend API to update user profile
-            const response = await axios.put(`/api/users/${session.user.id}`, updatedData);
+            const response = await axios.put(`/users/${currentUser.id}`, updatedData);
 
             if (!response.data.success) {
                 throw new Error(response.data.message || 'Failed to update profile');
             }
 
-            // Update the session with new data
-            await updateSession({
-                user: {
-                    ...session.user,
-                    firstName: updatedData.firstName,
-                    lastName: updatedData.lastName,
-                    phone: updatedData.phone,
-                }
-            });
+            // Dispatch auth change event to update useCurrentUser hook
+            window.dispatchEvent(new Event('authChange'));
 
             toast.success('Profile updated successfully!');
             setIsEditing(false);

@@ -14,6 +14,7 @@ import { uploadToCloudinary } from "../../utils/cloudinaryUpload";
 import { Brand } from "../brand/brand.model";
 import { Category } from "../category/category.model";
 import { Subcategory } from "../subcategory/subcategory.model";
+import { LandingSection } from "../landingsection/landingsection.model";
 import { Types } from "mongoose";
 import { NotificationServices } from "../notification/notification.service";
 
@@ -223,6 +224,36 @@ const createProductIntoDB = async (
     payload.published = payload.published === "true";
   }
 
+  // Handle category - if it's a slug, look up the category ObjectId
+  if (
+    payload.category &&
+    typeof payload.category === "string" &&
+    !Types.ObjectId.isValid(payload.category)
+  ) {
+    const category = await Category.findOne({ slug: payload.category });
+    if (!category) {
+      throw new AppError(httpStatus.NOT_FOUND, "Category not found");
+    }
+    payload.category = category._id;
+  }
+
+  // Handle subcategory - if it's a slug, look up the subcategory ObjectId
+  if (
+    payload.subcategory &&
+    typeof payload.subcategory === "string" &&
+    !Types.ObjectId.isValid(payload.subcategory)
+  ) {
+    const subcategory = await Subcategory.findOne({
+      slug: payload.subcategory,
+    });
+    if (subcategory) {
+      payload.subcategory = subcategory._id;
+    } else {
+      // If subcategory not found, remove it from payload (it's optional)
+      delete payload.subcategory;
+    }
+  }
+
   // Handle brand - if it's a slug, look up the brand ObjectId
   if (
     payload.brand &&
@@ -240,9 +271,13 @@ const createProductIntoDB = async (
 
   // Handle colors - if it's an array of objects, separate them for ProductColorVariation
   let colorsToCreate: any[] = [];
-  if (payload.colors && Array.isArray(payload.colors) && payload.colors.length > 0) {
+  if (
+    payload.colors &&
+    Array.isArray(payload.colors) &&
+    payload.colors.length > 0
+  ) {
     // Check if the first item is an object (not string)
-    if (typeof payload.colors[0] === 'object') {
+    if (typeof payload.colors[0] === "object") {
       colorsToCreate = payload.colors;
       delete payload.colors; // Remove from product payload so it doesn't try to save to string[] field
     }
@@ -253,13 +288,13 @@ const createProductIntoDB = async (
   // create ProductColorVariation documents
   if (colorsToCreate.length > 0) {
     for (let i = 0; i < colorsToCreate.length; i++) {
-        await ProductColorVariation.create({
-            product: result._id,
-            colorName: colorsToCreate[i].colorName,
-            colorCode: colorsToCreate[i].colorCode,
-            stock: Number(colorsToCreate[i].stock) || 0,
-            sortOrder: i + 1,
-        });
+      await ProductColorVariation.create({
+        product: result._id,
+        colorName: colorsToCreate[i].colorName,
+        colorCode: colorsToCreate[i].colorCode,
+        stock: Number(colorsToCreate[i].stock) || 0,
+        sortOrder: i + 1,
+      });
     }
   }
 
@@ -276,6 +311,13 @@ const createProductIntoDB = async (
         sortOrder: i + 1,
       });
     }
+  }
+
+  // If product is assigned to a landing section, add it to the section's products array
+  if (result.landingpageSectionId) {
+    await LandingSection.findByIdAndUpdate(result.landingpageSectionId, {
+      $addToSet: { products: result._id },
+    });
   }
 
   await NotificationServices.evaluateStockForProduct(result._id);
@@ -304,8 +346,7 @@ const updateProductIntoDB = async (
     payload.lowStockThreshold = Number(payload.lowStockThreshold);
   if (payload.preOrderPrice)
     payload.preOrderPrice = Number(payload.preOrderPrice);
-  if (payload.buyingPrice)
-    payload.buyingPrice = Number(payload.buyingPrice);
+  if (payload.buyingPrice) payload.buyingPrice = Number(payload.buyingPrice);
 
   // Convert boolean strings to actual booleans
   if (typeof payload.inStock === "string") {
@@ -398,6 +439,19 @@ const updateProductIntoDB = async (
     const imageId = (payload as any).newMainFromExisting;
     const existingImage = await ProductImage.findById(imageId);
     if (existingImage && existingImage.product.toString() === id) {
+      // Save the current main image to ProductImage collection before replacing it
+      if (product.mainImage) {
+        const existingImagesCount = await ProductImage.countDocuments({
+          product: id,
+        });
+        await ProductImage.create({
+          product: id,
+          imageUrl: product.mainImage,
+          sortOrder: existingImagesCount + 1,
+        });
+      }
+      
+      // Set the new main image
       payload.mainImage = existingImage.imageUrl;
       // Remove this image from ProductImage collection since it's now the main image
       await ProductImage.findByIdAndDelete(imageId);
@@ -407,6 +461,18 @@ const updateProductIntoDB = async (
 
   // Handle new main image upload
   if (mainImageBuffer) {
+    // Save the current main image to ProductImage collection before replacing it
+    if (product.mainImage) {
+      const existingImagesCount = await ProductImage.countDocuments({
+        product: id,
+      });
+      await ProductImage.create({
+        product: id,
+        imageUrl: product.mainImage,
+        sortOrder: existingImagesCount + 1,
+      });
+    }
+    
     const imageUrl = await uploadToCloudinary(mainImageBuffer, "products");
     payload.mainImage = imageUrl;
   }
@@ -421,6 +487,27 @@ const updateProductIntoDB = async (
       await ProductImage.findByIdAndDelete(imageId);
     }
     delete (payload as any).removeImages;
+  }
+
+  // Handle landingpageSectionId changes - maintain two-way relationship
+  const oldSectionId = product.landingpageSectionId?.toString();
+  const newSectionId = payload.landingpageSectionId?.toString();
+
+  // If the section assignment changed
+  if (oldSectionId !== newSectionId) {
+    // Remove product from old section
+    if (oldSectionId) {
+      await LandingSection.findByIdAndUpdate(oldSectionId, {
+        $pull: { products: id },
+      });
+    }
+
+    // Add product to new section
+    if (newSectionId && newSectionId !== "") {
+      await LandingSection.findByIdAndUpdate(newSectionId, {
+        $addToSet: { products: id }, // $addToSet prevents duplicates
+      });
+    }
   }
 
   const result = await Product.findByIdAndUpdate(id, payload, { new: true })
@@ -457,6 +544,13 @@ const deleteProductFromDB = async (id: string) => {
   const product = await Product.findById(id);
   if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  // Remove product from its landing section if assigned
+  if (product.landingpageSectionId) {
+    await LandingSection.findByIdAndUpdate(product.landingpageSectionId, {
+      $pull: { products: id },
+    });
   }
 
   // Delete related data
@@ -730,6 +824,53 @@ const getAllUniqueColorsFromDB = async () => {
   return colors;
 };
 
+// Featured Sections (Homepage Sections)
+const getAllFeaturedSectionsFromDB = async () => {
+  
+  const result = await LandingSection.find()
+    .sort({ sortOrder: 1 })
+    .populate("category", "name slug")
+    .populate("subcategory", "name slug")
+    .populate({
+      path: "products",
+      select: "name slug price previousPrice preOrderPrice  mainImage",
+    })
+    .lean(); // Add lean() to get plain JavaScript objects
+
+  return result;
+};
+
+const createFeaturedSectionIntoDB = async (payload: any) => {
+  const result = await LandingSection.create(payload);
+  return result;
+};
+
+const updateFeaturedSectionIntoDB = async (id: string, payload: any) => {
+  const section = await LandingSection.findById(id);
+
+  if (!section) {
+    throw new AppError(httpStatus.NOT_FOUND, "Featured section not found");
+  }
+
+  const result = await LandingSection.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  });
+
+  return result;
+};
+
+const deleteFeaturedSectionFromDB = async (id: string) => {
+  const section = await LandingSection.findById(id);
+
+  if (!section) {
+    throw new AppError(httpStatus.NOT_FOUND, "Featured section not found");
+  }
+
+  const result = await LandingSection.findByIdAndDelete(id);
+  return result;
+};
+
 export const ProductServices = {
   getAllProductsFromDB,
   getSingleProductFromDB,
@@ -757,4 +898,8 @@ export const ProductServices = {
   updateColorVariationIntoDB,
   deleteColorVariationFromDB,
   getAllUniqueColorsFromDB,
+  getAllFeaturedSectionsFromDB,
+  createFeaturedSectionIntoDB,
+  updateFeaturedSectionIntoDB,
+  deleteFeaturedSectionFromDB,
 };

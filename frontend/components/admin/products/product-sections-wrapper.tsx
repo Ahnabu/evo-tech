@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import createAxiosClient from "@/utils/axios/axiosClient";
 import { AddProductFeaturesForm } from "./add-features-form";
 import { AddProductSpecsForm } from "./add-specs-form";
 import { AddColorVariationsForm } from "./add-color-variations-form";
 import { AddReviewsForm } from "./add-reviews-form";
+import axios from "@/utils/axios/axios";
 
 interface ProductSectionData {
   itemid: string;

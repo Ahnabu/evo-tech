@@ -1,4 +1,5 @@
 import Axios, { AxiosInstance } from "axios";
+import { getAuthCookie, removeAuthCookie, setAuthCookie } from "../cookies";
 
 const ensureApiV1Path = (instance: AxiosInstance, url?: string) => {
   if (!url) return url;
@@ -58,16 +59,26 @@ const axios = Axios.create({
   withCredentials: true,
 });
 
+// Helper to get auth token from cookies
+const getAuthToken = async () => {
+  if (typeof window === "undefined") return null;
+
+  try {
+    return await getAuthCookie();
+  } catch {
+    return null;
+  }
+};
+
 // Add auth interceptor for client-side requests
 if (typeof window !== "undefined") {
   // Request interceptor: Add access token to requests
   axios.interceptors.request.use(
     async (config) => {
-      const { getSession } = await import("next-auth/react");
-      const session = await getSession();
+      const token = await getAuthToken();
 
-      if (session?.accessToken) {
-        config.headers.Authorization = `Bearer ${session.accessToken}`;
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
 
       return config;
@@ -114,7 +125,7 @@ if (typeof window !== "undefined") {
         isRefreshing = true;
 
         try {
-          // Try to refresh the token
+          // Try to refresh the token using cookie-based refresh token
           const response = await Axios.post(
             `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh-token`,
             {},
@@ -124,14 +135,8 @@ if (typeof window !== "undefined") {
           if (response.data?.data?.accessToken) {
             const newAccessToken = response.data.data.accessToken;
 
-            // Update session with new token
-            const { getSession } = await import("next-auth/react");
-            const session = await getSession();
-
-            if (session) {
-              // Update the session token (this is a workaround since NextAuth doesn't expose session update)
-              session.accessToken = newAccessToken;
-            }
+            // Store new token in cookie
+            await setAuthCookie(newAccessToken);
 
             // Update the original request with new token
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -141,16 +146,17 @@ if (typeof window !== "undefined") {
 
             // Retry the original request
             return axios(originalRequest);
+          } else {
+            throw new Error("No access token in refresh response");
           }
-        } catch (refreshError) {
+        } catch (refreshError: any) {
           processQueue(refreshError, null);
           isRefreshing = false;
 
-          // If refresh fails, redirect to login
+          // If refresh fails, clear auth and redirect to login
           if (typeof window !== "undefined") {
-            const { signOut } = await import("next-auth/react");
-            await signOut({ redirect: false });
-            window.location.href = "/login";
+            await removeAuthCookie();
+            window.location.replace("/login");
           }
 
           return Promise.reject(refreshError);
@@ -181,16 +187,15 @@ export const createAuthAxios = async () => {
     return axios;
   }
 
-  // Client-side, attach auth token
-  const { getSession } = await import("next-auth/react");
-  const session = await getSession();
+  // Client-side, attach auth token from cookies
+  const token = getAuthCookie();
 
   const authAxios = Axios.create({
     baseURL: process.env.NEXT_PUBLIC_API_URL,
     headers: {
       "Content-Type": "application/json",
-      ...(session?.accessToken && {
-        Authorization: `Bearer ${session.accessToken}`,
+      ...(token && {
+        Authorization: `Bearer ${token}`,
       }),
     },
     withCredentials: true,

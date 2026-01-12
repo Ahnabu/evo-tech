@@ -9,9 +9,9 @@ export default {
   db_url: process.env.MONGODB_URI,
   bcrypt_salt_rounds: process.env.BCRYPT_SALT_ROUNDS || 10,
   jwt_access_secret: process.env.JWT_ACCESS_SECRET,
-  jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN || "8h",
+  jwt_access_expires_in: process.env.JWT_ACCESS_EXPIRES_IN || "7d",
   jwt_refresh_secret: process.env.JWT_REFRESH_SECRET,
-  jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN || "30d",
+  jwt_refresh_expires_in: process.env.JWT_REFRESH_EXPIRES_IN || "90d",
   admin_email: process.env.ADMIN_EMAIL,
   admin_password: process.env.ADMIN_PASSWORD,
   admin_firstname: process.env.ADMIN_FIRSTNAME || "Admin",
@@ -22,13 +22,7 @@ export default {
   cloudinary_api_secret: process.env.CLOUDINARY_API_SECRET,
   cors_origin:
     process.env.NODE_ENV === "production"
-      ? (
-          process.env.FRONTEND_URL ||
-          process.env.CORS_ORIGIN ||
-          "http://localhost:3000"
-        )
-          .split(",")
-          .map((url) => url.trim())
+      ? (process.env.CORS_ORIGIN as string).split(",").map((url) => url.trim())
       : ["http://localhost:3000", "http://localhost:3001"],
   frontend_url: process.env.FRONTEND_URL || "http://localhost:3000",
   // bKash Payment Gateway Configuration

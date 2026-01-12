@@ -32,7 +32,7 @@ const CategoryNav = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("/categories?limit=8&isActive=true");
+        const response = await axios.get("/categories?limit=3&isActive=true");
         const data = response?.data?.data || [];
         const sortedCategories = data.sort(
           (a: Category, b: Category) => (a.sortOrder || 0) - (b.sortOrder || 0)
@@ -81,7 +81,7 @@ const CategoryNav = () => {
 
   return (
     <div className="flex items-center gap-1">
-      {categories.map((category) => {
+      {categories?.slice(0, 4)?.map((category) => {
         const categorySubcategories = subcategories[category._id] || [];
         const hasSubcategories = categorySubcategories.length > 0;
 

@@ -181,7 +181,6 @@ const checkUserHasAnyPermission = async (userIdOrUuid: string, permissionCodes: 
 
 // Get only permitted routes for a user (lightweight for auth)
 const getPermittedRoutesForUser = async (userIdOrUuid: string): Promise<string[]> => {
-  console.log('🔍 Getting permitted routes for user:', userIdOrUuid);
   
   let userId: Types.ObjectId | null = null;
   
@@ -211,11 +210,9 @@ const getPermittedRoutesForUser = async (userIdOrUuid: string): Promise<string[]
     isActive: true,
   }).select('route');
   
-  console.log('🗺️ Found permissions with routes:', permissions);
   
   // Return unique routes
   const routes = [...new Set(permissions.map(p => p.route))];
-  console.log('✅ Returning routes:', routes);
   return routes;
 };
 

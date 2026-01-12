@@ -76,10 +76,17 @@ const getSingleCategoryFromDB = async (id: string) => {
 };
 
 const getCategoryBySlugFromDB = async (slug: string) => {
+  
   const category = await Category.findOne({ slug });
+  
   if (!category) {
+    
+    // Log all available category slugs to help debug
+    const allCategories = await Category.find({}, 'slug name').limit(20);
+    
     throw new AppError(httpStatus.NOT_FOUND, "Category not found");
   }
+  
 
   // Count subcategories for this category
   const subcategoriesCount = await Subcategory.countDocuments({

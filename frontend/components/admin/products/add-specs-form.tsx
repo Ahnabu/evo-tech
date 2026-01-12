@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle, Trash2, Loader2 } from "lucide-react";
+import createAxiosClient from "@/utils/axios/axiosClient";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -85,29 +86,25 @@ export function AddProductSpecsForm({
   const handleAddSpecification = async (values: SpecificationFormValues) => {
     setIsLoading(true);
     try {
-      const response = await fetch(
+      const axios = await createAxiosClient();
+      const response = await axios.post(
         `/api/products/${itemInfo.itemid}/specifications`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(values),
-        }
+        values
       );
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to add specification");
+      if (response.data.success) {
+        toast.success("Specification added successfully");
+        form.reset({
+          title: "",
+          value: "",
+          sortOrder: specifications.length + 1,
+        });
+        onRefresh?.();
+      } else {
+        throw new Error(response.data.message || "Failed to add specification");
       }
-
-      toast.success("Specification added successfully");
-      form.reset({
-        title: "",
-        value: "",
-        sortOrder: specifications.length + 1,
-      });
-      onRefresh?.();
     } catch (error: any) {
-      toast.error(error.message || "Failed to add specification");
+      toast.error(error?.response?.data?.message || error.message || "Failed to add specification");
     } finally {
       setIsLoading(false);
     }
@@ -117,19 +114,17 @@ export function AddProductSpecsForm({
   const handleDeleteSpecification = async (specId: string) => {
     setDeletingSpecId(specId);
     try {
-      const response = await fetch(`/api/products/specifications/${specId}`, {
-        method: "DELETE",
-      });
+      const axios = await createAxiosClient();
+      const response = await axios.delete(`/api/products/specifications/${specId}`);
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to delete specification");
+      if (response.data.success) {
+        toast.success("Specification deleted successfully");
+        onRefresh?.();
+      } else {
+        throw new Error(response.data.message || "Failed to delete specification");
       }
-
-      toast.success("Specification deleted successfully");
-      onRefresh?.();
     } catch (error: any) {
-      toast.error(error.message || "Failed to delete specification");
+      toast.error(error?.response?.data?.message || error.message || "Failed to delete specification");
     } finally {
       setDeletingSpecId(null);
     }

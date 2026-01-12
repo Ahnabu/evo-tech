@@ -1,8 +1,6 @@
 import NextAuth from "next-auth";
 import authConfig from "@/auth.config";
-import axios from "@/utils/axios/axios";
-import { isAxiosError } from "axios";
-import jwt from "jsonwebtoken";
+
 
 interface addressType {
   house_and_street: string;
@@ -70,7 +68,7 @@ declare module "@auth/core/jwt" {
 
 export const runtime = "nodejs";
 
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
   trustHost: true, // Trust the host in production (required for NextAuth v5)
   ...authConfig,
   session: {
@@ -151,7 +149,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ user, account, profile }) {
       return true;
     },
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, user, account, profile, trigger }) {
       if (user) {
         // user is only available here while signing in
         token.userdata = {
@@ -167,6 +165,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           permittedRoutes: user.permittedRoutes, // Add permitted routes to token
         };
         token.accessToken = user.accessToken;
+      }
+
+      // Check if there's a refreshed token in localStorage (from axios refresh interceptor)
+      if (typeof window !== "undefined" && !user) {
+        const tempToken = localStorage.getItem("temp_access_token");
+        if (tempToken) {
+          token.accessToken = tempToken;
+        }
       }
 
       return token;

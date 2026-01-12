@@ -5,9 +5,6 @@ import { catchAsync } from "../../utils/catchAsync";
 import AppError from "../../errors/AppError";
 
 const registerUser = catchAsync(async (req, res) => {
-  console.log("=== REGISTER CONTROLLER DEBUG ===");
-  console.log("Request body received:", JSON.stringify(req.body, null, 2));
-  console.log("================================");
 
   const result = await AuthServices.registerUser(req.body);
 
@@ -28,7 +25,7 @@ const loginUser = catchAsync(async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
     path: "/",
   });
 
@@ -52,7 +49,7 @@ const handleOAuthLogin = catchAsync(async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    maxAge: 90 * 24 * 60 * 60 * 1000, // 90 days
     path: "/",
   });
 

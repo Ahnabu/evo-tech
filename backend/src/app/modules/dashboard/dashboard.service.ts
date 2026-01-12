@@ -26,30 +26,57 @@ const getDashboardStats = async () => {
   const currentMonthRevenue = currentMonthOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
   const lastMonthRevenue = lastMonthOrders.reduce((sum, order) => sum + (order.totalPayable || 0), 0);
 
-  // Calculate Profit (Revenue - Cost)
-  // Fetch order items for current month orders
   const currentMonthOrderIds = currentMonthOrders.map(order => order._id);
   const currentMonthOrderItems = await OrderItem.find({ order: { $in: currentMonthOrderIds } }).populate("product");
 
-  let totalProfit = 0;
+  
+  let totalCost = 0; // Total buying cost
+  let itemsWithoutBuyingPrice = 0;
+  
+  // Calculate total buying cost for all items
   for (const item of currentMonthOrderItems) {
-    const product = item.product as any;
-    // Profit = (Selling Price - Buying Price) * Quantity
-    // Use current buying price as approximation if not stored in historical data
-    const individualProfit = (item.productPrice - (product?.buyingPrice || 0)) * item.quantity;
-    totalProfit += individualProfit;
+    let product = item.product as any;
+    
+    // Fallback: If product is null (deleted?), try to find by name
+    if (!product) {
+      const productByName = await Product.findOne({ name: item.productName });
+      if (productByName) {
+        product = productByName;
+      }
+    }
+
+    const buyingPrice = product?.buyingPrice || 0;
+    const quantity = item.quantity;
+    const itemCost = buyingPrice * quantity;
+    
+    if (!product?.buyingPrice) {
+      itemsWithoutBuyingPrice++;
+    }
+    totalCost += itemCost;
   }
+  
+  // Profit = Actual Revenue (after discounts) - Total Cost
+  // Revenue is currentMonthRevenue which already accounts for discounts
+  const totalProfit = currentMonthRevenue - totalCost;
 
   // Calculate Last Month Profit for growth comparison
   const lastMonthOrderIds = lastMonthOrders.map(order => order._id);
   const lastMonthOrderItems = await OrderItem.find({ order: { $in: lastMonthOrderIds } }).populate("product");
 
-  let lastMonthProfit = 0;
+  let lastMonthCost = 0;
   for (const item of lastMonthOrderItems) {
-    const product = item.product as any;
-    const individualProfit = (item.productPrice - (product?.buyingPrice || 0)) * item.quantity;
-    lastMonthProfit += individualProfit;
+    let product = item.product as any;
+    
+    if (!product) {
+      product = await Product.findOne({ name: item.productName });
+    }
+
+    const buyingPrice = product?.buyingPrice || 0;
+    const itemCost = buyingPrice * item.quantity;
+    lastMonthCost += itemCost;
   }
+  
+  const lastMonthProfit = lastMonthRevenue - lastMonthCost;
 
   const profitGrowth = lastMonthProfit > 0 
     ? ((totalProfit - lastMonthProfit) / lastMonthProfit) * 100 
@@ -106,6 +133,10 @@ const getDashboardStats = async () => {
     ordersGrowth: Math.round(ordersGrowth * 100) / 100,
     customersGrowth: Math.round(customersGrowth * 100) / 100,
     productsGrowth: Math.round(productsGrowth * 100) / 100,
+    profitWarning: itemsWithoutBuyingPrice > 0 ? {
+      message: `${itemsWithoutBuyingPrice} order item(s) are missing buying prices. Profit calculation may be inaccurate.`,
+      itemsAffected: itemsWithoutBuyingPrice
+    } : null,
   };
 };
 

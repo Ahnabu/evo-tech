@@ -4,7 +4,7 @@ import * as React from "react";
 import type { Row } from "@tanstack/react-table";
 import { toast } from "sonner";
 import { DeleteDialog } from "@/components/dialogs/delete-dialog";
-import axios from "axios";
+import axios from "@/utils/axios/axios";
 import { UpdateBrandForm } from "@/components/admin/taxonomy/brands/add-update-brand-form";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "@/store/store";

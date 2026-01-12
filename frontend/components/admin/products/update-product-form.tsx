@@ -8,7 +8,6 @@ import { UpdateProductSchema } from "@/schemas/admin/product/productschemas";
 import { FileUploader } from "@/components/file_upload/file-uploader";
 import { EvoFormInputError } from "@/components/error/form-input-error";
 
-import axios from "axios";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { slugify } from "@/lib/all_utils";
@@ -28,6 +27,7 @@ import {
 import { IoIosAddCircle } from "react-icons/io";
 import { Trash2, Undo2, PlusCircle } from "lucide-react";
 import Image from "next/image";
+import axios from "@/utils/axios/axios";
 
 interface UpdateProductFormProps {
   itemInfo: {
@@ -310,7 +310,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     }
 
     const response = await axios
-      .post(`/api/admin/products/update/${itemInfo.itemid}`, formdata, {
+      .put(`/api/admin/products/${itemInfo.itemid}`, formdata, {
         headers: {
           "X-Requested-With": "XMLHttpRequest",
         },
@@ -332,8 +332,8 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         return null;
       });
 
-    if (response && response.message && response.item_name) {
-      toast.success(`Item '${response.item_name}' updated`);
+    if (response) {
+      toast.success(response.message || `Item '${response.item_name || itemInfo.i_name}' updated`);
       // router.replace(`/control/products/update/${response.item_slug}`, { scroll: false }); // because slug can also be changed
       router.push(`/control/products`, {
         scroll: true,
@@ -347,6 +347,22 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       onSubmit={handleSubmit(onSubmit)}
       className="max-w-3xl p-6 space-y-4 text-sm"
     >
+      {/* Current Main Image Display */}
+      <div className="border-b border-stone-300 pb-4">
+        <label className="block text-sm font-medium mb-2">
+          Current Main Image
+        </label>
+        <div className="relative w-full max-w-md h-64 bg-white border border-stone-300 rounded-md overflow-hidden">
+          <Image
+            src={itemInfo.i_mainimg}
+            alt="Current main product image"
+            fill
+            sizes="100%"
+            className="object-contain object-center"
+          />
+        </div>
+      </div>
+
       {/* Existing Images Grid */}
       <div className="border-b border-stone-300 pb-4">
         <label className="block text-sm font-medium mb-2">
@@ -945,7 +961,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         <div className="space-y-4">
             {faqFields.map((field, index) => (
                 <div key={field.id} className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm space-y-3 relative group">
-                    <button
+                    <button aria-label="remove"
                         type="button"
                         onClick={() => removeFaq(index)}
                         className="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"

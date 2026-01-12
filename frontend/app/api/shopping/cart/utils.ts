@@ -43,7 +43,7 @@ export const transformCartItems = (items: RawCartItem[] | undefined | null) => {
       item_price: product.price ?? 0,
       item_color: item.selectedColor || null,
       item_quantity: item.quantity ?? 0,
-      item_imgurl: product.mainImage || product.imageUrl || "",
+      item_mainimg: product.mainImage || product.imageUrl || "",
       item_category: extractSlug(category),
       item_subcategory: extractSlug(subcategory),
       item_brand: extractSlug(brand),

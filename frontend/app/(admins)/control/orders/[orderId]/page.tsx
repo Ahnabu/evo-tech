@@ -12,16 +12,16 @@ const getOrderDetails = async (orderId: string): Promise<{ order: OrderWithItems
   noStore();
 
   try {
-    console.log('📦 Fetching order details for orderId:', orderId);
+    // console.log('📦 Fetching order details for orderId:', orderId);
     
     // Call backend API directly with auth
     const response = await axioswithIntercept.get(`/orders/${orderId}`);
 
-    console.log('✅ Order details response:', {
-      success: response.data?.success,
-      hasData: !!response.data?.data,
-      dataKeys: response.data?.data ? Object.keys(response.data.data) : null
-    });
+    // console.log('✅ Order details response:', {
+    //   success: response.data?.success,
+    //   hasData: !!response.data?.data,
+    //   dataKeys: response.data?.data ? Object.keys(response.data.data) : null
+    // });
 
     if (response.data.success && response.data.data) {
       return response.data.data;

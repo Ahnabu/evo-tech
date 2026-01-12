@@ -16,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import Image from "next/image";
 import { useDispatch } from "react-redux";
-import { useSession } from "next-auth/react";
+import { getAuthCookie, getCurrentUser } from "@/utils/cookies";
 import { axiosPrivate } from "@/utils/axios/axios";
 import {
   heroAddSchema,
@@ -80,34 +80,32 @@ const HeroSectionForm = ({
 }: HeroSectionFormProps) => {
   const isUpdate = mode === "update";
   const dispatch = useDispatch<AppDispatch>();
-  const { data: session } = useSession();
+  const currentUser = getCurrentUser();
+  const token = getAuthCookie();
 
   const form = useForm<HeroFormValues>({
     resolver: zodResolver(isUpdate ? heroUpdateSchema : heroAddSchema),
     defaultValues: buildDefaultValues(sectionData ?? null),
   });
 
-  const refreshHeroSections = React.useCallback(
-    async (token: string) => {
-      try {
-        const listResponse = await axiosPrivate.get("/banners", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const parsedList = HeroSectionListSchema.parse(
-          listResponse.data?.data ?? []
-        );
-        dispatch(
-          setHeroSectionsList({
-            data: parsedList,
-            fetchedStatus: true,
-          })
-        );
-      } catch (error) {
-        console.error("Failed to refresh hero sections", error);
-      }
-    },
-    [dispatch]
-  );
+  const refreshHeroSections = React.useCallback(async () => {
+    try {
+      const listResponse = await axiosPrivate.get("/banners", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const parsedList = HeroSectionListSchema.parse(
+        listResponse.data?.data ?? []
+      );
+      dispatch(
+        setHeroSectionsList({
+          data: parsedList,
+          fetchedStatus: true,
+        })
+      );
+    } catch (error) {
+      console.error("Failed to refresh hero sections", error);
+    }
+  }, [dispatch, token]);
 
   const onSubmit = async (values: HeroFormValues) => {
     const formData = new FormData();
@@ -137,7 +135,6 @@ const HeroSectionForm = ({
     }
 
     try {
-      const token = session?.accessToken;
       if (!token) {
         toast.error("Authentication required");
         return;
@@ -163,7 +160,7 @@ const HeroSectionForm = ({
         (isUpdate ? "Hero section updated" : "Hero section created");
       toast.success(message);
 
-      await refreshHeroSections(token);
+      await refreshHeroSections();
 
       if (isUpdate) {
         const parsed = HeroSectionSchema.safeParse(response?.data?.data);

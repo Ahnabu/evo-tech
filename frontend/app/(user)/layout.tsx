@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { auth } from "@/auth";
+import { getServerAuth } from "@/lib/server-auth";
 import { AppSidebar } from "@/components/scn/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { PermissionsProvider } from "@/contexts/PermissionsContext";
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 };
 
 const UserGroupLayout = async ({ children }: { children: ReactNode }) => {
-  const session = await auth();
+  const session = await getServerAuth();
 
   return (
     <PermissionsProvider>
@@ -23,9 +23,7 @@ const UserGroupLayout = async ({ children }: { children: ReactNode }) => {
         <SidebarProvider>
           <AppSidebar userSession={session?.user} />
           <SidebarInset>
-            <div className="min-h-screen w-full bg-gray-50">
-              {children}
-            </div>
+            <div className="min-h-screen w-full bg-gray-50">{children}</div>
           </SidebarInset>
         </SidebarProvider>
       </PendingOrdersProvider>
