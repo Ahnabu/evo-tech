@@ -383,7 +383,8 @@ const ProductGridCard = ({ product }: { product: any }) => {
         </div>
 
         {/* Add to Cart Button */}
-        <button 
+        <button
+          type="button"
           onClick={handleAddToCart}
           disabled={!product.i_instock && !product.i_isPreOrder}
           className="mt-3 w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
@@ -583,7 +584,8 @@ const ProductListCard = ({ product }: { product: any }) => {
             )}
           </div>
 
-          <button 
+          <button
+            type="button"
             onClick={handleAddToCart}
             disabled={!product.i_instock && !product.i_isPreOrder}
             className="px-6 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 disabled:bg-stone-400 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
