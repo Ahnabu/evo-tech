@@ -63,9 +63,7 @@ const getUserOrders = catchAsync(async (req, res) => {
 });
 
 const getAllOrders = catchAsync(async (req, res) => {
-  console.log("📦 getAllOrders called with query:", req.query);
   const orders = await OrderServices.getAllOrdersFromDB(req.query);
-  console.log("📦 Returning", orders.result?.length || 0, "orders");
 
   sendResponse(res, {
     success: true,

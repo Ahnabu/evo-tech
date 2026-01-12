@@ -347,6 +347,22 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       onSubmit={handleSubmit(onSubmit)}
       className="max-w-3xl p-6 space-y-4 text-sm"
     >
+      {/* Current Main Image Display */}
+      <div className="border-b border-stone-300 pb-4">
+        <label className="block text-sm font-medium mb-2">
+          Current Main Image
+        </label>
+        <div className="relative w-full max-w-md h-64 bg-white border border-stone-300 rounded-md overflow-hidden">
+          <Image
+            src={itemInfo.i_mainimg}
+            alt="Current main product image"
+            fill
+            sizes="100%"
+            className="object-contain object-center"
+          />
+        </div>
+      </div>
+
       {/* Existing Images Grid */}
       <div className="border-b border-stone-300 pb-4">
         <label className="block text-sm font-medium mb-2">

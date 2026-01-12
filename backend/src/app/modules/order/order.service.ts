@@ -163,13 +163,6 @@ const placeOrderIntoDB = async (
   orderData.user = userUuid;
   orderData.isGuest = false;
 
-  // Use the subtotal and totalPayable sent from frontend
-  console.log("✅ Using frontend-calculated values:", {
-    subtotal: orderData.subtotal,
-    totalPayable: orderData.totalPayable,
-  });
-
-  // Compute deposit/balance information for pre-order items
   const depositInfo = calculateDepositBreakdown(
     productDetails,
     orderData.totalPayable || 0
@@ -485,14 +478,14 @@ const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
     }
   }
 
-  console.log("📦 Backend received order data:", {
-    subtotal: orderData.subtotal,
-    totalPayable: orderData.totalPayable,
-    deliveryCharge: orderData.deliveryCharge,
-    additionalCharge: orderData.additionalCharge,
-    discount: orderData.discount,
-    itemsCount: items.length,
-  });
+  // console.log("📦 Backend received order data:", {
+  //   subtotal: orderData.subtotal,
+  //   totalPayable: orderData.totalPayable,
+  //   deliveryCharge: orderData.deliveryCharge,
+  //   additionalCharge: orderData.additionalCharge,
+  //   discount: orderData.discount,
+  //   itemsCount: items.length,
+  // });
 
   // Process items and create product details
   const productDetails = await Promise.all(
@@ -521,13 +514,6 @@ const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
   orderData.trackingCode = generateTrackingId();
   orderData.isGuest = true;
   orderData.guestEmail = orderData.email;
-
-  // Use the subtotal and totalPayable sent from frontend (already calculated correctly)
-  // Don't recalculate here to avoid discrepancies
-  console.log("✅ Using frontend-calculated values:", {
-    subtotal: orderData.subtotal,
-    totalPayable: orderData.totalPayable,
-  });
 
   // Compute deposit/balance data for guest orders
   const depositInfo = calculateDepositBreakdown(

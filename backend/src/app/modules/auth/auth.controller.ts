@@ -5,9 +5,6 @@ import { catchAsync } from "../../utils/catchAsync";
 import AppError from "../../errors/AppError";
 
 const registerUser = catchAsync(async (req, res) => {
-  console.log("=== REGISTER CONTROLLER DEBUG ===");
-  console.log("Request body received:", JSON.stringify(req.body, null, 2));
-  console.log("================================");
 
   const result = await AuthServices.registerUser(req.body);
 

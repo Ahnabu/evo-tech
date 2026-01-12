@@ -81,15 +81,15 @@ const DynamicProductSlider = ({
             <SwiperSlide key={product.id}>
               <Link
                 href={`/items/${product.slug}`}
-                className="group block w-full bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+                className="group block w-full bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-stone-100 hover:border-brand-200"
               >
-                {/* Product Image Container - Fixed aspect ratio */}
-                <div className="relative w-full aspect-[4/3] bg-stone-100 overflow-hidden">
+                {/* Product Image Container - Match ProductGridCard */}
+                <div className="relative w-full aspect-square bg-stone-50 overflow-hidden">
                   <Image
                     src={product.image || "/placeholder.png"}
                     alt={product.name}
                     fill
-                    className="object-contain p-2 group-hover:scale-105 transition-transform duration-500 ease-out"
+                    className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
                     sizes="(max-width: 640px) 80vw, (max-width: 768px) 45vw, (max-width: 1024px) 35vw, 28vw"
                   />
 
@@ -105,7 +105,7 @@ const DynamicProductSlider = ({
 
                 {/* Product Info - Clean white background */}
                 <div className="p-3 bg-stone-50 border-t border-stone-100">
-                  <h3 className="text-sm sm:text-base font-semibold text-stone-800 line-clamp-2 group-hover:text-brand-600 transition-colors leading-snug">
+                  <h3 className="text-sm sm:text-base font-semibold text-stone-800 line-clamp-2 group-hover:text-brand-600 transition-colors leading-snug min-h-[2.5rem]">
                     {product.name}
                   </h3>
 
@@ -113,7 +113,7 @@ const DynamicProductSlider = ({
                     {product.preOrderPrice && product.preOrderPrice < product.price ? (
                       <>
                         <span className="text-[13px] font-semibold text-cyan-600">
-                          Pre-Order: BDT {product.preOrderPrice.toLocaleString()}
+                          BDT {product.preOrderPrice.toLocaleString()}
                         </span>
                         <span className="text-xs sm:text-sm text-red-500 line-through">
                           ৳{product.price.toLocaleString()}
@@ -124,11 +124,11 @@ const DynamicProductSlider = ({
                         <span className="text-[13px] font-medium text-stone-800">
                           BDT {product.price.toLocaleString()}
                         </span>
-                        {product.prevPrice && product.prevPrice > product.price && (
+                        {product.prevPrice && product.prevPrice > product.price ? (
                           <span className="text-xs sm:text-sm text-stone-400 line-through">
-                            ৳{product.prevPrice.toLocaleString()}
+                            BDT{product.prevPrice.toLocaleString()}
                           </span>
-                        )}
+                        ) : null}
                       </>
                     )}
                   </div>

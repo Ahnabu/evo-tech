@@ -1,11 +1,15 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-import { useCouponsData } from "@/hooks/use-coupons-data";
 import { Package } from "lucide-react";
+import { ServerSidePaginationProps } from "@/utils/types_interfaces/data-table-props";
 
-export const CouponsCount = () => {
-    const { serverSidePagination, isLoading } = useCouponsData();
+interface CouponsCountProps {
+    serverSidePagination: ServerSidePaginationProps | null;
+    isLoading: boolean;
+}
+
+export const CouponsCount = ({ serverSidePagination, isLoading }: CouponsCountProps) => {
     const totalCoupons = serverSidePagination?.totalRecords || 0;
 
     if (isLoading) {

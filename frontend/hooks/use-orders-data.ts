@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from '@/store/store';
 import { setOrdersList } from "@/store/slices/orderSlice";
 import { OrderWithItemsType } from "@/schemas/admin/sales/orderSchema";
 import { ServerSidePaginationProps } from "@/utils/types_interfaces/data-table-props";
-import axios from "axios";
+import { getCurrentUser } from "@/utils/cookies";
+import axios from "@/utils/axios/axios";
 
 interface OrdersPaginationData {
     current_page: number;
@@ -26,6 +27,7 @@ interface UseOrdersDataReturn {
 }
 
 export function useOrdersData(): UseOrdersDataReturn {
+    const currentUser = useMemo(() => getCurrentUser(), []);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [paginationData, setPaginationData] = useState<OrdersPaginationData | null>(null);
@@ -37,6 +39,8 @@ export function useOrdersData(): UseOrdersDataReturn {
     const dispatch = useDispatch<AppDispatch>();
 
     const fetchOrders = useCallback(async () => {
+        if (!currentUser) return;
+
         try {
             setIsLoading(true);
             setError(null);
@@ -60,25 +64,21 @@ export function useOrdersData(): UseOrdersDataReturn {
 
             const queryString = queryParams.toString();
 
-            console.log('📦 useOrdersData - Fetching orders with params:', {
-                search, order_status, payment_status, page, limit
-            });
-
             const response = await axios.get(
                 `/api/admin/orders${queryString ? `?${queryString}` : ""}`,
             );
 
-            console.log('✅ useOrdersData - Response:', {
-                success: response.data.success,
-                hasData: !!response.data.data,
-                dataIsArray: Array.isArray(response.data.data),
-                dataLength: Array.isArray(response.data.data) ? response.data.data.length : 'N/A',
-                hasResult: !!response.data.data?.result,
-                resultLength: response.data.data?.result?.length || 'N/A',
-                hasMeta: !!response.data.meta,
-                keys: Object.keys(response.data),
-                firstItem: Array.isArray(response.data.data) ? response.data.data[0] : null
-            });
+            // console.log('✅ useOrdersData - Response:', {
+            //     success: response.data.success,
+            //     hasData: !!response.data.data,
+            //     dataIsArray: Array.isArray(response.data.data),
+            //     dataLength: Array.isArray(response.data.data) ? response.data.data.length : 'N/A',
+            //     hasResult: !!response.data.data?.result,
+            //     resultLength: response.data.data?.result?.length || 'N/A',
+            //     hasMeta: !!response.data.meta,
+            //     keys: Object.keys(response.data),
+            //     firstItem: Array.isArray(response.data.data) ? response.data.data[0] : null
+            // });
 
             // Backend returns: { success: true, data: [...orders...] or { result: [...], meta: {...} }, meta: {...} }
             let ordersData;
@@ -105,23 +105,23 @@ export function useOrdersData(): UseOrdersDataReturn {
                 per_page: meta?.limit || response.data.per_page || 10,
             };
 
-            console.log('📊 useOrdersData - Extracted:', {
-                ordersCount: ordersData?.length || 0,
-                pagination,
-                sampleOrder: ordersData?.[0],
-                sampleOrderKeys: ordersData?.[0] ? Object.keys(ordersData[0]) : [],
-                allOrderFields: ordersData?.[0] ? {
-                    orderNumber: ordersData[0]?.orderNumber,
-                    orderStatus: ordersData[0]?.orderStatus,
-                    paymentStatus: ordersData[0]?.paymentStatus,
-                    paymentMethod: ordersData[0]?.paymentMethod,
-                    shippingType: ordersData[0]?.shippingType,
-                    totalPayable: ordersData[0]?.totalPayable,
-                    firstname: ordersData[0]?.firstname,
-                    lastname: ordersData[0]?.lastname,
-                    email: ordersData[0]?.email,
-                } : null
-            });
+            // console.log('📊 useOrdersData - Extracted:', {
+            //     ordersCount: ordersData?.length || 0,
+            //     pagination,
+            //     sampleOrder: ordersData?.[0],
+            //     sampleOrderKeys: ordersData?.[0] ? Object.keys(ordersData[0]) : [],
+            //     allOrderFields: ordersData?.[0] ? {
+            //         orderNumber: ordersData[0]?.orderNumber,
+            //         orderStatus: ordersData[0]?.orderStatus,
+            //         paymentStatus: ordersData[0]?.paymentStatus,
+            //         paymentMethod: ordersData[0]?.paymentMethod,
+            //         shippingType: ordersData[0]?.shippingType,
+            //         totalPayable: ordersData[0]?.totalPayable,
+            //         firstname: ordersData[0]?.firstname,
+            //         lastname: ordersData[0]?.lastname,
+            //         email: ordersData[0]?.email,
+            //     } : null
+            // });
 
             dispatch(setOrdersList(ordersData));
             setPaginationData(pagination);
@@ -141,7 +141,7 @@ export function useOrdersData(): UseOrdersDataReturn {
         } finally {
             setIsLoading(false);
         }
-    }, [searchParams, dispatch, router, pathname]);
+    }, [searchParams, dispatch, router, pathname, currentUser]);
 
     // Handle page change
     const handlePageChange = useCallback((page: number) => {

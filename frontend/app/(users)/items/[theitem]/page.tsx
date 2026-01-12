@@ -297,6 +297,7 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
               <div className="flex flex-wrap justify-between w-full h-fit gap-x-8 gap-y-2 min-[1320px]:pr-10">
                 <div className="flex flex-col w-fit h-fit gap-2">
                   <div className="flex items-center gap-2">
+                    <span className="text-[16px] md:text-[18px] leading-6 font-[600] tracking-tight">Regular Price:</span>
                     <span className="text-[16px] md:text-[18px] leading-6 font-[600] tracking-tight">{`BDT ${currencyFormatBDT(
                       itemInfo.i_price
                     )}`}</span>

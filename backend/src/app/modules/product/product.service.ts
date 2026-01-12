@@ -439,6 +439,19 @@ const updateProductIntoDB = async (
     const imageId = (payload as any).newMainFromExisting;
     const existingImage = await ProductImage.findById(imageId);
     if (existingImage && existingImage.product.toString() === id) {
+      // Save the current main image to ProductImage collection before replacing it
+      if (product.mainImage) {
+        const existingImagesCount = await ProductImage.countDocuments({
+          product: id,
+        });
+        await ProductImage.create({
+          product: id,
+          imageUrl: product.mainImage,
+          sortOrder: existingImagesCount + 1,
+        });
+      }
+      
+      // Set the new main image
       payload.mainImage = existingImage.imageUrl;
       // Remove this image from ProductImage collection since it's now the main image
       await ProductImage.findByIdAndDelete(imageId);
@@ -448,6 +461,18 @@ const updateProductIntoDB = async (
 
   // Handle new main image upload
   if (mainImageBuffer) {
+    // Save the current main image to ProductImage collection before replacing it
+    if (product.mainImage) {
+      const existingImagesCount = await ProductImage.countDocuments({
+        product: id,
+      });
+      await ProductImage.create({
+        product: id,
+        imageUrl: product.mainImage,
+        sortOrder: existingImagesCount + 1,
+      });
+    }
+    
     const imageUrl = await uploadToCloudinary(mainImageBuffer, "products");
     payload.mainImage = imageUrl;
   }
@@ -526,7 +551,6 @@ const deleteProductFromDB = async (id: string) => {
     await LandingSection.findByIdAndUpdate(product.landingpageSectionId, {
       $pull: { products: id },
     });
-    console.log(`Removed deleted product ${id} from section ${product.landingpageSectionId}`);
   }
 
   // Delete related data
@@ -802,7 +826,6 @@ const getAllUniqueColorsFromDB = async () => {
 
 // Featured Sections (Homepage Sections)
 const getAllFeaturedSectionsFromDB = async () => {
-  console.log("=== Backend: getAllFeaturedSectionsFromDB ===");
   
   const result = await LandingSection.find()
     .sort({ sortOrder: 1 })
@@ -813,15 +836,6 @@ const getAllFeaturedSectionsFromDB = async () => {
       select: "name slug price previousPrice preOrderPrice  mainImage",
     })
     .lean(); // Add lean() to get plain JavaScript objects
-
-  console.log("Total sections found:", result.length);
-  result.forEach((section: any, index: number) => {
-    console.log(`\nSection ${index + 1}:`, section.title);
-    console.log("  - ID:", section._id);
-    console.log("  - isActive:", section.isActive);
-    console.log("  - Products array length:", section.products?.length || 0);
-    console.log("  - Products:", JSON.stringify(section.products, null, 2));
-  });
 
   return result;
 };

@@ -30,7 +30,7 @@ const PaymentCallbackHandler = ({
     const processPayment = async () => {
       const { paymentID, status } = searchParams;
 
-      console.log("🔄 Payment callback received:", { paymentID, status });
+      // console.log("🔄 Payment callback received:", { paymentID, status });
 
       // Check if payment was cancelled
       if (status === "cancel" || status === "cancelled") {
@@ -57,7 +57,7 @@ const PaymentCallbackHandler = ({
       // If we have a paymentID and status is success, execute the payment
       if (paymentID && status === "success") {
         try {
-          console.log("✅ Payment successful, executing payment:", paymentID);
+          // console.log("✅ Payment successful, executing payment:", paymentID);
 
           // Execute the payment on backend
           const executeResponse = await axios
@@ -65,11 +65,11 @@ const PaymentCallbackHandler = ({
               paymentID: paymentID,
             })
             .then((res) => {
-              console.log("✅ Payment execution response:", res.data);
+              // console.log("✅ Payment execution response:", res.data);
               return res.data;
             })
             .catch((error: any) => {
-              console.error("❌ Payment execution failed:", error);
+              // console.error("❌ Payment execution failed:", error);
               axiosErrorLogger({ error });
               return null;
             });

@@ -152,7 +152,7 @@ const CartItemRow = memo(
               aria-label={`${cartitem.item_name}`}
             >
               <Image
-                src={cartitem.item_imgurl}
+                src={cartitem.item_mainimg}
                 alt={`item image`}
                 fill
                 quality={100}

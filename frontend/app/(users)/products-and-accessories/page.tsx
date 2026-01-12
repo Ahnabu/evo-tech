@@ -37,12 +37,12 @@ const ProductsAndAccessories = async ({ searchParams }: currentRouteProps) => {
   let categoryId = null;
 
   if (categorySlug) {
-    console.log(`[ProductsAndAccessories] Fetching category with slug: "${categorySlug}"`);
+    // console.log(`[ProductsAndAccessories] Fetching category with slug: "${categorySlug}"`);
     
     const categoryResponse = await axios
       .get(`/categories/slug/${categorySlug}`)
       .then((res) => {
-        console.log(`[ProductsAndAccessories] ✅ Category found for slug: "${categorySlug}"`);
+        // console.log(`[ProductsAndAccessories] ✅ Category found for slug: "${categorySlug}"`);
         return res.data;
       })
       .catch((error: any) => {
@@ -115,6 +115,8 @@ const ProductsAndAccessories = async ({ searchParams }: currentRouteProps) => {
     i_slug: product.slug,
     i_price: product.price,
     i_prevprice: product.previousPrice || 0,
+    i_preorderprice: product.preOrderPrice || null,
+    i_ispreorder: product.isPreOrder || false,
     i_instock: product.inStock !== undefined ? product.inStock : true,
     i_mainimg: product.mainImage || "",
     i_category: product.category?.slug || product.category || "",

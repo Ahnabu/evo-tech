@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { getCurrentUser } from "@/utils/cookies";
 import axios from "@/utils/axios/axios";
@@ -39,7 +39,7 @@ interface UseCouponsDataReturn {
 }
 
 export function useCouponsData(): UseCouponsDataReturn {
-  const currentUser = getCurrentUser();
+  const currentUser = useMemo(() => getCurrentUser(), []);
   const [coupons, setCoupons] = useState<ICoupon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
