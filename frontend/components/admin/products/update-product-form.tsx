@@ -250,10 +250,15 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     }
     
     // Additional new images
+    console.log("OnSubmit - additional_newimages:", data.additional_newimages);
     if (data.additional_newimages && Array.isArray(data.additional_newimages)) {
+      console.log(`Processing ${data.additional_newimages.length} additional images`);
       data.additional_newimages.forEach((file: File) => {
+        console.log("Appending file:", file.name, file.size, file.type);
         formdata.append("additionalImages", file);
       });
+    } else {
+      console.log("No additional_newimages found or not an array");
     }
     
     // Images to remove
@@ -312,6 +317,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     const response = await axios
       .put(`/api/admin/products/${itemInfo.itemid}`, formdata, {
         headers: {
+          "Content-Type": "multipart/form-data",
           "X-Requested-With": "XMLHttpRequest",
         },
         withCredentials: true,
@@ -518,7 +524,10 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
                 <div className="mt-1 block">
                   <FileUploader
                     value={field.value}
-                    onValueChange={field.onChange}
+                    onValueChange={(val) => {
+                      console.log("FileUploader onValueChange:", val);
+                      field.onChange(val);
+                    }}
                     maxFileCount={10}
                     maxSize={10 * 1024 * 1024}
                     multiple

@@ -80,6 +80,11 @@ const updateProduct = catchAsync(async (req, res) => {
   const additionalImagesBuffers =
     files?.additionalImages?.map((file) => file.buffer) || [];
 
+  console.log(`[UpdateProduct] ID: ${id}`);
+  console.log(`[UpdateProduct] Content-Type: ${req.headers["content-type"]}`);
+  console.log(`[UpdateProduct] Main Image: ${mainImageBuffer ? 'Yes' : 'No'}`);
+  console.log(`[UpdateProduct] Additional Images Count: ${additionalImagesBuffers.length}`);
+
   if (req.body.colors && typeof req.body.colors === "string") {
     try {
       req.body.colors = JSON.parse(req.body.colors);
