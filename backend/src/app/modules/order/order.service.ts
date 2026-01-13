@@ -127,10 +127,13 @@ const placeOrderIntoDB = async (
     }
     // Skip stock validation for preorder items
     if (!product.isPreOrder) {
-      if (!product.inStock || (product.stock ?? 0) < item.item_quantity) {
+      const requestedQty = item.item_quantity;
+      const availableStock = product.stock ?? 0;
+      
+      if (!product.inStock || availableStock < requestedQty) {
         throw new AppError(
           httpStatus.BAD_REQUEST,
-          `Product "${product.name}" is out of stock or insufficient quantity available`
+          `Insufficient stock for "${product.name}". Requested: ${requestedQty}, Available: ${availableStock}`
         );
       }
     }
@@ -466,13 +469,13 @@ const placeGuestOrderIntoDB = async (payload: TOrder & { items: any[] }) => {
     }
     // Skip stock validation for preorder items
     if (!product.isPreOrder) {
-      if (
-        !product.inStock ||
-        (product.stock && product.stock < item.quantity)
-      ) {
+      const requestedQty = item.item_quantity || item.quantity;
+      const availableStock = product.stock ?? 0;
+      
+      if (!product.inStock || availableStock < requestedQty) {
         throw new AppError(
           httpStatus.BAD_REQUEST,
-          `Product "${product.name}" is out of stock or insufficient quantity available`
+          `Insufficient stock for "${product.name}". Requested: ${requestedQty}, Available: ${availableStock}`
         );
       }
     }

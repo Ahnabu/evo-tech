@@ -38,12 +38,12 @@ const FeaturedSectionsRenderer = async () => {
           return null;
         }
         
-        // Use category or subcategory slug for view more, or fallback to general products page
+        // Use category or subcategory slug for view more with filter query parameter
         let viewMoreUrl = "/products-and-accessories";
         if (section.category?.slug) {
-            viewMoreUrl = `/category/${section.category.slug}`;
+            viewMoreUrl = `/products-and-accessories?category=${section.category.slug}`;
         } else if (section.subcategory?.slug) {
-             viewMoreUrl = `/category/${section.subcategory.slug}`; // Assuming route structure
+            viewMoreUrl = `/products-and-accessories?subcategory=${section.subcategory.slug}`;
         }
 
         const formattedProducts = section.products.map((p: any) => ({

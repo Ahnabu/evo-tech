@@ -952,57 +952,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       </div>
 
       {/* Item Colors (Dynamic Array of Text Inputs) */}
-      {/* Item FAQs */}
-      <div className="p-4 bg-stone-50 rounded-lg border border-stone-200 space-y-4">
-        <h3 className="text-sm font-semibold text-stone-800">
-           Product FAQs
-        </h3>
-        
-        <div className="space-y-4">
-            {faqFields.map((field, index) => (
-                <div key={field.id} className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm space-y-3 relative group">
-                    <button aria-label="remove"
-                        type="button"
-                        onClick={() => removeFaq(index)}
-                        className="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </button>
-                    <div>
-                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Question</label>
-                        <input
-                            {...register(`item_faq.${index}.question` as const)}
-                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500"
-                            placeholder="e.g. Is this waterproof?"
-                        />
-                        {errors.item_faq?.[index]?.question && (
-                            <span className="text-xs text-red-500">{errors.item_faq[index]?.question?.message}</span>
-                        )}
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Answer</label>
-                        <textarea
-                            {...register(`item_faq.${index}.answer` as const)}
-                            rows={2}
-                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500 resize-y"
-                            placeholder="e.g. Yes, it is IP68 rated."
-                        />
-                        {errors.item_faq?.[index]?.answer && (
-                            <span className="text-xs text-red-500">{errors.item_faq[index]?.answer?.message}</span>
-                        )}
-                    </div>
-                </div>
-            ))}
-        </div>
-
-        <button
-            type="button"
-            onClick={() => appendFaq({ question: "", answer: "" })}
-            className="w-full py-3 border-2 border-dashed border-stone-300 rounded-lg text-stone-500 text-sm font-medium hover:border-stone-400 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
-        >
-             <PlusCircle className="h-4 w-4" /> Add FAQ Item
-        </button>
-      </div>
+     
 
       {/* Category and Subcategory */}
       <div className="grid lg:grid-cols-2 gap-4">
@@ -1261,6 +1211,58 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
             </EvoFormInputError>
           )}
         </div>
+      </div>
+
+       {/* Item FAQs */}
+      <div className="p-4 bg-stone-50 rounded-lg border border-stone-200 space-y-4">
+        <h3 className="text-sm font-semibold text-stone-800">
+           Product FAQs
+        </h3>
+        
+        <div className="space-y-4">
+            {faqFields.map((field, index) => (
+                <div key={field.id} className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm space-y-3 relative group">
+                    <button aria-label="remove"
+                        type="button"
+                        onClick={() => removeFaq(index)}
+                        className="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                        <Trash2 className="h-4 w-4" />
+                    </button>
+                    <div>
+                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Question</label>
+                        <input
+                            {...register(`item_faq.${index}.question` as const)}
+                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500"
+                            placeholder="e.g. Is this waterproof?"
+                        />
+                        {errors.item_faq?.[index]?.question && (
+                            <span className="text-xs text-red-500">{errors.item_faq[index]?.question?.message}</span>
+                        )}
+                    </div>
+                    <div>
+                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Answer</label>
+                        <textarea
+                            {...register(`item_faq.${index}.answer` as const)}
+                            rows={2}
+                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500 resize-y"
+                            placeholder="e.g. Yes, it is IP68 rated."
+                        />
+                        {errors.item_faq?.[index]?.answer && (
+                            <span className="text-xs text-red-500">{errors.item_faq[index]?.answer?.message}</span>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+
+        <button
+            type="button"
+            onClick={() => appendFaq({ question: "", answer: "" })}
+            className="w-full py-3 border-2 border-dashed border-stone-300 rounded-lg text-stone-500 text-sm font-medium hover:border-stone-400 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
+        >
+             <PlusCircle className="h-4 w-4" /> Add FAQ Item
+        </button>
       </div>
 
       {/* Action Buttons */}
