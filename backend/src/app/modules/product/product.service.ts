@@ -517,7 +517,6 @@ const updateProductIntoDB = async (
 
   // Upload additional images if provided
   if (additionalImagesBuffers && additionalImagesBuffers.length > 0) {
-    console.log(`[ProductService] Processing ${additionalImagesBuffers.length} additional images for product ${id}`);
     
     // Get current count to determine starting sort order
     const existingImagesCount = await ProductImage.countDocuments({
@@ -527,19 +526,15 @@ const updateProductIntoDB = async (
     // Process uploads in parallel
     const uploadPromises = additionalImagesBuffers.map(async (buffer, index) => {
       try {
-        console.log(`[ProductService] Uploading image ${index + 1}/${additionalImagesBuffers.length} to Cloudinary...`);
         const imageUrl = await uploadToCloudinary(buffer, "products");
-        console.log(`[ProductService] Image ${index + 1} uploaded to Cloudinary: ${imageUrl}`);
         
         const newImage = await ProductImage.create({
           product: id,
           imageUrl,
           sortOrder: existingImagesCount + index + 1,
         });
-        console.log(`[ProductService] Image ${index + 1} saved to DB with ID: ${newImage._id}`);
         return newImage;
       } catch (error) {
-        console.error(`[ProductService] Error uploading/saving image ${index + 1}:`, error);
         return null; // Return null for failed uploads so Promise.all doesn't reject entirely
       }
     });
