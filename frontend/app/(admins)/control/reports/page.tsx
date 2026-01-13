@@ -50,7 +50,7 @@ const ReportsPage = () => {
   }, [fetchStats]);
 
   const formatCurrency = (amount: number) => {
-    return `৳${new Intl.NumberFormat("en-BD", {
+    return `BDT ${new Intl.NumberFormat("en-BD", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount)}`;

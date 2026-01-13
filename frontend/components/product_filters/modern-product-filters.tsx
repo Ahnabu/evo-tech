@@ -150,11 +150,11 @@ const ModernProductFilters = ({
           <div className="flex items-center justify-between text-sm">
             <div className="flex gap-4 items-center">
               <span className="text-stone-600">
-                ৳{priceRange[0].toLocaleString()}
+                BDT {priceRange[0].toLocaleString()}
               </span>
               <span className="text-stone-400">–</span>
               <span className="text-stone-600">
-                ৳{priceRange[1].toLocaleString()}
+                BDT {priceRange[1].toLocaleString()}
               </span>
             </div>
 

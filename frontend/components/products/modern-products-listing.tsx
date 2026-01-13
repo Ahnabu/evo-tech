@@ -569,20 +569,20 @@ const ProductListCard = ({ product }: { product: any }) => {
             {product.i_preorderprice && product.i_ispreorder && product.i_preorderprice < product.i_price ? (
               <>
                 <span className="text-2xl font-bold text-cyan-600">
-                  ৳{product.i_preorderprice.toLocaleString()}
+                  BDT {product.i_preorderprice.toLocaleString()}
                 </span>
                 <span className="text-base text-red-500 line-through">
-                  ৳{product.i_price.toLocaleString()}
+                  BDT {product.i_price.toLocaleString()}
                 </span>
               </>
             ) : (
               <>
                 <span className="text-2xl font-bold text-stone-900">
-                  ৳{product.i_price.toLocaleString()}
+                  BDT {product.i_price.toLocaleString()}
                 </span>
                 {product.i_prevprice > product.i_price && (
                   <span className="text-base text-stone-400 line-through">
-                    ৳{product.i_prevprice.toLocaleString()}
+                    BDT {product.i_prevprice.toLocaleString()}
                   </span>
                 )}
               </>

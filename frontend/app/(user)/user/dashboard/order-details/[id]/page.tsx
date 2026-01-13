@@ -94,7 +94,7 @@ export default function OrderDetailsPage() {
                       Qty: {it.quantity}
                     </div>
                   </div>
-                  <div className="font-medium">৳{it.subtotal}</div>
+                  <div className="font-medium">BDT {it.subtotal}</div>
                 </li>
               ))}
             </ul>
@@ -107,7 +107,7 @@ export default function OrderDetailsPage() {
 
         <div className="mt-4 pt-4 border-t flex items-center justify-between">
           <div className="text-sm text-gray-600">Total</div>
-          <div className="text-lg font-semibold">৳{order.totalPayable}</div>
+          <div className="text-lg font-semibold">BDT {order.totalPayable}</div>
         </div>
 
         <div className="mt-6 flex gap-2">

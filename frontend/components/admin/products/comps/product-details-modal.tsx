@@ -233,17 +233,17 @@ export function ProductDetailsModal({ productSlug, open, onOpenChange }: Product
                       <div className="space-y-2">
                         <div className="flex items-baseline gap-3">
                           <span className="text-3xl font-bold text-gray-900">
-                            ৳{currencyFormatBDT(product.price)}
+                            BDT {currencyFormatBDT(product.price)}
                           </span>
                           {product.previousPrice && product.previousPrice > product.price && (
                             <span className="text-lg line-through text-gray-400">
-                              ৳{currencyFormatBDT(product.previousPrice)}
+                              BDT {currencyFormatBDT(product.previousPrice)}
                             </span>
                           )}
                         </div>
                         {product.preOrderPrice && product.isPreOrder && (
                           <div className="text-sm text-blue-600 font-medium">
-                            Pre-order Price: ৳{currencyFormatBDT(product.preOrderPrice)}
+                            Pre-order Price: BDT {currencyFormatBDT(product.preOrderPrice)}
                           </div>
                         )}
                       </div>

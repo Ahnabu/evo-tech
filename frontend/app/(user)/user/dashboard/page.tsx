@@ -93,7 +93,7 @@ export default function UserDashboard() {
                             </div>
                             <div className="flex justify-between">
                                 <span className="text-gray-600">Total Spent:</span>
-                                <span className="font-medium">৳{currencyFormatBDT(dashboardData?.totalSpent || 0)}</span>
+                                <span className="font-medium">BDT {currencyFormatBDT(dashboardData?.totalSpent || 0)}</span>
                             </div>
                         </div>
                     </div>
@@ -117,7 +117,7 @@ export default function UserDashboard() {
                                             </div>
                                         </div>
                                         <div className="text-right">
-                                            <div className="font-medium">৳{currencyFormatBDT(order.totalPayable)}</div>
+                                            <div className="font-medium">BDT {currencyFormatBDT(order.totalPayable)}</div>
                                             <div className="text-sm text-gray-600">
                                                 {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}
                                             </div>

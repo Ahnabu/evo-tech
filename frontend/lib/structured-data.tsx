@@ -148,7 +148,7 @@ export function generateLocalBusinessSchema() {
         closes: '20:00',
       },
     ],
-    priceRange: '৳৳-৳৳৳',
+    priceRange: 'BDT BDT -BDT BDT BDT ',
     sameAs: [
       // Add your social media profiles here
       // 'https://www.facebook.com/evotechbd',

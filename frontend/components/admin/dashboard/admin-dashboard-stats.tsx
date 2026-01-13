@@ -66,7 +66,7 @@ export function AdminDashboardStats() {
   }, [fetchStats]);
 
   const formatCurrency = (amount: number) => {
-    return `৳${new Intl.NumberFormat("en-US", {
+    return `BDT ${new Intl.NumberFormat("en-US", {
       minimumIntegerDigits: 1,
       maximumFractionDigits: 0,
     }).format(amount)}`;

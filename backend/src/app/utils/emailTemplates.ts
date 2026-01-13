@@ -27,7 +27,7 @@ interface OrderEmailData {
 }
 
 export const orderConfirmationTemplate = (data: OrderEmailData): string => {
-  const formatCurrency = (amount: number) => `৳${amount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const formatCurrency = (amount: number) => `BDT ${amount.toLocaleString('en-BD', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   const itemsHtml = data.items.map(item => `
     <tr>

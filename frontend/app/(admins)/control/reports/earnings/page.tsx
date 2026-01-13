@@ -98,7 +98,7 @@ export default function EarningsReportPage() {
   }, [fetchEarnings]);
 
   const formatCurrency = (amount: number) => {
-    return `৳${new Intl.NumberFormat("en-BD", {
+    return `BDT ${new Intl.NumberFormat("en-BD", {
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
     }).format(amount)}`;
@@ -147,7 +147,7 @@ export default function EarningsReportPage() {
         MONTH_NAMES[item.month - 1],
         item.orders,
         formatCurrency(item.earnings),
-        item.orders > 0 ? formatCurrency(item.earnings / item.orders) : "৳0",
+        item.orders > 0 ? formatCurrency(item.earnings / item.orders) : "BDT 0",
       ]),
       [""],
       ["TOTAL", 
@@ -175,7 +175,7 @@ export default function EarningsReportPage() {
           item.year,
           item.orders,
           formatCurrency(item.earnings),
-          item.orders > 0 ? formatCurrency(item.earnings / item.orders) : "৳0",
+          item.orders > 0 ? formatCurrency(item.earnings / item.orders) : "BDT 0",
           growth === "N/A" ? growth : `${growth}%`,
         ];
       }),

@@ -131,7 +131,7 @@ const validateCoupon = async (code: string, userId: string, orderAmount: number)
   if (coupon.minimumOrderAmount && orderAmount < coupon.minimumOrderAmount) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      `Minimum order amount of ৳${coupon.minimumOrderAmount} required`
+      `Minimum order amount of BDT ${coupon.minimumOrderAmount} required`
     );
   }
 

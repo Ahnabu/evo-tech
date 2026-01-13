@@ -116,7 +116,7 @@ const DynamicProductSlider = ({
                           BDT {product.preOrderPrice.toLocaleString()}
                         </span>
                         <span className="text-xs sm:text-sm text-red-500 line-through">
-                          ৳{product.price.toLocaleString()}
+                          BDT {product.price.toLocaleString()}
                         </span>
                       </>
                     ) : (

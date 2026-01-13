@@ -207,19 +207,19 @@ const OrderInfo = ({ orderData }: { orderData: OrderWithItemsType }) => {
                 <div className="border-t border-stone-200 pt-2 space-y-1">
                   <div className="flex justify-between items-center">
                     <span className="text-evoAdminPrimary font-semibold text-[11px]">{`Total Amount: `}</span>
-                    <span className="text-stone-700 text-[11px] font-medium">{`৳${totalPayable.toFixed(
+                    <span className="text-stone-700 text-[11px] font-medium">{`BDT ${totalPayable.toFixed(
                       2
                     )}`}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-green-700 font-semibold text-[11px]">{`Amount Paid: `}</span>
-                    <span className="text-green-700 text-[11px] font-medium">{`৳${amountPaid.toFixed(
+                    <span className="text-green-700 text-[11px] font-medium">{`BDT ${amountPaid.toFixed(
                       2
                     )}`}</span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-red-700 font-semibold text-[11px]">{`Amount Due: `}</span>
-                    <span className="text-red-700 text-[11px] font-medium">{`৳${(
+                    <span className="text-red-700 text-[11px] font-medium">{`BDT ${(
                       totalPayable - amountPaid
                     ).toFixed(2)}`}</span>
                   </div>

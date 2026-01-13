@@ -99,7 +99,7 @@ export function AdminSalesChart() {
           <YAxis yAxisId="orders" orientation="right" />
           <Tooltip
             formatter={(value: number, name: string) => [
-              name === "sales" ? `৳${value.toLocaleString()}` : value,
+              name === "sales" ? `BDT ${value.toLocaleString()}` : value,
               name === "sales" ? "Sales" : "Orders",
             ]}
           />
@@ -130,7 +130,7 @@ export function AdminSalesChart() {
           <YAxis yAxisId="orders" orientation="right" />
           <Tooltip
             formatter={(value: number, name: string) => [
-              name === "sales" ? `৳${value.toLocaleString()}` : value,
+              name === "sales" ? `BDT ${value.toLocaleString()}` : value,
               name === "sales" ? "Sales" : "Orders",
             ]}
           />
@@ -194,7 +194,7 @@ export function AdminSalesChart() {
         <div className="flex gap-6 mt-4">
           <div>
             <p className="text-sm text-muted-foreground">Total Sales</p>
-            <p className="text-2xl font-bold">৳{totalSales.toLocaleString()}</p>
+            <p className="text-2xl font-bold">BDT {totalSales.toLocaleString()}</p>
           </div>
           <div>
             <p className="text-sm text-muted-foreground">Total Orders</p>

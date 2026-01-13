@@ -108,7 +108,7 @@ export default function OrderHistoryPage() {
                                                 </span>
                                             </div>
                                             <div className="text-lg font-semibold text-gray-900">
-                                                ৳{currencyFormatBDT(order.totalPayable)}
+                                                BDT {currencyFormatBDT(order.totalPayable)}
                                             </div>
                                         </div>
                                     </div>
@@ -196,7 +196,7 @@ export default function OrderHistoryPage() {
                             </div>
                             <div className="text-center p-4 bg-gray-50 rounded-lg">
                                 <div className="text-2xl font-bold text-green-600">
-                                    ৳{currencyFormatBDT(orders.reduce((sum, order) => sum + order.totalPayable, 0))}
+                                    BDT {currencyFormatBDT(orders.reduce((sum, order) => sum + order.totalPayable, 0))}
                                 </div>
                                 <div className="text-sm text-gray-600">Total Spent</div>
                             </div>

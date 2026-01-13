@@ -458,7 +458,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
 
       <div className="grid lg:grid-cols-2 gap-4">
         {/* New Main Image */}
-        <div>
+        {/* <div>
           <label className="block text-sm font-medium">
             {`New Main Image `}
             <span className="text-gray-500 text-xs">{`(optional)`}</span>
@@ -501,7 +501,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
               {errors.item_newmainimg?.message?.toString()}
             </EvoFormInputError>
           )}
-        </div>
+        </div> */}
 
         {/* New Additional Images */}
         <div>

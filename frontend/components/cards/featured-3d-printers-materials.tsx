@@ -203,7 +203,7 @@ export default function Featured3DPrintersMaterials() {
                             {product.previousPrice &&
                               product.previousPrice > product.price && (
                                 <span className="text-xs text-stone-400 line-through">
-                                  ৳{product.previousPrice.toLocaleString()}
+                                  BDT {product.previousPrice.toLocaleString()}
                                 </span>
                               )}
                           </>

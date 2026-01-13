@@ -231,7 +231,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <p className="text-xs font-medium whitespace-nowrap">
-                      Total (৳)
+                      Total (BDT )
                     </p>
                     <FormControl>
                       <Input
@@ -257,7 +257,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <p className="text-xs font-medium whitespace-nowrap text-green-700">
-                      Paid (৳)
+                      Paid (BDT )
                     </p>
                     <FormControl>
                       <Input
@@ -279,7 +279,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
 
               <div>
                 <p className="text-xs font-medium whitespace-nowrap text-red-700 mb-2">
-                  Due (৳)
+                  Due (BDT )
                 </p>
                 <div className="h-9 px-3 py-2 border border-red-300 rounded-md bg-red-50 flex items-center">
                   <span className="text-xs font-medium text-red-700">
@@ -290,7 +290,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
 
               <div>
                 <p className="text-xs font-medium whitespace-nowrap text-blue-700 mb-2">
-                  Pay (৳)
+                  Pay (BDT )
                 </p>
                 <Input
                   type="number"
@@ -312,7 +312,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <p className="text-xs font-medium whitespace-nowrap">
-                      Subtotal (৳)
+                      Subtotal (BDT )
                     </p>
                     <FormControl>
                       <Input
@@ -338,7 +338,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <p className="text-xs font-medium whitespace-nowrap">
-                      Discount (৳)
+                      Discount (BDT )
                     </p>
                     <FormControl>
                       <Input
@@ -364,7 +364,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <p className="text-xs font-medium whitespace-nowrap">
-                      Delivery (৳)
+                      Delivery (BDT )
                     </p>
                     <FormControl>
                       <Input
@@ -390,7 +390,7 @@ const OrderUpdateForm = ({ orderData, onSuccess }: OrderUpdateFormProps) => {
                 render={({ field }) => (
                   <FormItem>
                     <p className="text-xs font-medium whitespace-nowrap">
-                      Additional (৳)
+                      Additional (BDT )
                     </p>
                     <FormControl>
                       <Input

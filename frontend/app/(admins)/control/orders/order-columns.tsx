@@ -66,7 +66,7 @@ export const ordersColumns: ColumnDef<OrderWithItemsType>[] = [
     header: () => <div>Amount</div>,
     cell: ({ row }) => {
       const amount = parseFloat(row.getValue("totalPayable") as string) || 0;
-      const formatted = `৳${new Intl.NumberFormat("en-US", {
+      const formatted = `BDT ${new Intl.NumberFormat("en-US", {
         minimumIntegerDigits: 1,
         maximumFractionDigits: 0,
       }).format(amount)}`;
