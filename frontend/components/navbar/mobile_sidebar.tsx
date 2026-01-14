@@ -6,12 +6,6 @@ import { usePathname } from "next/navigation";
 import axios from "@/utils/axios/axios";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { IoClose, IoChevronDown, IoChevronForward } from "react-icons/io5";
-import { TbUser, TbDashboard, TbLogout } from "react-icons/tb";
-import { BiPackage } from "react-icons/bi";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { logoutUser } from "@/lib/auth";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
 
 interface Subcategory {
   _id: string;
@@ -35,8 +29,6 @@ interface MobileSidebarProps {
 
 const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
   const pathname = usePathname();
-  const router = useRouter();
-  const currentUser = useCurrentUser();
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<
     Record<string, Subcategory[]>
@@ -96,64 +88,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
     }
   };
 
-  const handleSignOut = async () => {
-    try {
-      // Call the logout function
-      await logoutUser();
 
-      // Dispatch custom event for auth change
-      window.dispatchEvent(new Event("authChange"));
-
-      toast.success("You signed out of your account.");
-      onClose();
-      router.push("/");
-      router.refresh();
-    } catch (err) {
-      toast.error("Something went wrong while signing out.");
-      if (typeof window !== "undefined") {
-        sessionStorage.clear();
-      }
-      onClose();
-      router.push("/");
-      router.refresh();
-    }
-  };
-
-  const getDashboardUrl = (userRole: string) => {
-    switch (userRole?.toLowerCase()) {
-      case "admin":
-        return "/control/dashboard";
-      case "employee":
-        return "/employee/dashboard";
-      case "user":
-      default:
-        return "/user/dashboard";
-    }
-  };
-
-  const getProfileUrl = (userRole: string) => {
-    switch (userRole?.toLowerCase()) {
-      case "admin":
-        return "/control/profile";
-      case "employee":
-        return "/employee/profile";
-      case "user":
-      default:
-        return "/user/dashboard/profile";
-    }
-  };
-
-  const getOrderHistoryUrl = (userRole: string) => {
-    switch (userRole?.toLowerCase()) {
-      case "admin":
-        return "/control/orders";
-      case "employee":
-        return "/employee/orders";
-      case "user":
-      default:
-        return "/user/dashboard/order-history";
-    }
-  };
 
   useEffect(() => {
     if (isOpen) {
@@ -197,89 +132,6 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
-            {/* User Section */}
-            {currentUser ? (
-              <div className="p-4 border-b border-stone-200">
-                <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-full bg-brand-100 flex items-center justify-center">
-                    <TbUser className="w-6 h-6 text-brand-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-stone-800">
-                      {currentUser.firstName} {currentUser.lastName}
-                    </p>
-                    <p className="text-xs text-stone-500">
-                      {currentUser.email}
-                    </p>
-                  </div>
-                </div>
-                <div className="flex flex-col gap-2">
-                  <Link
-                    href={getProfileUrl(currentUser.role || "user")}
-                    onClick={onClose}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100 rounded-md"
-                  >
-                    <TbUser className="w-4 h-4" />
-                    <span>My Profile</span>
-                  </Link>
-                  <Link
-                    href={getDashboardUrl(currentUser.role || "user")}
-                    onClick={onClose}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100 rounded-md"
-                  >
-                    <TbDashboard className="w-4 h-4" />
-                    <span>Dashboard</span>
-                  </Link>
-                  <Link
-                    href={getOrderHistoryUrl(currentUser.role || "user")}
-                    onClick={onClose}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100 rounded-md"
-                  >
-                    <BiPackage className="w-4 h-4" />
-                    <span>Order History</span>
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-md w-full"
-                  >
-                    <TbLogout className="w-4 h-4" />
-                    <span>Sign Out</span>
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="p-4 border-b border-stone-200">
-                <div className="flex flex-col gap-2">
-                  <Link
-                    href="/login"
-                    onClick={onClose}
-                    className="px-4 py-2 text-center text-sm font-medium bg-brand-600 text-white rounded-lg hover:bg-brand-700"
-                  >
-                    Sign In
-                  </Link>
-                  <Link
-                    href="/register"
-                    onClick={onClose}
-                    className="px-4 py-2 text-center text-sm font-medium border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50"
-                  >
-                    Sign Up
-                  </Link>
-                </div>
-              </div>
-            )}
-
-            {/* Track Order */}
-            <div className="p-4 border-b border-stone-200">
-              <Link
-                href="/track-order"
-                onClick={onClose}
-                className="flex items-center gap-3 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100 rounded-md"
-              >
-                <BiPackage className="w-5 h-5" />
-                <span>Track Order</span>
-              </Link>
-            </div>
-
             {/* Categories */}
             <div className="p-4">
               <h3 className="text-xs font-semibold text-stone-500 uppercase mb-3">

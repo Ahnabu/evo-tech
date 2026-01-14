@@ -19,7 +19,7 @@ const QuantityAdjusterBttnless = ({ itemQuantity, qtyIncrement, qtyDecrement, ha
                 aria-label="decrement button for quantity"
                 onClick={qtyDecrement}
                 disabled={Number(itemQuantity) < 2}
-                className="hidden lg:inline-flex justify-center items-center w-[30px] h-9 md:h-[40px] px-2 text-[16px] leading-4 font-[500] text-stone-600 disabled:text-stone-400 bg-transparent border-y border-l border-[#aeaeae] rounded-l-[4px] focus:outline-none"
+                className="inline-flex justify-center items-center w-[30px] h-8 sm:h-9 md:h-[40px] px-2 text-[16px] leading-4 font-[500] text-stone-600 disabled:text-stone-400 bg-transparent border-y border-l border-[#aeaeae] rounded-l-[4px] focus:outline-none"
             >
                 -
             </button>
@@ -30,17 +30,16 @@ const QuantityAdjusterBttnless = ({ itemQuantity, qtyIncrement, qtyDecrement, ha
                 inputMode="numeric"
                 pattern="[0-9]*"
                 value={itemQuantity}
-                onChange={handleQuantityChange}
-                onPaste={handleQuantityPaste}
+                readOnly
                 aria-label="item quantity"
-                className="text-center w-[40px] h-8 sm:h-9 md:h-[40px] p-0 text-[12px] sm:text-[13px] leading-6 font-[500] text-stone-800 bg-transparent border max-lg:rounded-[4px] lg:border-y lg:border-x-0 border-[#aeaeae] focus:outline-none"
+                className="text-center w-[40px] h-8 sm:h-9 md:h-[40px] p-0 text-[12px] sm:text-[13px] leading-6 font-[500] text-stone-800 bg-transparent border-y border-[#aeaeae] focus:outline-none cursor-default"
             />
             <button
                 type="button"
                 aria-label="increment button for quantity"
                 onClick={qtyIncrement}
                 disabled={Number(itemQuantity) > 9998}
-                className="hidden lg:inline-flex justify-center items-center w-[30px] h-9 md:h-[40px] px-2 text-[16px] leading-4 font-[500] text-stone-600 disabled:text-stone-400 bg-transparent border-y border-r border-[#aeaeae] rounded-r-[4px] focus:outline-none"
+                className="inline-flex justify-center items-center w-[30px] h-8 sm:h-9 md:h-[40px] px-2 text-[16px] leading-4 font-[500] text-stone-600 disabled:text-stone-400 bg-transparent border-y border-r border-[#aeaeae] rounded-r-[4px] focus:outline-none"
             >
                 +
             </button>

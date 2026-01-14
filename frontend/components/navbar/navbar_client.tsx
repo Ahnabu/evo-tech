@@ -13,7 +13,7 @@ import EvoTechBDLogoGray from "@/public/assets/EvoTechBD-logo-gray.png";
 import { BiPackage } from "react-icons/bi";
 import { IoMenu } from "react-icons/io5";
 import { FiSearch } from "react-icons/fi";
-import { TbDashboard, TbUser, TbLogout } from "react-icons/tb";
+import { TbDashboard, TbUser, TbLogout, TbHistory } from "react-icons/tb";
 
 import ManageCart from "@/components/navbar/manage_cart";
 import MobileSidebar from "@/components/navbar/mobile_sidebar";
@@ -159,6 +159,18 @@ const NavbarClient = ({
       case "user":
       default:
         return "/user/dashboard/profile";
+    }
+  };
+
+  const getOrderHistoryUrl = (userRole: string) => {
+    switch (userRole?.toLowerCase()) {
+      case "admin":
+        return "/control/orders";
+      case "employee":
+        return "/employee/orders";
+      case "user":
+      default:
+        return "/user/dashboard/order-history";
     }
   };
 
@@ -360,7 +372,26 @@ const NavbarClient = ({
                           <span>Dashboard</span>
                         </Link>
                       </DropdownMenu.Item>
+                      <DropdownMenu.Item asChild>
+                        <Link
+                          href={getOrderHistoryUrl(currentUser.role || "user")}
+                          className="flex items-center gap-3 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100"
+                        >
+                          <TbHistory className="w-4 h-4" />
+                          <span>Order History</span>
+                        </Link>
+                      </DropdownMenu.Item>
                       <DropdownMenu.Separator className="h-px bg-stone-200 my-1" />
+                      <DropdownMenu.Item asChild>
+                        <Link
+                          href="/track-order"
+                          className="md:hidden  flex items-center gap-3 px-3 py-2 text-sm text-stone-700 hover:bg-stone-100"
+                        >
+                          <BiPackage className="w-4 h-4" />
+                          <span>Track Order</span>
+                        </Link>
+                      </DropdownMenu.Item>
+                      <DropdownMenu.Separator className="h-px md:hidden bg-stone-200 my-1" />
                       <DropdownMenu.Item asChild>
                         <button
                           onClick={() => handleSignOutDebounced()}
