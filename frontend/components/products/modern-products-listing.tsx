@@ -155,7 +155,7 @@ const ModernProductsListing = ({
   return (
     <>
       {/* Sort and Per Page Controls */}
-      <div className="w-full h-fit flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 px-4 py-3 bg-white rounded-lg shadow-sm mb-6">
+      <div className="w-full h-fit flex flex-row justify-between items-center gap-3 px-4 py-3 bg-white rounded-lg shadow-sm mb-6">
         <div className="flex items-center gap-3">
           <EvoDropdown
             dropdownLabel="Sort By"
@@ -191,7 +191,7 @@ const ModernProductsListing = ({
 
       {/* Products Grid/List */}
       {viewMode === "grid" ? (
-        <div className="w-full h-fit grid grid-cols-1 min-[551px]:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="w-full h-fit grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-3 md:gap-4">
           {fetchedProdData.map((prod: any, index: number) => (
             <ProductGridCard key={`item${index}`} product={prod} />
           ))}
@@ -286,7 +286,7 @@ const ProductGridCard = ({ product }: { product: any }) => {
   return (
     <Link
       href={`/items/${product.i_slug}`}
-      className="group bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-stone-100 hover:border-brand-200 flex flex-col"
+      className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300 border border-stone-100 hover:border-brand-200 flex flex-col"
     >
       {/* Image Container */}
       <div className="relative w-full aspect-square overflow-hidden bg-stone-50">
@@ -294,57 +294,57 @@ const ProductGridCard = ({ product }: { product: any }) => {
           src={product.i_mainimg || "/assets/placeholder-product.svg"}
           alt={product.i_name}
           fill
-          sizes="(max-width: 551px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           className="object-cover group-hover:scale-110 transition-transform duration-500"
         />
 
         {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-2">
+        <div className="absolute top-2 left-2 flex flex-col gap-1">
           {discount > 0 && (
-            <span className="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-md">
+            <span className="px-1.5 py-0.5 bg-red-500 text-white text-[10px] font-bold rounded">
               -{discount}%
             </span>
           )}
           {!product.i_instock && (
-            <span className="px-2 py-1 bg-stone-800 text-white text-xs font-bold rounded-md">
+            <span className="px-1.5 py-0.5 bg-stone-800 text-white text-[10px] font-bold rounded">
               Out of Stock
             </span>
           )}
         </div>
 
         {/* Quick Actions */}
-        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute top-2 right-2 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <button
-            className="p-2 bg-white rounded-full shadow-md hover:bg-brand-50 hover:text-brand-600 transition-colors"
+            className="p-1.5 bg-white rounded-full shadow-md hover:bg-brand-50 hover:text-brand-600 transition-colors"
             aria-label="Add to wishlist"
           >
-            <FiHeart className="w-4 h-4" />
+            <FiHeart className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4 flex flex-col flex-1">
+      <div className="p-2 sm:p-3 flex flex-col flex-1">
         {/* Brand */}
         {product.i_brandName && (
-          <p className="text-xs text-stone-500 uppercase tracking-wide mb-1">
+          <p className="text-[10px] text-stone-500 uppercase tracking-wide mb-0.5 truncate">
             {product.i_brandName}
           </p>
         )}
 
         {/* Name */}
-        <h3 className="text-sm font-semibold text-stone-900 mb-2 line-clamp-2 group-hover:text-brand-600 transition-colors">
+        <h3 className="text-xs sm:text-sm font-semibold text-stone-900 mb-1 sm:mb-2 line-clamp-2 min-h-[2.5rem] sm:min-h-[2.8rem] group-hover:text-brand-600 transition-colors leading-tight">
           {product.i_name}
         </h3>
 
         {/* Rating */}
         {product.i_rating > 0 && (
-          <div className="flex items-center gap-1 mb-2">
+          <div className="flex items-center gap-1 mb-1">
             <div className="flex items-center">
               {[...Array(5)].map((_, i) => (
                 <FiStar
                   key={i}
-                  className={`w-3 h-3 ${
+                  className={`w-2.5 h-2.5 ${
                     i < Math.floor(product.i_rating)
                       ? "fill-yellow-400 text-yellow-400"
                       : "text-stone-300"
@@ -352,31 +352,31 @@ const ProductGridCard = ({ product }: { product: any }) => {
                 />
               ))}
             </div>
-            <span className="text-xs text-stone-500">
+            <span className="text-[10px] text-stone-500">
               ({product.i_reviewCount})
             </span>
           </div>
         )}
 
         {/* Price */}
-        <div className="flex items-center gap-1 mt-auto">
+        <div className="flex flex-col gap-0.5 mt-auto mb-1">
           {product.i_preorderprice && product.i_ispreorder && product.i_preorderprice < product.i_price ? (
             <>
-              <span className="text-lg font-bold text-cyan-600">
-                BDT {product.i_preorderprice.toLocaleString()}
+              <span className="text-sm sm:text-base font-bold text-cyan-600">
+                ৳{product.i_preorderprice.toLocaleString()}
               </span>
-              <span className="text-sm font-bold text-red-500 line-through">
-                BDT {product.i_price.toLocaleString()}
+              <span className="text-xs font-bold text-red-500 line-through">
+                ৳{product.i_price.toLocaleString()}
               </span>
             </>
           ) : (
             <>
-              <span className="text-lg font-bold text-stone-900">
-                BDT {product.i_price.toLocaleString()}
+              <span className="text-sm sm:text-base font-bold text-stone-900">
+                ৳{product.i_price.toLocaleString()}
               </span>
               {product.i_prevprice > product.i_price && (
-                <span className="text-sm font-bold text-stone-400 line-through">
-                  BDT {product.i_prevprice.toLocaleString()}
+                <span className="text-xs font-bold text-stone-400 line-through">
+                  ৳{product.i_prevprice.toLocaleString()}
                 </span>
               )}
             </>
@@ -384,20 +384,20 @@ const ProductGridCard = ({ product }: { product: any }) => {
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-3 flex flex-col gap-2">
+        <div className="mt-1 sm:mt-2 flex flex-col gap-1.5">
           <button 
             onClick={handleAddToCart}
-            className="w-full py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-1.5 sm:py-2 bg-brand-600 text-white rounded-md hover:bg-brand-700 transition-colors flex items-center justify-center gap-1.5"
           >
-            <FiShoppingCart className="w-4 h-4" />
-            <span className="text-sm font-medium">Add to Cart</span>
+            <FiShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Add to Cart</span>
           </button>
           <button 
             onClick={handleBuyNow}
-            className="w-full py-2 bg-stone-800 text-white rounded-lg hover:bg-stone-900 transition-colors flex items-center justify-center gap-2"
+            className="w-full py-1.5 sm:py-2 bg-stone-800 text-white rounded-md hover:bg-stone-900 transition-colors flex items-center justify-center gap-1.5"
           >
-            <BsLightning className="w-4 h-4" />
-            <span className="text-sm font-medium">Buy Now</span>
+            <BsLightning className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Buy Now</span>
           </button>
         </div>
       </div>
