@@ -8,6 +8,14 @@ const reviewSchema = new Schema<TReview>(
       ref: "Product",
       required: true,
     },
+    user: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+    },
+    order: {
+      type: Schema.Types.ObjectId,
+      ref: "Order",
+    },
     userName: {
       type: String,
       required: true,

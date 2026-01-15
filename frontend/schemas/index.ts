@@ -170,13 +170,7 @@ export const RegisterSchema = z
         "Last name cannot contain numbers or special characters"
       ), // lastName is optional
     email: z.string().email("A valid email is required"),
-    password: z
-      .string()
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%~^*#?&+-])[A-Za-z\d@$!%~^*#?&+-]{8,}$/,
-        "Password must contain at least one uppercase letter, one lowercase letter, one number and one special character from @$!%~^*#+-?&"
-      ),
+    password: z.string().min(1, "Password is required"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {

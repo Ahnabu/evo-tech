@@ -177,7 +177,7 @@ const StaffForm = ({ mode = 'create', staffData, onSuccess }: StaffFormProps) =>
                                 <FormControl>
                                     <Input
                                         type="password"
-                                        placeholder="Enter password (min 6 characters)"
+                                        placeholder="Enter password"
                                         {...field}
                                         disabled={isSubmitting}
                                         className="block w-full text-xs border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none placeholder:text-stone-400 placeholder:text-xs"

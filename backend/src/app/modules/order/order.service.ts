@@ -6,6 +6,7 @@ import { Product } from "../product/product.model";
 import { Types } from "mongoose";
 import { NotificationServices } from "../notification/notification.service";
 import { emailService } from "../../utils/emailService";
+import { Review } from "../review/review.model";
 
 const generateOrderNumber = (): string => {
   const timestamp = Date.now().toString();
@@ -643,6 +644,57 @@ const trackOrderByTrackingCode = async (trackingCode: string) => {
   };
 };
 
+// Get order items for review with review status
+const getOrderItemsForReviewFromDB = async (orderId: string, userUuid: string) => {
+  // First verify the order belongs to the user and is delivered
+  const order = await Order.findById(orderId).lean();
+
+  if (!order) {
+    throw new AppError(httpStatus.NOT_FOUND, "Order not found");
+  }
+
+  // Verify order belongs to user
+  if (order.user !== userUuid) {
+    throw new AppError(httpStatus.FORBIDDEN, "You are not authorized to access this order");
+  }
+
+  // Check if order is delivered
+  if (order.orderStatus !== "delivered") {
+    throw new AppError(httpStatus.BAD_REQUEST, "Reviews can only be submitted for delivered orders");
+  }
+
+  // Get order items
+  const orderItems = await OrderItem.find({ order: order._id })
+    .populate("product", "name slug mainImage")
+    .lean();
+
+  // Get reviews for this order
+  const reviews = await Review.find({ order: order._id }).lean();
+  const reviewedProductIds = new Set(reviews.map(r => r.product.toString()));
+
+  // Map items with review status
+  const itemsWithReviewStatus = orderItems.map(item => ({
+    _id: item._id,
+    product: item.product,
+    productName: item.productName,
+    productPrice: item.productPrice,
+    quantity: item.quantity,
+    selectedColor: item.selectedColor,
+    subtotal: item.subtotal,
+    hasReview: reviewedProductIds.has((item.product as any)._id.toString()),
+  }));
+
+  return {
+    order: {
+      _id: order._id,
+      orderNumber: order.orderNumber,
+      orderStatus: order.orderStatus,
+      deliveredAt: order.deliveredAt,
+    },
+    items: itemsWithReviewStatus,
+  };
+};
+
 export const OrderServices = {
   placeOrderIntoDB,
   placeGuestOrderIntoDB,
@@ -653,4 +705,5 @@ export const OrderServices = {
   updateOrderStatusIntoDB,
   deleteOrderFromDB,
   trackOrderByTrackingCode,
+  getOrderItemsForReviewFromDB,
 };

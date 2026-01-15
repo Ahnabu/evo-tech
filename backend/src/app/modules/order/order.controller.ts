@@ -128,6 +128,20 @@ const trackOrder = catchAsync(async (req, res) => {
   });
 });
 
+const getOrderItemsForReview = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const userUuid = req.user?.uuid;
+  
+  const result = await OrderServices.getOrderItemsForReviewFromDB(id, userUuid as string);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Order items retrieved successfully",
+    data: result,
+  });
+});
+
 export const OrderControllers = {
   placeOrder,
   placeGuestOrder,
@@ -138,4 +152,5 @@ export const OrderControllers = {
   updateOrderStatus,
   deleteOrder,
   trackOrder,
+  getOrderItemsForReview,
 };

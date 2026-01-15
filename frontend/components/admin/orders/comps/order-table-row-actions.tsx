@@ -4,7 +4,7 @@ import * as React from "react";
 import type { Row } from "@tanstack/react-table";
 import { OrderWithItemsType } from "@/schemas/admin/sales/orderSchema";
 import { Button } from "@/components/ui/button";
-import { Eye, Printer, Loader2 } from "lucide-react";
+import { Eye, Printer, Loader2, Tag } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from '@/store/store';
@@ -15,6 +15,7 @@ import { deleteOrder } from "@/actions/admin/orders";
 import { updateOrderStatus } from "@/actions/admin/update-order-status";
 import { usePendingOrders } from "@/contexts/PendingOrdersContext";
 import { generateInvoicePDF } from "./generate-invoice-pdf";
+import { generateShippingLabel } from "./generate-shipping-label";
 
 interface RowActionProps {
     row: Row<OrderWithItemsType>;
@@ -26,6 +27,7 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
     const [isOpen, setIsOpen] = React.useState(false);
     const [isDeletePending, startDeleteTransition] = React.useTransition();
     const [isPrintingInvoice, setIsPrintingInvoice] = React.useState(false);
+    const [isPrintingLabel, setIsPrintingLabel] = React.useState(false);
     const router = useRouter();
     const dispatch = useDispatch<AppDispatch>();
 
@@ -104,6 +106,21 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
         }
     };
 
+    const handlePrintLabel = async () => {
+        const order = row.original;
+        if (!order) return toast.error('Order not found');
+
+        setIsPrintingLabel(true);
+        try {
+            await generateShippingLabel(order);
+            toast.success('Shipping label downloaded successfully');
+        } catch (error) {
+            toast.error('Failed to generate shipping label');
+        } finally {
+            setIsPrintingLabel(false);
+        }
+    };
+
     return (
         <div className="px-2 flex justify-end items-center gap-1" role="group" aria-label="Actions">
             <Button
@@ -128,6 +145,21 @@ const OrderTableRowActions = ({ row, onDataChange }: RowActionProps) => {
                     <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                     <Printer className="h-4 w-4" />
+                )}
+            </Button>
+
+            <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 rounded-full bg-purple-100 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                aria-label={`Print shipping label`}
+                onClick={handlePrintLabel}
+                disabled={isPrintingLabel}
+            >
+                {isPrintingLabel ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                    <Tag className="h-4 w-4" />
                 )}
             </Button>
 

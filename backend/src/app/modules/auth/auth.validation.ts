@@ -13,7 +13,7 @@ export const registerValidation = z.object({
     }).email("Invalid email format"),
     password: z.string({
       required_error: "Password is required",
-    }).min(8, "Password must be at least 8 characters long"),
+    }).min(1, "Password cannot be empty"),
     phone: z.string().optional(),
     newsletterOptIn: z.boolean().optional(),
   }),
@@ -45,7 +45,7 @@ export const resetPasswordValidation = z.object({
     }).min(1, "Reset token cannot be empty"),
     password: z.string({
       required_error: "Password is required",
-    }).min(8, "Password must be at least 8 characters long"),
+    }).min(1, "Password cannot be empty"),
   }),
 });
 

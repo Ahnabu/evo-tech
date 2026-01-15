@@ -36,6 +36,11 @@ router.get(
   auth(USER_ROLE.USER, USER_ROLE.ADMIN),
   OrderControllers.getSingleOrder
 );
+router.get(
+  "/:id/items-for-review",
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN),
+  OrderControllers.getOrderItemsForReview
+);
 router.put(
   "/:id",
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),

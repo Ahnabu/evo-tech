@@ -3,9 +3,65 @@
 import { useUserOrders } from '@/hooks/use-user-dashboard';
 import { currencyFormatBDT } from '@/lib/all_utils';
 import Link from 'next/link';
+import { useState } from 'react';
+import { MessageSquare } from 'lucide-react';
+import ReviewModal from '@/components/reviews/review-modal';
+import axios from '@/utils/axios/axios';
+import { toast } from 'sonner';
 
 export default function OrderHistoryPage() {
     const { orders, meta, loading, error } = useUserOrders();
+    const [reviewModalState, setReviewModalState] = useState<{
+        isOpen: boolean;
+        product: any;
+        orderId: string;
+    } | null>(null);
+    const [orderItemsModal, setOrderItemsModal] = useState<{
+        isOpen: boolean;
+        order: any;
+        items: any[];
+    } | null>(null);
+    const [loadingItems, setLoadingItems] = useState(false);
+
+    const handleReviewClick = async (order: any) => {
+        setLoadingItems(true);
+        
+        try {
+            const response = await axios.get(`/orders/${order._id}/items-for-review`);
+            if (response.data?.success) {
+                setOrderItemsModal({
+                    isOpen: true,
+                    order: order,
+                    items: response.data.data.items,
+                });
+            }
+        } catch (error: any) {
+            console.error('Failed to load order items:', error);
+            toast.error(error.response?.data?.message || 'Failed to load order items');
+        } finally {
+            setLoadingItems(false);
+        }
+    };
+
+    const handleOpenReviewModal = (product: any, orderId: string) => {
+        setReviewModalState({
+            isOpen: true,
+            product,
+            orderId,
+        });
+        setOrderItemsModal(null);
+    };
+
+    const handleReviewSubmitted = () => {
+        setReviewModalState(null);
+        // Refresh the order items to update review status
+        if (orderItemsModal?.order) {
+            handleReviewClick(orderItemsModal.order);
+        }
+    };
+
+    // Count orders needing reviews
+    const deliveredOrdersCount = orders?.filter(order => order.orderStatus === 'delivered').length || 0;
 
     if (loading) {
         return (
@@ -51,10 +107,18 @@ export default function OrderHistoryPage() {
                     <Link href="/user/dashboard" className="text-blue-600 hover:text-blue-800 mb-4 inline-block">
                         ← Back to Dashboard
                     </Link>
-                    <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                        Order History
-                    </h1>
-                    <p className="text-gray-600">
+                    <div className="flex items-center gap-3">
+                        <h1 className="text-3xl font-bold text-gray-900">
+                            Order History
+                        </h1>
+                        {deliveredOrdersCount > 0 && (
+                            <span className="px-3 py-1 bg-amber-100 text-amber-800 text-sm font-medium rounded-full flex items-center gap-1">
+                                <MessageSquare className="w-4 h-4" />
+                                {deliveredOrdersCount} {deliveredOrdersCount === 1 ? 'order' : 'orders'} can be reviewed
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-gray-600 mt-2">
                         View and track all your previous orders.
                     </p>
                 </div>
@@ -153,9 +217,19 @@ export default function OrderHistoryPage() {
                                                 </Link>
                                             )}
                                             {order.orderStatus === 'delivered' && (
-                                                <button className="px-4 py-2 bg-green-200 text-green-700 rounded-md hover:bg-green-300 transition-colors">
-                                                    Reorder
-                                                </button>
+                                                <>
+                                                    <button 
+                                                        onClick={() => handleReviewClick(order)}
+                                                        disabled={loadingItems}
+                                                        className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 transition-colors flex items-center justify-center gap-2"
+                                                    >
+                                                        <MessageSquare className="w-4 h-4" />
+                                                        {loadingItems ? 'Loading...' : 'Write Review'}
+                                                    </button>
+                                                    <button className="px-4 py-2 bg-green-200 text-green-700 rounded-md hover:bg-green-300 transition-colors">
+                                                        Reorder
+                                                    </button>
+                                                </>
                                             )}
                                         </div>
                                     </div>
@@ -208,6 +282,81 @@ export default function OrderHistoryPage() {
                             </div>
                         </div>
                     </div>
+                )}
+
+                {/* Review Modal for Order Items */}
+                {orderItemsModal?.isOpen && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                        <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                            <div className="p-6">
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-2xl font-bold">Write Reviews</h2>
+                                    <button
+                                        onClick={() => setOrderItemsModal(null)}
+                                        className="text-gray-500 hover:text-gray-700 text-2xl"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                                <p className="text-sm text-gray-600 mb-6">
+                                    Order #{orderItemsModal.order.orderNumber}
+                                </p>
+
+                                <div className="space-y-4">
+                                    {orderItemsModal.items.map((item) => (
+                                        <div key={item._id} className="border rounded-lg p-4">
+                                            <div className="flex items-start gap-3 mb-3">
+                                                {item.product?.mainImage && (
+                                                    <img
+                                                        src={item.product.mainImage}
+                                                        alt={item.productName}
+                                                        className="w-16 h-16 object-cover rounded"
+                                                    />
+                                                )}
+                                                <div className="flex-1">
+                                                    <h3 className="font-medium text-sm">{item.productName}</h3>
+                                                    {item.selectedColor && (
+                                                        <p className="text-xs text-gray-500">Color: {item.selectedColor}</p>
+                                                    )}
+                                                </div>
+                                                {item.hasReview && (
+                                                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs rounded-full">
+                                                        ✓ Reviewed
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {!item.hasReview && (
+                                                <button
+                                                    onClick={() => handleOpenReviewModal(item.product, orderItemsModal.order._id)}
+                                                    className="w-full px-4 py-2 bg-amber-500 text-white rounded hover:bg-amber-600 transition-colors"
+                                                >
+                                                    Write Review
+                                                </button>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <button
+                                    onClick={() => setOrderItemsModal(null)}
+                                    className="mt-6 w-full px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 transition-colors"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Individual Review Modal */}
+                {reviewModalState?.isOpen && (
+                    <ReviewModal
+                        isOpen={reviewModalState.isOpen}
+                        onClose={() => setReviewModalState(null)}
+                        product={reviewModalState.product}
+                        orderId={reviewModalState.orderId}
+                        onReviewSubmitted={handleReviewSubmitted}
+                    />
                 )}
             </div>
         </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { BsFacebook, BsTwitterX } from "react-icons/bs";
 import QuantityAdjuster from "@/components/quantity-adjuster";
 import ColorSelector from "@/components/color-selector";
@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch, RootState } from "@/store/store";
 import { setCartData } from "@/store/slices/cartslice";
 import type { CartItem } from "@/schemas/cartSchema";
+import axios from "@/utils/axios/axios";
 
 const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
   const searchParams = useSearchParams();
@@ -22,6 +23,35 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
     (state: RootState) => state.shoppingcart.cartdata
   );
   const [itemQuantity, setItemQuantity] = useState<number | string>(1);
+  const [realTimeColorVariations, setRealTimeColorVariations] = useState<any[]>(
+    singleitem.i_colorVariations || []
+  );
+
+  // Fetch real-time stock data for color variations
+  useEffect(() => {
+    const fetchRealTimeStock = async () => {
+      if (!singleitem.itemid) return;
+
+      try {
+        const response = await axios.get(
+          `/products/${singleitem.itemid}/color-variations`
+        );
+        if (response.data?.data) {
+          setRealTimeColorVariations(response.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch real-time stock:", error);
+        // Fallback to existing data if fetch fails
+      }
+    };
+
+    fetchRealTimeStock();
+
+    // Optionally refresh stock data periodically (every 30 seconds)
+    const intervalId = setInterval(fetchRealTimeStock, 30000);
+
+    return () => clearInterval(intervalId);
+  }, [singleitem.itemid]);
 
   const createQueryString = useCallback(
     (name: string, value: string) => {
@@ -77,7 +107,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
   const handleAddToCart = () => {
     // Validate color selection if product has color variations
     const hasColorVariations =
-      singleitem.i_colorVariations && singleitem.i_colorVariations.length > 0;
+      realTimeColorVariations && realTimeColorVariations.length > 0;
 
     if (
       hasColorVariations ||
@@ -90,7 +120,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
 
       // Check color variation stock if applicable
       if (hasColorVariations) {
-        const selectedVariation = singleitem.i_colorVariations.find(
+        const selectedVariation = realTimeColorVariations.find(
           (cv: any) =>
             cv.colorName.toLowerCase() === itemColorfromURL.toLowerCase()
         );
@@ -207,7 +237,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
   const handleBuyNow = () => {
     // Validate color selection if product has color variations
     const hasColorVariations =
-      singleitem.i_colorVariations && singleitem.i_colorVariations.length > 0;
+      realTimeColorVariations && realTimeColorVariations.length > 0;
 
     if (
       hasColorVariations ||
@@ -220,7 +250,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
 
       // Check color variation stock if applicable
       if (hasColorVariations) {
-        const selectedVariation = singleitem.i_colorVariations.find(
+        const selectedVariation = realTimeColorVariations.find(
           (cv: any) =>
             cv.colorName.toLowerCase() === itemColorfromURL.toLowerCase()
         );
@@ -318,7 +348,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
   const handlePreOrder = () => {
     // Validate color selection if product has color variations
     const hasColorVariations =
-      singleitem.i_colorVariations && singleitem.i_colorVariations.length > 0;
+      realTimeColorVariations && realTimeColorVariations.length > 0;
 
     if (
       hasColorVariations ||
@@ -331,7 +361,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
 
       // Check color variation availability if applicable
       if (hasColorVariations) {
-        const selectedVariation = singleitem.i_colorVariations.find(
+        const selectedVariation = realTimeColorVariations.find(
           (cv: any) =>
             cv.colorName.toLowerCase() === itemColorfromURL.toLowerCase()
         );
@@ -424,11 +454,11 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
 
   // Check if product has color variations
   const hasColorVariations =
-    singleitem.i_colorVariations && singleitem.i_colorVariations.length > 0;
+    realTimeColorVariations && realTimeColorVariations.length > 0;
 
   // Format color variations for ColorSelector component
   const formattedColors = hasColorVariations
-    ? singleitem.i_colorVariations.map((cv: any) => ({
+    ? realTimeColorVariations.map((cv: any) => ({
         name: cv.colorName,
         hex: cv.colorCode,
       }))
@@ -447,7 +477,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
           {hasColorVariations && itemColorfromURL && (
             <div className="text-[12px] text-stone-600">
               {(() => {
-                const selectedVariation = singleitem.i_colorVariations.find(
+                const selectedVariation = realTimeColorVariations.find(
                   (cv: any) =>
                     cv.colorName.toLowerCase() ===
                     itemColorfromURL.toLowerCase()

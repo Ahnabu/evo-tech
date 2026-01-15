@@ -7,7 +7,7 @@ import { z } from "zod";
 const firstNameSchema = z.string().min(1, "First name is required").max(50, "First name must be at most 50 characters");
 const lastNameSchema = z.string().min(1, "Last name is required").max(50, "Last name must be at most 50 characters");
 const emailSchema = z.string().email("Invalid email address");
-const passwordSchema = z.string().min(6, "Password must be at least 6 characters");
+const passwordSchema = z.string().min(1, "Password is required");
 const phoneSchema = z.string().optional();
 const userTypeSchema = z.enum(["admin", "employee"], {
     errorMap: () => ({ message: "User type must be either 'admin' or 'employee'" }),

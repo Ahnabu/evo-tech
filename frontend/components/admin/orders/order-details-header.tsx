@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { OrderWithItemsType } from '@/schemas/admin/sales/orderSchema';
 import { InvoiceDownloadButton } from './comps/invoice-download-button';
+import { ShippingLabelButton } from './comps/shipping-label-button';
 
 const OrderDetailsHeader = ({ order }: { order: OrderWithItemsType; }) => {
 
@@ -34,6 +35,7 @@ const OrderDetailsHeader = ({ order }: { order: OrderWithItemsType; }) => {
 
             <div className="flex flex-wrap gap-2 max-sm:w-full justify-end">
                 <InvoiceDownloadButton order={order} />
+                <ShippingLabelButton order={order} />
             </div>
         </div>
     );

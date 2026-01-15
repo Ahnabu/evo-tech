@@ -6,6 +6,8 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { PermissionsProvider } from "@/contexts/PermissionsContext";
 import { PendingOrdersProvider } from "@/contexts/PendingOrdersContext";
 
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: {
     template: "%s | Evo-TechBD - User",

@@ -13,7 +13,7 @@ import axios from "@/utils/axios/axios";
 import { useSearchParams } from "next/navigation";
 
 const ResetPasswordSchema = z.object({
-    password: z.string().min(8, "Password must be at least 8 characters"),
+    password: z.string().min(1, "Password is required"),
     confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",

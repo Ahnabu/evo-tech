@@ -18,10 +18,12 @@ const getReviewsByProduct = catchAsync(async (req, res) => {
 const addReview = catchAsync(async (req, res) => {
   const { productId } = req.params;
   const imageBuffer = req.file?.buffer;
+  const userUuid = req.user?.uuid;
   const result = await ReviewServices.addReviewIntoDB(
     productId,
     req.body,
-    imageBuffer
+    imageBuffer,
+    userUuid as string
   );
 
   sendResponse(res, {
