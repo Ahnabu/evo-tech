@@ -68,19 +68,19 @@ export const useTaxonomy = () => {
 
   const getCategoriesForSelect = () => {
     return categories.map((category) => ({
-      // value should be the slug for URL purposes in view_more_url
-      value: category.slug,
+      // value should be the ID to match backend expectations
+      value: category.id,
       label: category.name,
       id: category.id,
     }));
   };
 
-  const getSubcategoriesForSelect = (categorySlug?: string) => {
-    if (!categorySlug) return [];
+  const getSubcategoriesForSelect = (categoryId?: string) => {
+    if (!categoryId) return [];
 
-    // categorySlug here can be an id or slug depending on usage; try to resolve by id first
-    let category = categories.find((cat) => cat.id === categorySlug);
-    if (!category) category = getCategoryBySlug(categorySlug);
+    // categoryId here can be an id or slug depending on usage; try to resolve by id first
+    let category = categories.find((cat) => cat.id === categoryId);
+    if (!category) category = getCategoryBySlug(categoryId);
     if (!category) return [];
 
     return category.subcategories.map((subcategory) => ({
@@ -92,10 +92,10 @@ export const useTaxonomy = () => {
   };
 
   const getBrandsForSelect = (
-    categorySlug?: string,
-    subcategorySlug?: string
+    categoryId?: string,
+    subcategoryId?: string
   ) => {
-    if (!categorySlug) {
+    if (!categoryId) {
       // Return all brands if no category specified
       return getAllBrands().map((brand) => ({
         value: brand.id,
@@ -104,17 +104,19 @@ export const useTaxonomy = () => {
       }));
     }
 
-    const category = getCategoryBySlug(categorySlug);
+    // categoryId can be an id or slug depending on usage; try to resolve by id first
+    let category = categories.find((cat) => cat.id === categoryId);
+    if (!category) category = getCategoryBySlug(categoryId);
     if (!category) return [];
 
-    if (subcategorySlug) {
-      // subcategorySlug may be id or slug; try both
+    if (subcategoryId) {
+      // subcategoryId may be id or slug; try both
       let subcategory = category.subcategories.find(
-        (sub) => sub.id === subcategorySlug
+        (sub) => sub.id === subcategoryId
       );
       if (!subcategory)
         subcategory = category.subcategories.find(
-          (sub) => sub.slug === subcategorySlug
+          (sub) => sub.slug === subcategoryId
         );
       return (
         subcategory?.brands.map((brand) => ({

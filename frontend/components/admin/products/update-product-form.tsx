@@ -28,6 +28,7 @@ import { IoIosAddCircle } from "react-icons/io";
 import { Trash2, Undo2, PlusCircle } from "lucide-react";
 import Image from "next/image";
 import axios from "@/utils/axios/axios";
+import { useEffect } from "react";
 
 interface UpdateProductFormProps {
   itemInfo: {
@@ -79,7 +80,6 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
   const { getSectionsForSelect } = useFeaturedSections();
   const categories = getCategoriesForSelect();
   const featuredSections = getSectionsForSelect();
-  const brands = getBrandsForSelect();
 
   const {
     register,
@@ -197,7 +197,37 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     }
   };
 
-  const subcategories = getSubcategoriesForSelect(watch("item_category"));
+  // Get selected category - use watched value if changed, otherwise use initial value
+  const selectedCategory = watch("item_category") || itemInfo.i_category;
+  const selectedSubcategory = watch("item_subcategory") || itemInfo.i_subcategory;
+  const subcategories = getSubcategoriesForSelect(selectedCategory);
+  
+  // Get brands filtered by category and subcategory
+  const brands = getBrandsForSelect(selectedCategory, selectedSubcategory);
+
+  // Clear subcategory when category changes (and new category doesn't contain the current subcategory)
+  useEffect(() => {
+    const currentSubcategory = watch("item_subcategory");
+    if (currentSubcategory) {
+      const isValidSubcategory = subcategories.some(
+        (sub) => sub.value === currentSubcategory
+      );
+      if (!isValidSubcategory) {
+        setValue("item_subcategory", "");
+      }
+    }
+  }, [selectedCategory, subcategories, watch, setValue]);
+  
+  // Clear brand when category/subcategory changes if brand is not in new filtered list
+  useEffect(() => {
+    const currentBrand = watch("item_brand");
+    if (currentBrand) {
+      const isValidBrand = brands.some((brand) => brand.value === currentBrand);
+      if (!isValidBrand) {
+        setValue("item_brand", "");
+      }
+    }
+  }, [selectedCategory, selectedSubcategory, brands, watch, setValue]);
 
   const onSubmit = async (data: z.infer<typeof UpdateProductSchema>) => {
     const formdata = new FormData();
@@ -1274,25 +1304,6 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         </button>
       </div>
 
-      {/* Action Buttons */}
-      <div className="pt-10 w-full flex justify-end gap-2">
-        <Link
-          href={`/control/products`}
-          className={`px-5 py-2 bg-stone-300 text-stone-800 rounded text-xs md:text-sm hover:bg-stone-200 disabled:bg-stone-400 transition-colors duration-100 ease-linear shadow 
-                        ${isSubmitting ? "pointer-events-none" : ""}`}
-        >
-          Back
-        </Link>
-        <button
-          type="submit"
-          form="updateproductform"
-          aria-label="update item"
-          disabled={isSubmitting}
-          className="px-7 py-2 bg-stone-800 text-white rounded text-xs md:text-sm hover:bg-stone-900 disabled:bg-stone-600"
-        >
-          {isSubmitting ? `Updating...` : `Update`}
-        </button>
-      </div>
     </form>
   );
 };

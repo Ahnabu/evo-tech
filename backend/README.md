@@ -4,15 +4,32 @@ Node.js/Express backend with MongoDB for Evo-Tech e-commerce platform.
 
 ## Features
 
-- JWT Authentication with Refresh Tokens
-- Role-based Access Control (Admin, User)
-- Product Management with Categories, Brands, and Subcategories
-- Shopping Cart and Wishlist
-- Order Management with Status Tracking
-- Image Upload with Cloudinary
-- Advanced Search and Filtering
-- Product Reviews and Ratings
-- Landing Page Content Management
+- JWT Authentication with Refresh Tokens and Secure Cookie Management
+- Role-based Access Control (Admin, Employee, Staff, User)
+- Comprehensive Product Management:
+  - Categories, subcategories, and brands with relationships
+  - Color variations with individual stock tracking
+  - Product features with headers and subsections
+  - Product specifications
+  - Product FAQs
+  - Multiple product images
+  - SEO meta tags
+  - Pre-order functionality
+- Shopping Cart and Wishlist with Persistence
+- Advanced Order Management:
+  - Status tracking and updates
+  - Payment integration
+  - Shipping calculations
+  - Invoice generation
+- Image Upload with Cloudinary and Local Storage Support
+- Advanced Search and Filtering with Multiple Parameters
+- Product Reviews and Ratings System:
+  - Verified purchase badges
+  - Rating distribution analytics
+  - Review moderation
+- Landing Page Content Management with Featured Sections
+- User Profile and Address Management
+- Inventory Management with Stock Alerts
 
 ## Tech Stack
 

@@ -66,6 +66,11 @@ export function ProductSectionsWrapper({
     }
   }, [initialData.itemid, initialData.itemname]);
 
+  // Fetch reviews on initial mount
+  useEffect(() => {
+    refreshData();
+  }, [refreshData]);
+
   return (
     <div className="space-y-6">
       {isRefreshing && (

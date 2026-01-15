@@ -16,12 +16,32 @@ Next.js 14 frontend application for the Evo-Tech Bangladesh e-commerce platform 
 - Real-time notifications
 
 ### User Features
-- **Product Discovery**: Advanced search, filtering, sorting
+- **Product Discovery**: 
+  - Advanced search with filters
+  - Category and subcategory browsing
+  - Brand filtering
+  - Price range and feature filters
+  - Sort by price, rating, newest
+- **Product Details**:
+  - Comprehensive product information with tabs
+  - Features section with images and descriptions
+  - Technical specifications
+  - Customer reviews with rating distribution and filtering
+  - Product FAQs
+  - Color variations with individual availability
 - **Shopping Experience**: Cart persistence, wishlist, product comparison
-- **Account Management**: Profile, addresses, order history
-- **Order Tracking**: Real-time order status updates
-- **Reviews & Ratings**: Product reviews and rating system
-- **Responsive Design**: Mobile-first responsive design
+- **Account Management**: 
+  - User profile and settings
+  - Multiple address management
+  - Comprehensive order history with filtering
+  - Order details with tracking information
+- **Order Tracking**: Real-time order status updates with visual timeline
+- **Reviews & Ratings**: 
+  - Write detailed product reviews
+  - Filter reviews by rating
+  - Sort reviews by newest/highest/lowest rating
+  - View rating distribution charts
+- **Responsive Design**: Mobile-first responsive design with optimized layouts
 
 ### Role-Based Dashboards
 - **User Dashboard**: Profile, orders, addresses, wishlist
@@ -29,11 +49,19 @@ Next.js 14 frontend application for the Evo-Tech Bangladesh e-commerce platform 
 - **Admin Dashboard**: Complete system management, analytics, user management
 
 ### Admin Features
-- **Product Management**: CRUD operations, bulk actions, inventory tracking
-- **Order Management**: Status updates, invoice generation, shipping
-- **User Management**: User roles, permissions, account management
+- **Product Management**: 
+  - Complete CRUD operations with enhanced update form
+  - Dynamic category/subcategory/brand selection with automatic filtering
+  - Color variation management with individual stock tracking
+  - Product features, specifications, and FAQs management
+  - Multiple image upload and management
+  - SEO meta tags configuration
+  - Inventory tracking with low stock alerts
+- **Order Management**: Status updates, invoice generation, shipping tracking
+- **User Management**: User roles, permissions, customer profiles
+- **Review Management**: View, moderate, and respond to customer reviews
 - **Analytics**: Sales reports, user activity, performance metrics
-- **Content Management**: Landing page, banners, featured products
+- **Content Management**: Landing page sections, banners, featured products
 - **System Settings**: Configuration, email templates, notifications
 
 ## Tech Stack

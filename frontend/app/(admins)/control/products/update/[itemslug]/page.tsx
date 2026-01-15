@@ -4,6 +4,7 @@ import { currentRouteProps } from "@/utils/types_interfaces/shared_types";
 import axiosIntercept from "@/utils/axios/axiosIntercept";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { unstable_noStore as noStore } from "next/cache";
+import Link from "next/link";
 
 const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
   const axioswithIntercept = await axiosIntercept();
@@ -100,6 +101,24 @@ const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
           reviews: [],
         }}
       />
+
+      {/* Action Buttons */}
+      <div className="pt-10 w-full flex justify-end gap-2">
+        <Link
+          href="/control/products"
+          className="px-5 py-2 bg-stone-300 text-stone-800 rounded text-xs md:text-sm hover:bg-stone-200 transition-colors duration-100 ease-linear shadow"
+        >
+          Back
+        </Link>
+        <button
+          type="submit"
+          form="updateproductform"
+          aria-label="update item"
+          className="px-7 py-2 bg-stone-800 text-white rounded text-xs md:text-sm hover:bg-stone-900 disabled:bg-stone-600"
+        >
+          Update
+        </button>
+      </div>
     </div>
   );
 };

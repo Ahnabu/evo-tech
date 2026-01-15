@@ -6,7 +6,6 @@ import axios from "@/utils/axios/axios";
 import { getCurrentUser } from "@/utils/cookies";
 
 export default function OrderDetailsPage() {
-  const currentUser = getCurrentUser();
   const params = useParams() as { id?: string };
   const router = useRouter();
   const orderId = params?.id;
@@ -16,7 +15,13 @@ export default function OrderDetailsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!currentUser || !orderId) return;
+    const currentUser = getCurrentUser();
+    
+    if (!currentUser || !orderId) {
+      setLoading(false);
+      setError("Unable to load order details");
+      return;
+    }
 
     (async () => {
       try {
@@ -40,7 +45,7 @@ export default function OrderDetailsPage() {
         setLoading(false);
       }
     })();
-  }, [currentUser, orderId]);
+  }, [orderId]);
 
   if (!orderId) {
     return <div className="p-6">No order specified</div>;

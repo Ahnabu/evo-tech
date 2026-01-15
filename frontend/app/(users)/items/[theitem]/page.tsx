@@ -374,21 +374,16 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
           </div>
         </div>
 
-        {itemInfo.i_sectionsdata &&
-          (itemInfo.i_sectionsdata.featureHeaders.length > 0 ||
-            itemInfo.i_sectionsdata.featureSubsections.length > 0 ||
-            itemInfo.i_sectionsdata.specifications.length > 0 || 
-            (itemInfo.i_faq && itemInfo.i_faq.length > 0)) && (
-            <ItemSections
-              itemId={itemInfo.itemid}
-              featuresdata={{
-                header: itemInfo.i_sectionsdata.featureHeaders,
-                subsections: itemInfo.i_sectionsdata.featureSubsections,
-              }}
-              specsdata={itemInfo.i_sectionsdata.specifications}
-              faqsdata={itemInfo.i_faq}
-            />
-          )}
+        {/* Always show sections - Reviews and FAQs are available for all products */}
+        <ItemSections
+          itemId={itemInfo.itemid}
+          featuresdata={{
+            header: itemInfo.i_sectionsdata?.featureHeaders || [],
+            subsections: itemInfo.i_sectionsdata?.featureSubsections || [],
+          }}
+          specsdata={itemInfo.i_sectionsdata?.specifications || []}
+          faqsdata={itemInfo.i_faq || []}
+        />
       </div>
     </>
   );
