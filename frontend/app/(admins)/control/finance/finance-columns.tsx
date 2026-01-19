@@ -4,6 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { currencyFormatBDT } from "@/lib/all_utils";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 export type FinanceTransactionType = {
   _id: string;
@@ -18,7 +20,9 @@ export type FinanceTransactionType = {
   };
 };
 
-export const getFinanceColumns = (): ColumnDef<FinanceTransactionType>[] => [
+export const getFinanceColumns = (
+  onViewDetails?: (transaction: FinanceTransactionType) => void
+): ColumnDef<FinanceTransactionType>[] => [
   {
     accessorKey: "date",
     header: "Date",
@@ -59,5 +63,19 @@ export const getFinanceColumns = (): ColumnDef<FinanceTransactionType>[] => [
       const creator = row.original.createdBy;
       return creator ? `${creator.firstName} ${creator.lastName}` : "Unknown";
     },
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => (
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => onViewDetails?.(row.original)}
+        className="h-8 w-8 p-0 hover:bg-blue-50 hover:text-blue-600"
+      >
+        <Eye className="h-4 w-4" />
+      </Button>
+    ),
   },
 ];

@@ -364,8 +364,38 @@ const getAllOrdersFromDB = async (query: Record<string, unknown>) => {
 
   const total = await Order.countDocuments(searchQuery);
 
+  // Populate order items with product data including category
+  const ordersWithItems = await Promise.all(
+    result.map(async (order) => {
+      const orderItems = await OrderItem.find({ order: order._id })
+        .populate({
+          path: 'product',
+          populate: {
+            path: 'category',
+            select: 'name slug'
+          }
+        });
+      
+      return {
+        ...normalizeOrderObject(order),
+        orderItems: orderItems.map(item => ({
+          _id: item._id,
+          order: item.order,
+          product: item.product,
+          productName: item.productName,
+          productPrice: item.productPrice,
+          quantity: item.quantity,
+          selectedColor: item.selectedColor,
+          subtotal: item.subtotal,
+          createdAt: item.createdAt,
+          updatedAt: item.updatedAt,
+        }))
+      };
+    })
+  );
+
   return {
-    result: result.map((r) => normalizeOrderObject(r)),
+    result: ordersWithItems,
     meta: {
       page,
       limit,

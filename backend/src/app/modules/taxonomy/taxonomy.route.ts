@@ -12,8 +12,40 @@ const getTaxonomyAllData = catchAsync(async (req, res) => {
   const [categories, subcategories, brands] = await Promise.all([
     Category.find({ isActive: true }).sort({ sortOrder: 1, name: 1 }),
     Subcategory.find({ isActive: true }).populate("category").sort({ sortOrder: 1, name: 1 }),
-    Brand.find({ isActive: true }).sort({ sortOrder: 1, name: 1 }),
+    Brand.find({ isActive: true }).populate("categories").populate("subcategories").sort({ sortOrder: 1, name: 1 }),
   ]);
+
+  // Create brand-category and brand-subcategory maps from stored relationships
+  const categoryBrandsMap = new Map<string, Set<string>>();
+  const subcategoryBrandsMap = new Map<string, Set<string>>();
+
+  brands.forEach(brand => {
+    const brandId = brand._id.toString();
+    
+    // Map brand to its categories
+    if (brand.categories && Array.isArray(brand.categories)) {
+      brand.categories.forEach(category => {
+        const categoryId = typeof category === 'object' ? (category as any)._id.toString() : category.toString();
+        
+        if (!categoryBrandsMap.has(categoryId)) {
+          categoryBrandsMap.set(categoryId, new Set());
+        }
+        categoryBrandsMap.get(categoryId)!.add(brandId);
+      });
+    }
+
+    // Map brand to its subcategories
+    if (brand.subcategories && Array.isArray(brand.subcategories)) {
+      brand.subcategories.forEach(subcategory => {
+        const subcategoryId = typeof subcategory === 'object' ? (subcategory as any)._id.toString() : subcategory.toString();
+        
+        if (!subcategoryBrandsMap.has(subcategoryId)) {
+          subcategoryBrandsMap.set(subcategoryId, new Set());
+        }
+        subcategoryBrandsMap.get(subcategoryId)!.add(brandId);
+      });
+    }
+  });
 
   sendResponse(res, {
     success: true,
@@ -23,6 +55,12 @@ const getTaxonomyAllData = catchAsync(async (req, res) => {
       categories,
       subcategories,
       brands,
+      categoryBrandsMap: Object.fromEntries(
+        Array.from(categoryBrandsMap.entries()).map(([key, value]) => [key, Array.from(value)])
+      ),
+      subcategoryBrandsMap: Object.fromEntries(
+        Array.from(subcategoryBrandsMap.entries()).map(([key, value]) => [key, Array.from(value)])
+      ),
     },
   });
 });

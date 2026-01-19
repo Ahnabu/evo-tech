@@ -19,6 +19,14 @@ const brandSchema = new Schema<TBrand>(
     logo: {
       type: String,
     },
+    categories: [{
+      type: Schema.Types.ObjectId,
+      ref: "Category",
+    }],
+    subcategories: [{
+      type: Schema.Types.ObjectId,
+      ref: "Subcategory",
+    }],
     isActive: {
       type: Boolean,
       default: true,

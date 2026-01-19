@@ -659,25 +659,18 @@ const BrandForm = ({
   ) => {
     const slug = generateSlug(values.name);
 
-    // Transform field arrays back to the expected format
-    const transformedCategories = values.categories.map(
-      (cat: any, index: number) => ({
-        id: cat.categoryId,
-        sortorder: index + 1,
-      })
-    );
-
-    const transformedSubcategories = values.subcategories.map(
-      (subcat: any, index: number) => ({
-        id: subcat.subcategoryId,
-        sortorder: index + 1,
-      })
+    // Transform field arrays back to the expected format for API
+    const categoryIds = values.categories.map((cat: any) => cat.categoryId);
+    const subcategoryIds = values.subcategories.map(
+      (subcat: any) => subcat.subcategoryId
     );
 
     const payload = {
       name: values.name,
       slug: slug,
       isActive: values.active, // backend expects 'isActive' as boolean
+      categories: categoryIds, // Send array of category IDs
+      subcategories: subcategoryIds, // Send array of subcategory IDs
     };
 
     const url = isUpdate
@@ -692,6 +685,7 @@ const BrandForm = ({
         url,
         data: payload,
         headers: {
+          "Content-Type": "application/json",
           "X-Requested-With": "XMLHttpRequest",
         },
         withCredentials: true,

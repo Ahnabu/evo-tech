@@ -77,88 +77,85 @@ async function fetchTaxonomyData(): Promise<TaxonomyCategory[]> {
       return [];
     }
     
-    // Fetch categories and subcategories separately since /taxonomy/alldata doesn't exist yet
-    const [categoriesRes, subcategoriesRes, brandsRes] = await Promise.all([
-      fetch(`${backAPIURL}/categories?limit=100`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        next: { revalidate: 300 },
-      }),
-      fetch(`${backAPIURL}/subcategories?limit=100`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        next: { revalidate: 300 },
-      }),
-      fetch(`${backAPIURL}/brands?limit=100`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-        next: { revalidate: 300 },
-      }),
-    ]);
+    // Use the new taxonomy endpoint that provides brand-category relationships
+    const taxonomyRes = await fetch(`${backAPIURL}/taxonomy/alldata`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+      },
+      next: { revalidate: 300 },
+    });
 
-    if (!categoriesRes.ok || !subcategoriesRes.ok || !brandsRes.ok) {
-      console.warn('Failed to fetch some taxonomy data');
+    if (!taxonomyRes.ok) {
+      console.warn('Failed to fetch taxonomy data');
       return [];
     }
 
-    const categoriesData = await categoriesRes.json();
-    const subcategoriesData = await subcategoriesRes.json();
-    const brandsData = await brandsRes.json();
+    const taxonomyData = await taxonomyRes.json();
     
     // Transform the data into the expected format
-    if (categoriesData?.data && Array.isArray(categoriesData.data)) {
-      const categories: TaxonomyCategory[] = categoriesData.data.map((cat: any) => {
-        // Find subcategories for this category
-        const categorySubcategories = subcategoriesData?.data?.filter((sub: any) => 
-          sub.category?._id === cat._id || sub.category === cat._id
-        ) || [];
-        
-        // Find brands for this category and its subcategories
-        const categoryBrands = brandsData?.data?.filter((brand: any) => {
-          // Check if brand is directly associated with category or any of its subcategories
-          return true; // For now, include all brands
-        }) || [];
-        
-        return {
-          id: cat._id,
-          name: cat.name,
-          slug: cat.slug,
-          description: cat.description || '',
-          has_subcategories: categorySubcategories.length > 0,
-          subcategories: categorySubcategories.map((sub: any) => ({
-            id: sub._id,
-            name: sub.name,
-            slug: sub.slug,
-            description: sub.description || '',
-            brands: brandsData?.data?.map((brand: any) => ({
+    if (taxonomyData?.data) {
+      const { categories: categoriesData, subcategories: subcategoriesData, brands: brandsData, categoryBrandsMap, subcategoryBrandsMap } = taxonomyData.data;
+      
+      if (Array.isArray(categoriesData)) {
+        const categories: TaxonomyCategory[] = categoriesData.map((cat: any) => {
+          const categoryId = cat._id;
+          
+          // Find subcategories for this category
+          const categorySubcategories = subcategoriesData?.filter((sub: any) => 
+            sub.category?._id === categoryId || sub.category === categoryId
+          ) || [];
+          
+          // Get brand IDs for this category from the map
+          const categoryBrandIds = categoryBrandsMap?.[categoryId] || [];
+          const categoryBrands = brandsData?.filter((brand: any) => 
+            categoryBrandIds.includes(brand._id)
+          ) || [];
+          
+          return {
+            id: cat._id,
+            name: cat.name,
+            slug: cat.slug,
+            description: cat.description || '',
+            url: `/shop/${cat.slug}`,
+            has_subcategories: categorySubcategories.length > 0,
+            subcategories: categorySubcategories.map((sub: any) => {
+              const subcategoryId = sub._id;
+              
+              // Get brand IDs for this subcategory from the map
+              const subcategoryBrandIds = subcategoryBrandsMap?.[subcategoryId] || [];
+              const subcategoryBrands = brandsData?.filter((brand: any) => 
+                subcategoryBrandIds.includes(brand._id)
+              ) || [];
+              
+              return {
+                id: sub._id,
+                name: sub.name,
+                slug: sub.slug,
+                url: `/shop/${cat.slug}/${sub.slug}`,
+                brands: subcategoryBrands.map((brand: any) => ({
+                  id: brand._id,
+                  name: brand.name,
+                  slug: brand.slug,
+                  url: `/shop/${cat.slug}/${sub.slug}?brand=${brand.slug}`,
+                })),
+              };
+            }),
+            direct_brands: categoryBrands.map((brand: any) => ({
               id: brand._id,
               name: brand.name,
               slug: brand.slug,
-              description: brand.description || '',
-            })) || [],
-          })),
-          direct_brands: categoryBrands.map((brand: any) => ({
-            id: brand._id,
-            name: brand.name,
-            slug: brand.slug,
-            description: brand.description || '',
-          })),
-        };
-      });
-      
-      return categories;
+              url: `/shop/${cat.slug}?brand=${brand.slug}`,
+            })),
+          };
+        });
+        
+        return categories;
+      }
     }
     
-    console.error('Invalid categories data structure in API response');
+    console.error('Invalid taxonomy data structure in API response');
     return [];
   } catch (error) {
     console.error('Error fetching taxonomy data:', error);

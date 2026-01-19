@@ -126,8 +126,23 @@ export const useTaxonomy = () => {
         })) || []
       );
     } else {
-      // Return direct brands for category
-      return category.direct_brands.map((brand) => ({
+      // Return all brands for category (direct brands + brands from all subcategories)
+      const allCategoryBrands: TaxonomyBrand[] = [];
+      
+      // Add direct brands from category
+      allCategoryBrands.push(...category.direct_brands);
+      
+      // Add brands from all subcategories
+      category.subcategories.forEach((subcategory) => {
+        allCategoryBrands.push(...subcategory.brands);
+      });
+      
+      // Remove duplicates based on ID
+      const uniqueBrands = allCategoryBrands.filter(
+        (brand, index, self) => index === self.findIndex((b) => b.id === brand.id)
+      );
+      
+      return uniqueBrands.map((brand) => ({
         value: brand.id,
         label: brand.name,
         id: brand.id,

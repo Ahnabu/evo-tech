@@ -52,6 +52,7 @@ export async function exportOrdersToCSV(orders: OrderWithItemsType[]) {
             'Additional Charge (BDT)',
             'Total (BDT)',
             'Items Count',
+            'Product Categories',
             'Address',
             'Tracking Code',
             'Transaction ID',
@@ -66,6 +67,16 @@ export async function exportOrdersToCSV(orders: OrderWithItemsType[]) {
             const itemsCount = order.orderItems?.length || 0;
             const deliveredDate = order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString() : '';
             const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A';
+            
+            // Extract unique categories from order items
+            const categories = order.orderItems?.map(item => {
+                const product = item.product as any;
+                if (product && typeof product === 'object' && product.category) {
+                    return typeof product.category === 'object' ? product.category.name : '';
+                }
+                return '';
+            }).filter(Boolean) || [];
+            const uniqueCategories = [...new Set(categories)].join(', ');
 
             return [
                 escapeCSV(order.orderNumber),
@@ -83,6 +94,7 @@ export async function exportOrdersToCSV(orders: OrderWithItemsType[]) {
                 escapeCSV(order.additionalCharge),
                 escapeCSV(order.totalPayable),
                 escapeCSV(itemsCount),
+                escapeCSV(uniqueCategories || 'N/A'),
                 escapeCSV(address),
                 escapeCSV(order.trackingCode || ''),
                 escapeCSV(order.transactionId || ''),
@@ -125,6 +137,16 @@ export async function exportOrdersToExcel(orders: OrderWithItemsType[]) {
             const itemsCount = order.orderItems?.length || 0;
             const deliveredDate = order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString() : '';
             const orderDate = order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A';
+            
+            // Extract unique categories from order items
+            const categories = order.orderItems?.map(item => {
+                const product = item.product as any;
+                if (product && typeof product === 'object' && product.category) {
+                    return typeof product.category === 'object' ? product.category.name : '';
+                }
+                return '';
+            }).filter(Boolean) || [];
+            const uniqueCategories = [...new Set(categories)].join(', ');
 
             return {
                 'Order ID': order.orderNumber,
@@ -142,6 +164,7 @@ export async function exportOrdersToExcel(orders: OrderWithItemsType[]) {
                 'Additional Charge (BDT)': order.additionalCharge,
                 'Total (BDT)': order.totalPayable,
                 'Items Count': itemsCount,
+                'Product Categories': uniqueCategories || 'N/A',
                 'Address': address,
                 'Tracking Code': order.trackingCode || '',
                 'Transaction ID': order.transactionId || '',
@@ -170,6 +193,7 @@ export async function exportOrdersToExcel(orders: OrderWithItemsType[]) {
             { wch: 15 }, // Additional Charge
             { wch: 12 }, // Total
             { wch: 10 }, // Items Count
+            { wch: 30 }, // Product Categories
             { wch: 40 }, // Address
             { wch: 15 }, // Tracking Code
             { wch: 20 }, // Transaction ID
