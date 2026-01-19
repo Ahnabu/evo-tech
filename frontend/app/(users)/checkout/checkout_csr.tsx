@@ -76,9 +76,23 @@ const CheckoutParts = () => {
       paymentMethod: "",
       pickupPointId: "",
       transactionId: "",
+      email: "",
+      phone: "",
     },
     resolver: zodResolver(checkoutSchema),
   });
+
+  // Auto-populate email and phone for logged-in users
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.email) {
+        setValue("email", currentUser.email);
+      }
+      if (currentUser.phone) {
+        setValue("phone", currentUser.phone);
+      }
+    }
+  }, [currentUser, setValue]);
 
   const paymentMethod = watch("paymentMethod");
   const shippingType = watch("shippingType");
