@@ -57,6 +57,7 @@ const AdminUpdateProductsPage = async ({ params }: currentRouteProps) => {
             product.published !== undefined ? product.published : true,
           i_seotitle: product.seoTitle || "",
           i_seodescription: product.seoDescription || "",
+          i_featurebanner: product.featureBanner || "",
           i_faq: product.faqs || [],
           i_sectionsdata: {
             features_section: {

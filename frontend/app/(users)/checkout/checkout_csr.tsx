@@ -49,13 +49,13 @@ const CheckoutParts = () => {
   const [couponCode, setCouponCode] = useState("");
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const cartItems = useSelector(
-    (state: RootState) => state.shoppingcart.cartdata
+    (state: RootState) => state.shoppingcart.cartdata,
   );
   const discountAmount = useSelector(
-    (state: RootState) => state.discount.discountAmount
+    (state: RootState) => state.discount.discountAmount,
   );
   const appliedCouponCode = useSelector(
-    (state: RootState) => state.discount.couponCode
+    (state: RootState) => state.discount.couponCode,
   );
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -139,7 +139,7 @@ const CheckoutParts = () => {
 
   const cartStockSummary = useMemo(
     () => summarizeCartStock(cartItems ?? []),
-    [cartItems]
+    [cartItems],
   );
 
   const isPlaceOrderDisabled =
@@ -153,10 +153,10 @@ const CheckoutParts = () => {
     const delCharge = !cityValue
       ? null
       : isPickupOrExpress
-      ? 0
-      : shippingType === "regular_delivery"
-      ? (cityValue === "dhaka" ? 60 : 120) + chargeforWeight
-      : null;
+        ? 0
+        : shippingType === "regular_delivery"
+          ? (cityValue === "dhaka" ? 70 : 120) + chargeforWeight
+          : null;
 
     setDeliveryCharge(delCharge);
   }, [shippingType, chargeforWeight, cityValue]);
@@ -289,7 +289,7 @@ const CheckoutParts = () => {
       dispatch(setCartData([]));
       localStorage.setItem(
         "evoFrontCart",
-        JSON.stringify({ items: [], ctoken: orderResponse.ctoken || "" })
+        JSON.stringify({ items: [], ctoken: orderResponse.ctoken || "" }),
       );
       const event = new CustomEvent("localStorageChange", {
         detail: {
@@ -365,8 +365,8 @@ const CheckoutParts = () => {
 
       // MANUAL TRANSACTION ID FLOW (Current Implementation)
       // Redirect to track order page with tracking code
-      const trackingCode = order.trackingCode || order.trackingId || '';
-      
+      const trackingCode = order.trackingCode || order.trackingId || "";
+
       if (trackingCode) {
         toast.success("Redirecting to order tracking...");
         setTimeout(() => {
@@ -386,7 +386,7 @@ const CheckoutParts = () => {
         "";
       toast.error(
         backendMessage ||
-          "Sorry! Order could not be placed. Please review your cart and try again."
+          "Sorry! Order could not be placed. Please review your cart and try again.",
       );
     }
   };
@@ -419,7 +419,7 @@ const CheckoutParts = () => {
             code: result.data.code,
             amount: result.data.discountAmount,
             type: result.data.discountType,
-          })
+          }),
         );
         toast.success(`Coupon "${result.data.code}" applied successfully!`);
       } else {
@@ -686,7 +686,7 @@ const CheckoutParts = () => {
                         <p className="w-full h-fit text-left truncate capitalize">
                           {field.value
                             ? districtsOfBD.find(
-                                (district) => district.key === field.value
+                                (district) => district.key === field.value,
                               )?.itemvalue
                             : `Select city/district`}
                         </p>
@@ -1013,7 +1013,7 @@ const CheckoutParts = () => {
                           <li>
                             {`Payable amount: `}
                             <span className="text-[#E2136E] font-semibold">{`${currencyFormatBDT(
-                              totalPayableAmount
+                              totalPayableAmount,
                             )} BDT`}</span>
                           </li>
                           <li>
@@ -1085,7 +1085,7 @@ const CheckoutParts = () => {
                           <li>
                             {`Payable amount: `}
                             <span className="text-[#1e40af] font-semibold">{`${currencyFormatBDT(
-                              totalPayableAmount
+                              totalPayableAmount,
                             )} BDT`}</span>
                           </li>
                           <li>
@@ -1232,7 +1232,7 @@ const CheckoutParts = () => {
                     </h4>
                     <p className="text-[10px] sm:text-[11px] leading-4 font-[500] text-stone-600">
                       {`${eachCartItem.item_quantity} x ${currencyFormatBDT(
-                        eachCartItem.item_price
+                        eachCartItem.item_price,
                       )} BDT`}
                     </p>
                     {(stockStatus.isOutOfStock || stockStatus.exceedsStock) && (
@@ -1257,7 +1257,7 @@ const CheckoutParts = () => {
                   <div className="flex items-start justify-end w-[65px] sm:w-[75px] h-fit py-1">
                     <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
                       {currencyFormatBDT(
-                        eachCartItem.item_quantity * eachCartItem.item_price
+                        eachCartItem.item_quantity * eachCartItem.item_price,
                       )}{" "}
                       BDT
                     </p>

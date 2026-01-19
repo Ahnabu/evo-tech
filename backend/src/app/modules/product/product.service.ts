@@ -137,7 +137,7 @@ const getSingleProductFromDB = async (id: string) => {
     sortOrder: 1,
   });
   const featureHeaders = await FeaturesSectionHeader.find({ product: id }).sort(
-    { sortOrder: 1 }
+    { sortOrder: 1 },
   );
   const featureSubsections = await FeaturesSectionSubsection.find({
     product: id,
@@ -200,7 +200,7 @@ const getProductBySlugFromDB = async (slug: string) => {
 const createProductIntoDB = async (
   payload: any,
   mainImageBuffer?: Buffer,
-  additionalImagesBuffers?: Buffer[]
+  additionalImagesBuffers?: Buffer[],
 ) => {
   payload.slug = await generateUniqueSlug(payload.name, Product);
 
@@ -303,7 +303,7 @@ const createProductIntoDB = async (
     for (let i = 0; i < additionalImagesBuffers.length; i++) {
       const imageUrl = await uploadToCloudinary(
         additionalImagesBuffers[i],
-        "products"
+        "products",
       );
       await ProductImage.create({
         product: result._id,
@@ -329,7 +329,7 @@ const updateProductIntoDB = async (
   id: string,
   payload: Partial<TProduct>,
   mainImageBuffer?: Buffer,
-  additionalImagesBuffers?: Buffer[]
+  additionalImagesBuffers?: Buffer[],
 ) => {
   const product = await Product.findById(id);
   if (!product) {
@@ -434,6 +434,18 @@ const updateProductIntoDB = async (
     payload.slug = await generateUniqueSlug(payload.name, Product);
   }
 
+  // Handle feature banner selection (store the imgid directly)
+  if ((payload as any).featureBanner !== undefined) {
+    const bannerId = (payload as any).featureBanner;
+    if (bannerId === "" || bannerId === null) {
+      // Allow clearing the banner
+      payload.featureBanner = undefined;
+    } else {
+      // Store the imgid directly
+      payload.featureBanner = bannerId;
+    }
+  }
+
   // Handle setting an existing image as the new main image
   if ((payload as any).newMainFromExisting) {
     const imageId = (payload as any).newMainFromExisting;
@@ -450,7 +462,7 @@ const updateProductIntoDB = async (
           sortOrder: existingImagesCount + 1,
         });
       }
-      
+
       // Set the new main image
       payload.mainImage = existingImage.imageUrl;
       // Remove this image from ProductImage collection since it's now the main image
@@ -472,7 +484,7 @@ const updateProductIntoDB = async (
         sortOrder: existingImagesCount + 1,
       });
     }
-    
+
     const imageUrl = await uploadToCloudinary(mainImageBuffer, "products");
     payload.mainImage = imageUrl;
   }
@@ -517,27 +529,28 @@ const updateProductIntoDB = async (
 
   // Upload additional images if provided
   if (additionalImagesBuffers && additionalImagesBuffers.length > 0) {
-    
     // Get current count to determine starting sort order
     const existingImagesCount = await ProductImage.countDocuments({
       product: id,
     });
-    
+
     // Process uploads in parallel
-    const uploadPromises = additionalImagesBuffers.map(async (buffer, index) => {
-      try {
-        const imageUrl = await uploadToCloudinary(buffer, "products");
-        
-        const newImage = await ProductImage.create({
-          product: id,
-          imageUrl,
-          sortOrder: existingImagesCount + index + 1,
-        });
-        return newImage;
-      } catch (error) {
-        return null; // Return null for failed uploads so Promise.all doesn't reject entirely
-      }
-    });
+    const uploadPromises = additionalImagesBuffers.map(
+      async (buffer, index) => {
+        try {
+          const imageUrl = await uploadToCloudinary(buffer, "products");
+
+          const newImage = await ProductImage.create({
+            product: id,
+            imageUrl,
+            sortOrder: existingImagesCount + index + 1,
+          });
+          return newImage;
+        } catch (error) {
+          return null; // Return null for failed uploads so Promise.all doesn't reject entirely
+        }
+      },
+    );
 
     await Promise.all(uploadPromises);
     console.log(`[ProductService] All additional images processed.`);
@@ -591,7 +604,7 @@ const getProductImagesFromDB = async (productId: string) => {
 const addProductImageIntoDB = async (
   productId: string,
   imageBuffer: Buffer,
-  sortOrder: number = 0
+  sortOrder: number = 0,
 ) => {
   const product = await Product.findById(productId);
   if (!product) {
@@ -642,7 +655,7 @@ const updateFeatureHeaderIntoDB = async (headerId: string, payload: any) => {
   const result = await FeaturesSectionHeader.findByIdAndUpdate(
     headerId,
     payload,
-    { new: true }
+    { new: true },
   );
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, "Feature header not found");
@@ -669,7 +682,7 @@ const getFeatureSubsectionsFromDB = async (productId: string) => {
 const addFeatureSubsectionIntoDB = async (
   productId: string,
   payload: any,
-  imageBuffer?: Buffer
+  imageBuffer?: Buffer,
 ) => {
   const product = await Product.findById(productId);
   if (!product) {
@@ -692,7 +705,7 @@ const addFeatureSubsectionIntoDB = async (
 const updateFeatureSubsectionIntoDB = async (
   subsectionId: string,
   payload: any,
-  imageBuffer?: Buffer
+  imageBuffer?: Buffer,
 ) => {
   if (imageBuffer) {
     const imageUrl = await uploadToCloudinary(imageBuffer, "products/features");
@@ -702,7 +715,7 @@ const updateFeatureSubsectionIntoDB = async (
   const result = await FeaturesSectionSubsection.findByIdAndUpdate(
     subsectionId,
     payload,
-    { new: true }
+    { new: true },
   );
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, "Feature subsection not found");
@@ -711,9 +724,8 @@ const updateFeatureSubsectionIntoDB = async (
 };
 
 const deleteFeatureSubsectionFromDB = async (subsectionId: string) => {
-  const result = await FeaturesSectionSubsection.findByIdAndDelete(
-    subsectionId
-  );
+  const result =
+    await FeaturesSectionSubsection.findByIdAndDelete(subsectionId);
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, "Feature subsection not found");
   }
@@ -794,7 +806,7 @@ const updateColorVariationIntoDB = async (colorId: string, payload: any) => {
     payload,
     {
       new: true,
-    }
+    },
   );
   if (!result) {
     throw new AppError(httpStatus.NOT_FOUND, "Color variation not found");
@@ -838,7 +850,6 @@ const getAllUniqueColorsFromDB = async () => {
 
 // Featured Sections (Homepage Sections)
 const getAllFeaturedSectionsFromDB = async () => {
-  
   const result = await LandingSection.find()
     .sort({ sortOrder: 1 })
     .populate("category", "name slug")

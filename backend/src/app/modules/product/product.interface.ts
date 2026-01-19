@@ -31,6 +31,7 @@ export interface TProduct {
   preOrderPrice?: number;
   seoTitle?: string;
   seoDescription?: string;
+  featureBanner?: string;
   faqs?: TProductFAQ[];
   createdAt?: Date;
   updatedAt?: Date;

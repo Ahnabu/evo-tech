@@ -8,11 +8,39 @@ const ItemFeaturesSection = ({
   ifeaturesdata,
   framerSectionVariants,
 }: {
-  ifeaturesdata: any;
+  ifeaturesdata: {
+    header: any[];
+    subsections: any[];
+    banner?: { imgid: string; imgsrc: string; imgtitle: string } | null;
+  };
   framerSectionVariants: Variants;
 }) => {
   return (
     <div className="flex flex-col items-center w-full h-fit py-8 gap-5">
+      {/* Feature Banner - Shows at the very top */}
+      {ifeaturesdata.banner && (
+        <m.div
+          variants={framerSectionVariants}
+          initial="initial"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.15 }}
+          className="relative flex w-full h-fit rounded-[8px] overflow-hidden bg-[#f5f5f5] shadow-md"
+          aria-label="Feature section banner"
+        >
+          <Image
+            src={ifeaturesdata.banner.imgsrc}
+            alt={ifeaturesdata.banner.imgtitle || "Feature banner"}
+            width={1500}
+            height={300}
+            quality={100}
+            draggable="false"
+            sizes="100%"
+            className="object-cover object-center w-full h-auto max-w-full"
+            priority
+          />
+        </m.div>
+      )}
+
       {ifeaturesdata.header.length > 0 &&
         ifeaturesdata.header.map(
           (headeritem: any, index: number) =>
@@ -37,7 +65,7 @@ const ItemFeaturesSection = ({
                   className="object-cover object-center w-full h-auto max-w-full"
                 />
               </m.div>
-            )
+            ),
         )}
 
       {ifeaturesdata.subsections.length > 0 &&

@@ -17,7 +17,7 @@ import { TbDashboard, TbUser, TbLogout, TbHistory } from "react-icons/tb";
 
 import ManageCart from "@/components/navbar/manage_cart";
 import MobileSidebar from "@/components/navbar/mobile_sidebar";
-import CategoryNav from "@/components/navbar/category_nav";
+import CategoriesDrawer from "@/components/navbar/categories-drawer";
 import { getNameInitials } from "@/utils/essential_functions";
 import type { NavbarMenuType1 } from "./navbar";
 import { toast } from "sonner";
@@ -37,6 +37,7 @@ const NavbarClient = ({
   const [menuIsOpen, setMenuIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState<boolean | null>(null);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isCategoriesDrawerOpen, setIsCategoriesDrawerOpen] = useState(false);
 
   const currentUser = useCurrentUser();
 
@@ -67,12 +68,12 @@ const NavbarClient = ({
     detectScrollPositionDebounced();
     window.addEventListener(
       "scroll",
-      detectScrollPositionDebounced as EventListener
+      detectScrollPositionDebounced as EventListener,
     );
     return () =>
       window.removeEventListener(
         "scroll",
-        detectScrollPositionDebounced as EventListener
+        detectScrollPositionDebounced as EventListener,
       );
   }, [detectScrollPositionDebounced]);
 
@@ -82,7 +83,7 @@ const NavbarClient = ({
       await logoutUser();
 
       // Dispatch custom event for auth change
-      window.dispatchEvent(new Event('authChange'));
+      window.dispatchEvent(new Event("authChange"));
 
       // Show success message
       toast.success("You signed out of your account.");
@@ -117,7 +118,7 @@ const NavbarClient = ({
     setIsSearching(true);
     try {
       const res = await axios.get(
-        `/products?search=${encodeURIComponent(q)}&limit=6`
+        `/products?search=${encodeURIComponent(q)}&limit=6`,
       );
       if (res?.data?.data) {
         setSuggestions(res.data.data);
@@ -181,6 +182,11 @@ const NavbarClient = ({
         onClose={() => setIsMobileSidebarOpen(false)}
       />
 
+      <CategoriesDrawer
+        isOpen={isCategoriesDrawerOpen}
+        onClose={() => setIsCategoriesDrawerOpen(false)}
+      />
+
       {/* <div className="w-full bg-white text-stone-700 text-[13px]">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-8 flex items-center justify-between h-8">
           <div className="flex items-center gap-3">
@@ -221,7 +227,7 @@ const NavbarClient = ({
                 <IoMenu className="w-6 h-6 text-stone-700" />
               </button>
 
-              <div className="flex items-center gap-2 md:gap-6 flex-shrink-0">
+              <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
                 <Link href="/" className="flex items-center">
                   <Image
                     src={EvoTechBDLogoGray}
@@ -230,13 +236,35 @@ const NavbarClient = ({
                     height={44}
                     priority
                     className="object-contain w-[70px] md:w-[140px]"
-                    // style={{ width: "auto" }}
                   />
                 </Link>
 
-                {/* Desktop Category Navigation */}
-                <div className="hidden lg:flex items-center">
-                  <CategoryNav />
+                {/* Desktop Main Navigation - 4 Nav Links beside Logo */}
+                <div className="hidden md:flex items-center gap-1 lg:gap-2">
+                  <button
+                    onClick={() => setIsCategoriesDrawerOpen(true)}
+                    className="px-2 lg:px-3 py-2 text-stone-700 font-[500] text-[13px] lg:text-sm whitespace-nowrap hover:text-brand-600 transition-colors"
+                  >
+                    All Categories
+                  </button>
+                  <Link
+                    href="/3d-printing"
+                    className="px-2 lg:px-3 py-2 text-stone-700 font-[500] text-[13px] lg:text-sm whitespace-nowrap hover:text-brand-600 transition-colors"
+                  >
+                    3D Print
+                  </Link>
+                  <Link
+                    href="/services"
+                    className="px-2 lg:px-3 py-2 text-stone-700 font-[500] text-[13px] lg:text-sm whitespace-nowrap hover:text-brand-600 transition-colors"
+                  >
+                    Services
+                  </Link>
+                  <Link
+                    href="/contact-us"
+                    className="px-2 lg:px-3 py-2 text-stone-700 font-[500] text-[13px] lg:text-sm whitespace-nowrap hover:text-brand-600 transition-colors"
+                  >
+                    Contact Us
+                  </Link>
                 </div>
               </div>
 
@@ -340,7 +368,7 @@ const NavbarClient = ({
                         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg bg-[#F5F7FB] flex items-center justify-center">
                           <Avatar
                             name={getNameInitials(
-                              `${currentUser.firstName} ${currentUser.lastName}`
+                              `${currentUser.firstName} ${currentUser.lastName}`,
                             )}
                             radius="full"
                             classNames={{ base: "w-6 h-6" }}
@@ -433,53 +461,7 @@ const NavbarClient = ({
                 </div>
               </div>
             </div>
-
-            {/* <div
-              className={`w-full border-t transition-colors duration-200 ${
-                isScrolled
-                  ? "bg-white/60 backdrop-blur-sm border-stone-100"
-                  : "bg-transparent border-stone-100"
-              }`}
-            >
-              <div
-                className={`px-4 sm:px-6 flex items-center justify-center gap-6 h-14 overflow-x-auto transition-all duration-300 ${
-                  isScrolled
-                    ? "max-h-0 opacity-0 -translate-y-2 pointer-events-none"
-                    : "max-h-20 opacity-100 translate-y-0"
-                } ${isScrolled ? "backdrop-blur-sm" : ""}`}
-              >
-                <Link
-                  href="/products-and-accessories"
-                  className="px-3 py-2 text-stone-800 font-[600] whitespace-nowrap hover:text-stone-900"
-                >
-                  All Categories
-                </Link>
-                <div className="hidden lg:flex items-center group relative">
-                  <div className="px-3 py-2 text-stone-800 font-[600] whitespace-nowrap hover:text-stone-900">
-                    Products & Accessories
-                  </div>
-                  <ProductsDropdown />
-                </div>
-                <Link
-                  href="/3d-printing"
-                  className="px-3 py-2 text-stone-800 font-[600] whitespace-nowrap hover:text-stone-900"
-                >
-                  3D Printing
-                </Link>
-                <Link
-                  href="/services"
-                  className="px-3 py-2 text-stone-800 font-[600] whitespace-nowrap hover:text-stone-900"
-                >
-                  Services
-                </Link>
-                <Link
-                  href="/support"
-                  className="px-3 py-2 text-stone-800 font-[600] whitespace-nowrap hover:text-stone-900"
-                >
-                  Support
-                </Link>
-              </div>
-            </div> */}
+            {/* Old commented navigation bar removed */}
           </div>
         </div>
       </div>
