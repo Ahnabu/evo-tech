@@ -27,7 +27,7 @@ const ServicesPage = () => {
         "Fast turnaround time (3-7 business days)",
         "Instant online quotation",
       ],
-      link: "/3d-printing",
+      link: "/products-and-accessories?category=3d-printers",
       color: "from-blue-500 to-blue-600",
     },
     {
@@ -41,7 +41,7 @@ const ServicesPage = () => {
         "Custom designs welcome",
         "Perfect for gifts and branding",
       ],
-      link: "/services/laser-engraving",
+      link: "/products-and-accessories",
       color: "from-purple-500 to-purple-600",
     },
     {
@@ -55,7 +55,7 @@ const ServicesPage = () => {
         "Academic writing assistance",
         "Formatting and referencing",
       ],
-      link: "/services/thesis-writing",
+      link: "/contact-us",
       color: "from-green-500 to-green-600",
     },
     {
@@ -69,7 +69,7 @@ const ServicesPage = () => {
         "Automation projects",
         "Hardware & software integration",
       ],
-      link: "/services/project-development",
+      link: "/services",
       color: "from-orange-500 to-orange-600",
     },
     {

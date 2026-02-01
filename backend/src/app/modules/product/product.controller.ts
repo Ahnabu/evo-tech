@@ -190,9 +190,11 @@ const getFeatureHeaders = catchAsync(async (req, res) => {
 
 const addFeatureHeader = catchAsync(async (req, res) => {
   const { productId } = req.params;
+  const imageBuffer = req.file?.buffer;
   const result = await ProductServices.addFeatureHeaderIntoDB(
     productId,
-    req.body
+    req.body,
+    imageBuffer
   );
 
   sendResponse(res, {

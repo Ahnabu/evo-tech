@@ -387,7 +387,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     if (response) {
       toast.success(
         response.message ||
-          `Item '${response.item_name || itemInfo.i_name}' updated`,
+        `Item '${response.item_name || itemInfo.i_name}' updated`,
       );
       // router.replace(`/control/products/update/${response.item_slug}`, { scroll: false }); // because slug can also be changed
       router.push(`/control/products`, {
@@ -435,9 +435,8 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
             return (
               <div
                 key={image.imgid}
-                className={`relative w-full h-32 group ${
-                  isRemoved ? "opacity-35" : ""
-                }`}
+                className={`relative w-full h-32 group ${isRemoved ? "opacity-35" : ""
+                  }`}
               >
                 <Image
                   src={image.imgsrc}
@@ -511,93 +510,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         </div>
       </div>
 
-      {/* Feature Banner Selection */}
-      <div className="p-4 bg-blue-50/50 rounded-lg border border-blue-200 space-y-3">
-        <div>
-          <h3 className="text-sm font-semibold text-stone-800">
-            Feature Section Banner
-          </h3>
-          <p className="text-xs text-stone-500 mt-0.5">
-            Select an image from the gallery to display as a banner at the top
-            of the features section
-          </p>
-        </div>
-
-        {itemInfo.i_images && itemInfo.i_images.length > 0 && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-            {itemInfo.i_images.map((image) => {
-              const isSelectedBanner =
-                watch("item_featurebanner") === image.imgid;
-              const isMarkedForRemoval = watch(
-                "remove_additional_images",
-              )?.includes(image.imgid);
-
-              return (
-                <div
-                  key={`banner-${image.imgid}`}
-                  className={`relative group rounded-lg overflow-hidden border-2 transition-all ${
-                    isSelectedBanner
-                      ? "border-blue-500 shadow-lg"
-                      : "border-stone-200 hover:border-blue-300"
-                  } ${isMarkedForRemoval ? "opacity-40" : ""}`}
-                >
-                  <div className="aspect-square relative">
-                    <Image
-                      src={image.imgsrc}
-                      alt={image.imgtitle || "Product image"}
-                      fill
-                      sizes="150px"
-                      className="object-cover"
-                    />
-                  </div>
-
-                  {!isMarkedForRemoval && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (isSelectedBanner) {
-                          setValue("item_featurebanner", "");
-                        } else {
-                          setValue("item_featurebanner", image.imgid);
-                        }
-                      }}
-                      className={`absolute inset-0 flex items-center justify-center transition-opacity ${
-                        isSelectedBanner
-                          ? "bg-blue-500/20"
-                          : "bg-black/0 group-hover:bg-black/40 opacity-0 group-hover:opacity-100"
-                      }`}
-                    >
-                      {isSelectedBanner ? (
-                        <div className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-full">
-                          Selected as Banner
-                        </div>
-                      ) : (
-                        <div className="px-3 py-1.5 bg-white text-stone-800 text-xs font-semibold rounded-full">
-                          Select as Banner
-                        </div>
-                      )}
-                    </button>
-                  )}
-
-                  {isMarkedForRemoval && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-red-500/20">
-                      <span className="px-2 py-1 bg-red-600 text-white text-xs font-semibold rounded">
-                        Removed
-                      </span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {(!itemInfo.i_images || itemInfo.i_images.length === 0) && (
-          <p className="text-sm text-stone-500 text-center py-4">
-            No images available. Add images to the gallery first.
-          </p>
-        )}
-      </div>
+      {/* Feature Banner Selection - REMOVED: Banner image is now uploaded directly in Add Header form */}
 
       <div className="grid lg:grid-cols-2 gap-4">
         {/* New Main Image */}

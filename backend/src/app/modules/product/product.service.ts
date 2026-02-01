@@ -637,10 +637,19 @@ const getFeatureHeadersFromDB = async (productId: string) => {
   return result;
 };
 
-const addFeatureHeaderIntoDB = async (productId: string, payload: any) => {
+const addFeatureHeaderIntoDB = async (
+  productId: string,
+  payload: any,
+  imageBuffer?: Buffer,
+) => {
   const product = await Product.findById(productId);
   if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found");
+  }
+
+  if (imageBuffer) {
+    const imageUrl = await uploadToCloudinary(imageBuffer, "products/headers");
+    payload.bannerImage = imageUrl;
   }
 
   const result = await FeaturesSectionHeader.create({

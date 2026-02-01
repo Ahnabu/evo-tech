@@ -3,7 +3,7 @@ import axiosIntercept from "@/utils/axios/axiosIntercept";
 import { isAxiosError } from "axios";
 import axiosErrorLogger from "@/components/error/axios_error";
 
-// POST - Add feature header
+// POST - Add feature header with optional banner image
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ productId: string }> }
@@ -12,11 +12,17 @@ export async function POST(
   const { productId } = await params;
 
   try {
-    const body = await request.json();
+    const formData = await request.formData();
 
     const backendRes = await axioswithIntercept.post(
       `/products/${productId}/feature-headers`,
-      body
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: 120000, // 120 seconds timeout for image uploads
+      }
     );
 
     return NextResponse.json(backendRes.data, { status: backendRes.status });

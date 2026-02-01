@@ -45,17 +45,10 @@ const ContactUsPage = () => {
                 Send us an email anytime
               </p>
               <a
-                href="mailto:info@evo-techbd.com"
+                href="mailto:evotech.bd22@gmail.com"
                 className="text-brand-600 hover:text-brand-700 font-medium break-all"
               >
-                info@evo-techbd.com
-              </a>
-              <br />
-              <a
-                href="mailto:support@evo-techbd.com"
-                className="text-brand-600 hover:text-brand-700 font-medium break-all"
-              >
-                support@evo-techbd.com
+                evotech.bd22@gmail.com
               </a>
             </div>
 
@@ -76,10 +69,10 @@ const ContactUsPage = () => {
                 +880 1799 424854
               </a>
               <a
-                href="tel:+8801518949050"
+                href="tel:+8801761490093"
                 className="text-brand-600 hover:text-brand-700 font-medium block"
               >
-                +880 1518 949050
+                +880 1761 490093
               </a>
             </div>
 
@@ -94,7 +87,7 @@ const ContactUsPage = () => {
                 Come visit our office
               </p>
               <address className="text-brand-600 not-italic leading-relaxed">
-                Tonartek, Vasantek
+                72/A, Matikata Bazar, Dhaka Cantonment
                 <br />
                 Dhaka-1206, Bangladesh
               </address>
@@ -119,10 +112,6 @@ const ContactUsPage = () => {
                     Saturday - Thursday
                   </span>
                   <span className="text-stone-600">10:00 AM - 7:00 PM</span>
-                </div>
-                <div className="flex justify-between items-center py-3 border-b border-stone-100">
-                  <span className="font-semibold text-stone-700">Friday</span>
-                  <span className="text-red-600 font-semibold">Closed</span>
                 </div>
                 <div className="flex justify-between items-center py-3">
                   <span className="font-semibold text-stone-700">
@@ -149,7 +138,7 @@ const ContactUsPage = () => {
                     Visit Our Office
                   </p>
                   <address className="not-italic text-stone-700 leading-relaxed">
-                    Tonartek, Vasantek
+                    72/A, Matikata Bazar, Dhaka Cantonment
                     <br />
                     Dhaka-1206, Bangladesh
                   </address>
@@ -161,10 +150,10 @@ const ContactUsPage = () => {
                       📞 +880 1799 424854
                     </a>
                     <a
-                      href="mailto:info@evo-techbd.com"
+                      href="mailto:evotech.bd22@gmail.com"
                       className="text-brand-600 font-semibold hover:text-brand-700"
                     >
-                      ✉️ info@evo-techbd.com
+                      ✉️ evotech.bd22@gmail.comcom
                     </a>
                   </div>
                 </div>

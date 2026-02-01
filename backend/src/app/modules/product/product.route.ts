@@ -75,7 +75,10 @@ router.delete(
 router.get("/:productId/feature-headers", ProductControllers.getFeatureHeaders);
 router.post(
   "/:productId/feature-headers",
+  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
+  multerUpload.single("bannerImage"),
+  parseBody,
   ProductControllers.addFeatureHeader
 );
 router.put(

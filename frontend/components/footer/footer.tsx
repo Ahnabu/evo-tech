@@ -72,7 +72,7 @@ const Footer = () => {
                                 <IoCallOutline className="inline w-4 h-4 text-stone-200 absolute top-0.5 left-0" />+880 1799 424854
                             </p>
                             <p className="relative w-fit max-w-full pl-6 text-[13px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">
-                                <IoLocationOutline className="inline w-4 h-4 text-stone-200 absolute top-0.5 left-0" />Tonartek, Vasantek, Dhaka-1206, Bangladesh
+                                <IoLocationOutline className="inline w-4 h-4 text-stone-200 absolute top-0.5 left-0" />72/A, Matikata Bazar, Dhaka Cantonment, Dhaka-1206, Bangladesh
                             </p>
                         </div>
 

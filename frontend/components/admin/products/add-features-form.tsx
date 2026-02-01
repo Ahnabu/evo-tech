@@ -52,6 +52,7 @@ interface FeaturesSectionHeader {
   _id: string;
   title: string;
   sortOrder: number;
+  bannerImage?: string;
 }
 
 interface FeaturesSectionSubsection {
@@ -101,6 +102,12 @@ export function AddProductFeaturesForm({
   const [deletingSubsectionId, setDeletingSubsectionId] = useState<
     string | null
   >(null);
+
+  // Header banner image state
+  const [headerBannerImage, setHeaderBannerImage] = useState<File | null>(null);
+  const [headerBannerPreview, setHeaderBannerPreview] = useState<string | null>(null);
+
+  // Subsection image state
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
@@ -123,7 +130,26 @@ export function AddProductFeaturesForm({
     },
   });
 
-  // Handle image selection
+  // Handle header banner image selection
+  const handleHeaderBannerChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setHeaderBannerImage(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHeaderBannerPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Clear header banner image
+  const clearHeaderBanner = () => {
+    setHeaderBannerImage(null);
+    setHeaderBannerPreview(null);
+  };
+
+  // Handle subsection image selection
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -136,25 +162,39 @@ export function AddProductFeaturesForm({
     }
   };
 
-  // Clear image selection
+  // Clear subsection image selection
   const clearImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
   };
 
-  // Add Header
+  // Add Header with optional banner image
   const handleAddHeader = async (values: HeaderFormValues) => {
     setIsHeaderLoading(true);
     try {
+      const formData = new FormData();
+      formData.append("title", values.title);
+      formData.append("sortOrder", values.sortOrder.toString());
+
+      if (headerBannerImage) {
+        formData.append("bannerImage", headerBannerImage);
+      }
+
       const axios = await createAxiosClient();
       const response = await axios.post(
         `/api/products/${itemInfo.itemid}/feature-headers`,
-        values
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
       );
 
       if (response.data.success) {
         toast.success("Feature header added successfully");
         headerForm.reset({ title: "", sortOrder: headers.length + 1 });
+        clearHeaderBanner();
         onRefresh?.();
       } else {
         throw new Error(response.data.message || "Failed to add header");
@@ -297,6 +337,44 @@ export function AddProductFeaturesForm({
                   )}
                 />
               </div>
+
+              {/* Banner Image Upload */}
+              <div className="space-y-2">
+                <Label>Banner Image (Optional)</Label>
+                <p className="text-sm text-muted-foreground">
+                  This image will be displayed as a banner at the top of the features section.
+                </p>
+                <div className="flex items-center gap-4">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleHeaderBannerChange}
+                    className="max-w-xs"
+                  />
+                  {headerBannerPreview && (
+                    <div className="relative">
+                      <Image
+                        src={headerBannerPreview}
+                        alt="Banner Preview"
+                        width={120}
+                        height={60}
+                        unoptimized
+                        className="h-16 w-32 object-cover rounded-lg"
+                      />
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="icon"
+                        className="absolute -top-2 -right-2 h-6 w-6"
+                        onClick={clearHeaderBanner}
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <Button type="submit" disabled={isHeaderLoading}>
                 {isHeaderLoading && (
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -317,13 +395,25 @@ export function AddProductFeaturesForm({
                   .map((header) => (
                     <div
                       key={header._id}
-                      className="flex items-center justify-between p-3 bg-muted rounded-lg"
+                      className="flex items-center justify-between p-3 bg-muted rounded-lg gap-3"
                     >
-                      <div>
-                        <span className="font-medium">{header.title}</span>
-                        <span className="text-sm text-muted-foreground ml-2">
-                          (Order: {header.sortOrder})
-                        </span>
+                      <div className="flex items-center gap-3">
+                        {header.bannerImage && (
+                          <Image
+                            src={header.bannerImage}
+                            alt={`${header.title} banner`}
+                            width={80}
+                            height={40}
+                            unoptimized
+                            className="h-10 w-20 object-cover rounded"
+                          />
+                        )}
+                        <div>
+                          <span className="font-medium">{header.title}</span>
+                          <span className="text-sm text-muted-foreground ml-2">
+                            (Order: {header.sortOrder})
+                          </span>
+                        </div>
                       </div>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>

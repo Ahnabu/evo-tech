@@ -75,7 +75,7 @@ const LoadMotionFeatures = () => import("@/utils/framer/features").then((res) =>
     return (
         <>
             <div id="item-page-sections" className="flex flex-col items-center w-full h-fit text-stone-700">
-                <div className="sticky z-[10] top-[60px] sm:top-[68px] flex flex-wrap justify-center items-center w-full h-fit px-4 py-5 gap-2 bg-stone-50 rounded-[6px]">
+                <div className="sticky z-[10] top-[60px] sm:top-[64px] flex flex-wrap justify-center items-center w-full h-fit px-4 py-5 gap-2 bg-stone-50 rounded-[6px]">
                     <Link href="#features" className={`flex w-fit h-fit px-2 sm:px-3 font-[600] text-[12px] sm:text-[14px] leading-6 tracking-[-0.02em] ${activeSection === 'features' ? 'text-stone-700' : 'text-[#c2c2c2]'} hover:text-stone-700 transition-colors duration-75 ease-linear`}>Features</Link>
                     <Link href="#specifications" className={`flex w-fit h-fit px-2 sm:px-3 font-[600] text-[12px] sm:text-[14px] leading-6 tracking-[-0.02em] ${activeSection === 'specifications' ? 'text-stone-700' : 'text-[#c2c2c2]'} hover:text-stone-700 transition-colors duration-75 ease-linear`}>Specifications</Link>
                     <Link href="#reviews" className={`flex w-fit h-fit px-2 sm:px-3 font-[600] text-[12px] sm:text-[14px] leading-6 tracking-[-0.02em] ${activeSection === 'reviews' ? 'text-stone-700' : 'text-[#c2c2c2]'} hover:text-stone-700 transition-colors duration-75 ease-linear`}>Reviews</Link>

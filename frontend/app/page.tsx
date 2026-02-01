@@ -173,9 +173,8 @@ const ApplicationFields = () => {
       {applicationFields.map((field, idx) => (
         <div
           key={`app_field_${idx}`}
-          className={`relative flex flex-col items-center min-w-[200px] w-full ${
-            idx === 0 || idx === 5 ? "lg:col-span-2" : ""
-          } h-[170px] sm:h-[220px] lg:h-[275px] bg-[#ffffff] rounded-[10px] overflow-hidden`}
+          className={`relative flex flex-col items-center min-w-[200px] w-full ${idx === 0 || idx === 5 ? "lg:col-span-2" : ""
+            } h-[170px] sm:h-[220px] lg:h-[275px] bg-[#ffffff] rounded-[10px] overflow-hidden`}
         >
           <div
             className="relative w-full h-full overflow-hidden"
@@ -264,7 +263,7 @@ const WhyShopWithUs = () => {
 
 const Home = () => {
   const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com';
-  
+
   // Generate structured data for homepage
   const organizationSchema = generateOrganizationSchema({
     name: 'Evo-Tech Bangladesh',
@@ -273,7 +272,7 @@ const Home = () => {
     contactPoint: {
       telephone: '+880-1234-567890', // Replace with actual
       contactType: 'customer service',
-      email: 'info@evo-techbd.com', // Replace with actual
+      email: 'evotech.bd22@gmail.comcom', // Replace with actual
     },
     sameAs: [
       // Add your social media profiles
@@ -289,7 +288,7 @@ const Home = () => {
       {/* Structured Data for SEO */}
       <StructuredData data={organizationSchema} />
       <StructuredData data={websiteSchema} />
-      
+
       <div className="flex w-full justify-center">
         <div className="w-full max-w-[1400px] px-3 sm:px-6">
           <div id="carousel1" className="w-full">

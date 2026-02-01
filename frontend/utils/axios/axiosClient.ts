@@ -46,6 +46,7 @@ const createAxiosClient = async () => {
       "Content-Type": "application/json",
     },
     withCredentials: true,
+    timeout: 120000, // 120 seconds timeout for file uploads
   });
 
   axiosClient.interceptors.request.use(

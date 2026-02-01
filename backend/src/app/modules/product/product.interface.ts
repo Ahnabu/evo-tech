@@ -56,6 +56,7 @@ export interface TFeaturesSectionHeader {
   product: Types.ObjectId;
   title: string;
   content?: string;
+  bannerImage?: string;
   sortOrder: number;
   createdAt?: Date;
   updatedAt?: Date;

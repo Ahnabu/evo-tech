@@ -174,6 +174,9 @@ const featuresSectionHeaderSchema = new Schema<TFeaturesSectionHeader>(
     content: {
       type: String,
     },
+    bannerImage: {
+      type: String,
+    },
     sortOrder: {
       type: Number,
       default: 0,

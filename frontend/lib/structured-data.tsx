@@ -33,7 +33,7 @@ export interface BreadcrumbItem {
 
 export function generateProductSchema(product: Product) {
   const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com';
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
@@ -51,8 +51,8 @@ export function generateProductSchema(product: Product) {
       priceCurrency: 'BDT',
       price: product.price,
       priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
-      availability: product.inStock 
-        ? 'https://schema.org/InStock' 
+      availability: product.inStock
+        ? 'https://schema.org/InStock'
         : 'https://schema.org/OutOfStock',
       seller: {
         '@type': 'Organization',
@@ -116,7 +116,7 @@ export function generateWebSiteSchema(url: string, name: string) {
 
 export function generateLocalBusinessSchema() {
   const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com';
-  
+
   return {
     '@context': 'https://schema.org',
     '@type': 'LocalBusiness',
@@ -126,7 +126,7 @@ export function generateLocalBusinessSchema() {
     description: 'Leading tech e-commerce in Bangladesh offering 3D printers, filaments, electronics, and professional 3D printing services.',
     url: baseUrl,
     telephone: '+880-1234-567890', // Replace with actual phone
-    email: 'info@evo-techbd.com', // Replace with actual email
+    email: 'evotech.bd22@gmail.com', // Replace with actual email
     address: {
       '@type': 'PostalAddress',
       streetAddress: 'Dhaka', // Add actual address

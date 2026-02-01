@@ -15,10 +15,19 @@ const ItemFeaturesSection = ({
   };
   framerSectionVariants: Variants;
 }) => {
+  // Find the first header with a banner image (sorted by sortOrder)
+  const sortedHeaders = [...ifeaturesdata.header].sort((a, b) => a.sortOrder - b.sortOrder);
+  const headerWithBanner = sortedHeaders.find((h) => h.bannerImage);
+
+  // Use header banner if available, otherwise fall back to legacy banner prop
+  const bannerToShow = headerWithBanner?.bannerImage
+    ? { imgsrc: headerWithBanner.bannerImage, imgtitle: headerWithBanner.title || "Feature banner" }
+    : ifeaturesdata.banner;
+
   return (
     <div className="flex flex-col items-center w-full h-fit py-8 gap-5">
       {/* Feature Banner - Shows at the very top */}
-      {ifeaturesdata.banner && (
+      {bannerToShow && (
         <m.div
           variants={framerSectionVariants}
           initial="initial"
@@ -28,8 +37,8 @@ const ItemFeaturesSection = ({
           aria-label="Feature section banner"
         >
           <Image
-            src={ifeaturesdata.banner.imgsrc}
-            alt={ifeaturesdata.banner.imgtitle || "Feature banner"}
+            src={bannerToShow.imgsrc}
+            alt={bannerToShow.imgtitle || "Feature banner"}
             width={1500}
             height={300}
             quality={100}
@@ -76,9 +85,8 @@ const ItemFeaturesSection = ({
             initial="initial"
             whileInView="visible"
             viewport={{ once: true, amount: 0.05 }}
-            className={`flex flex-col items-center w-full h-fit my-4 md:my-6 gap-x-2 gap-y-4 sm:justify-evenly sm:items-start ${
-              index % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
-            }`}
+            className={`flex flex-col items-center w-full h-fit my-4 md:my-6 gap-x-2 gap-y-4 sm:justify-evenly sm:items-start ${index % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
+              }`}
           >
             <div className="flex flex-col justify-center w-full max-w-[600px] min-h-[275px] md:min-h-[310px] lg:min-h-[430px] min-[1120px]:min-h-[450px] h-fit gap-4 px-4 py-3 md:px-6 lg:px-9 lg:py-6 text-[12px] sm:text-[13px] lg:text-[15px] leading-5 sm:leading-[1.375rem] lg:leading-6 font-[400] tracking-[-0.02em]">
               <p className="w-full font-[600] text-stone-800 text-[18px] leading-6 lg:text-[22px] lg:leading-8 xl:text-[26px] xl:leading-10 my-3">
