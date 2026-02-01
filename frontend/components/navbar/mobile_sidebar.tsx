@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import axios from "@/utils/axios/axios";
 import axiosErrorLogger from "@/components/error/axios_error";
 import { IoClose, IoChevronDown, IoChevronForward } from "react-icons/io5";
+import { Divider } from "@nextui-org/react";
 
 interface Subcategory {
   _id: string;
@@ -42,7 +43,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
         const response = await axios.get("/categories?limit=100&isActive=true");
         const data = response?.data?.data || [];
         const sortedCategories = data.sort(
-          (a: Category, b: Category) => (a.sortOrder || 0) - (b.sortOrder || 0)
+          (a: Category, b: Category) => (a.sortOrder || 0) - (b.sortOrder || 0),
         );
         setCategories(sortedCategories);
       } catch (error) {
@@ -63,7 +64,7 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
 
     try {
       const response = await axios.get(
-        `/subcategories?category=${categoryId}&isActive=true`
+        `/subcategories?category=${categoryId}&isActive=true`,
       );
       const data = response?.data?.data || [];
       setSubcategories((prev) => ({
@@ -87,8 +88,6 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
       fetchSubcategories(categoryId);
     }
   };
-
-
 
   useEffect(() => {
     if (isOpen) {
@@ -185,6 +184,36 @@ const MobileSidebar = ({ isOpen, onClose }: MobileSidebarProps) => {
                   })}
                 </div>
               )}
+            </div>
+
+            {/* Quick Links */}
+            <div className="p-4 border-b border-stone-200">
+              <h3 className="text-xs font-semibold text-stone-500 uppercase mb-3">
+                Quick Links
+              </h3>
+              <div className="flex flex-col gap-1">
+                <Link
+                  href="/3d-printing"
+                  onClick={onClose}
+                  className="px-3 py-2 text-sm text-stone-700 hover:bg-stone-100 rounded-md font-medium"
+                >
+                  3D Print
+                </Link>
+                <Link
+                  href="/services"
+                  onClick={onClose}
+                  className="px-3 py-2 text-sm text-stone-700 hover:bg-stone-100 rounded-md font-medium"
+                >
+                  Services
+                </Link>
+                <Link
+                  href="/contact-us"
+                  onClick={onClose}
+                  className="px-3 py-2 text-sm text-stone-700 hover:bg-stone-100 rounded-md font-medium"
+                >
+                  Contact
+                </Link>
+              </div>
             </div>
           </div>
         </div>

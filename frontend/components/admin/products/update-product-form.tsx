@@ -107,6 +107,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       landing_section_id: itemInfo.landing_section_id?.toString() || "",
       item_newmainimg: [],
       item_newmainfromexisting: "",
+      item_featurebanner: (itemInfo as any).i_featurebanner || "",
       additional_newimages: [],
       remove_additional_images: [],
       description: (itemInfo as any).i_description || "",
@@ -178,7 +179,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     const currentRemoved = watch("remove_additional_images") || [];
     setValue(
       "remove_additional_images",
-      currentRemoved.filter((id) => id !== imageId)
+      currentRemoved.filter((id) => id !== imageId),
     );
   };
 
@@ -199,9 +200,10 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
 
   // Get selected category - use watched value if changed, otherwise use initial value
   const selectedCategory = watch("item_category") || itemInfo.i_category;
-  const selectedSubcategory = watch("item_subcategory") || itemInfo.i_subcategory;
+  const selectedSubcategory =
+    watch("item_subcategory") || itemInfo.i_subcategory;
   const subcategories = getSubcategoriesForSelect(selectedCategory);
-  
+
   // Get brands filtered by category and subcategory
   const brands = getBrandsForSelect(selectedCategory, selectedSubcategory);
 
@@ -210,14 +212,14 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     const currentSubcategory = watch("item_subcategory");
     if (currentSubcategory) {
       const isValidSubcategory = subcategories.some(
-        (sub) => sub.value === currentSubcategory
+        (sub) => sub.value === currentSubcategory,
       );
       if (!isValidSubcategory) {
         setValue("item_subcategory", "");
       }
     }
   }, [selectedCategory, subcategories, watch, setValue]);
-  
+
   // Clear brand when category/subcategory changes if brand is not in new filtered list
   useEffect(() => {
     const currentBrand = watch("item_brand");
@@ -241,17 +243,22 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     }
     formdata.append("previousPrice", data.item_prevprice);
     formdata.append("inStock", String(Boolean(data.item_instock)));
-    
+
     // Handle new main image
     if (data.item_newmainimg && data.item_newmainimg instanceof File) {
       formdata.append("mainImage", data.item_newmainimg);
     }
-    
+
     // Handle setting existing image as main
     if (data.item_newmainfromexisting) {
       formdata.append("newMainFromExisting", data.item_newmainfromexisting);
     }
-    
+
+    // Handle feature banner selection
+    if (data.item_featurebanner) {
+      formdata.append("featureBanner", data.item_featurebanner);
+    }
+
     // Features array
     if (data.item_features && data.item_features.length > 0) {
       data.item_features.forEach((feature: string) => {
@@ -260,13 +267,13 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         }
       });
     }
-    
+
     // Colors array
     // FAQ array (send as JSON string)
     if (data.item_faq && data.item_faq.length > 0) {
       formdata.append("faqs", JSON.stringify(data.item_faq));
     }
-    
+
     formdata.append("category", data.item_category);
     if (data.item_subcategory) {
       formdata.append("subcategory", data.item_subcategory);
@@ -278,11 +285,13 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     if (data.landing_section_id) {
       formdata.append("landingpageSectionId", data.landing_section_id);
     }
-    
+
     // Additional new images
     console.log("OnSubmit - additional_newimages:", data.additional_newimages);
     if (data.additional_newimages && Array.isArray(data.additional_newimages)) {
-      console.log(`Processing ${data.additional_newimages.length} additional images`);
+      console.log(
+        `Processing ${data.additional_newimages.length} additional images`,
+      );
       data.additional_newimages.forEach((file: File) => {
         console.log("Appending file:", file.name, file.size, file.type);
         formdata.append("additionalImages", file);
@@ -290,9 +299,12 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     } else {
       console.log("No additional_newimages found or not an array");
     }
-    
+
     // Images to remove
-    if (data.remove_additional_images && data.remove_additional_images.length > 0) {
+    if (
+      data.remove_additional_images &&
+      data.remove_additional_images.length > 0
+    ) {
       data.remove_additional_images.forEach((imageId: string) => {
         formdata.append("removeImages[]", imageId);
       });
@@ -313,7 +325,11 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     if (data.stock !== undefined && data.stock !== null && data.stock !== "") {
       formdata.append("stock", data.stock.toString());
     }
-    if (data.lowStockThreshold !== undefined && data.lowStockThreshold !== null && data.lowStockThreshold !== "") {
+    if (
+      data.lowStockThreshold !== undefined &&
+      data.lowStockThreshold !== null &&
+      data.lowStockThreshold !== ""
+    ) {
       formdata.append("lowStockThreshold", data.lowStockThreshold.toString());
     }
 
@@ -360,7 +376,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
           toast.error(
             error.response.data.message
               ? error.response.data.message
-              : "Something went wrong"
+              : "Something went wrong",
           );
         } else {
           toast.error("Something went wrong");
@@ -369,7 +385,10 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       });
 
     if (response) {
-      toast.success(response.message || `Item '${response.item_name || itemInfo.i_name}' updated`);
+      toast.success(
+        response.message ||
+          `Item '${response.item_name || itemInfo.i_name}' updated`,
+      );
       // router.replace(`/control/products/update/${response.item_slug}`, { scroll: false }); // because slug can also be changed
       router.push(`/control/products`, {
         scroll: true,
@@ -408,7 +427,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
           {itemInfo.i_images.map((image) => {
             const isMain = image.ismain;
             const isRemoved = watch("remove_additional_images")?.includes(
-              image.imgid
+              image.imgid,
             );
             const isNewMainFromExisting =
               watch("item_newmainfromexisting") === image.imgid;
@@ -490,6 +509,94 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
             );
           })}
         </div>
+      </div>
+
+      {/* Feature Banner Selection */}
+      <div className="p-4 bg-blue-50/50 rounded-lg border border-blue-200 space-y-3">
+        <div>
+          <h3 className="text-sm font-semibold text-stone-800">
+            Feature Section Banner
+          </h3>
+          <p className="text-xs text-stone-500 mt-0.5">
+            Select an image from the gallery to display as a banner at the top
+            of the features section
+          </p>
+        </div>
+
+        {itemInfo.i_images && itemInfo.i_images.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            {itemInfo.i_images.map((image) => {
+              const isSelectedBanner =
+                watch("item_featurebanner") === image.imgid;
+              const isMarkedForRemoval = watch(
+                "remove_additional_images",
+              )?.includes(image.imgid);
+
+              return (
+                <div
+                  key={`banner-${image.imgid}`}
+                  className={`relative group rounded-lg overflow-hidden border-2 transition-all ${
+                    isSelectedBanner
+                      ? "border-blue-500 shadow-lg"
+                      : "border-stone-200 hover:border-blue-300"
+                  } ${isMarkedForRemoval ? "opacity-40" : ""}`}
+                >
+                  <div className="aspect-square relative">
+                    <Image
+                      src={image.imgsrc}
+                      alt={image.imgtitle || "Product image"}
+                      fill
+                      sizes="150px"
+                      className="object-cover"
+                    />
+                  </div>
+
+                  {!isMarkedForRemoval && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (isSelectedBanner) {
+                          setValue("item_featurebanner", "");
+                        } else {
+                          setValue("item_featurebanner", image.imgid);
+                        }
+                      }}
+                      className={`absolute inset-0 flex items-center justify-center transition-opacity ${
+                        isSelectedBanner
+                          ? "bg-blue-500/20"
+                          : "bg-black/0 group-hover:bg-black/40 opacity-0 group-hover:opacity-100"
+                      }`}
+                    >
+                      {isSelectedBanner ? (
+                        <div className="px-3 py-1.5 bg-blue-600 text-white text-xs font-semibold rounded-full">
+                          Selected as Banner
+                        </div>
+                      ) : (
+                        <div className="px-3 py-1.5 bg-white text-stone-800 text-xs font-semibold rounded-full">
+                          Select as Banner
+                        </div>
+                      )}
+                    </button>
+                  )}
+
+                  {isMarkedForRemoval && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-red-500/20">
+                      <span className="px-2 py-1 bg-red-600 text-white text-xs font-semibold rounded">
+                        Removed
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {(!itemInfo.i_images || itemInfo.i_images.length === 0) && (
+          <p className="text-sm text-stone-500 text-center py-4">
+            No images available. Add images to the gallery first.
+          </p>
+        )}
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
@@ -635,7 +742,12 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
           )}
         </div>
         <div>
-          <label className="block text-sm font-medium">Buying Price <span className="text-stone-500 text-xs font-normal">(Admin Only)</span></label>
+          <label className="block text-sm font-medium">
+            Buying Price{" "}
+            <span className="text-stone-500 text-xs font-normal">
+              (Admin Only)
+            </span>
+          </label>
           <input
             type="text"
             {...register("item_buyingprice")}
@@ -643,7 +755,9 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
             className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-transparent focus:outline-none focus:ring-1 ring-stone-300 focus:ring-stone-600"
           />
           {errors.item_buyingprice && (
-            <EvoFormInputError>{errors.item_buyingprice.message}</EvoFormInputError>
+            <EvoFormInputError>
+              {errors.item_buyingprice.message}
+            </EvoFormInputError>
           )}
         </div>
         <div>
@@ -846,63 +960,66 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
               Allow customers to pre-order this product
             </p>
           </div>
-          <Controller
-            control={control}
-            name="isPreOrder"
-            render={({ field }) => (
-              <Switch
-                checked={field.value}
-                onCheckedChange={field.onChange}
-                disabled={isSubmitting}
-              />
-            )}
-          />
+          <p className="text-xs text-stone-500 mt-0.5">
+            Allow customers to pre-order this product
+          </p>
         </div>
-
-        {watch("isPreOrder") && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-amber-200">
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1.5">
-                Pre-Order Available Date
-              </label>
-              <input
-                type="date"
-                {...register("preOrderDate")}
-                disabled={isSubmitting}
-                className="mt-1 block w-full border border-stone-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent disabled:bg-stone-50 disabled:text-stone-500"
-              />
-              {errors.preOrderDate && (
-                <EvoFormInputError>
-                  {errors.preOrderDate.message}
-                </EvoFormInputError>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-stone-700 mb-1.5">
-                Pre-Order Price{" "}
-                <span className="text-stone-500 text-xs font-normal">
-                  (Optional)
-                </span>
-              </label>
-              <input
-                type="number"
-                {...register("preOrderPrice")}
-                disabled={isSubmitting}
-                className="mt-1 block w-full border border-stone-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent disabled:bg-stone-50 disabled:text-stone-500"
-                placeholder="0.00"
-                step="0.01"
-                min="0"
-              />
-              {errors.preOrderPrice && (
-                <EvoFormInputError>
-                  {errors.preOrderPrice.message}
-                </EvoFormInputError>
-              )}
-            </div>
-          </div>
-        )}
+        <Controller
+          control={control}
+          name="isPreOrder"
+          render={({ field }) => (
+            <Switch
+              checked={field.value}
+              onCheckedChange={field.onChange}
+              disabled={isSubmitting}
+            />
+          )}
+        />
       </div>
+
+      {watch("isPreOrder") && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-amber-200">
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">
+              Pre-Order Available Date
+            </label>
+            <input
+              type="date"
+              {...register("preOrderDate")}
+              disabled={isSubmitting}
+              className="mt-1 block w-full border border-stone-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent disabled:bg-stone-50 disabled:text-stone-500"
+            />
+            {errors.preOrderDate && (
+              <EvoFormInputError>
+                {errors.preOrderDate.message}
+              </EvoFormInputError>
+            )}
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-stone-700 mb-1.5">
+              Pre-Order Price{" "}
+              <span className="text-stone-500 text-xs font-normal">
+                (Optional)
+              </span>
+            </label>
+            <input
+              type="number"
+              {...register("preOrderPrice")}
+              disabled={isSubmitting}
+              className="mt-1 block w-full border border-stone-300 rounded-md px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-stone-500 focus:border-transparent disabled:bg-stone-50 disabled:text-stone-500"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+            />
+            {errors.preOrderPrice && (
+              <EvoFormInputError>
+                {errors.preOrderPrice.message}
+              </EvoFormInputError>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* SEO Section */}
       <div className="p-4 bg-green-50/50 rounded-lg border border-green-200 space-y-4">
@@ -991,7 +1108,6 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
       </div>
 
       {/* Item Colors (Dynamic Array of Text Inputs) */}
-     
 
       {/* Category and Subcategory */}
       <div className="grid lg:grid-cols-2 gap-4">
@@ -1252,58 +1368,67 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         </div>
       </div>
 
-       {/* Item FAQs */}
+      {/* Item FAQs */}
       <div className="p-4 bg-stone-50 rounded-lg border border-stone-200 space-y-4">
-        <h3 className="text-sm font-semibold text-stone-800">
-           Product FAQs
-        </h3>
-        
+        <h3 className="text-sm font-semibold text-stone-800">Product FAQs</h3>
+
         <div className="space-y-4">
-            {faqFields.map((field, index) => (
-                <div key={field.id} className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm space-y-3 relative group">
-                    <button aria-label="remove"
-                        type="button"
-                        onClick={() => removeFaq(index)}
-                        className="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                    >
-                        <Trash2 className="h-4 w-4" />
-                    </button>
-                    <div>
-                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Question</label>
-                        <input
-                            {...register(`item_faq.${index}.question` as const)}
-                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500"
-                            placeholder="e.g. Is this waterproof?"
-                        />
-                        {errors.item_faq?.[index]?.question && (
-                            <span className="text-xs text-red-500">{errors.item_faq[index]?.question?.message}</span>
-                        )}
-                    </div>
-                    <div>
-                        <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">Answer</label>
-                        <textarea
-                            {...register(`item_faq.${index}.answer` as const)}
-                            rows={2}
-                            className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500 resize-y"
-                            placeholder="e.g. Yes, it is IP68 rated."
-                        />
-                        {errors.item_faq?.[index]?.answer && (
-                            <span className="text-xs text-red-500">{errors.item_faq[index]?.answer?.message}</span>
-                        )}
-                    </div>
-                </div>
-            ))}
+          {faqFields.map((field, index) => (
+            <div
+              key={field.id}
+              className="p-4 bg-white border border-stone-200 rounded-lg shadow-sm space-y-3 relative group"
+            >
+              <button
+                aria-label="remove"
+                type="button"
+                onClick={() => removeFaq(index)}
+                className="absolute top-2 right-2 text-stone-400 hover:text-red-500 p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+              <div>
+                <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">
+                  Question
+                </label>
+                <input
+                  {...register(`item_faq.${index}.question` as const)}
+                  className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500"
+                  placeholder="e.g. Is this waterproof?"
+                />
+                {errors.item_faq?.[index]?.question && (
+                  <span className="text-xs text-red-500">
+                    {errors.item_faq[index]?.question?.message}
+                  </span>
+                )}
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-stone-500 uppercase tracking-wider mb-1">
+                  Answer
+                </label>
+                <textarea
+                  {...register(`item_faq.${index}.answer` as const)}
+                  rows={2}
+                  className="block w-full border border-stone-300 rounded-md px-3 py-2 text-sm focus:ring-stone-500 focus:border-stone-500 resize-y"
+                  placeholder="e.g. Yes, it is IP68 rated."
+                />
+                {errors.item_faq?.[index]?.answer && (
+                  <span className="text-xs text-red-500">
+                    {errors.item_faq[index]?.answer?.message}
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
         </div>
 
         <button
-            type="button"
-            onClick={() => appendFaq({ question: "", answer: "" })}
-            className="w-full py-3 border-2 border-dashed border-stone-300 rounded-lg text-stone-500 text-sm font-medium hover:border-stone-400 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
+          type="button"
+          onClick={() => appendFaq({ question: "", answer: "" })}
+          className="w-full py-3 border-2 border-dashed border-stone-300 rounded-lg text-stone-500 text-sm font-medium hover:border-stone-400 hover:bg-stone-50 transition-colors flex items-center justify-center gap-2"
         >
-             <PlusCircle className="h-4 w-4" /> Add FAQ Item
+          <PlusCircle className="h-4 w-4" /> Add FAQ Item
         </button>
       </div>
-
     </form>
   );
 };

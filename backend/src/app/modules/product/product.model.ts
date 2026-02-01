@@ -122,6 +122,9 @@ const productSchema = new Schema<TProduct>(
     seoDescription: {
       type: String,
     },
+    featureBanner: {
+      type: String,
+    },
     faqs: [
       {
         question: { type: String, required: true },
@@ -131,7 +134,7 @@ const productSchema = new Schema<TProduct>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Product Image Schema
@@ -153,7 +156,7 @@ const productImageSchema = new Schema<TProductImage>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Features Section Header Schema
@@ -178,7 +181,7 @@ const featuresSectionHeaderSchema = new Schema<TFeaturesSectionHeader>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Features Section Subsection Schema
@@ -206,7 +209,7 @@ const featuresSectionSubsectionSchema = new Schema<TFeaturesSectionSubsection>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Specification Schema
@@ -232,7 +235,7 @@ const specificationSchema = new Schema<TSpecification>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 // Product Color Variation Schema
@@ -263,27 +266,27 @@ const productColorVariationSchema = new Schema<TProductColorVariation>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const Product = model<TProduct>("Product", productSchema);
 export const ProductImage = model<TProductImage>(
   "ProductImage",
-  productImageSchema
+  productImageSchema,
 );
 export const FeaturesSectionHeader = model<TFeaturesSectionHeader>(
   "FeaturesSectionHeader",
-  featuresSectionHeaderSchema
+  featuresSectionHeaderSchema,
 );
 export const FeaturesSectionSubsection = model<TFeaturesSectionSubsection>(
   "FeaturesSectionSubsection",
-  featuresSectionSubsectionSchema
+  featuresSectionSubsectionSchema,
 );
 export const Specification = model<TSpecification>(
   "Specification",
-  specificationSchema
+  specificationSchema,
 );
 export const ProductColorVariation = model<TProductColorVariation>(
   "ProductColorVariation",
-  productColorVariationSchema
+  productColorVariationSchema,
 );

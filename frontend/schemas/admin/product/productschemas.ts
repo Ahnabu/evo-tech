@@ -26,7 +26,7 @@ export const AddProductSchema = z.object({
         const n = Number(val);
         return !Number.isNaN(n) && n >= 0;
       },
-      { message: "Price must be at least 0" }
+      { message: "Price must be at least 0" },
     ),
 
   item_buyingprice: z
@@ -38,7 +38,7 @@ export const AddProductSchema = z.object({
         const n = Number(val);
         return !Number.isNaN(n) && n >= 0;
       },
-      { message: "Buying price must be at least 0" }
+      { message: "Buying price must be at least 0" },
     ),
 
   item_prevprice: z
@@ -49,7 +49,7 @@ export const AddProductSchema = z.object({
         const n = Number(val);
         return !Number.isNaN(n) && n >= 0;
       },
-      { message: "Previous price must be at least 0" }
+      { message: "Previous price must be at least 0" },
     ),
 
   item_instock: z.boolean({
@@ -78,7 +78,7 @@ export const AddProductSchema = z.object({
         }
         return value;
       },
-      z.any() // z.any() to handle undefined values in superRefine
+      z.any(), // z.any() to handle undefined values in superRefine
     )
     .superRefine((val, ctx) => {
       // check if a file was provided.
@@ -118,10 +118,10 @@ export const AddProductSchema = z.object({
           const n = Number(val);
           return !Number.isNaN(n) && n >= 0;
         },
-        { message: "Weight cannot be negative" }
+        { message: "Weight cannot be negative" },
       )
       .optional()
-      .nullable()
+      .nullable(),
   ),
 
   landing_section_id: z.preprocess((arg) => {
@@ -191,9 +191,9 @@ export const AddProductSchema = z.object({
           const n = Number(val);
           return !Number.isNaN(n) && n >= 0;
         },
-        { message: "Stock cannot be negative" }
+        { message: "Stock cannot be negative" },
       )
-      .optional()
+      .optional(),
   ),
   lowStockThreshold: z.preprocess(
     (arg) => {
@@ -207,9 +207,9 @@ export const AddProductSchema = z.object({
           const n = Number(val);
           return !Number.isNaN(n) && n >= 0;
         },
-        { message: "Threshold cannot be negative" }
+        { message: "Threshold cannot be negative" },
       )
-      .optional()
+      .optional(),
   ),
   isFeatured: z.boolean().optional(),
   published: z.boolean().optional(),
@@ -227,10 +227,10 @@ export const AddProductSchema = z.object({
           const n = Number(val);
           return !Number.isNaN(n) && n >= 0;
         },
-        { message: "Pre-order price cannot be negative" }
+        { message: "Pre-order price cannot be negative" },
       )
       .optional()
-      .nullable()
+      .nullable(),
   ),
   seoTitle: z.string().optional().nullable(),
   seoDescription: z.string().optional().nullable(),
@@ -239,7 +239,7 @@ export const AddProductSchema = z.object({
       z.object({
         question: z.string().min(1, "Question is required"),
         answer: z.string().min(1, "Answer is required"),
-      })
+      }),
     )
     .optional()
     .nullable(),
@@ -262,7 +262,7 @@ export const UpdateProductSchema = z.object({
         const n = Number(val);
         return !Number.isNaN(n) && n >= 0;
       },
-      { message: "Price must be at least 0" }
+      { message: "Price must be at least 0" },
     ),
 
   item_buyingprice: z
@@ -274,7 +274,7 @@ export const UpdateProductSchema = z.object({
         const n = Number(val);
         return !Number.isNaN(n) && n >= 0;
       },
-      { message: "Buying price must be at least 0" }
+      { message: "Buying price must be at least 0" },
     ),
 
   item_prevprice: z
@@ -285,7 +285,7 @@ export const UpdateProductSchema = z.object({
         const n = Number(val);
         return !Number.isNaN(n) && n >= 0;
       },
-      { message: "Previous price must be at least 0" }
+      { message: "Previous price must be at least 0" },
     ),
 
   item_instock: z.boolean({
@@ -309,10 +309,10 @@ export const UpdateProductSchema = z.object({
           const n = Number(val);
           return !Number.isNaN(n) && n >= 0;
         },
-        { message: "Weight cannot be negative" }
+        { message: "Weight cannot be negative" },
       )
       .optional()
-      .nullable()
+      .nullable(),
   ),
   landing_section_id: z.preprocess((arg) => {
     if (arg === null || arg === undefined || arg === "") return null;
@@ -333,7 +333,7 @@ export const UpdateProductSchema = z.object({
         }
         return value;
       },
-      z.any().optional() // z.any() to handle values in superRefine, field can be absent
+      z.any().optional(), // z.any() to handle values in superRefine, field can be absent
     )
     .superRefine((val, ctx) => {
       // check if a file was provided.
@@ -351,6 +351,8 @@ export const UpdateProductSchema = z.object({
     }),
 
   item_newmainfromexisting: z.string().optional().nullable(),
+
+  item_featurebanner: z.string().optional().nullable(),
 
   additional_newimages: z
     .preprocess((value) => {
@@ -414,9 +416,9 @@ export const UpdateProductSchema = z.object({
           const n = Number(val);
           return !Number.isNaN(n) && n >= 0;
         },
-        { message: "Stock cannot be negative" }
+        { message: "Stock cannot be negative" },
       )
-      .optional()
+      .optional(),
   ),
   lowStockThreshold: z.preprocess(
     (arg) => {
@@ -430,9 +432,9 @@ export const UpdateProductSchema = z.object({
           const n = Number(val);
           return !Number.isNaN(n) && n >= 0;
         },
-        { message: "Threshold cannot be negative" }
+        { message: "Threshold cannot be negative" },
       )
-      .optional()
+      .optional(),
   ),
   isFeatured: z.boolean().optional(),
   published: z.boolean().optional(),
@@ -450,10 +452,10 @@ export const UpdateProductSchema = z.object({
           const n = Number(val);
           return !Number.isNaN(n) && n >= 0;
         },
-        { message: "Pre-order price cannot be negative" }
+        { message: "Pre-order price cannot be negative" },
       )
       .optional()
-      .nullable()
+      .nullable(),
   ),
   seoTitle: z.string().optional().nullable(),
   seoDescription: z.string().optional().nullable(),
@@ -462,7 +464,7 @@ export const UpdateProductSchema = z.object({
       z.object({
         question: z.string().min(1, "Question is required"),
         answer: z.string().min(1, "Answer is required"),
-      })
+      }),
     )
     .optional()
     .nullable(),

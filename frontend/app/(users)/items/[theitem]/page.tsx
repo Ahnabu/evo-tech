@@ -10,14 +10,18 @@ import { currentRouteProps } from "@/utils/types_interfaces/shared_types";
 import axiosErrorLogger from "@/components/error/axios_error";
 import axios from "@/utils/axios/axios";
 import { Suspense } from "react";
-import { generateProductSchema, generateBreadcrumbSchema, StructuredData } from "@/lib/structured-data";
+import {
+  generateProductSchema,
+  generateBreadcrumbSchema,
+  StructuredData,
+} from "@/lib/structured-data";
 
 export const generateMetadata = async (
-  props: currentRouteProps
+  props: currentRouteProps,
 ): Promise<Metadata> => {
   const params = await props.params;
   const itemslug = params.theitem;
-  const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com';
+  const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || "https://evo-techbd.com";
 
   // Fetch product data for accurate metadata
   try {
@@ -29,24 +33,31 @@ export const generateMetadata = async (
     if (productResponse?.data) {
       const product = productResponse.data;
       const productUrl = `${baseUrl}/items/${itemslug}`;
-      const imageUrl = product.mainImage || `${baseUrl}/assets/default-product.png`;
-      
+      const imageUrl =
+        product.mainImage || `${baseUrl}/assets/default-product.png`;
+
       return {
         title: `${product.name} | Buy Online in Bangladesh`,
-        description: product.shortDescription || product.description || `Buy ${product.name} online in Bangladesh. ${product.inStock ? 'In stock' : 'Available'} at Evo-Tech Bangladesh with warranty and fast delivery.`,
+        description:
+          product.shortDescription ||
+          product.description ||
+          `Buy ${product.name} online in Bangladesh. ${product.inStock ? "In stock" : "Available"} at Evo-Tech Bangladesh with warranty and fast delivery.`,
         keywords: [
           product.name,
-          product.brand?.name || 'tech product',
-          product.category?.name || 'electronics',
-          'Bangladesh',
-          'online shopping',
-          'buy online',
+          product.brand?.name || "tech product",
+          product.category?.name || "electronics",
+          "Bangladesh",
+          "online shopping",
+          "buy online",
         ],
         openGraph: {
           title: product.name,
-          description: product.shortDescription || product.description || `Buy ${product.name} at Evo-Tech Bangladesh`,
+          description:
+            product.shortDescription ||
+            product.description ||
+            `Buy ${product.name} at Evo-Tech Bangladesh`,
           url: productUrl,
-          siteName: 'Evo-Tech Bangladesh',
+          siteName: "Evo-Tech Bangladesh",
           images: [
             {
               url: imageUrl,
@@ -55,12 +66,14 @@ export const generateMetadata = async (
               alt: product.name,
             },
           ],
-          type: 'website',
+          type: "website",
         },
         twitter: {
-          card: 'summary_large_image',
+          card: "summary_large_image",
           title: product.name,
-          description: product.shortDescription || `Buy ${product.name} at Evo-Tech Bangladesh`,
+          description:
+            product.shortDescription ||
+            `Buy ${product.name} at Evo-Tech Bangladesh`,
           images: [imageUrl],
         },
         alternates: {
@@ -69,7 +82,7 @@ export const generateMetadata = async (
       };
     }
   } catch (error) {
-    console.error('Error fetching product metadata:', error);
+    console.error("Error fetching product metadata:", error);
   }
 
   // Fallback metadata
@@ -115,27 +128,33 @@ const fetchItemData = async (itemSlugHere: string) => {
     ...additionalImages.map((img: any) => img.imageUrl),
   ].filter(Boolean);
 
-  const formattedImages = allImageUrls.map((url: string, index: number) => ({
-    imgid: `img-${index}`,
-    imgsrc: url,
-    imgtitle: `${product.name} - Image ${index + 1}`,
-  }));
+  const formattedImages = allImageUrls.map((url: string, index: number) => {
+    // Find the matching image from additionalImages to get the real _id
+    const matchingImage = additionalImages.find(
+      (img: any) => img.imageUrl === url,
+    );
+    return {
+      imgid: matchingImage?._id || `img-${index}`,
+      imgsrc: url,
+      imgtitle: `${product.name} - Image ${index + 1}`,
+    };
+  });
 
   // Transform product data to match existing frontend structure
   const normalizedStock =
     typeof product.stock === "number"
       ? product.stock
       : typeof product.stock === "string" && product.stock.trim() !== ""
-      ? Number(product.stock)
-      : null;
+        ? Number(product.stock)
+        : null;
 
   const normalizedLowStockThreshold =
     typeof product.lowStockThreshold === "number"
       ? product.lowStockThreshold
       : typeof product.lowStockThreshold === "string" &&
-        product.lowStockThreshold.trim() !== ""
-      ? Number(product.lowStockThreshold)
-      : null;
+          product.lowStockThreshold.trim() !== ""
+        ? Number(product.lowStockThreshold)
+        : null;
 
   const hasStockCount =
     typeof normalizedStock === "number" && Number.isFinite(normalizedStock);
@@ -188,8 +207,8 @@ const fetchItemData = async (itemSlugHere: string) => {
       typeof product.inStock === "boolean"
         ? product.inStock
         : hasStockCount
-        ? (normalizedStock as number) > 0
-        : true,
+          ? (normalizedStock as number) > 0
+          : true,
     i_mainimg: product.mainImage || "",
     i_images:
       formattedImages.length > 0
@@ -211,6 +230,7 @@ const fetchItemData = async (itemSlugHere: string) => {
     i_colors: product.colors || [],
     i_colorVariations: colorVariations,
     i_faq: product.faqs || [],
+    i_featurebanner: product.featureBanner || "",
     i_description: product.description || "",
     i_sectionsdata: {
       featureHeaders,
@@ -225,7 +245,7 @@ const fetchItemData = async (itemSlugHere: string) => {
 const IndividualItem = async ({ params }: currentRouteProps) => {
   const paramsObj = await params;
   const [itemInfo] = await Promise.all([fetchItemData(paramsObj.theitem)]);
-  const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com';
+  const baseUrl = process.env.NEXT_PUBLIC_FEND_URL || "https://evo-techbd.com";
 
   if (!itemInfo) {
     return (
@@ -254,12 +274,13 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
   // Generate structured data for SEO
   const productSchema = generateProductSchema({
     name: itemInfo.i_name,
-    description: itemInfo.i_description || `Buy ${itemInfo.i_name} at Evo-Tech Bangladesh`,
+    description:
+      itemInfo.i_description || `Buy ${itemInfo.i_name} at Evo-Tech Bangladesh`,
     price: itemInfo.i_price,
     previousPrice: itemInfo.i_prevprice,
     images: itemInfo.i_images.map((img) => img.imgsrc),
     sku: itemInfo.itemid,
-    brand: itemInfo.i_brand || 'Evo-Tech Bangladesh',
+    brand: itemInfo.i_brand || "Evo-Tech Bangladesh",
     inStock: itemInfo.i_instock,
     url: `${baseUrl}/items/${itemInfo.i_slug}`,
     rating: itemInfo.i_rating,
@@ -267,7 +288,7 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
   });
 
   const breadcrumbSchema = generateBreadcrumbSchema([
-    { name: 'Home', url: baseUrl },
+    { name: "Home", url: baseUrl },
     { name: itemInfo.i_name, url: `${baseUrl}/items/${itemInfo.i_slug}` },
   ]);
 
@@ -276,7 +297,7 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
       {/* Structured Data for SEO */}
       <StructuredData data={productSchema} />
       <StructuredData data={breadcrumbSchema} />
-      
+
       <div className="w-full max-w-[1440px] h-fit pb-12 flex flex-col items-center font-inter">
         <div
           id="item-page-header"
@@ -297,9 +318,11 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
               <div className="flex flex-wrap justify-between w-full h-fit gap-x-8 gap-y-2 min-[1320px]:pr-10">
                 <div className="flex flex-col w-fit h-fit gap-2">
                   <div className="flex items-center gap-2">
-                    <span className="text-[16px] md:text-[18px] leading-6 font-[600] tracking-tight">Regular Price:</span>
+                    <span className="text-[16px] md:text-[18px] leading-6 font-[600] tracking-tight">
+                      Regular Price:
+                    </span>
                     <span className="text-[16px] md:text-[18px] leading-6 font-[600] tracking-tight">{`BDT ${currencyFormatBDT(
-                      itemInfo.i_price
+                      itemInfo.i_price,
                     )}`}</span>
                     {currencyFormatBDT(itemInfo.i_prevprice) !==
                       currencyFormatBDT(0) && (
@@ -315,7 +338,7 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
                           Pre-Order Price:
                         </span>
                         <span className="text-[15px] md:text-[16px] leading-5 font-[700] text-brand-600">{`BDT ${currencyFormatBDT(
-                          itemInfo.i_preorderprice
+                          itemInfo.i_preorderprice,
                         )}`}</span>
                       </div>
                     )}
@@ -380,6 +403,11 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
           featuresdata={{
             header: itemInfo.i_sectionsdata?.featureHeaders || [],
             subsections: itemInfo.i_sectionsdata?.featureSubsections || [],
+            banner: itemInfo.i_featurebanner
+              ? itemInfo.i_images?.find(
+                  (img: any) => img.imgid === itemInfo.i_featurebanner,
+                )
+              : null,
           }}
           specsdata={itemInfo.i_sectionsdata?.specifications || []}
           faqsdata={itemInfo.i_faq || []}
