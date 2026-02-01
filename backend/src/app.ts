@@ -64,9 +64,9 @@ app.use(cookieParser());
 // Apply global rate limiter to all requests
 //app.use(globalLimiter);
 
-// Parser
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Parser with size limits to handle large payloads (e.g., product images)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // API routes
 app.use("/api/v1", routes);
