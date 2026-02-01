@@ -14,13 +14,12 @@ export async function POST(
   try {
     const formData = await request.formData();
 
+    // IMPORTANT: Do NOT set Content-Type header manually for FormData
+    // Axios will auto-set it with the correct boundary
     const backendRes = await axioswithIntercept.post(
       `/products/${productId}/feature-headers`,
       formData,
       {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
         timeout: 120000, // 120 seconds timeout for image uploads
       }
     );

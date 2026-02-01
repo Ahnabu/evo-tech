@@ -4,7 +4,6 @@ import auth from "../../middlewares/auth";
 import { USER_ROLE } from "../user/user.constant";
 import { multerUpload } from "../../config/multer.config";
 import { parseBody } from "../../middlewares/bodyParser";
-import { uploadLimiter } from "../../middlewares/rateLimiter";
 
 const router = express.Router();
 
@@ -33,7 +32,6 @@ router.get("/slug/:slug", ProductControllers.getProductBySlug);
 router.get("/:id", ProductControllers.getSingleProduct);
 router.post(
   "/",
-  uploadLimiter,
   auth(USER_ROLE.ADMIN),
   multerUpload.fields([
     { name: "mainImage", maxCount: 1 },
@@ -44,7 +42,6 @@ router.post(
 );
 router.put(
   "/:id",
-  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.fields([
     { name: "mainImage", maxCount: 1 },
@@ -59,7 +56,6 @@ router.delete("/:id", auth(USER_ROLE.ADMIN), ProductControllers.deleteProduct);
 router.get("/:productId/images", ProductControllers.getProductImages);
 router.post(
   "/:productId/images",
-  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,
@@ -75,7 +71,6 @@ router.delete(
 router.get("/:productId/feature-headers", ProductControllers.getFeatureHeaders);
 router.post(
   "/:productId/feature-headers",
-  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("bannerImage"),
   parseBody,
@@ -99,7 +94,6 @@ router.get(
 );
 router.post(
   "/:productId/feature-subsections",
-  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,
@@ -107,7 +101,6 @@ router.post(
 );
 router.put(
   "/feature-subsections/:subsectionId",
-  uploadLimiter,
   auth(USER_ROLE.ADMIN, USER_ROLE.EMPLOYEE),
   multerUpload.single("image"),
   parseBody,

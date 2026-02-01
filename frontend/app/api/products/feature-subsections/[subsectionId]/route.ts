@@ -18,9 +18,8 @@ export async function PUT(
       `/products/feature-subsections/${subsectionId}`,
       formData,
       {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        // Do NOT set Content-Type manually - axios auto-sets it with boundary for FormData
+        timeout: 120000, // 120 seconds timeout for image uploads
       }
     );
 

@@ -189,13 +189,22 @@ const getFeatureHeaders = catchAsync(async (req, res) => {
 });
 
 const addFeatureHeader = catchAsync(async (req, res) => {
+  console.log(`[addFeatureHeader] Request received for product: ${req.params.productId}`);
+  console.log(`[addFeatureHeader] Content-Type: ${req.headers['content-type']}`);
+  console.log(`[addFeatureHeader] File present: ${!!req.file}`);
+  console.log(`[addFeatureHeader] File size: ${req.file?.size || 0} bytes`);
+  console.log(`[addFeatureHeader] Body:`, JSON.stringify(req.body));
+  
   const { productId } = req.params;
   const imageBuffer = req.file?.buffer;
+  
+  console.log(`[addFeatureHeader] Starting service call...`);
   const result = await ProductServices.addFeatureHeaderIntoDB(
     productId,
     req.body,
     imageBuffer
   );
+  console.log(`[addFeatureHeader] Service call completed successfully`);
 
   sendResponse(res, {
     success: true,

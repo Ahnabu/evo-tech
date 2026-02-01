@@ -33,7 +33,7 @@ import { EditingDialog } from "@/components/dialogs/editing-dialog";
 import React from "react";
 import { FileUploader } from "@/components/file_upload/file-uploader";
 import Image from "next/image";
-import createAxiosClient from "@/utils/axios/axiosClient";
+import axios from "@/utils/axios/axios";
 
 interface OurClientsFormProps {
   mode?: "create" | "update";
@@ -136,8 +136,6 @@ const OurClientsForm = ({
     values: OurClientsAddFormValues | OurClientsUpdateFormValues
   ) => {
     try {
-      const axiosClient = await createAxiosClient();
-
       const formData = new FormData();
       formData.append("name", values.brand_name.trim());
       formData.append("sortOrder", values.sortorder);
@@ -162,12 +160,12 @@ const OurClientsForm = ({
         : `/clients`;
 
       const response = isUpdate
-        ? await axiosClient.patch(endpoint, formData, {
+        ? await axios.patch(endpoint, formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },
           })
-        : await axiosClient.post(endpoint, formData, {
+        : await axios.post(endpoint, formData, {
             headers: {
               "Content-Type": "multipart/form-data",
             },

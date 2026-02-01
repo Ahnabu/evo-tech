@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle, Trash2, Loader2 } from "lucide-react";
-import createAxiosClient from "@/utils/axios/axiosClient";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +35,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import axios from "@/utils/axios/axios";
 
 // Types
 interface Specification {
@@ -86,7 +86,6 @@ export function AddProductSpecsForm({
   const handleAddSpecification = async (values: SpecificationFormValues) => {
     setIsLoading(true);
     try {
-      const axios = await createAxiosClient();
       const response = await axios.post(
         `/api/products/${itemInfo.itemid}/specifications`,
         values
@@ -114,7 +113,6 @@ export function AddProductSpecsForm({
   const handleDeleteSpecification = async (specId: string) => {
     setDeletingSpecId(specId);
     try {
-      const axios = await createAxiosClient();
       const response = await axios.delete(`/api/products/specifications/${specId}`);
 
       if (response.data.success) {

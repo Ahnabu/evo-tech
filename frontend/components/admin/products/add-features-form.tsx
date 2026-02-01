@@ -7,7 +7,6 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle, Trash2, ImageIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
-import createAxiosClient from "@/utils/axios/axiosClient";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,13 +19,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Form,
   FormControl,
@@ -46,6 +38,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import axios from "@/utils/axios/axios";
 
 // Types
 interface FeaturesSectionHeader {
@@ -180,7 +173,6 @@ export function AddProductFeaturesForm({
         formData.append("bannerImage", headerBannerImage);
       }
 
-      const axios = await createAxiosClient();
       const response = await axios.post(
         `/api/products/${itemInfo.itemid}/feature-headers`,
         formData,
@@ -210,7 +202,6 @@ export function AddProductFeaturesForm({
   const handleDeleteHeader = async (headerId: string) => {
     setDeletingHeaderId(headerId);
     try {
-      const axios = await createAxiosClient();
       const response = await axios.delete(
         `/api/products/feature-headers/${headerId}`
       );
@@ -241,7 +232,6 @@ export function AddProductFeaturesForm({
         formData.append("image", selectedImage);
       }
 
-      const axios = await createAxiosClient();
       const response = await axios.post(
         `/api/products/${itemInfo.itemid}/feature-subsections`,
         formData,
@@ -275,7 +265,6 @@ export function AddProductFeaturesForm({
   const handleDeleteSubsection = async (subsectionId: string) => {
     setDeletingSubsectionId(subsectionId);
     try {
-      const axios = await createAxiosClient();
       const response = await axios.delete(
         `/api/products/feature-subsections/${subsectionId}`
       );

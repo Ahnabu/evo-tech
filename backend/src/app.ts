@@ -6,7 +6,6 @@ import routes from "./app/routes";
 import cookieParser from "cookie-parser";
 import notFound from "./app/middlewares/notFound";
 import config from "./app/config";
-import { globalLimiter } from "./app/middlewares/rateLimiter";
 
 const app: Application = express();
 
@@ -65,8 +64,18 @@ app.use(
 app.options("*", cors());
 app.use(cookieParser());
 
-// Apply global rate limiter to all requests
-//app.use(globalLimiter);
+// Request logging middleware - log all incoming requests
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const start = Date.now();
+  console.log(`[REQUEST] ${req.method} ${req.path} - Content-Type: ${req.headers['content-type'] || 'none'}`);
+  
+  res.on('finish', () => {
+    const duration = Date.now() - start;
+    console.log(`[RESPONSE] ${req.method} ${req.path} - Status: ${res.statusCode} - ${duration}ms`);
+  });
+  
+  next();
+});
 
 // Parser with size limits to handle large payloads (e.g., product images)
 app.use(express.json({ limit: '50mb' }));

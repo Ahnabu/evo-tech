@@ -7,7 +7,6 @@ import * as z from "zod";
 import { toast } from "sonner";
 import { PlusCircle, Trash2, Loader2, Star, Edit2, Image as ImageIcon } from "lucide-react";
 import Image from "next/image";
-import createAxiosClient from "@/utils/axios/axiosClient";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +45,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import axios from "@/utils/axios/axios";
 
 // Types
 interface Review {
@@ -139,7 +139,6 @@ export function AddReviewsForm({
   const onSubmit = async (data: ReviewFormValues) => {
     setIsLoading(true);
     try {
-      const axios = await createAxiosClient();
       const formData = new FormData();
       formData.append("userName", data.userName);
       formData.append("rating", data.rating.toString());
@@ -190,7 +189,6 @@ export function AddReviewsForm({
 
     setDeletingReviewId(reviewId);
     try {
-      const axios = await createAxiosClient();
       await axios.delete(`/reviews/${reviewId}`);
       toast.success("Review deleted successfully");
       onRefresh?.();

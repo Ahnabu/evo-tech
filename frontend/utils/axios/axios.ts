@@ -170,11 +170,11 @@ if (typeof window !== "undefined") {
 
 attachApiPrefix(axios);
 
+// For server-side requests (API routes to backend)
+// NOTE: Do not set default Content-Type here as it breaks FormData uploads
+// Axios will automatically set the correct Content-Type with boundary for FormData
 export const axiosPrivate = Axios.create({
   baseURL: process.env.NEXT_PUBLIC_BACKEND_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
   withCredentials: true,
 });
 
