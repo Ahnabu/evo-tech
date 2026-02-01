@@ -10,6 +10,10 @@ import { globalLimiter } from "./app/middlewares/rateLimiter";
 
 const app: Application = express();
 
+// Trust proxy - Required for Hostinger/Apache reverse proxy
+// This allows express-rate-limit to correctly identify users via X-Forwarded-For header
+app.set('trust proxy', true);
+
 // CORS configuration - Allow multiple origins
 const allowedOrigins = Array.isArray(config.cors_origin)
   ? config.cors_origin
@@ -64,9 +68,9 @@ app.use(cookieParser());
 // Apply global rate limiter to all requests
 //app.use(globalLimiter);
 
-// Parser
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Parser with size limits to handle large payloads (e.g., product images)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 // API routes
 app.use("/api/v1", routes);
