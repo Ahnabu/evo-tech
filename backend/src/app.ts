@@ -10,6 +10,10 @@ import { globalLimiter } from "./app/middlewares/rateLimiter";
 
 const app: Application = express();
 
+// Trust proxy - Required for Hostinger/Apache reverse proxy
+// This allows express-rate-limit to correctly identify users via X-Forwarded-For header
+app.set('trust proxy', true);
+
 // CORS configuration - Allow multiple origins
 const allowedOrigins = Array.isArray(config.cors_origin)
   ? config.cors_origin
