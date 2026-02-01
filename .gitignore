@@ -73,4 +73,10 @@ test_websites.sh
 DEPLOYMENT_STATUS.md
 PM2_QUICK_REFERENCE.md
 
- FIX_SUMMARY.md HOSTINGER_502_DEBUG.md 502_ERROR_ANALYSIS.md check-hostinger-logs.sh deploy-backend-fix.sh emergency-fix-hostinger.sh hostinger-health-check.sh
+FIX_SUMMARY.md
+HOSTINGER_502_DEBUG.md 
+502_ERROR_ANALYSIS.md
+check-hostinger-logs.sh
+deploy-backend-fix.sh
+emergency-fix-hostinger.sh
+hostinger-health-check.sh
