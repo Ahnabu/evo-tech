@@ -166,8 +166,13 @@ const AddProductForm = () => {
     formdata.append("inStock", String(Boolean(data.item_instock)));
 
     // Main image - backend expects 'mainImage' but multer uses field name from multer.single('mainImage')
-    if (data.item_mainimg instanceof File) {
-      formdata.append("mainImage", data.item_mainimg);
+    // Handle both File instance and array from FileUploader component
+    if (data.item_mainimg) {
+      if (Array.isArray(data.item_mainimg) && data.item_mainimg.length > 0) {
+        formdata.append("mainImage", data.item_mainimg[0]);
+      } else if (data.item_mainimg instanceof File) {
+        formdata.append("mainImage", data.item_mainimg);
+      }
     }
 
     // Features array
