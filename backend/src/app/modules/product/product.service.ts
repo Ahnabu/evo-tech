@@ -202,14 +202,22 @@ const createProductIntoDB = async (
   mainImageBuffer?: Buffer,
   additionalImagesBuffers?: Buffer[],
 ) => {
+  console.log("🔍 [CREATE PRODUCT] Starting product creation...");
+  console.log("📦 Product name:", payload.name);
+  console.log("🖼️ Has main image:", !!mainImageBuffer);
+  
   payload.slug = await generateUniqueSlug(payload.name, Product);
+  console.log("✅ Slug generated:", payload.slug);
 
   if (mainImageBuffer) {
+    console.log("📤 Uploading main image to Cloudinary...");
     const imageUrl = await uploadToCloudinary(mainImageBuffer, "products");
+    console.log("✅ Main image uploaded:", imageUrl);
     payload.mainImage = imageUrl;
   }
 
   // Convert string values to numbers where needed
+  console.log("🔢 Converting data types...");
   if (payload.price) payload.price = Number(payload.price);
   if (payload.previousPrice)
     payload.previousPrice = Number(payload.previousPrice);
@@ -223,8 +231,10 @@ const createProductIntoDB = async (
   if (typeof payload.published === "string") {
     payload.published = payload.published === "true";
   }
+  console.log("✅ Data types converted");
 
   // Handle category - if it's a slug, look up the category ObjectId
+  console.log("🔍 Looking up category:", payload.category);
   if (
     payload.category &&
     typeof payload.category === "string" &&
@@ -232,8 +242,10 @@ const createProductIntoDB = async (
   ) {
     const category = await Category.findOne({ slug: payload.category });
     if (!category) {
+      console.log("❌ Category not found:", payload.category);
       throw new AppError(httpStatus.NOT_FOUND, "Category not found");
     }
+    console.log("✅ Category found:", category._id);
     payload.category = category._id;
   }
 
@@ -284,9 +296,11 @@ const createProductIntoDB = async (
   }
 
   const result = await Product.create(payload);
+  console.log("✅ Product created in DB:", result._id);
 
   // create ProductColorVariation documents
   if (colorsToCreate.length > 0) {
+    console.log("🎨 Creating color variations:", colorsToCreate.length);
     for (let i = 0; i < colorsToCreate.length; i++) {
       await ProductColorVariation.create({
         product: result._id,
@@ -296,6 +310,7 @@ const createProductIntoDB = async (
         sortOrder: i + 1,
       });
     }
+    console.log("✅ Color variations created");
   }
 
   // Upload additional images and create ProductImage documents

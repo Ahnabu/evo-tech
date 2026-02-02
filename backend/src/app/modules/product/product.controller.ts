@@ -38,16 +38,24 @@ const getProductBySlug = catchAsync(async (req, res) => {
 });
 
 const createProduct = catchAsync(async (req, res) => {
+  console.log("🎯 [CREATE PRODUCT] Controller started");
+  console.log("📝 Content-Type:", req.headers["content-type"]);
+  
   const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+  console.log("📁 Files received:", files ? Object.keys(files) : "none");
+  
   const mainImageBuffer = files?.mainImage?.[0]?.buffer;
   const additionalImagesBuffers =
     files?.additionalImages?.map((file) => file.buffer) || [];
+  
+  console.log("🖼️ Main image size:", mainImageBuffer?.length || 0, "bytes");
+  console.log("🖼️ Additional images:", additionalImagesBuffers.length);
 
   if (req.body.colors && typeof req.body.colors === "string") {
     try {
       req.body.colors = JSON.parse(req.body.colors);
     } catch (error) {
-      // console.error("Error parsing colors JSON:", error);
+      console.error("❌ Error parsing colors JSON:", error);
     }
   }
 
@@ -55,15 +63,17 @@ const createProduct = catchAsync(async (req, res) => {
     try {
       req.body.faqs = JSON.parse(req.body.faqs);
     } catch (error) {
-      // console.error("Error parsing faqs JSON:", error);
+      console.error("❌ Error parsing faqs JSON:", error);
     }
   }
 
+  console.log("🚀 Calling createProductIntoDB...");
   const result = await ProductServices.createProductIntoDB(
     req.body,
     mainImageBuffer,
     additionalImagesBuffers
   );
+  console.log("✅ Product created, sending response...");
 
   sendResponse(res, {
     success: true,

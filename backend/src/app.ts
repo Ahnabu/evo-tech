@@ -64,6 +64,26 @@ app.use(
 app.options("*", cors());
 app.use(cookieParser());
 
+// Request timeout middleware - prevent indefinite hanging requests
+// Skip timeout for specific routes that need more time (e.g., product creation with images)
+app.use((req: Request, res: Response, next: NextFunction) => {
+  // Set 4-minute timeout for image upload routes, 30s for others
+  const isImageUpload = req.path.includes('/products') && ['POST', 'PUT'].includes(req.method);
+  const timeoutMs = isImageUpload ? 240000 : 30000; // 4 minutes : 30 seconds
+  
+  req.setTimeout(timeoutMs, () => {
+    console.error(`[TIMEOUT] Request timed out after ${timeoutMs}ms: ${req.method} ${req.path}`);
+    if (!res.headersSent) {
+      res.status(httpStatus.REQUEST_TIMEOUT).json({
+        success: false,
+        message: 'Request timeout - operation took too long',
+      });
+    }
+  });
+  
+  next();
+});
+
 // Request logging middleware - log all incoming requests
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
@@ -78,6 +98,16 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 });
 
 // Parser with size limits to handle large payloads (e.g., product images)
+// Skip parsing for multipart/form-data - let multer handle it
+app.use((req, res, next) => {
+  const contentType = req.headers['content-type'] || '';
+  if (contentType.includes('multipart/form-data')) {
+    console.log('⏭️  Skipping body parser for multipart/form-data');
+    return next();
+  }
+  next();
+});
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 

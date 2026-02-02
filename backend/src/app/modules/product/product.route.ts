@@ -32,12 +32,34 @@ router.get("/slug/:slug", ProductControllers.getProductBySlug);
 router.get("/:id", ProductControllers.getSingleProduct);
 router.post(
   "/",
+  (req, res, next) => {
+    console.log("🔵 [ROUTE] POST /products - Starting middleware chain");
+    console.log("📦 Content-Type:", req.headers["content-type"]);
+    console.log("📏 Content-Length:", req.headers["content-length"]);
+    next();
+  },
   auth(USER_ROLE.ADMIN),
+  (req, res, next) => {
+    console.log("✅ [ROUTE] Auth passed");
+    next();
+  },
+  (req, res, next) => {
+    console.log("🔄 [ROUTE] Before multer - about to process upload");
+    next();
+  },
   multerUpload.fields([
     { name: "mainImage", maxCount: 1 },
     { name: "additionalImages", maxCount: 10 },
   ]),
+  (req, res, next) => {
+    console.log("✅ [ROUTE] Multer passed successfully!");
+    next();
+  },
   parseBody,
+  (req, res, next) => {
+    console.log("✅ [ROUTE] ParseBody passed, calling controller");
+    next();
+  },
   ProductControllers.createProduct
 );
 router.put(

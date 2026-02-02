@@ -38,6 +38,14 @@ async function bootstrap() {
     server = app.listen(config.port, () => {
       console.log(`🚀 Application is running on port ${config.port}`);
     });
+
+    // Set server timeout to 5 minutes for long-running operations like image uploads
+    // This prevents 502/503 errors on Hostinger when creating products with multiple images
+    server.timeout = 300000; // 5 minutes (300 seconds)
+    server.keepAliveTimeout = 305000; // Slightly higher than timeout
+    server.headersTimeout = 310000; // Slightly higher than keepAliveTimeout
+    
+    console.log('⏱️  Server timeouts configured: 5 minutes');
   } catch (err) {
     console.error("Failed to connect to database:", err);
     process.exit(1);
