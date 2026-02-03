@@ -1,26 +1,40 @@
-import { Coupon, CouponUsage } from './coupon.model';
-import { ICoupon } from './coupon.interface';
-import AppError from '../../errors/AppError';
-import httpStatus from 'http-status';
+import { Coupon, CouponUsage } from "./coupon.model";
+import { ICoupon } from "./coupon.interface";
+import AppError from "../../errors/AppError";
+import httpStatus from "http-status";
 
 // Create new coupon
 const createCoupon = async (couponData: Partial<ICoupon>): Promise<ICoupon> => {
   // Check if coupon code already exists
-  const existingCoupon = await Coupon.findOne({ code: couponData.code?.toUpperCase() });
+  const existingCoupon = await Coupon.findOne({
+    code: couponData.code?.toUpperCase(),
+  });
   if (existingCoupon) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Coupon code already exists');
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      `Coupon code '${couponData.code?.toUpperCase()}' already exists. Please use a different code.`,
+    );
   }
 
   // Validate dates
   if (couponData.validFrom && couponData.validUntil) {
     if (new Date(couponData.validFrom) >= new Date(couponData.validUntil)) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Valid from date must be before valid until date');
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Valid from date must be before valid until date",
+      );
     }
   }
 
   // Validate discount value
-  if (couponData.discountType === 'percentage' && couponData.discountValue! > 100) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Percentage discount cannot exceed 100%');
+  if (
+    couponData.discountType === "percentage" &&
+    couponData.discountValue! > 100
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Percentage discount cannot exceed 100%",
+    );
   }
 
   const coupon = await Coupon.create(couponData);
@@ -35,21 +49,21 @@ const getAllCoupons = async (query: any) => {
     search,
     isActive,
     discountType,
-    sortBy = 'createdAt',
-    sortOrder = 'desc',
+    sortBy = "createdAt",
+    sortOrder = "desc",
   } = query;
 
   const filter: any = {};
 
   if (search) {
     filter.$or = [
-      { code: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
+      { code: { $regex: search, $options: "i" } },
+      { description: { $regex: search, $options: "i" } },
     ];
   }
 
   if (isActive !== undefined) {
-    filter.isActive = isActive === 'true';
+    filter.isActive = isActive === "true";
   }
 
   if (discountType) {
@@ -58,14 +72,14 @@ const getAllCoupons = async (query: any) => {
 
   const skip = (parseInt(page) - 1) * parseInt(limit);
   const sortOptions: any = {};
-  sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
+  sortOptions[sortBy] = sortOrder === "asc" ? 1 : -1;
 
   const [coupons, total] = await Promise.all([
     Coupon.find(filter)
       .sort(sortOptions)
       .skip(skip)
       .limit(parseInt(limit))
-      .populate('createdBy', 'firstName lastName email')
+      .populate("createdBy", "firstName lastName email")
       .lean(),
     Coupon.countDocuments(filter),
   ]);
@@ -84,14 +98,14 @@ const getAllCoupons = async (query: any) => {
 // Get single coupon by ID
 const getCouponById = async (id: string): Promise<ICoupon | null> => {
   const coupon = await Coupon.findById(id)
-    .populate('createdBy', 'firstName lastName email')
-    .populate('applicableCategories', 'name slug')
-    .populate('applicableProducts', 'name slug')
-    .populate('excludedCategories', 'name slug')
-    .populate('excludedProducts', 'name slug');
+    .populate("createdBy", "firstName lastName email")
+    .populate("applicableCategories", "name slug")
+    .populate("applicableProducts", "name slug")
+    .populate("excludedCategories", "name slug")
+    .populate("excludedProducts", "name slug");
 
   if (!coupon) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found');
+    throw new AppError(httpStatus.NOT_FOUND, "Coupon not found");
   }
 
   return coupon;
@@ -99,39 +113,49 @@ const getCouponById = async (id: string): Promise<ICoupon | null> => {
 
 // Get coupon by code (for applying)
 const getCouponByCode = async (code: string): Promise<ICoupon | null> => {
-  const coupon = await Coupon.findOne({ code: code.toUpperCase(), isActive: true });
-  
+  const coupon = await Coupon.findOne({
+    code: code.toUpperCase(),
+    isActive: true,
+  });
+
   if (!coupon) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Invalid coupon code');
+    throw new AppError(httpStatus.NOT_FOUND, "Invalid coupon code");
   }
 
   // Check if coupon is still valid
   const now = new Date();
   if (now < coupon.validFrom || now > coupon.validUntil) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Coupon has expired or not yet valid');
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Coupon has expired or not yet valid",
+    );
   }
 
   // Check if usage limit reached
   if (coupon.currentUsageCount >= coupon.maxUsageCount) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Coupon usage limit reached');
+    throw new AppError(httpStatus.BAD_REQUEST, "Coupon usage limit reached");
   }
 
   return coupon;
 };
 
 // Validate coupon for user and order
-const validateCoupon = async (code: string, userId: string, orderAmount: number) => {
+const validateCoupon = async (
+  code: string,
+  userId: string,
+  orderAmount: number,
+) => {
   const coupon = await getCouponByCode(code);
 
   if (!coupon) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found');
+    throw new AppError(httpStatus.NOT_FOUND, "Coupon not found");
   }
 
   // Check minimum order amount
   if (coupon.minimumOrderAmount && orderAmount < coupon.minimumOrderAmount) {
     throw new AppError(
       httpStatus.BAD_REQUEST,
-      `Minimum order amount of BDT ${coupon.minimumOrderAmount} required`
+      `Minimum order amount of BDT ${coupon.minimumOrderAmount} required`,
     );
   }
 
@@ -143,13 +167,16 @@ const validateCoupon = async (code: string, userId: string, orderAmount: number)
     });
 
     if (existingUsage) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'You have already used this coupon');
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "You have already used this coupon",
+      );
     }
   }
 
   // Calculate discount
   let discountAmount = 0;
-  if (coupon.discountType === 'percentage') {
+  if (coupon.discountType === "percentage") {
     discountAmount = (orderAmount * coupon.discountValue) / 100;
     if (coupon.maximumDiscountAmount) {
       discountAmount = Math.min(discountAmount, coupon.maximumDiscountAmount);
@@ -165,11 +192,16 @@ const validateCoupon = async (code: string, userId: string, orderAmount: number)
 };
 
 // Apply coupon (record usage)
-const applyCoupon = async (code: string, userId: string, orderId: string, discountApplied: number) => {
+const applyCoupon = async (
+  code: string,
+  userId: string,
+  orderId: string,
+  discountApplied: number,
+) => {
   const coupon = await Coupon.findOne({ code: code.toUpperCase() });
 
   if (!coupon) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found');
+    throw new AppError(httpStatus.NOT_FOUND, "Coupon not found");
   }
 
   // Record usage
@@ -185,21 +217,33 @@ const applyCoupon = async (code: string, userId: string, orderId: string, discou
     $inc: { currentUsageCount: 1 },
   });
 
-  return { success: true, message: 'Coupon applied successfully' };
+  return { success: true, message: "Coupon applied successfully" };
 };
 
 // Update coupon
-const updateCoupon = async (id: string, updateData: Partial<ICoupon>): Promise<ICoupon | null> => {
+const updateCoupon = async (
+  id: string,
+  updateData: Partial<ICoupon>,
+): Promise<ICoupon | null> => {
   // Validate dates if being updated
   if (updateData.validFrom && updateData.validUntil) {
     if (new Date(updateData.validFrom) >= new Date(updateData.validUntil)) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Valid from date must be before valid until date');
+      throw new AppError(
+        httpStatus.BAD_REQUEST,
+        "Valid from date must be before valid until date",
+      );
     }
   }
 
   // Validate discount value
-  if (updateData.discountType === 'percentage' && updateData.discountValue! > 100) {
-    throw new AppError(httpStatus.BAD_REQUEST, 'Percentage discount cannot exceed 100%');
+  if (
+    updateData.discountType === "percentage" &&
+    updateData.discountValue! > 100
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Percentage discount cannot exceed 100%",
+    );
   }
 
   const coupon = await Coupon.findByIdAndUpdate(id, updateData, {
@@ -208,7 +252,7 @@ const updateCoupon = async (id: string, updateData: Partial<ICoupon>): Promise<I
   });
 
   if (!coupon) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found');
+    throw new AppError(httpStatus.NOT_FOUND, "Coupon not found");
   }
 
   return coupon;
@@ -219,7 +263,7 @@ const deleteCoupon = async (id: string): Promise<void> => {
   const coupon = await Coupon.findByIdAndDelete(id);
 
   if (!coupon) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found');
+    throw new AppError(httpStatus.NOT_FOUND, "Coupon not found");
   }
 
   // Also delete usage records
@@ -231,15 +275,18 @@ const getCouponStats = async (id: string) => {
   const coupon = await Coupon.findById(id);
 
   if (!coupon) {
-    throw new AppError(httpStatus.NOT_FOUND, 'Coupon not found');
+    throw new AppError(httpStatus.NOT_FOUND, "Coupon not found");
   }
 
   const usageRecords = await CouponUsage.find({ couponId: id })
-    .populate('userId', 'firstName lastName email')
-    .populate('orderId', 'orderNumber totalPayable')
+    .populate("userId", "firstName lastName email")
+    .populate("orderId", "orderNumber totalPayable")
     .sort({ usedAt: -1 });
 
-  const totalDiscountGiven = usageRecords.reduce((sum, usage) => sum + usage.discountApplied, 0);
+  const totalDiscountGiven = usageRecords.reduce(
+    (sum, usage) => sum + usage.discountApplied,
+    0,
+  );
 
   return {
     coupon,
@@ -248,7 +295,7 @@ const getCouponStats = async (id: string) => {
       totalUsages: coupon.currentUsageCount,
       remainingUsages: coupon.maxUsageCount - coupon.currentUsageCount,
       totalDiscountGiven,
-      uniqueUsers: new Set(usageRecords.map(r => r.userId.toString())).size,
+      uniqueUsers: new Set(usageRecords.map((r) => r.userId.toString())).size,
     },
   };
 };

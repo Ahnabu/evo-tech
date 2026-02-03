@@ -205,7 +205,7 @@ const createProductIntoDB = async (
   console.log("🔍 [CREATE PRODUCT] Starting product creation...");
   console.log("📦 Product name:", payload.name);
   console.log("🖼️ Has main image:", !!mainImageBuffer);
-  
+
   payload.slug = await generateUniqueSlug(payload.name, Product);
   console.log("✅ Slug generated:", payload.slug);
 
@@ -598,6 +598,7 @@ const deleteProductFromDB = async (id: string) => {
   await FeaturesSectionHeader.deleteMany({ product: id });
   await FeaturesSectionSubsection.deleteMany({ product: id });
   await Specification.deleteMany({ product: id });
+  await ProductColorVariation.deleteMany({ product: id });
 
   const result = await Product.findByIdAndDelete(id);
   return result;
@@ -658,8 +659,10 @@ const addFeatureHeaderIntoDB = async (
   imageBuffer?: Buffer,
 ) => {
   console.log(`[FeatureHeader] Adding header for product: ${productId}`);
-  console.log(`[FeatureHeader] Image buffer size: ${imageBuffer?.length || 0} bytes`);
-  
+  console.log(
+    `[FeatureHeader] Image buffer size: ${imageBuffer?.length || 0} bytes`,
+  );
+
   const product = await Product.findById(productId);
   if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found");
@@ -668,7 +671,10 @@ const addFeatureHeaderIntoDB = async (
   try {
     if (imageBuffer) {
       console.log(`[FeatureHeader] Uploading banner image...`);
-      const imageUrl = await uploadToCloudinary(imageBuffer, "products/headers");
+      const imageUrl = await uploadToCloudinary(
+        imageBuffer,
+        "products/headers",
+      );
       console.log(`[FeatureHeader] Banner image uploaded: ${imageUrl}`);
       payload.bannerImage = imageUrl;
     }
@@ -719,9 +725,13 @@ const addFeatureSubsectionIntoDB = async (
   payload: any,
   imageBuffer?: Buffer,
 ) => {
-  console.log(`[FeatureSubsection] Adding subsection for product: ${productId}`);
-  console.log(`[FeatureSubsection] Image buffer size: ${imageBuffer?.length || 0} bytes`);
-  
+  console.log(
+    `[FeatureSubsection] Adding subsection for product: ${productId}`,
+  );
+  console.log(
+    `[FeatureSubsection] Image buffer size: ${imageBuffer?.length || 0} bytes`,
+  );
+
   const product = await Product.findById(productId);
   if (!product) {
     throw new AppError(httpStatus.NOT_FOUND, "Product not found");
@@ -730,7 +740,10 @@ const addFeatureSubsectionIntoDB = async (
   try {
     if (imageBuffer) {
       console.log(`[FeatureSubsection] Uploading image...`);
-      const imageUrl = await uploadToCloudinary(imageBuffer, "products/features");
+      const imageUrl = await uploadToCloudinary(
+        imageBuffer,
+        "products/features",
+      );
       console.log(`[FeatureSubsection] Image uploaded: ${imageUrl}`);
       payload.imageUrl = imageUrl;
     }
@@ -740,7 +753,9 @@ const addFeatureSubsectionIntoDB = async (
       ...payload,
     });
 
-    console.log(`[FeatureSubsection] Subsection created successfully: ${result._id}`);
+    console.log(
+      `[FeatureSubsection] Subsection created successfully: ${result._id}`,
+    );
     return result;
   } catch (error: any) {
     console.error(`[FeatureSubsection] Error:`, error.message || error);

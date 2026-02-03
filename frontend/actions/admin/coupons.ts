@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { getErrorMessage } from "@/components/error/handle-error";
+import axiosIntercept from "@/utils/axios/axiosIntercept";
 
 export interface CreateCouponData {
   code: string;
@@ -18,132 +19,81 @@ export interface CreateCouponData {
 
 export async function createCoupon(data: CreateCouponData) {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    const axiosWithAuth = await axiosIntercept();
+    const response = await axiosWithAuth.post("/coupons", data);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to create coupon");
-    }
-
-    const result = await response.json();
     revalidatePath("/control/coupons");
-    return { success: true, data: result };
+    return { success: true, data: response.data };
   } catch (error: any) {
     return {
-      error: getErrorMessage(error) || "Failed to create coupon",
+      error:
+        error.response?.data?.message ||
+        getErrorMessage(error) ||
+        "Failed to create coupon",
     };
   }
 }
 
-export async function updateCoupon(id: string, data: Partial<CreateCouponData>) {
+export async function updateCoupon(
+  id: string,
+  data: Partial<CreateCouponData>,
+) {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons/${id}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      }
-    );
+    const axiosWithAuth = await axiosIntercept();
+    const response = await axiosWithAuth.patch(`/coupons/${id}`, data);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to update coupon");
-    }
-
-    const result = await response.json();
     revalidatePath("/control/coupons");
-    return { success: true, data: result };
+    return { success: true, data: response.data };
   } catch (error: any) {
     return {
-      error: getErrorMessage(error) || "Failed to update coupon",
+      error:
+        error.response?.data?.message ||
+        getErrorMessage(error) ||
+        "Failed to update coupon",
     };
   }
 }
 
 export async function deleteCoupon(id: string) {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons/${id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to delete coupon");
-    }
+    const axiosWithAuth = await axiosIntercept();
+    await axiosWithAuth.delete(`/coupons/${id}`);
 
     revalidatePath("/control/coupons");
     return { success: true };
   } catch (error: any) {
     return {
-      error: getErrorMessage(error) || "Failed to delete coupon",
+      error:
+        error.response?.data?.message ||
+        getErrorMessage(error) ||
+        "Failed to delete coupon",
     };
   }
 }
 
 export async function toggleCouponStatus(id: string, isActive: boolean) {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons/${id}`,
-      {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ isActive }),
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to update coupon status");
-    }
+    const axiosWithAuth = await axiosIntercept();
+    await axiosWithAuth.patch(`/coupons/${id}`, { isActive });
 
     revalidatePath("/control/coupons");
     return { success: true };
   } catch (error: any) {
     return {
-      error: getErrorMessage(error) || "Failed to update coupon status",
+      error:
+        error.response?.data?.message ||
+        getErrorMessage(error) ||
+        "Failed to update coupon status",
     };
   }
 }
 
 export async function getCouponById(id: string) {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons/${id}`,
-      {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const axiosWithAuth = await axiosIntercept();
+    const response = await axiosWithAuth.get(`/coupons/${id}`);
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to fetch coupon");
-    }
-
-    const result = await response.json();
-    return { success: true, data: result.data };
+    return { success: true, data: response.data.data };
   } catch (error: any) {
     return {
       error: getErrorMessage(error) || "Failed to fetch coupon",

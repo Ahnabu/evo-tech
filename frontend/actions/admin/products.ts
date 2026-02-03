@@ -1,33 +1,22 @@
 "use server";
 
 import { getErrorMessage } from "@/components/error/handle-error";
+import axiosIntercept from "@/utils/axios/axiosIntercept";
 
 // deleting an item
 export async function deleteItem(input: { id: string }) {
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/products/${input.id}`,
-      {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || "Failed to delete product");
-    }
+    const axiosWithAuth = await axiosIntercept();
+    await axiosWithAuth.delete(`/products/${input.id}`);
 
     return {
       data: null,
       error: null,
     };
-  } catch (err) {
+  } catch (err: any) {
     return {
       data: null,
-      error: getErrorMessage(err),
+      error: err.response?.data?.message || getErrorMessage(err),
     };
   }
 }
@@ -40,15 +29,15 @@ type TogglePublishedResponse = {
 };
 
 export async function toggleItemPublished(itemId: string) {
-  const axiosWithIntercept = await axiosIntercept();
-
   try {
+    const axiosWithAuth = await axiosIntercept();
+
     // First get the current product to check its published status
-    const currentProduct = await axiosWithIntercept.get(`/products/${itemId}`);
+    const currentProduct = await axiosWithAuth.get(`/products/${itemId}`);
     const currentPublishedStatus = currentProduct.data.data.published;
 
     // Update with the opposite value
-    const response = await axiosWithIntercept.put(`/products/${itemId}`, {
+    const response = await axiosWithAuth.put(`/products/${itemId}`, {
       published: !currentPublishedStatus,
     });
 
