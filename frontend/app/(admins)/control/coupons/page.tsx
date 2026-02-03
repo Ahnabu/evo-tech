@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { Metadata } from "next";
-import { useCouponsData } from "@/hooks/use-coupons-data";
-import { CouponsCount } from "@/components/admin/coupons/comps/coupons-count";
-import { CouponsDataTable } from "@/components/admin/coupons/comps/coupons-data-table";
+import { useCouponsData } from "../../../../hooks/use-coupons-data";
+import { CouponsCount } from "../../../../components/admin/coupons/comps/coupons-count";
+import { CouponsDataTable } from "../../../../components/admin/coupons/comps/coupons-data-table";
 
 const AdminCouponsPage = () => {
     // Call hook once in parent component

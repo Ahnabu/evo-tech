@@ -1,21 +1,28 @@
 "use server";
 
 import { getErrorMessage } from "@/components/error/handle-error";
-import axiosIntercept from "@/utils/axios/axiosIntercept";
 
 // deleting an order
 export async function deleteOrder(input: { id: string }) {
-    const axiosWithIntercept = await axiosIntercept();
-
     try {
-        const backendRes = await axiosWithIntercept.delete(`/orders/${input.id}`);
+        const response = await fetch(
+            `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/orders/${input.id}`,
+            {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            }
+        );
 
-        if (backendRes.status !== 200) {
-            throw new Error(backendRes.data.message || "Something went wrong");
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || "Failed to delete order");
         }
 
+        const data = await response.json();
         return {
-            data: backendRes.data,
+            data,
             error: null,
         };
     } catch (err) {

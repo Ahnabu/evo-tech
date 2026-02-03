@@ -1,13 +1,13 @@
 "use client";
 
-import { DashboardAutoRefresh } from "@/components/dashboard/dashboard-auto-refresh";
-import { useCurrentUser } from "@/hooks/use-current-user";
-import { AdminDashboardStats } from "@/components/admin/dashboard/admin-dashboard-stats";
-import { AdminRecentOrders } from "@/components/admin/dashboard/admin-recent-orders";
-import { AdminSalesChart } from "@/components/admin/dashboard/admin-sales-chart";
-import { AdminTopProducts } from "@/components/admin/dashboard/admin-top-products";
-import { AdminStockAlerts } from "@/components/admin/dashboard/admin-stock-alerts";
-import { AdminQuickActions } from "@/components/admin/dashboard/admin-quick-actions";
+import { useCurrentUser } from "../../../../hooks/use-current-user";
+import { AdminDashboardStats } from "../../../../components/admin/dashboard/admin-dashboard-stats";
+import { AdminRecentOrders } from "../../../../components/admin/dashboard/admin-recent-orders";
+import { AdminSalesChart } from "../../../../components/admin/dashboard/admin-sales-chart";
+import { AdminTopProducts } from "../../../../components/admin/dashboard/admin-top-products";
+import { AdminStockAlerts } from "../../../../components/admin/dashboard/admin-stock-alerts";
+import { AdminQuickActions } from "../../../../components/admin/dashboard/admin-quick-actions";
+import { DashboardAutoRefresh } from "../../../../components/dashboard/dashboard-auto-refresh";
 
 const A_DashBoardPage = () => {
   const user = useCurrentUser();

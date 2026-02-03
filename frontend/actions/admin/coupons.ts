@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { getErrorMessage } from "@/components/error/handle-error";
-import axiosIntercept from "@/utils/axios/axiosIntercept";
 
 export interface CreateCouponData {
   code: string;
@@ -18,13 +17,26 @@ export interface CreateCouponData {
 }
 
 export async function createCoupon(data: CreateCouponData) {
-  const axiosWithIntercept = await axiosIntercept();
-
   try {
-    const response = await axiosWithIntercept.post("/coupons", data);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to create coupon");
+    }
+
+    const result = await response.json();
     revalidatePath("/control/coupons");
-    return { success: true, data: response.data };
+    return { success: true, data: result };
   } catch (error: any) {
     return {
       error: getErrorMessage(error) || "Failed to create coupon",
@@ -33,13 +45,26 @@ export async function createCoupon(data: CreateCouponData) {
 }
 
 export async function updateCoupon(id: string, data: Partial<CreateCouponData>) {
-  const axiosWithIntercept = await axiosIntercept();
-
   try {
-    const response = await axiosWithIntercept.patch(`/coupons/${id}`, data);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons/${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      }
+    );
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update coupon");
+    }
+
+    const result = await response.json();
     revalidatePath("/control/coupons");
-    return { success: true, data: response.data };
+    return { success: true, data: result };
   } catch (error: any) {
     return {
       error: getErrorMessage(error) || "Failed to update coupon",
@@ -48,10 +73,21 @@ export async function updateCoupon(id: string, data: Partial<CreateCouponData>) 
 }
 
 export async function deleteCoupon(id: string) {
-  const axiosWithIntercept = await axiosIntercept();
-
   try {
-    await axiosWithIntercept.delete(`/coupons/${id}`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons/${id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to delete coupon");
+    }
 
     revalidatePath("/control/coupons");
     return { success: true };
@@ -63,10 +99,22 @@ export async function deleteCoupon(id: string) {
 }
 
 export async function toggleCouponStatus(id: string, isActive: boolean) {
-  const axiosWithIntercept = await axiosIntercept();
-
   try {
-    await axiosWithIntercept.patch(`/coupons/${id}`, { isActive });
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons/${id}`,
+      {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isActive }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to update coupon status");
+    }
 
     revalidatePath("/control/coupons");
     return { success: true };
@@ -78,12 +126,24 @@ export async function toggleCouponStatus(id: string, isActive: boolean) {
 }
 
 export async function getCouponById(id: string) {
-  const axiosWithIntercept = await axiosIntercept();
-
   try {
-    const response = await axiosWithIntercept.get(`/coupons/${id}`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/coupons/${id}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-    return { success: true, data: response.data.data };
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to fetch coupon");
+    }
+
+    const result = await response.json();
+    return { success: true, data: result.data };
   } catch (error: any) {
     return {
       error: getErrorMessage(error) || "Failed to fetch coupon",

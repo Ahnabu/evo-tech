@@ -1,17 +1,28 @@
 "use server";
 
 import { getErrorMessage } from "@/components/error/handle-error";
-import axiosIntercept from "@/utils/axios/axiosIntercept";
 
 // deleting a hero section
 export async function deleteHeroSection(input: { id: string }) {
-  const axiosWithIntercept = await axiosIntercept();
-
   try {
-    const backRes = await axiosWithIntercept.delete(`/banners/${input.id}`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/banners/${input.id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to delete banner");
+    }
+
+    const data = await response.json();
     return {
-      data: backRes.data,
+      data,
       error: null,
     };
   } catch (err) {

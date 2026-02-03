@@ -1,14 +1,24 @@
 "use server";
 
 import { getErrorMessage } from "@/components/error/handle-error";
-import axiosIntercept from "@/utils/axios/axiosIntercept";
 
 // deleting an item
 export async function deleteItem(input: { id: string }) {
-  const axiosWithIntercept = await axiosIntercept();
-
   try {
-    await axiosWithIntercept.delete(`/products/${input.id}`);
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_FEND_URL}/api/admin/products/${input.id}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to delete product");
+    }
 
     return {
       data: null,
