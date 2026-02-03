@@ -1,13 +1,13 @@
 "use client";
 
+import { DashboardAutoRefresh } from "@/components/dashboard/dashboard-auto-refresh";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { AdminDashboardStats } from "@/components/admin/dashboard/admin-dashboard-stats";
 import { AdminRecentOrders } from "@/components/admin/dashboard/admin-recent-orders";
 import { AdminSalesChart } from "@/components/admin/dashboard/admin-sales-chart";
 import { AdminTopProducts } from "@/components/admin/dashboard/admin-top-products";
-import { AdminQuickActions } from "@/components/admin/dashboard/admin-quick-actions";
 import { AdminStockAlerts } from "@/components/admin/dashboard/admin-stock-alerts";
-import { DashboardAutoRefresh } from "@/components/dashboard/dashboard-auto-refresh";
-import { useCurrentUser } from "@/hooks/use-current-user";
+import { AdminQuickActions } from "@/components/admin/dashboard/admin-quick-actions";
 
 const A_DashBoardPage = () => {
   const user = useCurrentUser();

@@ -27,7 +27,7 @@ pm2 start ecosystem.config.js --name evo-tech-frontend
 
 # Start Backend
 echo "🚀 Starting Backend..."
-cd ~/domains/evo-techbd.com/public_html/evobackend
+cd ~/domains/api.evo-techbd.com/public_html
 pm2 start ecosystem.config.js --name evo-tech-backend --update-env
 
 # Save PM2 configuration

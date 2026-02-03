@@ -35,6 +35,12 @@ const nextConfig = {
   // Ensure webpack resolves TypeScript paths correctly
   webpack: (config, { isServer }) => {
     config.resolve.extensions = ['.ts', '.tsx', '.js', '.jsx', ...config.resolve.extensions];
+    // Ensure symlinks are resolved correctly
+    config.resolve.symlinks = true;
+    // Add fallback for module resolution
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+    };
     return config;
   },
   experimental: {

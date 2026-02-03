@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { CouponsDataTable } from "@/components/admin/coupons/comps/coupons-data-table";
-import { CouponsCount } from "@/components/admin/coupons/comps/coupons-count";
 import { Metadata } from "next";
 import { useCouponsData } from "@/hooks/use-coupons-data";
+import { CouponsCount } from "@/components/admin/coupons/comps/coupons-count";
+import { CouponsDataTable } from "@/components/admin/coupons/comps/coupons-data-table";
 
 const AdminCouponsPage = () => {
     // Call hook once in parent component

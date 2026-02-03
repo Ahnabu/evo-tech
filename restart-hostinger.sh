@@ -15,10 +15,10 @@ pm2 list
 pm2 logs --lines 20
 
 # If full restart needed, uncomment below:
-# pm2 delete all
-# cd ~/domains/evo-techbd.com/public_html
-# pm2 start ecosystem.config.js --name evo-tech-frontend
-# cd ~/domains/evo-techbd.com/public_html/evobackend
-# pm2 start ecosystem.config.js --name evo-tech-backend
-# pm2 save
-# pm2 list
+pm2 delete all
+cd ~/domains/evo-techbd.com/public_html
+pm2 start ecosystem.config.js --name evo-tech-frontend
+cd ~/domains/evo-techbd.com/public_html/evobackend
+pm2 start ecosystem.config.js --name evo-tech-backend
+pm2 save
+pm2 list
