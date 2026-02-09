@@ -44,6 +44,14 @@ export const metadata: Metadata = {
     title: 'Evo-Tech Bangladesh - Premium Tech Products & 3D Printing Services',
     description: 'Leading tech e-commerce in Bangladesh offering 3D printers, filaments, electronics, and professional 3D printing services.',
     siteName: 'Evo-Tech Bangladesh',
+    images: [
+      {
+        url: `${process.env.NEXT_PUBLIC_FEND_URL || 'https://evo-techbd.com'}/assets/EvoTechBD-logo-white.png`,
+        width: 800,
+        height: 600,
+        alt: 'Evo-Tech Bangladesh Logo',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',

@@ -38,7 +38,6 @@ const AddProductForm = () => {
   const { getSectionsForSelect } = useFeaturedSections();
   const categories = getCategoriesForSelect();
   const featuredSections = getSectionsForSelect();
-  const brands = getBrandsForSelect();
 
   const {
     register,
@@ -145,7 +144,34 @@ const AddProductForm = () => {
     });
   };
 
-  const subcategories = getSubcategoriesForSelect(watch("item_category"));
+  const selectedCategory = watch("item_category");
+  const selectedSubcategory = watch("item_subcategory");
+  const subcategories = getSubcategoriesForSelect(selectedCategory);
+  const brands = getBrandsForSelect(selectedCategory, selectedSubcategory);
+
+  // Clear subcategory when category changes if it's not valid for the new category
+  useEffect(() => {
+    const currentSubcategory = watch("item_subcategory");
+    if (currentSubcategory) {
+      const isValidSubcategory = subcategories.some(
+        (sub) => sub.value === currentSubcategory
+      );
+      if (!isValidSubcategory) {
+        setValue("item_subcategory", "");
+      }
+    }
+  }, [selectedCategory, subcategories, watch, setValue]);
+
+  // Clear brand when category/subcategory changes if brand is not in new filtered list
+  useEffect(() => {
+    const currentBrand = watch("item_brand");
+    if (currentBrand) {
+      const isValidBrand = brands.some((brand) => brand.value === currentBrand);
+      if (!isValidBrand) {
+        setValue("item_brand", "");
+      }
+    }
+  }, [selectedCategory, selectedSubcategory, brands, watch, setValue]);
 
   const onSubmit = async (data: z.infer<typeof AddProductSchema>) => {
     // if (!session) {

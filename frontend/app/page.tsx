@@ -268,11 +268,11 @@ const Home = () => {
   const organizationSchema = generateOrganizationSchema({
     name: 'Evo-Tech Bangladesh',
     url: baseUrl,
-    logo: `${baseUrl}/assets/logo.png`,
+    logo: `${baseUrl}/assets/EvoTechBD-logo-white.png`,
     contactPoint: {
-      telephone: '+880-1234-567890', // Replace with actual
+      telephone: '+880 1799 424854',
       contactType: 'customer service',
-      email: 'evotech.bd22@gmail.comcom', // Replace with actual
+      email: 'evotech.bd22@gmail.com',
     },
     sameAs: [
       // Add your social media profiles

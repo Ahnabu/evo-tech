@@ -122,7 +122,7 @@ export function generateLocalBusinessSchema() {
     '@type': 'LocalBusiness',
     '@id': `${baseUrl}/#organization`,
     name: 'Evo-Tech Bangladesh',
-    image: `${baseUrl}/assets/logo.png`,
+    image: `${baseUrl}/assets/EvoTechBD-logo-white.png`,
     description: 'Leading tech e-commerce in Bangladesh offering 3D printers, filaments, electronics, and professional 3D printing services.',
     url: baseUrl,
     telephone: '+880-1234-567890', // Replace with actual phone
