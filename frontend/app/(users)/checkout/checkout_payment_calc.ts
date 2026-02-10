@@ -1,16 +1,19 @@
 import { CartItem } from "@/schemas/cartSchema";
 import { calculateCartBreakdown } from "@/utils/cart-totals";
-import { getAdditionalChargeforWeight } from "@/utils/essential_functions";
+import { getAdditionalChargeforWeight, getCODCharge } from "@/utils/essential_functions";
 
 export const calculatePayment = (
   cartItems: CartItem[],
-  paymentMethod: string
+  paymentMethod: string,
+  cityKey?: string
 ) => {
-  const bKashCashoutRate = 0.0185; // 1.85% from Any Agent
+  const bKashCashoutRate = 0.0149; // 1.49% charge for Bkash
+  const isInsideDhaka = cityKey === "dhaka";
 
   let totalWeight = 0;
   let chargeforWeight = 0;
   let bKashCharge = 0;
+  let codCharge = 0;
   const breakdown = calculateCartBreakdown(cartItems);
 
   if (cartItems && cartItems.length > 0) {
@@ -22,10 +25,23 @@ export const calculatePayment = (
       return acc + weight * quantity;
     }, 0);
 
-    chargeforWeight = Math.round(
-      getAdditionalChargeforWeight(Number(totalWeight))
-    );
+    // Calculate weight-based shipping charge (only for COD)
+    if (paymentMethod === "cod" && cityKey) {
+      chargeforWeight = Math.round(
+        getAdditionalChargeforWeight(Number(totalWeight), isInsideDhaka)
+      );
+    } else {
+      chargeforWeight = 0;
+    }
 
+    // Calculate COD charge (1% of total product price)
+    if (paymentMethod === "cod") {
+      codCharge = getCODCharge(breakdown.dueNowSubtotal);
+    } else {
+      codCharge = 0;
+    }
+
+    // Calculate Bkash charge (1.49%)
     if (paymentMethod === "bkash") {
       bKashCharge = Math.round(breakdown.dueNowSubtotal * bKashCashoutRate);
     } else {
@@ -36,6 +52,7 @@ export const calculatePayment = (
     //   cartSubTotal: breakdown.cartSubTotal,
     //   totalWeight,
     //   chargeforWeight,
+    //   codCharge,
     //   bKashCharge,
     //   preOrderSubtotal: breakdown.preOrderSubtotal,
     //   preOrderDepositDue: breakdown.preOrderDepositDue,
@@ -49,6 +66,7 @@ export const calculatePayment = (
     ...breakdown,
     totalWeight,
     chargeforWeight,
+    codCharge,
     bKashCharge,
   };
 };

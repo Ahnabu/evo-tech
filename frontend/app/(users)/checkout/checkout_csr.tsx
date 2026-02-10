@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -108,6 +108,7 @@ const CheckoutParts = () => {
   const {
     cartSubTotal,
     chargeforWeight,
+    codCharge,
     bKashCharge,
     preOrderSubtotal,
     preOrderDepositDue,
@@ -117,23 +118,24 @@ const CheckoutParts = () => {
     preOrderItemsCount,
     regularSubtotal,
   } = useMemo(() => {
-    return calculatePayment(cartItems ?? [], paymentMethod);
-  }, [cartItems, paymentMethod]);
+    return calculatePayment(cartItems ?? [], paymentMethod, cityValue);
+  }, [cartItems, paymentMethod, cityValue]);
 
   const totalPayableAmount = useMemo(() => {
     return (
-      cartSubTotal + (deliveryCharge ?? 0) + bKashCharge - (discountAmount ?? 0)
+      cartSubTotal + (deliveryCharge ?? 0) + codCharge + bKashCharge - (discountAmount ?? 0)
     );
-  }, [cartSubTotal, deliveryCharge, bKashCharge, discountAmount]);
+  }, [cartSubTotal, deliveryCharge, codCharge, bKashCharge, discountAmount]);
 
   const dueNowTotal = useMemo(() => {
     const baseAmount =
       dueNowSubtotal +
       (deliveryCharge ?? 0) +
+      codCharge +
       bKashCharge -
       (discountAmount ?? 0);
     return Math.max(Math.round(baseAmount * 100) / 100, 0);
-  }, [dueNowSubtotal, deliveryCharge, bKashCharge, discountAmount]);
+  }, [dueNowSubtotal, deliveryCharge, codCharge, bKashCharge, discountAmount]);
 
   const payLaterAmount = hasPreOrderItems ? preOrderBalanceDue : 0;
 
@@ -150,12 +152,14 @@ const CheckoutParts = () => {
     const isPickupOrExpress =
       shippingType === "pickup_point" || shippingType === "express_delivery";
 
+    // For COD, delivery charge includes base charge + weight charge (handled in calculatePayment)
+    // For other payment methods, no delivery charge for pickup/express
     const delCharge = !cityValue
       ? null
       : isPickupOrExpress
         ? 0
         : shippingType === "regular_delivery"
-          ? (cityValue === "dhaka" ? 70 : 120) + chargeforWeight
+          ? chargeforWeight // Now includes both base charge and weight charge for COD
           : null;
 
     setDeliveryCharge(delCharge);
@@ -227,7 +231,7 @@ const CheckoutParts = () => {
       discount: discountAmount || 0,
       couponCode: appliedCouponCode || undefined, // Include applied coupon code
       deliveryCharge: deliveryCharge ?? 0,
-      additionalCharge: bKashCharge ?? 0,
+      additionalCharge: (codCharge ?? 0) + (bKashCharge ?? 0),
       totalPayable: totalPayableAmount || 0, // Fixed: Ensure it's a number, not NaN
       items: cartItems ? cartItems : [],
     };
@@ -1004,7 +1008,7 @@ const CheckoutParts = () => {
                         <ul className="list-disc list-inside space-y-1">
                           <li>
                             {`Send Money to: `}
-                            <span className="text-[#E2136E] font-semibold">{`01877-722345`}</span>
+                            <span className="text-[#E2136E] font-semibold">{`01761490093`}</span>
                           </li>
                           <li>
                             {`Account Type: `}
@@ -1072,15 +1076,11 @@ const CheckoutParts = () => {
                           </li>
                           <li>
                             {`Name: `}
-                            <span className="text-[#1e40af] font-semibold">{`MD. MAHFUZ HASAN`}</span>
+                            <span className="text-[#1e40af] font-semibold">{`EVO TECH BANGLADESH`}</span>
                           </li>
                           <li>
                             {`Account No: `}
-                            <span className="text-[#1e40af] font-semibold">{`20502036700154115`}</span>
-                          </li>
-                          <li>
-                            {`Routing No: `}
-                            <span className="text-[#1e40af] font-semibold">{`125260738`}</span>
+                            <span className="text-[#1e40af] font-semibold">{`20507770101133583`}</span>
                           </li>
                           <li>
                             {`Payable amount: `}
@@ -1343,9 +1343,17 @@ const CheckoutParts = () => {
                   {currencyFormatBDT(preOrderBalanceDue)} BDT
                 </span>
               </div>
-              <p className="text-[10px] sm:text-[11px] leading-4 text-stone-500">
-                {`We’ll collect the remaining balance before shipping pre-order items.`}
-              </p>
+
+              <div className="mt-2 p-2 rounded border border-amber-200 bg-amber-50">
+                <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-amber-800 mb-1">
+                  {`ðŸ“Œ Before Placing a Pre-Order, Please Note:`}
+                </p>
+                <ul className="text-[10px] sm:text-[11px] leading-4 text-amber-700 space-y-0.5 list-none pl-0">
+                  <li>{`âœ… 50% advance payment is required, and the remaining balance will be due upon delivery.`}</li>
+                  <li>{`âœ… Delivery is expected within 45 days, but international shipping and logistics may cause delays.`}</li>
+                  <li>{`âœ… Please read and understand the pre-order terms and conditions before placing your order.`}</li>
+                </ul>
+              </div>
             </div>
           )}
 
@@ -1372,7 +1380,7 @@ const CheckoutParts = () => {
               {`Additional Charge:`}
             </p>
             <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
-              {currencyFormatBDT(bKashCharge)} BDT
+              {currencyFormatBDT(codCharge + bKashCharge)} BDT
             </p>
           </div>
 
@@ -1405,6 +1413,13 @@ const CheckoutParts = () => {
                 <span>{`Shipping estimate:`}</span>
                 <span className="font-[600] text-stone-800">
                   {currencyFormatBDT(deliveryCharge || 0)} BDT
+                </span>
+              </div>
+){codCharge > 0 && (
+              <div className="flex items-center justify-between">
+                <span>{`COD processing fee:`}</span>
+                <span className="font-[600] text-stone-800">
+                  {currencyFormatBDT(codCharge)} BDT
                 </span>
               </div>
             )}

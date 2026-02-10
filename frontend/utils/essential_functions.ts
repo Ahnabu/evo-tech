@@ -30,17 +30,23 @@ const getNameInitials = (name: string) => {
 }
 
 
-const getAdditionalChargeforWeight = (weight: number) => { // weight in grams
-    if (weight <= 500) return 0; // for the 0-500 range
+const getAdditionalChargeforWeight = (weight: number, isInsideDhaka: boolean = true) => { // weight in grams
+    // Base charges: Inside Dhaka 70tk, Outside Dhaka 120tk for below 1kg
+    const baseCharge = isInsideDhaka ? 70 : 120;
+    const additionalChargeStep = 20; // +20tk for every additional kg
   
-    const baseCharge = 20;
-    const additionalChargeStep = 20; // for every additional 1000 range
+    if (weight <= 1000) return baseCharge; // for weight below or equal to 1kg
   
-    if (weight <= 1000) return baseCharge; // for the 500-1000 range
-  
-    const additionalRanges = Math.ceil((weight - 1000) / 1000); // Ceil to include partial ranges
+    // Calculate additional kg beyond 1kg
+    const additionalWeight = weight - 1000;
+    const additionalKg = Math.ceil(additionalWeight / 1000); // Ceil to include partial kg
 
-    return baseCharge + additionalRanges * additionalChargeStep;
+    return baseCharge + additionalKg * additionalChargeStep;
 };
 
-export { isHexColor, sumOfNumArrValues, calcMeanRating, getNameInitials, getAdditionalChargeforWeight };
+const getCODCharge = (productTotal: number) => {
+    // 1% of total product price for COD
+    return Math.round(productTotal * 0.01);
+};
+
+export { isHexColor, sumOfNumArrValues, calcMeanRating, getNameInitials, getAdditionalChargeforWeight, getCODCharge };
