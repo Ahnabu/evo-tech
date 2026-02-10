@@ -67,16 +67,7 @@ export const CouponTableRowActions = ({ row, refetch }: RowActionProps) => {
                 />
             </div>
 
-            <Button
-                variant="ghost"
-                size="sm"
-                className="h-8 w-8 p-0 rounded-full bg-yellow-200 text-yellow-600 hover:text-yellow-700 hover:bg-yellow-100"
-                aria-label={`Edit ${row.original.code}`}
-                onClick={() => router.push(`/control/coupons/edit/${row.original._id}`)}
-            >
-                <Edit className="h-4 w-4" />
-            </Button>
-
+           
             <DeleteDialog<ICoupon>
                 rowitem={row.original}
                 open={isOpen}

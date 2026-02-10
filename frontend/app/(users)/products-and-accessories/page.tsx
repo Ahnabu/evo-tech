@@ -38,7 +38,7 @@ const ProductsAndAccessories = async ({ searchParams }: currentRouteProps) => {
 
   if (categorySlug) {
     // console.log(`[ProductsAndAccessories] Fetching category with slug: "${categorySlug}"`);
-    
+
     const categoryResponse = await axios
       .get(`/categories/slug/${categorySlug}`)
       .then((res) => {
@@ -54,7 +54,7 @@ const ProductsAndAccessories = async ({ searchParams }: currentRouteProps) => {
 
     categoryData = categoryResponse?.data;
     categoryId = categoryData?._id;
-    
+
     if (!categoryData) {
       console.warn(`[ProductsAndAccessories] Category data is null for slug: "${categorySlug}"`);
     }
@@ -119,6 +119,7 @@ const ProductsAndAccessories = async ({ searchParams }: currentRouteProps) => {
     i_ispreorder: product.isPreOrder || false,
     i_instock: product.inStock !== undefined ? product.inStock : true,
     i_mainimg: product.mainImage || "",
+    i_weight: product.weight || 0,
     i_category: product.category?.slug || product.category || "",
     i_subcategory: product.subcategory?.slug || product.subcategory || "",
     i_brand: product.brand?.slug || product.brand || "",

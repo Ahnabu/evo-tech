@@ -152,7 +152,7 @@ const fetchItemData = async (itemSlugHere: string) => {
     typeof product.lowStockThreshold === "number"
       ? product.lowStockThreshold
       : typeof product.lowStockThreshold === "string" &&
-          product.lowStockThreshold.trim() !== ""
+        product.lowStockThreshold.trim() !== ""
         ? Number(product.lowStockThreshold)
         : null;
 
@@ -210,16 +210,17 @@ const fetchItemData = async (itemSlugHere: string) => {
           ? (normalizedStock as number) > 0
           : true,
     i_mainimg: product.mainImage || "",
+    i_weight: product.weight || 0,
     i_images:
       formattedImages.length > 0
         ? formattedImages
         : [
-            {
-              imgid: "img-0",
-              imgsrc: product.mainImage || "/assets/placeholder-product.svg",
-              imgtitle: product.name,
-            },
-          ],
+          {
+            imgid: "img-0",
+            imgsrc: product.mainImage || "/assets/placeholder-product.svg",
+            imgtitle: product.name,
+          },
+        ],
     i_category: product.category?.slug || product.category || "",
     i_subcategory: product.subcategory?.slug || product.subcategory || "",
     i_brand: product.brand?.slug || product.brand || "",
@@ -326,10 +327,10 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
                     )}`}</span>
                     {currencyFormatBDT(itemInfo.i_prevprice) !==
                       currencyFormatBDT(0) && (
-                      <span className="text-[13px] md:text-[14px] leading-6 font-[500] tracking-tight line-through text-[#a19d9a]">
-                        {currencyFormatBDT(itemInfo.i_prevprice)}
-                      </span>
-                    )}
+                        <span className="text-[13px] md:text-[14px] leading-6 font-[500] tracking-tight line-through text-[#a19d9a]">
+                          {currencyFormatBDT(itemInfo.i_prevprice)}
+                        </span>
+                      )}
                   </div>
                   {itemInfo.i_preorderprice &&
                     itemInfo.i_preorderprice < itemInfo.i_price && (
@@ -353,12 +354,10 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
                 <p className="w-fit text-[12px] md:text-[13px] leading-5 font-[500] text-stone-600">
                   {`Status: `}
                   <span
-                    className={`w-fit h-fit ${
-                      itemInfo.i_instock ? "text-emerald-500" : "text-red-400"
-                    }`}
-                  >{`${
-                    itemInfo.i_instock ? "In Stock" : "Out of Stock"
-                  }`}</span>
+                    className={`w-fit h-fit ${itemInfo.i_instock ? "text-emerald-500" : "text-red-400"
+                      }`}
+                  >{`${itemInfo.i_instock ? "In Stock" : "Out of Stock"
+                    }`}</span>
                 </p>
               </div>
 
@@ -405,8 +404,8 @@ const IndividualItem = async ({ params }: currentRouteProps) => {
             subsections: itemInfo.i_sectionsdata?.featureSubsections || [],
             banner: itemInfo.i_featurebanner
               ? itemInfo.i_images?.find(
-                  (img: any) => img.imgid === itemInfo.i_featurebanner,
-                )
+                (img: any) => img.imgid === itemInfo.i_featurebanner,
+              )
               : null,
           }}
           specsdata={itemInfo.i_sectionsdata?.specifications || []}

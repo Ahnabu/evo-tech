@@ -20,30 +20,30 @@ export const calculatePayment = (
     // console.log("🛒 Cart items for calculation:", cartItems);
 
     totalWeight = cartItems.reduce((acc, item) => {
+      console.log("Item:", item);
       const weight = Number(item.item_weight) || 0;
+      console.log("Weight:", weight);
       const quantity = Number(item.item_quantity) || 0;
       return acc + weight * quantity;
     }, 0);
 
-    // Calculate weight-based shipping charge (only for COD)
-    if (paymentMethod === "cod" && cityKey) {
+    // Calculate weight-based shipping charge (applies to all payment methods)
+    if (cityKey) {
       chargeforWeight = Math.round(
         getAdditionalChargeforWeight(Number(totalWeight), isInsideDhaka)
       );
-    } else {
-      chargeforWeight = 0;
     }
 
-    // Calculate COD charge (1% of total product price)
+    // Calculate COD charge (1% of full cart subtotal)
     if (paymentMethod === "cod") {
-      codCharge = getCODCharge(breakdown.dueNowSubtotal);
+      codCharge = getCODCharge(breakdown.cartSubTotal);
     } else {
       codCharge = 0;
     }
 
-    // Calculate Bkash charge (1.49%)
+    // Calculate Bkash charge (1.49% of full cart subtotal)
     if (paymentMethod === "bkash") {
-      bKashCharge = Math.round(breakdown.dueNowSubtotal * bKashCashoutRate);
+      bKashCharge = Math.round(breakdown.cartSubTotal * bKashCashoutRate);
     } else {
       bKashCharge = 0;
     }

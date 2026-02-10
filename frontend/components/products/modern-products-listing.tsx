@@ -219,12 +219,12 @@ const ProductGridCard = ({ product }: { product: any }) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const cartdata = useSelector((state: RootState) => state.shoppingcart.cartdata);
-  
+
   const discount =
     product.i_prevprice > product.i_price
       ? Math.round(
-          ((product.i_prevprice - product.i_price) / product.i_prevprice) * 100
-        )
+        ((product.i_prevprice - product.i_price) / product.i_prevprice) * 100
+      )
       : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -233,7 +233,7 @@ const ProductGridCard = ({ product }: { product: any }) => {
 
     const localevoFrontCart = localStorage.getItem('evoFrontCart');
     const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : { items: [], ctoken: '' };
-    
+
     const existingItemIndex = parsedCart.items.findIndex(
       (item: any) => item.item_id === product.itemid && item.item_color === ""
     );
@@ -257,6 +257,7 @@ const ProductGridCard = ({ product }: { product: any }) => {
         item_quantity: 1,
         item_color: "",
         item_mainimg: product.i_mainimg,
+        item_weight: product.i_weight || 0,
         item_instock: product.i_instock,
       };
       updatedCart = [...parsedCart.items, newItem];
@@ -265,7 +266,7 @@ const ProductGridCard = ({ product }: { product: any }) => {
 
     // Update localStorage
     localStorage.setItem('evoFrontCart', JSON.stringify({ ...parsedCart, items: updatedCart }));
-    
+
     // Update Redux
     dispatch(setCartData(updatedCart));
   };
@@ -273,10 +274,10 @@ const ProductGridCard = ({ product }: { product: any }) => {
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Add to cart first
     handleAddToCart(e);
-    
+
     // Navigate to cart page
     setTimeout(() => {
       router.push('/cart');
@@ -344,11 +345,10 @@ const ProductGridCard = ({ product }: { product: any }) => {
               {[...Array(5)].map((_, i) => (
                 <FiStar
                   key={i}
-                  className={`w-2.5 h-2.5 ${
-                    i < Math.floor(product.i_rating)
+                  className={`w-2.5 h-2.5 ${i < Math.floor(product.i_rating)
                       ? "fill-yellow-400 text-yellow-400"
                       : "text-stone-300"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -385,14 +385,14 @@ const ProductGridCard = ({ product }: { product: any }) => {
 
         {/* Action Buttons */}
         <div className="mt-1 sm:mt-2 flex flex-col gap-1.5">
-          <button 
+          <button
             onClick={handleAddToCart}
             className="w-full py-1.5 sm:py-2 bg-brand-600 text-white rounded-md hover:bg-brand-700 transition-colors flex items-center justify-center gap-1.5"
           >
             <FiShoppingCart className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             <span className="text-xs sm:text-sm font-medium whitespace-nowrap">Add to Cart</span>
           </button>
-          <button 
+          <button
             onClick={handleBuyNow}
             className="w-full py-1.5 sm:py-2 bg-stone-800 text-white rounded-md hover:bg-stone-900 transition-colors flex items-center justify-center gap-1.5"
           >
@@ -410,12 +410,12 @@ const ProductListCard = ({ product }: { product: any }) => {
   const router = useRouter();
   const dispatch = useDispatch<AppDispatch>();
   const cartdata = useSelector((state: RootState) => state.shoppingcart.cartdata);
-  
+
   const discount =
     product.i_prevprice > product.i_price
       ? Math.round(
-          ((product.i_prevprice - product.i_price) / product.i_prevprice) * 100
-        )
+        ((product.i_prevprice - product.i_price) / product.i_prevprice) * 100
+      )
       : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -424,7 +424,7 @@ const ProductListCard = ({ product }: { product: any }) => {
 
     const localevoFrontCart = localStorage.getItem('evoFrontCart');
     const parsedCart = localevoFrontCart ? JSON.parse(localevoFrontCart) : { items: [], ctoken: '' };
-    
+
     const existingItemIndex = parsedCart.items.findIndex(
       (item: any) => item.item_id === product.itemid && item.item_color === ""
     );
@@ -448,6 +448,7 @@ const ProductListCard = ({ product }: { product: any }) => {
         item_quantity: 1,
         item_color: "",
         item_mainimg: product.i_mainimg,
+        item_weight: product.i_weight || 0,
         item_instock: product.i_instock,
       };
       updatedCart = [...parsedCart.items, newItem];
@@ -456,7 +457,7 @@ const ProductListCard = ({ product }: { product: any }) => {
 
     // Update localStorage
     localStorage.setItem('evoFrontCart', JSON.stringify({ ...parsedCart, items: updatedCart }));
-    
+
     // Update Redux
     dispatch(setCartData(updatedCart));
   };
@@ -464,10 +465,10 @@ const ProductListCard = ({ product }: { product: any }) => {
   const handleBuyNow = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     // Add to cart first
     handleAddToCart(e);
-    
+
     // Navigate to cart page
     setTimeout(() => {
       router.push('/cart');
@@ -525,11 +526,10 @@ const ProductListCard = ({ product }: { product: any }) => {
               {[...Array(5)].map((_, i) => (
                 <FiStar
                   key={i}
-                  className={`w-4 h-4 ${
-                    i < Math.floor(product.i_rating)
+                  className={`w-4 h-4 ${i < Math.floor(product.i_rating)
                       ? "fill-yellow-400 text-yellow-400"
                       : "text-stone-300"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -590,14 +590,14 @@ const ProductListCard = ({ product }: { product: any }) => {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <button 
+            <button
               onClick={handleAddToCart}
               className="px-6 py-2.5 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2"
             >
               <FiShoppingCart className="w-4 h-4" />
               <span className="text-sm font-medium">Add to Cart</span>
             </button>
-            <button 
+            <button
               onClick={handleBuyNow}
               className="px-6 py-2.5 bg-stone-800 text-white rounded-lg hover:bg-stone-900 transition-colors flex items-center justify-center gap-2"
             >

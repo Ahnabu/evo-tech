@@ -152,14 +152,13 @@ const CheckoutParts = () => {
     const isPickupOrExpress =
       shippingType === "pickup_point" || shippingType === "express_delivery";
 
-    // For COD, delivery charge includes base charge + weight charge (handled in calculatePayment)
-    // For other payment methods, no delivery charge for pickup/express
+    // Delivery charge based on shipping type: regular delivery uses weight-based charge, pickup/express = 0
     const delCharge = !cityValue
       ? null
       : isPickupOrExpress
         ? 0
         : shippingType === "regular_delivery"
-          ? chargeforWeight // Now includes both base charge and weight charge for COD
+          ? chargeforWeight // Weight-based shipping charge for all payment methods
           : null;
 
     setDeliveryCharge(delCharge);
@@ -390,7 +389,7 @@ const CheckoutParts = () => {
         "";
       toast.error(
         backendMessage ||
-          "Sorry! Order could not be placed. Please review your cart and try again.",
+        "Sorry! Order could not be placed. Please review your cart and try again.",
       );
     }
   };
@@ -525,47 +524,46 @@ const CheckoutParts = () => {
     <>
       {(cartStockSummary.hasBlockingIssues ||
         cartStockSummary.warningIssues.length > 0) && (
-        <div className="flex w-full flex-col gap-3 rounded-md border border-stone-200 bg-white/60 p-4 mb-2">
-          {cartStockSummary.hasBlockingIssues && (
-            <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              <p className="flex items-center gap-2 text-[13px] font-semibold">
-                <HiMiniExclamationTriangle className="h-4 w-4" />
-                Resolve stock issues to place your order
-              </p>
-              <ul className="mt-2 space-y-1 text-[12px]">
-                {cartStockSummary.blockingIssues.map((issue) => (
-                  <li key={`checkout-stock-blocker-${issue.itemId}`}>
-                    <span className="font-semibold">{issue.itemName}</span>{" "}
-                    {issue.isOutOfStock
-                      ? "is currently out of stock."
-                      : `has only ${issue.availableStock ?? 0} unit${
-                          (issue.availableStock ?? 0) === 1 ? "" : "s"
-                        } left. Please lower the quantity.`}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {!cartStockSummary.hasBlockingIssues &&
-            cartStockSummary.warningIssues.length > 0 && (
-              <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <div className="flex w-full flex-col gap-3 rounded-md border border-stone-200 bg-white/60 p-4 mb-2">
+            {cartStockSummary.hasBlockingIssues && (
+              <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 <p className="flex items-center gap-2 text-[13px] font-semibold">
-                  <PiInfoBold className="h-4 w-4" />
-                  Low stock reminder
+                  <HiMiniExclamationTriangle className="h-4 w-4" />
+                  Resolve stock issues to place your order
                 </p>
                 <ul className="mt-2 space-y-1 text-[12px]">
-                  {cartStockSummary.warningIssues.map((issue) => (
-                    <li key={`checkout-stock-warning-${issue.itemId}`}>
+                  {cartStockSummary.blockingIssues.map((issue) => (
+                    <li key={`checkout-stock-blocker-${issue.itemId}`}>
                       <span className="font-semibold">{issue.itemName}</span>{" "}
-                      {`has only ${issue.availableStock ?? 0} left.`}
+                      {issue.isOutOfStock
+                        ? "is currently out of stock."
+                        : `has only ${issue.availableStock ?? 0} unit${(issue.availableStock ?? 0) === 1 ? "" : "s"
+                        } left. Please lower the quantity.`}
                     </li>
                   ))}
                 </ul>
               </div>
             )}
-        </div>
-      )}
+
+            {!cartStockSummary.hasBlockingIssues &&
+              cartStockSummary.warningIssues.length > 0 && (
+                <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  <p className="flex items-center gap-2 text-[13px] font-semibold">
+                    <PiInfoBold className="h-4 w-4" />
+                    Low stock reminder
+                  </p>
+                  <ul className="mt-2 space-y-1 text-[12px]">
+                    {cartStockSummary.warningIssues.map((issue) => (
+                      <li key={`checkout-stock-warning-${issue.itemId}`}>
+                        <span className="font-semibold">{issue.itemName}</span>{" "}
+                        {`has only ${issue.availableStock ?? 0} left.`}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+          </div>
+        )}
 
       <div className="relative flex flex-col items-center md:flex-row md:justify-start md:items-start w-full h-fit gap-5">
         <form
@@ -683,15 +681,14 @@ const CheckoutParts = () => {
                       <button
                         type="button"
                         aria-label={`city or district`}
-                        className={`peer/city relative z-[0] flex items-center w-full h-[40px] text-[12px] leading-4 font-[500] ${
-                          field.value ? `text-stone-900` : `text-stone-400`
-                        } px-2 py-1 bg-stone-100 border rounded-[4px] border-stone-400 border-t-transparent overflow-hidden focus-visible:outline-none focus-visible:border-x-[#0866FF] focus-visible:border-t-transparent focus-visible:border-b-[#0866FF] hover:border-x-[#0866FF] hover:border-t-transparent hover:border-b-[#0866FF]`}
+                        className={`peer/city relative z-[0] flex items-center w-full h-[40px] text-[12px] leading-4 font-[500] ${field.value ? `text-stone-900` : `text-stone-400`
+                          } px-2 py-1 bg-stone-100 border rounded-[4px] border-stone-400 border-t-transparent overflow-hidden focus-visible:outline-none focus-visible:border-x-[#0866FF] focus-visible:border-t-transparent focus-visible:border-b-[#0866FF] hover:border-x-[#0866FF] hover:border-t-transparent hover:border-b-[#0866FF]`}
                       >
                         <p className="w-full h-fit text-left truncate capitalize">
                           {field.value
                             ? districtsOfBD.find(
-                                (district) => district.key === field.value,
-                              )?.itemvalue
+                              (district) => district.key === field.value,
+                            )?.itemvalue
                             : `Select city/district`}
                         </p>
                         <div className="absolute z-0 inset-y-0 right-0 flex items-center w-fit px-1 py-1 bg-stone-100">
@@ -722,19 +719,17 @@ const CheckoutParts = () => {
                                     field.onChange(districtItem.key);
                                     handleCitySelection(districtItem.key);
                                   }}
-                                  className={`font-[500] tracking-tight ${
-                                    districtItem.key === field.value
+                                  className={`font-[500] tracking-tight ${districtItem.key === field.value
                                       ? "text-[#0866FF]"
                                       : "text-stone-600"
-                                  }`}
+                                    }`}
                                 >
                                   {districtItem.itemvalue}
                                   <IoCheckmark
-                                    className={`inline w-4 h-4 ml-auto ${
-                                      districtItem.key === field.value
+                                    className={`inline w-4 h-4 ml-auto ${districtItem.key === field.value
                                         ? "text-[#0866FF] opacity-100"
                                         : "text-transparent opacity-0"
-                                    }`}
+                                      }`}
                                   />
                                 </CommandItem>
                               ))}
@@ -1155,11 +1150,10 @@ const CheckoutParts = () => {
           <button
             type="submit"
             disabled={isPlaceOrderDisabled}
-            className={`w-full h-[44px] flex items-center justify-center px-6 py-2 mt-3 text-[13px] sm:text-[14px] leading-5 font-[600] text-white rounded-[4px] transition-colors duration-100 ${
-              isPlaceOrderDisabled
+            className={`w-full h-[44px] flex items-center justify-center px-6 py-2 mt-3 text-[13px] sm:text-[14px] leading-5 font-[600] text-white rounded-[4px] transition-colors duration-100 ${isPlaceOrderDisabled
                 ? "bg-stone-700 cursor-not-allowed"
                 : "bg-stone-900 hover:bg-stone-800"
-            }`}
+              }`}
           >
             {isSubmitting ? (
               <span className="flex items-center gap-2">
@@ -1224,11 +1218,10 @@ const CheckoutParts = () => {
 
                   <div className="flex flex-col w-full h-fit py-1">
                     <h4 className="text-[11px] sm:text-[12px] leading-4 font-[600] text-stone-800">
-                      {`${eachCartItem.item_name}${
-                        eachCartItem.item_color
+                      {`${eachCartItem.item_name}${eachCartItem.item_color
                           ? ` (${eachCartItem.item_color})`
                           : ""
-                      }`}
+                        }`}
                     </h4>
                     <p className="text-[10px] sm:text-[11px] leading-4 font-[500] text-stone-600">
                       {`${eachCartItem.item_quantity} x ${currencyFormatBDT(
@@ -1346,12 +1339,12 @@ const CheckoutParts = () => {
 
               <div className="mt-2 p-2 rounded border border-amber-200 bg-amber-50">
                 <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-amber-800 mb-1">
-                  {`ðŸ“Œ Before Placing a Pre-Order, Please Note:`}
+                  {`📌 Before Placing a Pre-Order, Please Note:`}
                 </p>
                 <ul className="text-[10px] sm:text-[11px] leading-4 text-amber-700 space-y-0.5 list-none pl-0">
-                  <li>{`âœ… 50% advance payment is required, and the remaining balance will be due upon delivery.`}</li>
-                  <li>{`âœ… Delivery is expected within 45 days, but international shipping and logistics may cause delays.`}</li>
-                  <li>{`âœ… Please read and understand the pre-order terms and conditions before placing your order.`}</li>
+                  <li>{`✅ 50% advance payment is required, and the remaining balance will be due upon delivery.`}</li>
+                  <li>{`✅ Delivery is expected within 45 days, but international shipping and logistics may cause delays.`}</li>
+                  <li>{`✅ Please read and understand the pre-order terms and conditions before placing your order.`}</li>
                 </ul>
               </div>
             </div>

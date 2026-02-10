@@ -168,7 +168,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
       (item) =>
         item.item_id === singleitem.itemid &&
         (item.item_color || "").toLowerCase() ===
-          (itemColorfromURL || "").toLowerCase() &&
+        (itemColorfromURL || "").toLowerCase() &&
         (item.item_isPreOrder ?? false) === false
     );
 
@@ -211,7 +211,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
         item_id: singleitem.itemid,
         item_name: singleitem.i_name,
         item_slug: singleitem.i_slug,
-        item_mainimg: singleitem.i_image || "/assets/placeholder-product.svg",
+        item_mainimg: singleitem.i_mainimg || "/assets/placeholder-product.svg",
         item_category: singleitem.i_category || "",
         item_subcategory: singleitem.i_subcategory || "",
         item_brand: singleitem.i_brand || "",
@@ -298,7 +298,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
       (item) =>
         item.item_id === singleitem.itemid &&
         (item.item_color || "").toLowerCase() ===
-          (itemColorfromURL || "").toLowerCase() &&
+        (itemColorfromURL || "").toLowerCase() &&
         (item.item_isPreOrder ?? false) === false
     );
 
@@ -320,7 +320,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
         item_id: singleitem.itemid,
         item_name: singleitem.i_name,
         item_slug: singleitem.i_slug,
-        item_mainimg: singleitem.i_image || "/assets/placeholder-product.svg",
+        item_mainimg: singleitem.i_mainimg || "/assets/placeholder-product.svg",
         item_category: singleitem.i_category || "",
         item_subcategory: singleitem.i_subcategory || "",
         item_brand: singleitem.i_brand || "",
@@ -402,7 +402,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
       (item) =>
         item.item_id === singleitem.itemid &&
         (item.item_color || "").toLowerCase() ===
-          (itemColorfromURL || "").toLowerCase() &&
+        (itemColorfromURL || "").toLowerCase() &&
         (item.item_isPreOrder ?? false) === true
     );
 
@@ -425,7 +425,7 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
         item_id: singleitem.itemid,
         item_name: singleitem.i_name,
         item_slug: singleitem.i_slug,
-        item_mainimg: singleitem.i_image || "/assets/placeholder-product.svg",
+        item_mainimg: singleitem.i_mainimg || "/assets/placeholder-product.svg",
         item_category: singleitem.i_category || "",
         item_subcategory: singleitem.i_subcategory || "",
         item_brand: singleitem.i_brand || "",
@@ -459,9 +459,9 @@ const ItemInteractivePart = ({ singleitem }: { singleitem: any }) => {
   // Format color variations for ColorSelector component
   const formattedColors = hasColorVariations
     ? realTimeColorVariations.map((cv: any) => ({
-        name: cv.colorName,
-        hex: cv.colorCode,
-      }))
+      name: cv.colorName,
+      hex: cv.colorCode,
+    }))
     : singleitem.i_colors || [];
 
   return (
