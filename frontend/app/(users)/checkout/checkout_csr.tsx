@@ -1415,7 +1415,8 @@ const CheckoutParts = () => {
                   {currencyFormatBDT(deliveryCharge || 0)} BDT
                 </span>
               </div>
-){codCharge > 0 && (
+            )}
+            {codCharge > 0 && (
               <div className="flex items-center justify-between">
                 <span>{`COD processing fee:`}</span>
                 <span className="font-[600] text-stone-800">

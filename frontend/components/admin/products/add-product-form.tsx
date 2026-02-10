@@ -147,7 +147,8 @@ const AddProductForm = () => {
   const selectedCategory = watch("item_category");
   const selectedSubcategory = watch("item_subcategory");
   const subcategories = getSubcategoriesForSelect(selectedCategory);
-  const brands = getBrandsForSelect(selectedCategory, selectedSubcategory);
+  const normalizedSubcategory = selectedSubcategory || undefined;
+  const brands = getBrandsForSelect(selectedCategory, normalizedSubcategory);
 
   // Clear subcategory when category changes if it's not valid for the new category
   useEffect(() => {
