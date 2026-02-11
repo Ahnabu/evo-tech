@@ -206,19 +206,6 @@ const ContactUsPage = () => {
               </a>
             </div>
           </div>
-
-          {/* FAQ Quick Links */}
-          <div className="mt-16 text-center">
-            <p className="text-stone-600 mb-4">
-              Looking for quick answers? Check out our FAQ section
-            </p>
-            <Link
-              href="/support"
-              className="inline-block px-8 py-3 bg-white text-brand-600 font-semibold rounded-lg border-2 border-brand-600 hover:bg-brand-50 transition-colors"
-            >
-              Visit Support Center
-            </Link>
-          </div>
         </div>
       </div>
     </>

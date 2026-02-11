@@ -19,6 +19,8 @@ import { TermsRoutes } from "../modules/terms/terms.route";
 import { ReviewRoutes } from "../modules/review/review.route";
 import { FinanceRoutes } from "../modules/finance/finance.route";
 import { TaxonomyRoutes } from "../modules/taxonomy/taxonomy.route";
+import { PageContentRoutes } from "../modules/page-content/page-content.route";
+import { FaqRoutes } from "../modules/faq/faq.route";
 
 const router = express.Router();
 const adminRouter = express.Router();
@@ -112,6 +114,14 @@ const moduleRoutes = [
   {
     path: "/taxonomy",
     route: TaxonomyRoutes,
+  },
+  {
+    path: "/page-content",
+    route: PageContentRoutes,
+  },
+  {
+    path: "/faqs",
+    route: FaqRoutes,
   },
   {
     path: "/admin",

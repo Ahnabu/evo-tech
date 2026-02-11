@@ -6,6 +6,7 @@ import { Accordion, AccordionItem } from "@nextui-org/accordion";
 import { IoChevronDown, IoMailOutline, IoCallOutline, IoLocationOutline } from "react-icons/io5";
 import { BsFacebook, BsInstagram, BsWhatsapp, BsYoutube } from "react-icons/bs";
 import { BiLogoLinkedin } from "react-icons/bi";
+import { useTaxonomy } from '@/hooks/use-taxonomy';
 
 import EvoTechBDLogo from '@/public/assets/EvoTechBD-logo-white.png';
 import VisaCardLogo from '@/public/assets/shared_resources/visa-logo.png';
@@ -16,6 +17,7 @@ import NpsbLogo from '@/public/assets/shared_resources/npsb-logo.png';
 
 
 const Footer = () => {
+    const { categories } = useTaxonomy();
 
     const footerPaymentMethods: { id: number; name: string; logo: any; }[] = [
         { id: 1, name: "Visa logo", logo: VisaCardLogo },
@@ -79,28 +81,25 @@ const Footer = () => {
                         <div className="hidden md:flex w-full h-fit py-2 gap-5 text-stone-400">
                             <div className="flex flex-col items-start w-full max-w-[220px] h-fit gap-2">
                                 <p className="text-[14px] leading-5 font-[500] pb-2 text-stone-200 cursor-default">Products</p>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">FDM 3D Printers</Link>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Resin 3D Printers</Link>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Laser Engraver</Link>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Filaments</Link>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Accessories</Link>
+                                {categories.slice(0, 5).map((category) => (
+                                    <Link key={category.id} href={`/products-and-accessories?category=${category.slug}`} className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">{category.name}</Link>
+                                ))}
                             </div>
 
                             <div className="flex flex-col items-start w-full max-w-[220px] h-fit gap-2">
                                 <p className="text-[14px] leading-5 font-[500] pb-2 text-stone-200 cursor-default">Support</p>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Warranty Policy</Link>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Shipping & Return Policy</Link>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Track Order</Link>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Student Discount</Link>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Shop & Shape Tomorrow</Link>
+                                <Link href="/about/terms-and-conditions" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Terms and Conditions</Link>
+                                <Link href="/about/privacy-policy" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Privacy Policy</Link>
+                                <Link href="/about/warranty-policy" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Warranty Policy</Link>
+                                <Link href="/about/shipping-return-policy" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Shipping & Return Policy</Link>
                             </div>
 
                             <div className="flex flex-col items-start w-full max-w-[220px] h-fit gap-2">
-                                <p className="text-[14px] leading-5 font-[500] pb-2 text-stone-200 cursor-default">About</p>
-                                <Link href="/about/us" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">About Us</Link>
+                                <p className="text-[14px] leading-5 font-[500] pb-2 text-stone-200 cursor-default">Explore</p>
+                                <Link href="/services" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">About Us</Link>
                                 <Link href="/contact-us" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Contact Us</Link>
-                                <Link href="/about/terms-and-conditions" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Terms and Conditions</Link>
-                                <Link href="/about/privacy-policy" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Privacy Policy</Link>
+                                <Link href="/about/student-discount" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Student Discount</Link>
+                                <Link href="/about/shop-shape-tomorrow" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Shop & Shape Tomorrow</Link>
                                 <Link href="/faqs" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">FAQs</Link>
                             </div>
                         </div>
@@ -121,30 +120,27 @@ const Footer = () => {
                             >
                                 <AccordionItem key={`footer_section1`} aria-label="Products" title="Products" indicator={<IoChevronDown />}>
                                     <div className="flex flex-col items-start w-full h-fit gap-2">
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">FDM 3D Printers</Link>
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Resin 3D Printers</Link>
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Laser Engraver</Link>
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Filaments</Link>
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Accessories</Link>
+                                        {categories.slice(0, 5).map((category) => (
+                                            <Link key={category.id} href={`/products-and-accessories?category=${category.slug}`} className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">{category.name}</Link>
+                                        ))}
                                     </div>
                                 </AccordionItem>
 
                                 <AccordionItem key={`footer_section2`} aria-label="Support" title="Support" indicator={<IoChevronDown />}>
                                     <div className="flex flex-col items-start w-full h-fit gap-2">
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Warranty Policy</Link>
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Shipping & Return Policy</Link>
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Track Order</Link>
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Student Discount</Link>
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Shop & Shape Tomorrow</Link>
+                                        <Link href="/about/terms-and-conditions" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Terms and Conditions</Link>
+                                        <Link href="/about/privacy-policy" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Privacy Policy</Link>
+                                        <Link href="/about/warranty-policy" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Warranty Policy</Link>
+                                        <Link href="/about/shipping-return-policy" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Shipping & Return Policy</Link>
                                     </div>
                                 </AccordionItem>
 
-                                <AccordionItem key={`footer_section3`} aria-label="About" title="About" indicator={<IoChevronDown />}>
+                                <AccordionItem key={`footer_section3`} aria-label="Explore" title="Explore" indicator={<IoChevronDown />}>
                                     <div className="flex flex-col items-start w-full h-fit gap-2">
-                                        <Link href="/about/us" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">About Us</Link>
+                                        <Link href="/services" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">About Us</Link>
                                         <Link href="/contact-us" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Contact Us</Link>
-                                        <Link href="/about/terms-and-conditions" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Terms and Conditions</Link>
-                                        <Link href="/about/privacy-policy" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Privacy Policy</Link>
+                                        <Link href="/about/student-discount" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Student Discount</Link>
+                                        <Link href="/about/shop-shape-tomorrow" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Shop & Shape Tomorrow</Link>
                                         <Link href="/faqs" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">FAQs</Link>
                                     </div>
                                 </AccordionItem>

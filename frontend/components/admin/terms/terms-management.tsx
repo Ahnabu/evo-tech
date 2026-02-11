@@ -28,6 +28,17 @@ import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Plus, Edit, Trash2, Check } from "lucide-react";
 import { useRouter } from "next/navigation";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { getAuthCookie, getCurrentUser } from "@/utils/cookies";
 
 interface TermsData {
@@ -141,17 +152,9 @@ export function TermsManagement() {
   };
 
   const handleDelete = async (id: string) => {
-    if (deleteConfirm !== id) {
-      setDeleteConfirm(id);
-      toast.warning("Click delete again to confirm");
-      setTimeout(() => setDeleteConfirm(null), 3000);
-      return;
-    }
-
     try {
       await makeAuthRequest("DELETE", `/terms/${id}`);
       toast.success("Terms and conditions deleted successfully");
-      setDeleteConfirm(null);
       await refetchTerms();
     } catch (error: any) {
       toast.error(
@@ -168,7 +171,7 @@ export function TermsManagement() {
     } catch (error: any) {
       toast.error(
         error.response?.data?.message ||
-          "Failed to activate terms and conditions"
+        "Failed to activate terms and conditions"
       );
     }
   };
@@ -326,18 +329,34 @@ export function TermsManagement() {
                             <Edit className="h-4 w-4" />
                           </Button>
                           {!terms.isActive && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className={
-                                deleteConfirm === terms._id
-                                  ? "text-red-600 border-red-600"
-                                  : "text-red-600"
-                              }
-                              onClick={() => handleDelete(terms._id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-red-600"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Delete Version {terms.version}?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    This action cannot be undone. This will permanently delete this version of the terms and conditions.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDelete(terms._id)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Delete
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
                           )}
                         </div>
                       </div>

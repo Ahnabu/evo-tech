@@ -1,4 +1,4 @@
-import { BarChartIcon, UsersIcon, ChartArea, HelpCircleIcon, Settings2, Contact } from "lucide-react";
+import { BarChartIcon, UsersIcon, ChartArea, HelpCircleIcon, Settings2, Contact, ShieldCheck, Compass } from "lucide-react";
 import { RiBox1Line, RiDashboardHorizontalLine, RiMoneyDollarCircleLine } from "react-icons/ri";
 
 
@@ -110,40 +110,30 @@ const adminSecondarySidebarMenus = [
                 url: "/control/setup-config/homepage-config",
                 permissions: ["MANAGE_SITE_SETTINGS"],
             },
+            // {
+            //     title: "Feature Activation",
+            //     url: "/control/setup-config/feature-activation",
+            //     permissions: ["MANAGE_SITE_SETTINGS"],
+            // },
+            // {
+            //     title: "Pickup Points",
+            //     url: "/control/setup-config/pickup-points",
+            //     permissions: ["MANAGE_SITE_SETTINGS"],
+            // },
+            // {
+            //     title: "Roles & Permissions",
+            //     url: "/control/setup-config/roles-permissions",
+            //     permissions: ["MANAGE_PERMISSIONS"],
+            // },
             {
-                title: "Feature Activation",
-                url: "/control/setup-config/feature-activation",
+                title: "Support",
+                url: "/control/setup-config/support",
                 permissions: ["MANAGE_SITE_SETTINGS"],
             },
             {
-                title: "Pickup Points",
-                url: "/control/setup-config/pickup-points",
+                title: "Explore",
+                url: "/control/setup-config/explore",
                 permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "Currency",
-                url: "/control/setup-config/currency",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "VAT & Tax",
-                url: "/control/setup-config/vat-tax",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "Social Media Logins",
-                url: "/control/setup-config/social-logins",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "Terms & Conditions",
-                url: "/control/terms",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "Roles & Permissions",
-                url: "/control/setup-config/roles-permissions",
-                permissions: ["MANAGE_PERMISSIONS"],
             },
         ],
         permissions: ["VIEW_SETTINGS", "MANAGE_SITE_SETTINGS"],
