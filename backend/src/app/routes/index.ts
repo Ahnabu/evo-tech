@@ -16,6 +16,8 @@ import { PaymentRoutes } from "../modules/payment/payment.route";
 import { CouponRoutes } from "../modules/coupon/coupon.route";
 import { NotificationRoutes } from "../modules/notification/notification.route";
 import { TermsRoutes } from "../modules/terms/terms.route";
+import { PrivacyRoutes } from "../modules/privacy/privacy.route";
+import { WarrantyRoutes } from "../modules/warranty/warranty.route";
 import { ReviewRoutes } from "../modules/review/review.route";
 import { FinanceRoutes } from "../modules/finance/finance.route";
 import { TaxonomyRoutes } from "../modules/taxonomy/taxonomy.route";
@@ -106,6 +108,14 @@ const moduleRoutes = [
   {
     path: "/terms",
     route: TermsRoutes,
+  },
+  {
+    path: "/privacy",
+    route: PrivacyRoutes,
+  },
+  {
+    path: "/warranty",
+    route: WarrantyRoutes,
   },
   {
     path: "/",

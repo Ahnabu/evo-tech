@@ -168,6 +168,33 @@ const staffSidebarMenus = [
 
 const staffSecondarySidebarMenus = [
     {
+        title: "Setup & Configurations",
+        icon: Settings2,
+        collapsibleItems: [
+            {
+                title: "Home Page Config",
+                url: "/control/setup-config/homepage-config",
+                permissions: ["MANAGE_SITE_SETTINGS"],
+            },
+            {
+                title: "Terms & Conditions",
+                url: "/control/terms",
+                permissions: ["MANAGE_SITE_SETTINGS"],
+            },
+            {
+                title: "Privacy Policy",
+                url: "/control/privacy",
+                permissions: ["MANAGE_SITE_SETTINGS"],
+            },
+            {
+                title: "Warranty",
+                url: "/control/warranty",
+                permissions: ["MANAGE_SITE_SETTINGS"],
+            },
+        ],
+        permissions: ["VIEW_SETTINGS", "MANAGE_SITE_SETTINGS"],
+    },
+    {
         title: "Help",
         url: "#",
         icon: HelpCircleIcon,
