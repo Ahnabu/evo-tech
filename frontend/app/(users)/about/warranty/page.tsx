@@ -3,7 +3,7 @@ import axios from "@/utils/axios/axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-interface PrivacyData {
+interface WarrantyData {
   _id: string;
   content: string;
   version: string;
@@ -12,39 +12,39 @@ interface PrivacyData {
   updatedAt: string;
 }
 
-const getActivePrivacy = async (): Promise<PrivacyData | null> => {
+const getActiveWarranty = async (): Promise<WarrantyData | null> => {
   try {
-    const response = await axios.get(`/privacy/active`);
+    const response = await axios.get(`/warranty/active`);
     if (response.data && response.data.data) {
       return response.data.data;
     }
     return null;
   } catch (error: any) {
-    console.error("Error fetching privacy policy:", error.message);
+    console.error("Error fetching warranty information:", error.message);
     return null;
   }
 };
 
-const PrivacyPolicy = async () => {
-  let privacyData: PrivacyData | null = null;
+const WarrantyInformation = async () => {
+  let warrantyData: WarrantyData | null = null;
 
   try {
-    privacyData = await getActivePrivacy();
+    warrantyData = await getActiveWarranty();
   } catch (error) {
-    console.error("Privacy policy page error:", error);
+    console.error("Warranty information page error:", error);
   }
 
-  if (!privacyData) {
+  if (!warrantyData) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-stone-50">
         <div className="container mx-auto px-4 py-12 max-w-4xl">
           <Card className="shadow-lg">
             <CardContent className="py-12 text-center">
               <h1 className="text-3xl font-bold mb-4 text-stone-800">
-                Privacy Policy
+                Warranty Information
               </h1>
               <p className="text-stone-600 text-lg">
-                Privacy policy is currently being updated. Please check
+                Warranty information is currently being updated. Please check
                 back later.
               </p>
             </CardContent>
@@ -61,15 +61,15 @@ const PrivacyPolicy = async () => {
           <CardHeader className="border-b border-stone-200">
             <div className="flex items-center justify-between flex-wrap gap-4">
               <CardTitle className="text-3xl font-bold text-stone-800">
-                Privacy Policy
+                Warranty Information
               </CardTitle>
               <Badge variant="secondary" className="text-sm">
-                Version {privacyData.version}
+                Version {warrantyData.version}
               </Badge>
             </div>
             <p className="text-sm text-stone-600 mt-2">
               Last updated:{" "}
-              {new Date(privacyData.updatedAt).toLocaleDateString("en-US", {
+              {new Date(warrantyData.updatedAt).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -79,7 +79,7 @@ const PrivacyPolicy = async () => {
           <CardContent className="pt-6">
             <div className="prose prose-stone max-w-none">
               <div className="whitespace-pre-wrap text-stone-700 leading-relaxed text-sm md:text-base">
-                {privacyData.content}
+                {warrantyData.content}
               </div>
             </div>
           </CardContent>
@@ -89,5 +89,4 @@ const PrivacyPolicy = async () => {
   );
 };
 
-export default PrivacyPolicy;
-
+export default WarrantyInformation;
