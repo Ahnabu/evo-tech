@@ -111,39 +111,19 @@ const adminSecondarySidebarMenus = [
                 permissions: ["MANAGE_SITE_SETTINGS"],
             },
             {
-                title: "Feature Activation",
-                url: "/control/setup-config/feature-activation",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "Pickup Points",
-                url: "/control/setup-config/pickup-points",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "Currency",
-                url: "/control/setup-config/currency",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "VAT & Tax",
-                url: "/control/setup-config/vat-tax",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "Social Media Logins",
-                url: "/control/setup-config/social-logins",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
                 title: "Terms & Conditions",
                 url: "/control/terms",
                 permissions: ["MANAGE_SITE_SETTINGS"],
             },
             {
-                title: "Roles & Permissions",
-                url: "/control/setup-config/roles-permissions",
-                permissions: ["MANAGE_PERMISSIONS"],
+                title: "Privacy Policy",
+                url: "/control/privacy",
+                permissions: ["MANAGE_SITE_SETTINGS"],
+            },
+            {
+                title: "Warranty",
+                url: "/control/warranty",
+                permissions: ["MANAGE_SITE_SETTINGS"],
             },
         ],
         permissions: ["VIEW_SETTINGS", "MANAGE_SITE_SETTINGS"],
