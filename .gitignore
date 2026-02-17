@@ -12,6 +12,8 @@ build/
 .next/
 out/
 hostinger_upload
+
+VERCEL_SETUP.md
 # Build artifacts and archives
 *.tar.gz
 *.zip
