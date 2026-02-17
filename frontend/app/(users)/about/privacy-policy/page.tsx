@@ -3,7 +3,7 @@ import axios from "@/utils/axios/axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-interface PrivacyData {
+interface ContentData {
   _id: string;
   content: string;
   version: string;
@@ -12,9 +12,9 @@ interface PrivacyData {
   updatedAt: string;
 }
 
-const getActivePrivacy = async (): Promise<PrivacyData | null> => {
+const getActiveContent = async (): Promise<ContentData | null> => {
   try {
-    const response = await axios.get(`/privacy/active`);
+    const response = await axios.get(`/page-content/privacy-policy/active`);
     if (response.data && response.data.data) {
       return response.data.data;
     }
@@ -26,15 +26,15 @@ const getActivePrivacy = async (): Promise<PrivacyData | null> => {
 };
 
 const PrivacyPolicy = async () => {
-  let privacyData: PrivacyData | null = null;
+  let contentData: ContentData | null = null;
 
   try {
-    privacyData = await getActivePrivacy();
+    contentData = await getActiveContent();
   } catch (error) {
     console.error("Privacy policy page error:", error);
   }
 
-  if (!privacyData) {
+  if (!contentData) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-stone-50">
         <div className="container mx-auto px-4 py-12 max-w-4xl">
@@ -44,8 +44,8 @@ const PrivacyPolicy = async () => {
                 Privacy Policy
               </h1>
               <p className="text-stone-600 text-lg">
-                Privacy policy is currently being updated. Please check
-                back later.
+                Privacy policy is currently being updated. Please check back
+                later.
               </p>
             </CardContent>
           </Card>
@@ -64,12 +64,12 @@ const PrivacyPolicy = async () => {
                 Privacy Policy
               </CardTitle>
               <Badge variant="secondary" className="text-sm">
-                Version {privacyData.version}
+                Version {contentData.version}
               </Badge>
             </div>
             <p className="text-sm text-stone-600 mt-2">
               Last updated:{" "}
-              {new Date(privacyData.updatedAt).toLocaleDateString("en-US", {
+              {new Date(contentData.updatedAt).toLocaleDateString("en-US", {
                 year: "numeric",
                 month: "long",
                 day: "numeric",
@@ -79,7 +79,7 @@ const PrivacyPolicy = async () => {
           <CardContent className="pt-6">
             <div className="prose prose-stone max-w-none">
               <div className="whitespace-pre-wrap text-stone-700 leading-relaxed text-sm md:text-base">
-                {privacyData.content}
+                {contentData.content}
               </div>
             </div>
           </CardContent>

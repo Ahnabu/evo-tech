@@ -58,12 +58,12 @@ const NavBar = () => {
       name: "Warranty Policy",
     },
     {
-      gotourl: "/support/student-discount",
+      gotourl: "/about/student-discount",
       imgsrc: StudentDiscount,
       name: "Student Discount",
     },
     {
-      gotourl: "/about/sustainability",
+      gotourl: "/about/shop-shape-tomorrow",
       imgsrc: ShopShapeTomorrow,
       name: "Shop & Shape Tomorrow",
     },

@@ -1,4 +1,4 @@
-import { BarChartIcon, UsersIcon, ChartArea, HelpCircleIcon, Settings2, Contact } from "lucide-react";
+import { BarChartIcon, UsersIcon, ChartArea, HelpCircleIcon, Settings2, Contact, ShieldCheck, Compass } from "lucide-react";
 import { RiBox1Line, RiDashboardHorizontalLine, RiMoneyDollarCircleLine } from "react-icons/ri";
 
 
@@ -110,19 +110,29 @@ const adminSecondarySidebarMenus = [
                 url: "/control/setup-config/homepage-config",
                 permissions: ["MANAGE_SITE_SETTINGS"],
             },
+            // {
+            //     title: "Feature Activation",
+            //     url: "/control/setup-config/feature-activation",
+            //     permissions: ["MANAGE_SITE_SETTINGS"],
+            // },
+            // {
+            //     title: "Pickup Points",
+            //     url: "/control/setup-config/pickup-points",
+            //     permissions: ["MANAGE_SITE_SETTINGS"],
+            // },
+            // {
+            //     title: "Roles & Permissions",
+            //     url: "/control/setup-config/roles-permissions",
+            //     permissions: ["MANAGE_PERMISSIONS"],
+            // },
             {
-                title: "Terms & Conditions",
-                url: "/control/terms",
+                title: "Support",
+                url: "/control/setup-config/support",
                 permissions: ["MANAGE_SITE_SETTINGS"],
             },
             {
-                title: "Privacy Policy",
-                url: "/control/privacy",
-                permissions: ["MANAGE_SITE_SETTINGS"],
-            },
-            {
-                title: "Warranty",
-                url: "/control/warranty",
+                title: "Explore",
+                url: "/control/setup-config/explore",
                 permissions: ["MANAGE_SITE_SETTINGS"],
             },
         ],
