@@ -91,7 +91,6 @@ const Footer = () => {
                                 <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Warranty Policy</Link>
                                 <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Shipping & Return Policy</Link>
                                 <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Track Order</Link>
-                                <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Student Discount</Link>
                                 <Link href="#" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Shop & Shape Tomorrow</Link>
                             </div>
 
@@ -134,7 +133,6 @@ const Footer = () => {
                                         <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Warranty Policy</Link>
                                         <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Shipping & Return Policy</Link>
                                         <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Track Order</Link>
-                                        <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Student Discount</Link>
                                         <Link href="#" className="w-fit text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200">Shop & Shape Tomorrow</Link>
                                     </div>
                                 </AccordionItem>

@@ -308,7 +308,7 @@ const Home = () => {
       <div className="w-full max-w-[1440px] h-fit pb-8 flex flex-col items-center font-inter">
         <div
           id="application_fields"
-          className="flex flex-col items-center w-full min-h-[400px] px-4 sm:px-8 py-6 gap-5 bg-[radial-gradient(at_center,_var(--tw-gradient-stops))] from-[#f0f7fc] to-[#eeeeee] to-40%"
+          className="hidden md:flex flex-col items-center w-full min-h-[400px] px-4 sm:px-8 py-6 gap-5 bg-[radial-gradient(at_center,_var(--tw-gradient-stops))] from-[#f0f7fc] to-[#eeeeee] to-40%"
         >
           <h2 className="flex justify-center w-full h-fit px-3 py-1 font-bold text-[20px] sm:text-[24px] leading-8 text-stone-700 text-center">
             Application Fields

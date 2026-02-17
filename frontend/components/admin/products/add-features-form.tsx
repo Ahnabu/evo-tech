@@ -95,6 +95,9 @@ export function AddProductFeaturesForm({
   const [deletingSubsectionId, setDeletingSubsectionId] = useState<
     string | null
   >(null);
+  
+  // Edit mode state for subsections
+  const [editingSubsectionId, setEditingSubsectionId] = useState<string | null>(null);
 
   // Header banner image state
   const [headerBannerImage, setHeaderBannerImage] = useState<File | null>(null);
@@ -282,6 +285,83 @@ export function AddProductFeaturesForm({
     }
   };
 
+  // Edit Subsection - populate form with existing data
+  const handleEditSubsection = (subsection: FeaturesSectionSubsection) => {
+    setEditingSubsectionId(subsection._id);
+    subsectionForm.reset({
+      title: subsection.title,
+      description: subsection.content || "",
+      sortOrder: subsection.sortOrder,
+    });
+    
+    // Set image preview if exists
+    if (subsection.imageUrl) {
+      setImagePreview(subsection.imageUrl);
+    }
+    
+    // Scroll to form
+    const formElement = document.getElementById("subsection-form");
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+  };
+
+  // Update Subsection
+  const handleUpdateSubsection = async (data: SubsectionFormValues) => {
+    if (!editingSubsectionId) return;
+    
+    setIsSubsectionLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("content", data.description);
+      formData.append("sortOrder", data.sortOrder.toString());
+
+      if (selectedImage) {
+        formData.append("image", selectedImage);
+      }
+
+      const response = await axios.put(
+        `/api/products/feature-subsections/${editingSubsectionId}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      if (response.data.success) {
+        toast.success("Feature subsection updated successfully");
+        subsectionForm.reset({
+          title: "",
+          description: "",
+          sortOrder: subsections.length + 1,
+        });
+        clearImage();
+        setEditingSubsectionId(null);
+        onRefresh?.();
+      } else {
+        throw new Error(response.data.message || "Failed to update subsection");
+      }
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || error.message || "Failed to update subsection");
+    } finally {
+      setIsSubsectionLoading(false);
+    }
+  };
+
+  // Cancel editing
+  const handleCancelEdit = () => {
+    setEditingSubsectionId(null);
+    subsectionForm.reset({
+      title: "",
+      description: "",
+      sortOrder: subsections.length + 1,
+    });
+    clearImage();
+  };
+
   return (
     <div className="space-y-6">
       {/* Add Header Form */}
@@ -445,18 +525,24 @@ export function AddProductFeaturesForm({
         </CardContent>
       </Card>
 
-      {/* Add Subsection Form */}
-      <Card>
+      {/* Add/Edit Subsection Form */}
+      <Card id="subsection-form">
         <CardHeader>
-          <CardTitle className="text-lg">Add Feature Subsection</CardTitle>
+          <CardTitle className="text-lg">
+            {editingSubsectionId ? "Update Feature Subsection" : "Add Feature Subsection"}
+          </CardTitle>
           <CardDescription>
-            Add detailed feature information under a header
+            {editingSubsectionId 
+              ? "Update the feature subsection details" 
+              : "Add detailed feature information under a header"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...subsectionForm}>
             <form
-              onSubmit={subsectionForm.handleSubmit(handleAddSubsection)}
+              onSubmit={subsectionForm.handleSubmit(
+                editingSubsectionId ? handleUpdateSubsection : handleAddSubsection
+              )}
               className="space-y-4"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -543,16 +629,37 @@ export function AddProductFeaturesForm({
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                disabled={isSubsectionLoading || headers.length === 0}
-              >
-                {isSubsectionLoading && (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              <div className="flex gap-2">
+                <Button
+                  type="submit"
+                  disabled={isSubsectionLoading || headers.length === 0}
+                >
+                  {isSubsectionLoading && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {editingSubsectionId ? (
+                    <>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Update Subsection
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Add Subsection
+                    </>
+                  )}
+                </Button>
+                {editingSubsectionId && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancelEdit}
+                    disabled={isSubsectionLoading}
+                  >
+                    Cancel
+                  </Button>
                 )}
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Add Subsection
-              </Button>
+              </div>
               {headers.length === 0 && (
                 <p className="text-sm text-muted-foreground">
                   Please add a header first before adding subsections.
@@ -598,19 +705,32 @@ export function AddProductFeaturesForm({
                           </span>
                         </div>
                       </div>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button
-                            variant="destructive"
-                            size="sm"
-                            disabled={deletingSubsectionId === subsection._id}
-                          >
-                            {deletingSubsectionId === subsection._id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
-                            ) : (
-                              <Trash2 className="h-4 w-4" />
-                            )}
-                          </Button>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEditSubsection(subsection)}
+                          disabled={isSubsectionLoading || deletingSubsectionId === subsection._id}
+                        >
+                          {editingSubsectionId === subsection._id ? (
+                            <>Editing...</>
+                          ) : (
+                            <>Edit</>
+                          )}
+                        </Button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              variant="destructive"
+                              size="sm"
+                              disabled={deletingSubsectionId === subsection._id}
+                            >
+                              {deletingSubsectionId === subsection._id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
@@ -634,6 +754,7 @@ export function AddProductFeaturesForm({
                           </AlertDialogFooter>
                         </AlertDialogContent>
                       </AlertDialog>
+                      </div>
                     </div>
                   ))}
               </div>

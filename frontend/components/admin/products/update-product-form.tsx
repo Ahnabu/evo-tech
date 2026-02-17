@@ -729,9 +729,20 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         {errors.description && (
           <EvoFormInputError>{errors.description.message}</EvoFormInputError>
         )}
+        
+        {/* Update Button after Description */}
+        <div className="mt-3 flex justify-end">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-7 py-2 bg-stone-800 text-white rounded text-xs md:text-sm hover:bg-stone-900 disabled:bg-stone-600 transition-colors duration-100"
+          >
+            {isSubmitting ? "Updating..." : "Update"}
+          </button>
+        </div>
       </div>
 
-      {/* Short Description */}
+      {/* Short Description */
       <div>
         <label className="block text-sm font-medium text-stone-700 mb-1.5">
           Short Description{" "}
@@ -1018,6 +1029,17 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
             {(errors.item_features as any).message}
           </EvoFormInputError>
         )}
+        
+        {/* Update Button after Features */}
+        <div className="mt-3 flex justify-end">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-7 py-2 bg-stone-800 text-white rounded text-xs md:text-sm hover:bg-stone-900 disabled:bg-stone-600 transition-colors duration-100"
+          >
+            {isSubmitting ? "Updating..." : "Update"}
+          </button>
+        </div>
       </div>
 
       {/* Item Colors (Dynamic Array of Text Inputs) */}

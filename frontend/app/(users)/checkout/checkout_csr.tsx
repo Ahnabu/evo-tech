@@ -1128,7 +1128,7 @@ const CheckoutParts = () => {
                 type="checkbox"
                 id="terms"
                 {...register("terms")}
-                className="mr-2 accent-stone-800"
+                className="mr-2 accent-stone-800 flex-shrink-0"
               />
               <label
                 htmlFor="terms"
@@ -1139,6 +1139,16 @@ const CheckoutParts = () => {
                   href="/about/terms-and-conditions"
                   className="text-[#0866FF] hover:underline"
                 >{`terms and conditions`}</Link>
+                {`, `}
+                <Link
+                  href="/about/warranty-policy"
+                  className="text-[#0866FF] hover:underline"
+                >{`Warranty Policy`}</Link>
+                {`, `}
+                <Link
+                  href="/about/shipping-return-policy"
+                  className="text-[#0866FF] hover:underline"
+                >{`Shipping & Return Policy`}</Link>
                 {`*`}
               </label>
             </div>
@@ -1339,12 +1349,12 @@ const CheckoutParts = () => {
 
               <div className="mt-2 p-2 rounded border border-amber-200 bg-amber-50">
                 <p className="text-[11px] sm:text-[12px] leading-4 font-[600] text-amber-800 mb-1">
-                  {`📌 Before Placing a Pre-Order, Please Note:`}
+                  {`� Before Placing a Pre-Order, Please Note:`}
                 </p>
                 <ul className="text-[10px] sm:text-[11px] leading-4 text-amber-700 space-y-0.5 list-none pl-0">
-                  <li>{`✅ 50% advance payment is required, and the remaining balance will be due upon delivery.`}</li>
-                  <li>{`✅ Delivery is expected within 45 days, but international shipping and logistics may cause delays.`}</li>
-                  <li>{`✅ Please read and understand the pre-order terms and conditions before placing your order.`}</li>
+                  <li>{`✅ 50% advance payment is required, and the remaining balance must be paid on delivery.`}</li>
+                  <li>{`✅ Delivery is expected within 45 working days, though international shipping and logistics may cause delays.`}</li>
+                  <li>{`✅ We promise timely delivery. If we take more than 60 working days, you'll receive a full refund with 5% bonus.`}</li>
                 </ul>
               </div>
             </div>
