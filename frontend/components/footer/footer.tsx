@@ -98,7 +98,6 @@ const Footer = () => {
                                 <p className="text-[14px] leading-5 font-[500] pb-2 text-stone-200 cursor-default">Explore</p>
                                 <Link href="/services" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">About Us</Link>
                                 <Link href="/contact-us" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Contact Us</Link>
-                                <Link href="/about/student-discount" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Student Discount</Link>
                                 <Link href="/about/shop-shape-tomorrow" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">Shop & Shape Tomorrow</Link>
                                 <Link href="/faqs" className="w-fit max-w-full text-wrap text-[12px] leading-5 tracking-tight font-[400] hover:text-stone-200 transition-colors duration-100">FAQs</Link>
                             </div>
