@@ -387,7 +387,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
     if (response) {
       toast.success(
         response.message ||
-        `Item '${response.item_name || itemInfo.i_name}' updated`,
+          `Item '${response.item_name || itemInfo.i_name}' updated`,
       );
       // router.replace(`/control/products/update/${response.item_slug}`, { scroll: false }); // because slug can also be changed
       router.push(`/control/products`, {
@@ -435,8 +435,9 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
             return (
               <div
                 key={image.imgid}
-                className={`relative w-full h-32 group ${isRemoved ? "opacity-35" : ""
-                  }`}
+                className={`relative w-full h-32 group ${
+                  isRemoved ? "opacity-35" : ""
+                }`}
               >
                 <Image
                   src={image.imgsrc}
@@ -729,7 +730,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         {errors.description && (
           <EvoFormInputError>{errors.description.message}</EvoFormInputError>
         )}
-        
+
         {/* Update Button after Description */}
         <div className="mt-3 flex justify-end">
           <button
@@ -742,7 +743,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         </div>
       </div>
 
-      {/* Short Description */
+      {/* Short Description */}
       <div>
         <label className="block text-sm font-medium text-stone-700 mb-1.5">
           Short Description{" "}
@@ -762,7 +763,6 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
         )}
       </div>
 
-      {/* Inventory Section */}
       <div className="p-4 bg-blue-50/50 rounded-lg border border-blue-200 space-y-4">
         <h3 className="text-sm font-semibold text-stone-800">
           Inventory Management
@@ -1029,7 +1029,7 @@ const UpdateProductForm = ({ itemInfo }: UpdateProductFormProps) => {
             {(errors.item_features as any).message}
           </EvoFormInputError>
         )}
-        
+
         {/* Update Button after Features */}
         <div className="mt-3 flex justify-end">
           <button
