@@ -359,7 +359,7 @@ const ProductGridCard = ({ product }: { product: any }) => {
         )}
 
         {/* Price */}
-        <div className="flex flex-col gap-0.5 mt-auto mb-1">
+        <div className="flex flex-row items-baseline gap-1.5 sm:gap-2 mt-auto mb-1 flex-wrap">
           {product.i_preorderprice && product.i_ispreorder && product.i_preorderprice < product.i_price ? (
             <>
               <span className="text-sm sm:text-base font-bold text-cyan-600">
