@@ -61,9 +61,6 @@ const getDashboardStats = async () => {
   });
 
   // Calculate revenue using actual amount paid (handles partial payments correctly)
-  // - paid orders: amountPaid == totalPayable
-  // - partial orders: amountPaid is the actual cash received so far
-  // - pending orders: amountPaid is 0 (no money received yet)
   const currentMonthRevenue = currentMonthOrders.reduce(
     (sum, order) => sum + (order.amountPaid || 0),
     0,
