@@ -11,6 +11,7 @@ import { Category } from "../category/category.model";
 import { Subcategory } from "../subcategory/subcategory.model";
 import { Coupon, CouponUsage } from "../coupon/coupon.model";
 import { Review } from "../review/review.model";
+import { User } from "../user/user.model";
 
 const getModelForEntityType = (entityType: TTrashEntityType) => {
   switch (entityType) {
@@ -20,6 +21,7 @@ const getModelForEntityType = (entityType: TTrashEntityType) => {
     case "subcategory":  return Subcategory;
     case "coupon":       return Coupon;
     case "review":       return Review;
+    case "user":         return User;
     default:
       throw new AppError(httpStatus.BAD_REQUEST, `Unknown entity type: ${entityType}`);
   }
