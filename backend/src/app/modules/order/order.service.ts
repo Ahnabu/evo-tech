@@ -83,7 +83,9 @@ const toValidObjectId = (value: unknown): Types.ObjectId | null => {
   return null;
 };
 
-const hydratePickupPointsForOrders = async <T extends { pickupPointId?: unknown }>(
+const hydratePickupPointsForOrders = async <
+  T extends { pickupPointId?: unknown },
+>(
   orders: T[],
 ): Promise<T[]> => {
   if (!orders.length) return orders;
